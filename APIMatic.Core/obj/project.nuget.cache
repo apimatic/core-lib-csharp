@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "G/Jokg/P3ps9qnqgl6o811e2oBAHtSUB0vOQjlifg43NrAIxE3BpS6e+nn+p/BZ6sfDQ3wouTdZkyoKy7wKCcw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Asad Apimatic\\vs-workspace\\core-lib-csharp\\APIMatic.Core\\APIMatic.Core.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Asad Apimatic\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\Asad Apimatic\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,10 @@
+C:\Users\Asad Apimatic\vs-workspace\core-lib-csharp\APIMatic.Core\bin\Debug\netstandard2.0\APIMatic.Core.deps.json
+C:\Users\Asad Apimatic\vs-workspace\core-lib-csharp\APIMatic.Core\bin\Debug\netstandard2.0\APIMatic.Core.dll
+C:\Users\Asad Apimatic\vs-workspace\core-lib-csharp\APIMatic.Core\bin\Debug\netstandard2.0\APIMatic.Core.pdb
+C:\Users\Asad Apimatic\vs-workspace\core-lib-csharp\APIMatic.Core\obj\Debug\netstandard2.0\APIMatic.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Asad Apimatic\vs-workspace\core-lib-csharp\APIMatic.Core\obj\Debug\netstandard2.0\APIMatic.Core.AssemblyInfoInputs.cache
+C:\Users\Asad Apimatic\vs-workspace\core-lib-csharp\APIMatic.Core\obj\Debug\netstandard2.0\APIMatic.Core.AssemblyInfo.cs
+C:\Users\Asad Apimatic\vs-workspace\core-lib-csharp\APIMatic.Core\obj\Debug\netstandard2.0\APIMatic.Core.csproj.CoreCompileInputs.cache
+C:\Users\Asad Apimatic\vs-workspace\core-lib-csharp\APIMatic.Core\obj\Debug\netstandard2.0\APIMatic.Core.dll
+C:\Users\Asad Apimatic\vs-workspace\core-lib-csharp\APIMatic.Core\obj\Debug\netstandard2.0\APIMatic.Core.pdb
+C:\Users\Asad Apimatic\vs-workspace\core-lib-csharp\APIMatic.Core\obj\Debug\netstandard2.0\APIMatic.Core.csproj.AssemblyReference.cache
