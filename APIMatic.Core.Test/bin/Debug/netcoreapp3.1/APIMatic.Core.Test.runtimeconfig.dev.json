@@ -1,8 +1,0 @@
-{
-  "runtimeOptions": {
-    "additionalProbingPaths": [
-      "C:\\Users\\Asad Apimatic\\.dotnet\\store\\|arch|\\|tfm|",
-      "C:\\Users\\Asad Apimatic\\.nuget\\packages"
-    ]
-  }
-}
