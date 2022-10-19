@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32630.194
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APIMatic.Core", "APIMatic.Core.csproj", "{291FD1A4-0DD6-4E5C-B984-A4B081F4D8FF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APIMatic.Core", "APIMatic.Core\APIMatic.Core.csproj", "{291FD1A4-0DD6-4E5C-B984-A4B081F4D8FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APIMatic.Core.Test", "..\APIMatic.Core.Test\APIMatic.Core.Test.csproj", "{E3A68F04-2489-47D5-B5B2-2B4F07BED16C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APIMatic.Core.Test", "APIMatic.Core.Test\APIMatic.Core.Test.csproj", "{E3A68F04-2489-47D5-B5B2-2B4F07BED16C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
