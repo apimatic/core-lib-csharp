@@ -13,12 +13,8 @@ namespace APIMatic.Core.Types
         /// <param name="stream">The stream object with read access to the file data.</param>
         /// <param name="fileName">Optional file name associated with the stream.</param>
         /// <param name="contentType">Optional file content type associated with the stream.</param>
-        public CoreFileStreamInfo(Stream stream, string fileName = null, string contentType = null)
-        {
-            this.FileStream = stream;
-            this.FileName = fileName;
-            this.ContentType = contentType;
-        }
+        public CoreFileStreamInfo(Stream stream, string fileName = null, string contentType = null) =>
+            (FileStream, FileName, ContentType) = (stream, fileName, contentType);
 
         /// <summary>
         /// Gets the stream object with read access to the file data.

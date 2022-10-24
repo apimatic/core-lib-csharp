@@ -23,9 +23,9 @@ namespace APIMatic.Core.Types
         /// <param name="queryParameters">QueryParameters.</param>
         public CoreRequest(HttpMethod method, string queryUrl, Dictionary<string, string> headers, object body,
             List<KeyValuePair<string, object>> formParameters, string username, string password,
-            Dictionary<string, object> queryParameters = null)
-            => (HttpMethod, QueryUrl, Headers, Body, FormParameters, Username, Password, QueryParameters)
-            = (method, queryUrl, headers, body, formParameters, username, password, queryParameters);
+            Dictionary<string, object> queryParameters = null) =>
+            (HttpMethod, QueryUrl, Headers, Body, FormParameters, Username, Password, QueryParameters) =
+            (method, queryUrl, headers, body, formParameters, username, password, queryParameters);
 
         /// <summary>
         /// Gets the HTTP verb to use for this request.

@@ -28,8 +28,7 @@ namespace APIMatic.Core.Types
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $" Request = {this.Request}, " +
-                $" Response = {this.Response}";
+            return $" Request = {Request}, Response = {Response}";
         }
     }
 }
