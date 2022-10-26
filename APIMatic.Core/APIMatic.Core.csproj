@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <Folder Include="Authentication\" />
-    <Folder Include="Http\" />
+    <Folder Include="Response\" />
   </ItemGroup>
 
   <ItemGroup>
