@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿// <copyright file="CoreFileStreamInfo.cs" company="APIMatic">
+// Copyright (c) APIMatic. All rights reserved.
+// </copyright>
+using System.IO;
 
 namespace APIMatic.Core.Types
 {

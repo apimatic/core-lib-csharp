@@ -1,3 +1,6 @@
+﻿// <copyright file="CoreRequest.cs" company="APIMatic">
+// Copyright (c) APIMatic. All rights reserved.
+// </copyright>
 using APIMatic.Core.Utilities;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,10 +25,10 @@ namespace APIMatic.Core.Types
         /// <param name="password">Basic auth password.</param>
         /// <param name="queryParameters">QueryParameters.</param>
         public CoreRequest(HttpMethod method, string queryUrl, Dictionary<string, string> headers, object body,
-            List<KeyValuePair<string, object>> formParameters, string username, string password,
-            Dictionary<string, object> queryParameters = null) =>
-            (HttpMethod, QueryUrl, Headers, Body, FormParameters, Username, Password, QueryParameters) =
-            (method, queryUrl, headers, body, formParameters, username, password, queryParameters);
+            List<KeyValuePair<string, object>> formParameters, Dictionary<string, object> queryParameters = null,
+             string username = null, string password = null) =>
+            (HttpMethod, QueryUrl, Headers, Body, FormParameters, QueryParameters, Username, Password) =
+            (method, queryUrl, headers, body, formParameters, queryParameters, username, password);
 
         /// <summary>
         /// Gets the HTTP verb to use for this request.

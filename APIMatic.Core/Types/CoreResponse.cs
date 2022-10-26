@@ -1,3 +1,6 @@
+﻿// <copyright file="CoreResponse.cs" company="APIMatic">
+// Copyright (c) APIMatic. All rights reserved.
+// </copyright>
 using APIMatic.Core.Utilities;
 using System.Collections.Generic;
 using System.IO;
@@ -15,8 +18,9 @@ namespace APIMatic.Core.Types
         /// <param name="statusCode">statusCode.</param>
         /// <param name="headers">headers.</param>
         /// <param name="rawBody">rawBody.</param>
-        public CoreResponse(int statusCode, Dictionary<string, string> headers, Stream rawBody)
-            => (StatusCode, Headers, RawBody) = (statusCode, headers, rawBody);
+        /// <param name="body">body.</param>
+        public CoreResponse(int statusCode, Dictionary<string, string> headers, Stream rawBody, string body = null)
+            => (StatusCode, Headers, RawBody, Body) = (statusCode, headers, rawBody, body);
 
         /// <summary>
         /// Gets the HTTP Status code of the http response.
@@ -32,6 +36,11 @@ namespace APIMatic.Core.Types
         /// Gets the stream of the body.
         /// </summary>
         public Stream RawBody { get; }
+
+        /// <summary>
+        /// Gets the raw string body of the http response.
+        /// </summary>
+        public string Body { get; }
 
         /// <inheritdoc/>
         public override string ToString()
