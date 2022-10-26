@@ -1,4 +1,7 @@
-﻿using APIMatic.Core.Request;
+﻿// <copyright file="HttpClientWrapper.cs" company="APIMatic">
+// Copyright (c) APIMatic. All rights reserved.
+// </copyright>
+using APIMatic.Core.Request;
 using System;
 using System.Collections.Generic;
 using System.Text;

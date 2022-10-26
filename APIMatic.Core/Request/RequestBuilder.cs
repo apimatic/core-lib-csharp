@@ -1,5 +1,8 @@
-﻿using APIMatic.Core.Types;
-using System;
+﻿// <copyright file="HttpClientWrapper.cs" company="APIMatic">
+// Copyright (c) APIMatic. All rights reserved.
+// </copyright>
+using APIMatic.Core.Http.Client.Configuration;
+using APIMatic.Core.Types;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
@@ -9,8 +12,9 @@ namespace APIMatic.Core.Request
     public class RequestBuilder
     {
         private readonly GlobalConfiguration configuration;
+        private RetryOption retryOption = RetryOption.Default;
+        private HttpMethod httpMethod;
         internal StringBuilder serverUrl = new StringBuilder();
-        internal HttpMethod httpMethod;
         internal Dictionary<string, string> headers;
         internal object body;
         internal List<KeyValuePair<string, object>> formParameters;
@@ -31,12 +35,20 @@ namespace APIMatic.Core.Request
             return this;
         }
 
+        public RequestBuilder WithRetryOption(RetryOption retryOption)
+        {
+            this.retryOption = retryOption;
+            return this;
+        }
+
         public CoreRequest Build()
         {
             configuration.GlobalRuntimeParameters.ForEach(param => param.Apply(this));
 
-            return new CoreRequest(httpMethod, serverUrl.ToString(), headers, body,
-                formParameters, null, null, queryParameters);
+            return new CoreRequest(httpMethod, serverUrl.ToString(), headers, body, formParameters, queryParameters)
+            {
+                RetryOption = retryOption
+            };
         }
     }
 }

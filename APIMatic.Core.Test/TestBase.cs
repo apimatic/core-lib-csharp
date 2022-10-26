@@ -1,4 +1,4 @@
-using APIMatic.Core.Types;
+﻿using APIMatic.Core.Types;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -17,7 +17,7 @@ namespace APIMatic.Core.Test
             Dictionary<string, string> headers = null, object body = null,
             List<KeyValuePair<string, object>> formParameters = null,
             Dictionary<string, object> queryParameters = null) =>
-            new Mock<CoreRequest>(method, queryUrl, headers, body, formParameters, null, null, queryParameters);
+            new Mock<CoreRequest>(method, queryUrl, headers, body, formParameters, queryParameters, null, null);
 
 
         /// <summary>

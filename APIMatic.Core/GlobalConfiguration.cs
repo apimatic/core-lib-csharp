@@ -1,7 +1,11 @@
-﻿using APIMatic.Core.Request;
+﻿// <copyright file="HttpClientWrapper.cs" company="APIMatic">
+// Copyright (c) APIMatic. All rights reserved.
+// </copyright>
+using APIMatic.Core.Http.Client;
+using APIMatic.Core.Http.Client.Configuration;
+using APIMatic.Core.Request;
 using APIMatic.Core.Request.Parameters;
 using APIMatic.Core.Types;
-using APIMatic.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -11,25 +15,25 @@ namespace APIMatic.Core
 {
     public class GlobalConfiguration
     {
-        private readonly IHttpConfiguration httpConfiguration;
+        private readonly ICoreHttpClientConfiguration httpConfiguration;
         private readonly Dictionary<Enum, string> serverUrls;
         private readonly Enum defaultServer;
         private readonly List<Parameter> globalParameters;
-        private readonly HttpCallBack apiCallback;
 
-        private GlobalConfiguration(IHttpConfiguration httpConfiguration, Dictionary<string, object> authManagers, Dictionary<Enum, string> serverUrls,
+        private GlobalConfiguration(ICoreHttpClientConfiguration httpConfiguration, Dictionary<string, object> authManagers, Dictionary<Enum, string> serverUrls,
             Enum defaultServer, List<Parameter> globalParameters, List<Parameter> globalRuntimeParameters, HttpCallBack apiCallback)
         {
             this.httpConfiguration = httpConfiguration;
             this.serverUrls = serverUrls;
             this.defaultServer = defaultServer;
             this.globalParameters = globalParameters;
-            this.apiCallback = apiCallback;
+            ApiCallback = apiCallback;
             AuthManagers = authManagers;
             GlobalRuntimeParameters = globalRuntimeParameters;
         }
         internal Dictionary<string, object> AuthManagers { get; private set; }
         internal List<Parameter> GlobalRuntimeParameters { get; private set; }
+        internal HttpCallBack ApiCallback { get; private set; }
 
         public RequestBuilder GlobalRequestBuilder(Enum server = null)
         {
@@ -39,15 +43,14 @@ namespace APIMatic.Core
             return requestBuilder;
         }
 
-        internal object HttpClient()
+        internal HttpClientWrapper HttpClient()
         {
-            // Create and return httpclient wrapper instance using httpConfiguration
-            return null;
+            return new HttpClientWrapper(httpConfiguration);
         }
 
         public class Builder
         {
-            private IHttpConfiguration httpConfiguration;
+            private ICoreHttpClientConfiguration httpConfiguration;
             private Dictionary<string, object> authManagers = new Dictionary<string, object>();
             private Dictionary<Enum, string> serverUrls = new Dictionary<Enum, string>();
             private Enum defaultServer;
@@ -55,7 +58,7 @@ namespace APIMatic.Core
             private List<Parameter> globalRuntimeParameters = new List<Parameter>();
             private HttpCallBack apiCallback;
 
-            public Builder HttpConfiguration(IHttpConfiguration httpConfiguration)
+            public Builder HttpConfiguration(ICoreHttpClientConfiguration httpConfiguration)
             {
                 this.httpConfiguration = httpConfiguration;
                 return this;
