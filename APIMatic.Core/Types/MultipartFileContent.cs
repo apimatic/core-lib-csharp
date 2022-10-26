@@ -1,4 +1,4 @@
-// <copyright file="MultipartFileContent.cs" company="APIMatic">
+﻿// <copyright file="MultipartFileContent.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ namespace APIMatic.Core.Types
     /// <summary>
     /// MultipartFileContent.
     /// </summary>
-    internal class MultipartFileContent : MultipartContent
+    public class MultipartFileContent : MultipartContent
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MultipartFileContent"/> class.

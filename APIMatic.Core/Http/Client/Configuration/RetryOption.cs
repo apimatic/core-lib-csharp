@@ -1,7 +1,7 @@
 ﻿// <copyright file="RetryOption.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-namespace APIMatic.Core.Http.Request
+namespace APIMatic.Core.Http.Client.Configuration
 {
     /// <summary>
     /// Retry options enumeration for HTTP request.

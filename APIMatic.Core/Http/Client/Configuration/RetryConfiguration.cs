@@ -1,7 +1,7 @@
 ﻿// <copyright file="RetryConfiguration.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-namespace APIMatic.Core.Http.Request
+namespace APIMatic.Core.Http.Client.Configuration
 {
     /// <summary>
     /// Holds configurations for a particular HTTP request.
@@ -32,7 +32,7 @@ namespace APIMatic.Core.Http.Request
         /// </summary>
         public class Builder
         {
-            private RetryOption retryOption = Request.RetryOption.Default;
+            private RetryOption retryOption = Configuration.RetryOption.Default;
 
             /// <summary>
             /// The option to override retry configurations for a particular request.

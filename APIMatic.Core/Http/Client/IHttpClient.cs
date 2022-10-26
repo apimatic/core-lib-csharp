@@ -3,7 +3,7 @@
 // </copyright>
 using System.Threading;
 using System.Threading.Tasks;
-using APIMatic.Core.Http.Request;
+using APIMatic.Core.Http.Client.Configuration;
 using APIMatic.Core.Types;
 
 namespace APIMatic.Core.Http.Client

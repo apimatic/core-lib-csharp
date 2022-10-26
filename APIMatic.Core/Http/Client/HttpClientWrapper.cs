@@ -13,7 +13,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using APIMatic.Core.Http.Client.Configuration;
-using APIMatic.Core.Http.Request;
 using APIMatic.Core.Types;
 using APIMatic.Core.Utilities;
 using Polly;

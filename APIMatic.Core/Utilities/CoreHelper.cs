@@ -10,13 +10,14 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using APIMatic.Core.Http.Client.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Utilities
 {
-    internal class CoreHelper
+    public class CoreHelper
     {
         /// <summary>
         /// DateTime format to use for parsing and converting dates.
@@ -78,6 +79,144 @@ namespace APIMatic.Core.Utilities
         }
 
         /// <summary>
+        /// Replaces template parameters in the given url.
+        /// </summary>
+        /// <param name="queryBuilder">The queryBuilder to replace the template parameters.</param>
+        /// <param name="parameters">The parameters to replace in the url.</param>
+        internal static void AppendUrlWithTemplateParameters(StringBuilder queryBuilder, IEnumerable<KeyValuePair<string, object>> parameters)
+        {
+            // perform parameter validation
+            if (queryBuilder == null)
+            {
+                throw new ArgumentNullException("queryBuilder");
+            }
+
+            if (parameters == null)
+            {
+                return;
+            }
+
+            // iterate and replace parameters
+            foreach (KeyValuePair<string, object> pair in parameters)
+            {
+                string replaceValue = string.Empty;
+
+                // load element value as string
+                if (pair.Value == null)
+                {
+                    replaceValue = string.Empty;
+                }
+                else if (pair.Value is ICollection)
+                {
+                    replaceValue = FlattenCollection(pair.Value as ICollection, ArrayDeserialization.None, '/', false);
+                }
+                else if (pair.Value is DateTime)
+                {
+                    replaceValue = ((DateTime)pair.Value).ToString(DateTimeFormat);
+                }
+                else if (pair.Value is DateTimeOffset)
+                {
+                    replaceValue = ((DateTimeOffset)pair.Value).ToString(DateTimeFormat);
+                }
+                else
+                {
+                    replaceValue = pair.Value.ToString();
+                }
+
+                replaceValue = Uri.EscapeUriString(replaceValue);
+
+                // find the template parameter and replace it with its value
+                queryBuilder.Replace(string.Format("{{{0}}}", pair.Key), replaceValue);
+            }
+        }
+
+        /// <summary>
+        /// Appends the given set of parameters to the given query string.
+        /// </summary>
+        /// <param name="queryBuilder">The queryBuilder to append the parameters.</param>
+        /// <param name="parameters">The parameters to append.</param>
+        /// <param name="arrayDeserializationFormat">arrayDeserializationFormat.</param>
+        /// <param name="separator">separator.</param>
+        internal static void AppendUrlWithQueryParameters(StringBuilder queryBuilder, IEnumerable<KeyValuePair<string, object>> parameters, ArrayDeserialization arrayDeserializationFormat = ArrayDeserialization.UnIndexed, char separator = '&')
+        {
+            // perform parameter validation
+            if (queryBuilder == null)
+            {
+                throw new ArgumentNullException("queryBuilder");
+            }
+
+            if (parameters == null)
+            {
+                return;
+            }
+
+            // does the query string already has parameters
+            bool hasParams = IndexOf(queryBuilder, "?") > 0;
+            var processedParameters = ProcessQueryParamsForCustomTypes(parameters);
+
+            // iterate and append parameters
+            foreach (KeyValuePair<string, object> pair in processedParameters)
+            {
+                // if already has parameters, use the &amp; to append new parameters
+                queryBuilder.Append(hasParams ? '&' : '?');
+
+                // indicate that now the query has some params
+                hasParams = true;
+
+                string paramKeyValPair;
+
+                // load element value as string
+                if (pair.Value is ICollection)
+                {
+                    paramKeyValPair = FlattenCollection(pair.Value as ICollection, arrayDeserializationFormat, separator, true, Uri.EscapeDataString(pair.Key));
+                }
+                else if (pair.Value is DateTime)
+                {
+                    paramKeyValPair = string.Format("{0}={1}", Uri.EscapeDataString(pair.Key), ((DateTime)pair.Value).ToString(DateTimeFormat));
+                }
+                else if (pair.Value is DateTimeOffset)
+                {
+                    paramKeyValPair = string.Format("{0}={1}", Uri.EscapeDataString(pair.Key), ((DateTimeOffset)pair.Value).ToString(DateTimeFormat));
+                }
+                else
+                {
+                    paramKeyValPair = string.Format("{0}={1}", Uri.EscapeDataString(pair.Key), Uri.EscapeDataString(pair.Value.ToString()));
+                }
+
+                // append keyval pair for current parameter
+                queryBuilder.Append(paramKeyValPair);
+            }
+        }
+
+        /// <summary>
+        /// Validates and processes the given query Url to clean empty slashes.
+        /// </summary>
+        /// <param name="queryBuilder">The given query Url to process.</param>
+        /// <returns>Clean Url as string.</returns>
+        internal static string CleanUrl(StringBuilder queryBuilder)
+        {
+            // convert to immutable string
+            string url = queryBuilder.ToString();
+
+            // ensure that the urls are absolute
+            Match match = Regex.Match(url, "^https?://[^/]+");
+            if (!match.Success)
+            {
+                throw new ArgumentException("Invalid Url format.");
+            }
+
+            // remove redundant forward slashes
+            int index = url.IndexOf('?');
+            string protocol = match.Value;
+            string query = url.Substring(protocol.Length, (index == -1 ? url.Length : index) - protocol.Length);
+            query = Regex.Replace(query, "//+", "/");
+            string parameters = index == -1 ? string.Empty : url.Substring(index);
+
+            // return process url
+            return string.Concat(protocol, query, parameters);
+        }
+
+        /// <summary>
         /// Prepares parameters for serialization as a form encoded string by flattening complex Types such as Collections and Models to a list of KeyValuePairs, where each value is a string representation of the original Type.
         /// </summary>
         /// <param name="name">name.</param>
@@ -86,7 +225,7 @@ namespace APIMatic.Core.Utilities
         /// <param name="propInfo">propInfo.</param>
         /// <param name="arrayDeserializationFormat">arrayDeserializationFormat.</param>
         /// <returns>List of KeyValuePairs.</returns>
-        internal static List<KeyValuePair<string, object>> PrepareFormFieldsFromObject(string name, object value, List<KeyValuePair<string, object>> keys = null, PropertyInfo propInfo = null, ArrayDeserialization arrayDeserializationFormat = ArrayDeserialization.UnIndexed)
+        public static List<KeyValuePair<string, object>> PrepareFormFieldsFromObject(string name, object value, List<KeyValuePair<string, object>> keys = null, PropertyInfo propInfo = null, ArrayDeserialization arrayDeserializationFormat = ArrayDeserialization.UnIndexed)
         {
             keys = keys ?? new List<KeyValuePair<string, object>>();
 
@@ -219,97 +358,24 @@ namespace APIMatic.Core.Utilities
             return keys;
         }
 
-        /// <summary>
-        /// Appends the given set of parameters to the given query string.
-        /// </summary>
-        /// <param name="queryBuilder">The queryBuilder to append the parameters.</param>
-        /// <param name="parameters">The parameters to append.</param>
-        /// <param name="arrayDeserializationFormat">arrayDeserializationFormat.</param>
-        /// <param name="separator">separator.</param>
-        internal static void AppendUrlWithQueryParameters(StringBuilder queryBuilder, IEnumerable<KeyValuePair<string, object>> parameters, ArrayDeserialization arrayDeserializationFormat = ArrayDeserialization.UnIndexed, char separator = '&')
-        {
-            // perform parameter validation
-            if (queryBuilder == null)
-            {
-                throw new ArgumentNullException("queryBuilder");
-            }
-
-            if (parameters == null)
-            {
-                return;
-            }
-
-            // does the query string already has parameters
-            bool hasParams = IndexOf(queryBuilder, "?") > 0;
-            var processedParameters = ProcessQueryParamsForCustomTypes(parameters);
-
-            // iterate and append parameters
-            foreach (KeyValuePair<string, object> pair in processedParameters)
-            {
-                // if already has parameters, use the &amp; to append new parameters
-                queryBuilder.Append(hasParams ? '&' : '?');
-
-                // indicate that now the query has some params
-                hasParams = true;
-
-                string paramKeyValPair;
-
-                // load element value as string
-                if (pair.Value is ICollection)
-                {
-                    paramKeyValPair = FlattenCollection(pair.Value as ICollection, arrayDeserializationFormat, separator, true, Uri.EscapeDataString(pair.Key));
-                }
-                else if (pair.Value is DateTime)
-                {
-                    paramKeyValPair = string.Format("{0}={1}", Uri.EscapeDataString(pair.Key), ((DateTime)pair.Value).ToString(DateTimeFormat));
-                }
-                else if (pair.Value is DateTimeOffset)
-                {
-                    paramKeyValPair = string.Format("{0}={1}", Uri.EscapeDataString(pair.Key), ((DateTimeOffset)pair.Value).ToString(DateTimeFormat));
-                }
-                else
-                {
-                    paramKeyValPair = string.Format("{0}={1}", Uri.EscapeDataString(pair.Key), Uri.EscapeDataString(pair.Value.ToString()));
-                }
-
-                // append keyval pair for current parameter
-                queryBuilder.Append(paramKeyValPair);
-            }
-        }
-
-        /// <summary>
-        /// Validates and processes the given query Url to clean empty slashes.
-        /// </summary>
-        /// <param name="queryBuilder">The given query Url to process.</param>
-        /// <returns>Clean Url as string.</returns>
-        internal static string CleanUrl(StringBuilder queryBuilder)
-        {
-            // convert to immutable string
-            string url = queryBuilder.ToString();
-
-            // ensure that the urls are absolute
-            Match match = Regex.Match(url, "^https?://[^/]+");
-            if (!match.Success)
-            {
-                throw new ArgumentException("Invalid Url format.");
-            }
-
-            // remove redundant forward slashes
-            int index = url.IndexOf('?');
-            string protocol = match.Value;
-            string query = url.Substring(protocol.Length, (index == -1 ? url.Length : index) - protocol.Length);
-            query = Regex.Replace(query, "//+", "/");
-            string parameters = index == -1 ? string.Empty : url.Substring(index);
-
-            // return process url
-            return string.Concat(protocol, query, parameters);
-        }
+        ///// <summary>
+        ///// Add/update entries with the new dictionary.
+        ///// </summary>
+        ///// <param name="dictionary">first dictionary.</param>
+        ///// <param name="dictionary2">second dictionary.</param>
+        //public static void Add(this Dictionary<string, object> dictionary, Dictionary<string, object> dictionary2)
+        //{
+        //    foreach (var kvp in dictionary2)
+        //    {
+        //        dictionary[kvp.Key] = kvp.Value;
+        //    }
+        //}
 
         /// <summary>
         /// Runs asynchronous tasks synchronously and throws the first caught exception.
         /// </summary>
         /// <param name="t">The task to be run synchronously.</param>
-        internal static void RunTaskSynchronously(Task t)
+        public static void RunTaskSynchronously(Task t)
         {
             try
             {
