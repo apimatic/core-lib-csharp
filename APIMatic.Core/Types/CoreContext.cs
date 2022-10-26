@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿// <copyright file="CoreContext.cs" company="APIMatic">
+// Copyright (c) APIMatic. All rights reserved.
+// </copyright>
 namespace APIMatic.Core.Types
 {
     public class CoreContext<Req, Res>

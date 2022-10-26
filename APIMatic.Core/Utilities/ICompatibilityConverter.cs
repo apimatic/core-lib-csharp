@@ -1,7 +1,7 @@
-﻿using APIMatic.Core.Types;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿// <copyright file="ICompatibilityConverter.cs" company="APIMatic">
+// Copyright (c) APIMatic. All rights reserved.
+// </copyright>
+using APIMatic.Core.Types;
 
 namespace APIMatic.Core.Utilities
 {

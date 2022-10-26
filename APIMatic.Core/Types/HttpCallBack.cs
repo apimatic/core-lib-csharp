@@ -1,3 +1,6 @@
+﻿// <copyright file="HttpCallBack.cs" company="APIMatic">
+// Copyright (c) APIMatic. All rights reserved.
+// </copyright>
 namespace APIMatic.Core.Types
 {
     /// <summary>
