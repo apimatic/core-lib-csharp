@@ -3,7 +3,7 @@
 // </copyright>
 using System.IO;
 
-namespace APIMatic.Core.Types
+namespace APIMatic.Core.Types.Sdk
 {
     /// <summary>
     /// Core logic of FileStreamInfo to capture information for file uploads.

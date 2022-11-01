@@ -1,7 +1,7 @@
 ﻿// <copyright file="IAuthentication.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-using APIMatic.Core.Types;
+using APIMatic.Core.Types.Sdk;
 
 namespace APIMatic.Core.Authentication
 {

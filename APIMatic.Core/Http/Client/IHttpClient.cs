@@ -4,7 +4,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using APIMatic.Core.Http.Client.Configuration;
-using APIMatic.Core.Types;
+using APIMatic.Core.Types.Sdk;
 
 namespace APIMatic.Core.Http.Client
 {

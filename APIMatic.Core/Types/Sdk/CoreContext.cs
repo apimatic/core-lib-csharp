@@ -1,7 +1,8 @@
 ﻿// <copyright file="CoreContext.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-namespace APIMatic.Core.Types
+
+namespace APIMatic.Core.Types.Sdk
 {
     public class CoreContext<Req, Res>
         where Req : CoreRequest

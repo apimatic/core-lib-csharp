@@ -3,7 +3,7 @@
 // </copyright>
 using System;
 using System.Collections.Generic;
-using APIMatic.Core.Types;
+using APIMatic.Core.Types.Sdk;
 
 namespace APIMatic.Core.Authentication
 {

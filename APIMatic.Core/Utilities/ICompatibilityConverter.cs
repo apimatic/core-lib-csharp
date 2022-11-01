@@ -1,7 +1,7 @@
 ﻿// <copyright file="ICompatibilityConverter.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-using APIMatic.Core.Types;
+using APIMatic.Core.Types.Sdk;
 
 namespace APIMatic.Core.Utilities
 {
