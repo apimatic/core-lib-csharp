@@ -1,6 +1,7 @@
 ﻿// <copyright file="CoreRequest.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
+using APIMatic.Core.Http.Client.Configuration;
 using APIMatic.Core.Utilities;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,6 +70,11 @@ namespace APIMatic.Core.Types.Sdk
         /// Gets the optional password for Basic Auth.
         /// </summary>
         public string Password { get; }
+
+        /// <summary>
+        /// Gets the optional password for Basic Auth.
+        /// </summary>
+        internal RetryOption RetryOption { get; set; } = RetryOption.Default;
 
         /// <summary>
         /// Concatenate values from a Dictionary to this object.

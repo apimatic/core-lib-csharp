@@ -3,7 +3,6 @@
 // </copyright>
 using System.Threading;
 using System.Threading.Tasks;
-using APIMatic.Core.Http.Client.Configuration;
 using APIMatic.Core.Types.Sdk;
 
 namespace APIMatic.Core.Http.Client
@@ -33,7 +32,7 @@ namespace APIMatic.Core.Http.Client
         /// <param name="request">The given HttpRequest to execute.</param>
         /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
         /// <returns> HttpResponse containing raw information.</returns>
-        CoreResponse ExecuteAsString(CoreRequest request, RetryConfiguration retryConfiguration = null);
+        CoreResponse ExecuteAsString(CoreRequest request);
 
         /// <summary>
         /// Execute a given HttpRequest to get binary response back.
@@ -41,7 +40,7 @@ namespace APIMatic.Core.Http.Client
         /// <param name="request">The given HttpRequest to execute.</param>
         /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
         /// <returns> HttpResponse containing raw information.</returns>
-        CoreResponse ExecuteAsBinary(CoreRequest request, RetryConfiguration retryConfiguration = null);
+        CoreResponse ExecuteAsBinary(CoreRequest request);
 
         /// <summary>
         /// Execute a given HttpRequest to get async string response back.
@@ -50,7 +49,7 @@ namespace APIMatic.Core.Http.Client
         /// <param name="cancellationToken">CancellationToken.</param>
         /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
         /// <returns> HttpResponse containing raw information.</returns>
-        Task<CoreResponse> ExecuteAsStringAsync(CoreRequest request, RetryConfiguration retryConfiguration = null, CancellationToken cancellationToken = default);
+        Task<CoreResponse> ExecuteAsStringAsync(CoreRequest request, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Execute a given HttpRequest to get async binary response back.
@@ -59,6 +58,6 @@ namespace APIMatic.Core.Http.Client
         /// <param name="cancellationToken">CancellationToken.</param>
         /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
         /// <returns> HttpResponse containing raw information.</returns>
-        Task<CoreResponse> ExecuteAsBinaryAsync(CoreRequest request, RetryConfiguration retryConfiguration = null, CancellationToken cancellationToken = default);
+        Task<CoreResponse> ExecuteAsBinaryAsync(CoreRequest request, CancellationToken cancellationToken = default);
     }
 }

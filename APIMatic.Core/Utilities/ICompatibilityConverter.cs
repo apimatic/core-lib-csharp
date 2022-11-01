@@ -5,7 +5,7 @@ using APIMatic.Core.Types.Sdk;
 
 namespace APIMatic.Core.Utilities
 {
-    public interface ICompatibilityConverter<Request, Response, Context>
+    public interface IHttpConfiguration<Request, Response, Context>
         where Request : CoreRequest
         where Response : CoreResponse
         where Context: CoreContext<Request, Response>
