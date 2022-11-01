@@ -43,25 +43,25 @@ namespace APIMatic.Core.Http.Client
         /// Initializes a new instance of the <see cref="HttpClientWrapper"/> class.
         /// </summary>
         /// <param name="httpClientConfig"> HttpClientConfiguration object.</param>
-        public HttpClientWrapper(CoreHttpClientConfiguration httpClientConfig)
+        public HttpClientWrapper(ICoreHttpClientConfiguration httpClientConfig)
         {
-            this.client = httpClientConfig.HttpClientInstance;
-            this.overrideHttpClientConfiguration = httpClientConfig.OverrideHttpClientConfiguration;
+            client = httpClientConfig.HttpClientInstance;
+            overrideHttpClientConfiguration = httpClientConfig.OverrideHttpClientConfiguration;
 
             if (overrideHttpClientConfiguration)
             {
-                this.statusCodesToRetry = httpClientConfig.StatusCodesToRetry
+                statusCodesToRetry = httpClientConfig.StatusCodesToRetry
                 .Where(val => Enum.IsDefined(typeof(HttpStatusCode), val))
                 .Select(val => (HttpStatusCode)val).ToImmutableList();
 
-                this.requestMethodsToRetry = httpClientConfig.RequestMethodsToRetry
+                requestMethodsToRetry = httpClientConfig.RequestMethodsToRetry
                     .Select(method => new HttpMethod(method.ToString())).ToList();
 
-                this.numberOfRetries = httpClientConfig.NumberOfRetries;
-                this.backoffFactor = httpClientConfig.BackoffFactor;
-                this.retryInterval = httpClientConfig.RetryInterval;
-                this.maximumRetryWaitTime = httpClientConfig.MaximumRetryWaitTime;
-                this.client.Timeout = httpClientConfig.Timeout;
+                numberOfRetries = httpClientConfig.NumberOfRetries;
+                backoffFactor = httpClientConfig.BackoffFactor;
+                retryInterval = httpClientConfig.RetryInterval;
+                maximumRetryWaitTime = httpClientConfig.MaximumRetryWaitTime;
+                client.Timeout = httpClientConfig.Timeout;
             }
         }
 
@@ -81,9 +81,9 @@ namespace APIMatic.Core.Http.Client
         /// <param name="request">Http request.</param>
         /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
         /// <returns>HttpStringResponse.</returns>
-        public CoreResponse ExecuteAsString(CoreRequest request, RetryConfiguration retryConfiguration = null)
+        public CoreResponse ExecuteAsString(CoreRequest request)
         {
-            Task<CoreResponse> t = this.ExecuteAsStringAsync(request, retryConfiguration);
+            Task<CoreResponse> t = ExecuteAsStringAsync(request);
             CoreHelper.RunTaskSynchronously(t);
             return t.Result;
         }
@@ -95,25 +95,22 @@ namespace APIMatic.Core.Http.Client
         /// <param name="cancellationToken"> cancellationToken.</param>
         /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
         /// <returns>Returns the HttpStringResponse.</returns>
-        public async Task<CoreResponse> ExecuteAsStringAsync(
-            CoreRequest request,
-            RetryConfiguration retryConfiguration = null,
-            CancellationToken cancellationToken = default)
+        public async Task<CoreResponse> ExecuteAsStringAsync(CoreRequest request, CancellationToken cancellationToken = default)
         {
             // raise the on before request event.
-            this.RaiseOnBeforeHttpRequestEvent(request);
+            RaiseOnBeforeHttpRequestEvent(request);
 
             HttpResponseMessage responseMessage;
 
             if (overrideHttpClientConfiguration)
             {
-                responseMessage = await this.GetCombinedPolicy(retryConfiguration).ExecuteAsync(
-                    async (cancellation) => await this.HttpResponseMessage(request, cancellation).ConfigureAwait(false), cancellationToken)
+                responseMessage = await GetCombinedPolicy(request.RetryOption).ExecuteAsync(
+                    async (cancellation) => await HttpResponseMessage(request, cancellation).ConfigureAwait(false), cancellationToken)
                     .ConfigureAwait(false);
             }
             else
             {
-                responseMessage = await this.HttpResponseMessage(request, cancellationToken).ConfigureAwait(false);
+                responseMessage = await HttpResponseMessage(request, cancellationToken).ConfigureAwait(false);
             }
 
             int statusCode = (int)responseMessage.StatusCode;
@@ -124,7 +121,7 @@ namespace APIMatic.Core.Http.Client
             var response = new CoreResponse(statusCode, headers, rawBody, body);
 
             // raise the on after response event.
-            this.RaiseOnAfterHttpResponseEvent(response);
+            RaiseOnAfterHttpResponseEvent(response);
 
             return response;
         }
@@ -135,9 +132,9 @@ namespace APIMatic.Core.Http.Client
         /// <param name="request">Http request.</param>
         /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
         /// <returns>HttpResponse.</returns>
-        public CoreResponse ExecuteAsBinary(CoreRequest request, RetryConfiguration retryConfiguration = null)
+        public CoreResponse ExecuteAsBinary(CoreRequest request)
         {
-            Task<CoreResponse> t = this.ExecuteAsBinaryAsync(request, retryConfiguration);
+            Task<CoreResponse> t = ExecuteAsBinaryAsync(request);
             CoreHelper.RunTaskSynchronously(t);
             return t.Result;
         }
@@ -149,25 +146,22 @@ namespace APIMatic.Core.Http.Client
         /// <param name="cancellationToken">cancellationToken.</param>
         /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
         /// <returns>HttpResponse.</returns>
-        public async Task<CoreResponse> ExecuteAsBinaryAsync(
-            CoreRequest request,
-            RetryConfiguration retryConfiguration = null,
-            CancellationToken cancellationToken = default)
+        public async Task<CoreResponse> ExecuteAsBinaryAsync(CoreRequest request, CancellationToken cancellationToken = default)
         {
             // raise the on before request event.
-            this.RaiseOnBeforeHttpRequestEvent(request);
+            RaiseOnBeforeHttpRequestEvent(request);
 
             HttpResponseMessage responseMessage;
 
             if (overrideHttpClientConfiguration)
             {
-                responseMessage = await this.GetCombinedPolicy(retryConfiguration).ExecuteAsync(
-                    async (cancellation) => await this.HttpResponseMessage(request, cancellation).ConfigureAwait(false), cancellationToken)
+                responseMessage = await GetCombinedPolicy(request.RetryOption).ExecuteAsync(
+                    async (cancellation) => await HttpResponseMessage(request, cancellation).ConfigureAwait(false), cancellationToken)
                     .ConfigureAwait(false);
             }
             else
             {
-                responseMessage = await this.HttpResponseMessage(request, cancellationToken).ConfigureAwait(false);
+                responseMessage = await HttpResponseMessage(request, cancellationToken).ConfigureAwait(false);
             }
 
             int statusCode = (int)responseMessage.StatusCode;
@@ -177,7 +171,7 @@ namespace APIMatic.Core.Http.Client
             CoreResponse response = new CoreResponse(statusCode, headers, rawBody);
 
             // raise the on after response event.
-            this.RaiseOnAfterHttpResponseEvent(response);
+            RaiseOnAfterHttpResponseEvent(response);
 
             return response;
         }
@@ -203,17 +197,17 @@ namespace APIMatic.Core.Http.Client
 
         private void RaiseOnBeforeHttpRequestEvent(CoreRequest request)
         {
-            if ((this.OnBeforeHttpRequestEvent != null) && (request != null))
+            if ((OnBeforeHttpRequestEvent != null) && (request != null))
             {
-                this.OnBeforeHttpRequestEvent(this, request);
+                OnBeforeHttpRequestEvent(this, request);
             }
         }
 
         private void RaiseOnAfterHttpResponseEvent(CoreResponse response)
         {
-            if ((this.OnAfterHttpResponseEvent != null) && (response != null))
+            if ((OnAfterHttpResponseEvent != null) && (response != null))
             {
-                this.OnAfterHttpResponseEvent(this, response);
+                OnAfterHttpResponseEvent(this, response);
             }
         }
 
@@ -225,7 +219,7 @@ namespace APIMatic.Core.Http.Client
 
             if (request.QueryParameters != null)
             {
-                CoreHelper.AppendUrlWithQueryParameters(queryBuilder, request.QueryParameters, this.arrayDeserializationFormat, parameterSeparator);
+                CoreHelper.AppendUrlWithQueryParameters(queryBuilder, request.QueryParameters, arrayDeserializationFormat, parameterSeparator);
             }
 
             // validate and preprocess url.
@@ -353,15 +347,15 @@ namespace APIMatic.Core.Http.Client
                 }
             }
 
-            return await this.client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
+            return await client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
         }
 
-        private bool ShouldRetry(HttpResponseMessage response, RetryConfiguration retryConfiguration)
+        private bool ShouldRetry(HttpResponseMessage response, RetryOption retryOption)
         {
-            bool isWhiteListedMethod = this.requestMethodsToRetry.Contains(response.RequestMessage.Method);
+            bool isWhiteListedMethod = requestMethodsToRetry.Contains(response.RequestMessage.Method);
 
-            return retryConfiguration.RetryOption.IsRetryAllowed(isWhiteListedMethod) &&
-                (this.statusCodesToRetry.Contains(response.StatusCode) || response?.Headers?.RetryAfter != null);
+            return retryOption.IsRetryAllowed(isWhiteListedMethod) &&
+                (statusCodesToRetry.Contains(response.StatusCode) || response?.Headers?.RetryAfter != null);
         }
 
         private TimeSpan GetServerWaitDuration(DelegateResult<HttpResponseMessage> response)
@@ -377,39 +371,30 @@ namespace APIMatic.Core.Http.Client
                 : retryAfter.Delta.GetValueOrDefault(TimeSpan.Zero);
         }
 
-        private AsyncRetryPolicy<HttpResponseMessage> GetRetryPolicy(RetryConfiguration retryConfiguration)
-        {
-            return Policy.HandleResult<HttpResponseMessage>(response => this.ShouldRetry(response, retryConfiguration))
+        private AsyncRetryPolicy<HttpResponseMessage> GetRetryPolicy(RetryOption retryOption) =>
+            Policy.HandleResult<HttpResponseMessage>(response => ShouldRetry(response, retryOption))
                 .Or<TaskCanceledException>()
                 .Or<HttpRequestException>()
                 .WaitAndRetryAsync(
                 retryCount: this.numberOfRetries,
                 sleepDurationProvider: (retryAttempt, result, context) =>
-                TimeSpan.FromMilliseconds(Math.Max(this.GetExponentialWaitTime(retryAttempt), this.GetServerWaitDuration(result).TotalMilliseconds)),
+                TimeSpan.FromMilliseconds(Math.Max(GetExponentialWaitTime(retryAttempt), GetServerWaitDuration(result).TotalMilliseconds)),
                 onRetryAsync: async (result, timespan, retryAttempt, context) => await Task.CompletedTask);
-        }
 
         private AsyncTimeoutPolicy GetTimeoutPolicy()
         {
-            return this.maximumRetryWaitTime.TotalSeconds == 0
+            return maximumRetryWaitTime.TotalSeconds == 0
                 ? Policy.TimeoutAsync(Timeout.InfiniteTimeSpan)
-                : Policy.TimeoutAsync(this.maximumRetryWaitTime);
+                : Policy.TimeoutAsync(maximumRetryWaitTime);
         }
 
-        private AsyncPolicyWrap<HttpResponseMessage> GetCombinedPolicy(RetryConfiguration retryConfiguration = null)
-        {
-            if (retryConfiguration == null)
-            {
-                retryConfiguration = DefaultRetryConfiguration.RetryConfiguration;
-            }
-
-            return this.GetTimeoutPolicy().WrapAsync(this.GetRetryPolicy(retryConfiguration));
-        }
+        private AsyncPolicyWrap<HttpResponseMessage> GetCombinedPolicy(RetryOption retryOption) =>
+            GetTimeoutPolicy().WrapAsync(GetRetryPolicy(retryOption));
 
         private double GetExponentialWaitTime(int retryAttempt)
         {
             double noise = new Random().NextDouble() * 100;
-            return (1000 * this.retryInterval * Math.Pow(this.backoffFactor, retryAttempt - 1)) + noise;
+            return (1000 * this.retryInterval * Math.Pow(backoffFactor, retryAttempt - 1)) + noise;
 
         }
     }
