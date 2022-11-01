@@ -1,6 +1,7 @@
 ﻿// <copyright file="HttpClientWrapper.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
+using APIMatic.Core.Authentication;
 using APIMatic.Core.Http.Client;
 using APIMatic.Core.Http.Client.Configuration;
 using APIMatic.Core.Request;
@@ -18,10 +19,11 @@ namespace APIMatic.Core
         private readonly ICoreHttpClientConfiguration httpConfiguration;
         private readonly Dictionary<Enum, string> serverUrls;
         private readonly Enum defaultServer;
-        private readonly List<Parameter> globalParameters;
+        private readonly Parameter.Builder globalParameters;
 
-        private GlobalConfiguration(ICoreHttpClientConfiguration httpConfiguration, Dictionary<string, object> authManagers, Dictionary<Enum, string> serverUrls,
-            Enum defaultServer, List<Parameter> globalParameters, List<Parameter> globalRuntimeParameters, HttpCallBack apiCallback)
+        private GlobalConfiguration(ICoreHttpClientConfiguration httpConfiguration, Dictionary<string, AuthManager> authManagers,
+            Dictionary<Enum, string> serverUrls, Enum defaultServer, Parameter.Builder globalParameters,
+            Parameter.Builder globalRuntimeParameters, HttpCallBack apiCallback)
         {
             this.httpConfiguration = httpConfiguration;
             this.serverUrls = serverUrls;
@@ -31,15 +33,15 @@ namespace APIMatic.Core
             AuthManagers = authManagers;
             GlobalRuntimeParameters = globalRuntimeParameters;
         }
-        internal Dictionary<string, object> AuthManagers { get; private set; }
-        internal List<Parameter> GlobalRuntimeParameters { get; private set; }
+        internal Dictionary<string, AuthManager> AuthManagers { get; private set; }
+        internal Parameter.Builder GlobalRuntimeParameters { get; private set; }
         internal HttpCallBack ApiCallback { get; private set; }
 
         public RequestBuilder GlobalRequestBuilder(Enum server = null)
         {
             RequestBuilder requestBuilder = new RequestBuilder(this)
                 .ServerUrl(serverUrls[server ?? defaultServer]);
-            globalParameters.ForEach(param => param.Apply(requestBuilder));
+            globalParameters.Validate().Apply(requestBuilder);
             return requestBuilder;
         }
 
@@ -51,11 +53,11 @@ namespace APIMatic.Core
         public class Builder
         {
             private ICoreHttpClientConfiguration httpConfiguration;
-            private Dictionary<string, object> authManagers = new Dictionary<string, object>();
+            private Dictionary<string, AuthManager> authManagers = new Dictionary<string, AuthManager>();
             private Dictionary<Enum, string> serverUrls = new Dictionary<Enum, string>();
             private Enum defaultServer;
-            private List<Parameter> globalParameters = new List<Parameter>();
-            private List<Parameter> globalRuntimeParameters = new List<Parameter>();
+            private readonly Parameter.Builder globalParameters = new Parameter.Builder();
+            private readonly Parameter.Builder globalRuntimeParameters = new Parameter.Builder();
             private HttpCallBack apiCallback;
 
             public Builder HttpConfiguration(ICoreHttpClientConfiguration httpConfiguration)
@@ -64,7 +66,7 @@ namespace APIMatic.Core
                 return this;
             }
 
-            public Builder AuthManagers(Dictionary<string, object> authManagers)
+            public Builder AuthManagers(Dictionary<string, AuthManager> authManagers)
             {
                 this.authManagers = authManagers;
                 return this;
@@ -77,27 +79,15 @@ namespace APIMatic.Core
                 return this;
             }
 
-            public Builder HeaderParam(Action<HeaderParam> headerAction)
+            public Builder GlobalParameters(Action<Parameter.Builder> action)
             {
-                var header = new HeaderParam();
-                headerAction(header);
-                globalParameters.Add(header);
+                action(globalParameters);
                 return this;
             }
 
-            public Builder TemplateParam(Action<TemplateParam> templateAction)
+            public Builder GlobalRuntimeParameters(Action<Parameter.Builder> action)
             {
-                var template = new TemplateParam();
-                templateAction(template);
-                globalParameters.Add(template);
-                return this;
-            }
-
-            public Builder RuntimeHeaderParam(Action<HeaderParam> headerAction)
-            {
-                var header = new HeaderParam();
-                headerAction(header);
-                globalRuntimeParameters.Add(header);
+                action(globalRuntimeParameters);
                 return this;
             }
 
@@ -118,7 +108,7 @@ namespace APIMatic.Core
                 userAgent = Regex.Replace(userAgent, "{os-info}", Environment.OSVersion.ToString(), RegexOptions.IgnoreCase);
 
                 userAgentConfig?.ForEach(c => userAgent = Regex.Replace(userAgent, c.placeHolder, c.value, RegexOptions.IgnoreCase));
-                globalParameters.Add(new HeaderParam().Init("user-agent", userAgent));
+                globalParameters.Header(h => h.Setup("user-agent", userAgent));
                 return this;
             }
 

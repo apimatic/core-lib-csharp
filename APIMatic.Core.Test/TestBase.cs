@@ -1,4 +1,5 @@
-﻿using APIMatic.Core.Types;
+﻿using APIMatic.Core.Authentication;
+using APIMatic.Core.Types;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -32,12 +33,13 @@ namespace APIMatic.Core.Test
                     { MockServer.Server1, "http://my/path:3000/{one}"},
                     { MockServer.Server2, "https://my/path/{two}"}
                 }, MockServer.Server1)
-                .AuthManagers(new Dictionary<string, object>())
-                .HeaderParam(p => p.Init("additionalHead1", "headVal1"))
-                .HeaderParam(p => p.Init("additionalHead2", "headVal2"))
-                .TemplateParam(p => p.Init("one", "v1"))
-                .TemplateParam(p => p.Init("two", "v2"))
-                .RuntimeHeaderParam(p => p.Init("key5", 890.098))
+                .AuthManagers(new Dictionary<string, AuthManager>())
+                .GlobalParameters(p => p
+                    .Header(h => h.Setup("additionalHead1", "headVal1"))
+                    .Header(h => h.Setup("additionalHead2", "headVal2"))
+                    .Template(t => t.Setup("one", "v1"))
+                    .Template(t => t.Setup("two", "v2")))
+                .GlobalRuntimeParameters(p => p.Header(h => h.Setup("key5", 890.098)))
                 .UserAgent("{language}|{version}|{engine}|{engine-version}|{os-info}", new List<(string placeHolder, string value)>
                 {
                     ("{language}", "my lang"),

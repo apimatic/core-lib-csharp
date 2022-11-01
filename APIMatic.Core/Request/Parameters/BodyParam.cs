@@ -7,9 +7,15 @@ using System.Text;
 
 namespace APIMatic.Core.Request.Parameters
 {
-    public class HeaderParam : Parameter
+    public class BodyParam : Parameter
     {
-        internal HeaderParam() => typeName = "header";
+        internal BodyParam() => typeName = "body";
+
+        public Parameter Setup(object value)
+        {
+            Setup("", value);
+            return this;
+        }
 
         internal override void Apply(RequestBuilder requestBuilder)
         {
@@ -17,7 +23,13 @@ namespace APIMatic.Core.Request.Parameters
             {
                 return;
             }
-            requestBuilder.headers.Add(key, value.ToString());
+            if (key == "")
+            {
+                requestBuilder.body = value;
+                return;
+            }
+            requestBuilder.bodyParameters.Add(key, value);
+
         }
     }
 }
