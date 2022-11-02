@@ -2,7 +2,7 @@
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using APIMatic.Core.Http.Client.Configuration;
-using APIMatic.Core.Types;
+using APIMatic.Core.Types.Sdk;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;

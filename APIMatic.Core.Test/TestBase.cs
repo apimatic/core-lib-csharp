@@ -1,4 +1,4 @@
-﻿using APIMatic.Core.Types;
+﻿using APIMatic.Core.Types.Sdk;
 using Moq;
 using NUnit.Framework;
 using System;

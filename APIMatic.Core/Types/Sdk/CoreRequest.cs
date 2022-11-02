@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 
-namespace APIMatic.Core.Types
+namespace APIMatic.Core.Types.Sdk
 {
     /// <summary>
     /// CoreRequest.

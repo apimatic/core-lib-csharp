@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using APIMatic.Core.Http.Client.Configuration;
+using APIMatic.Core.Types.Sdk;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -41,6 +42,11 @@ namespace APIMatic.Core.Utilities
             {
                 MaxDepth = 128
             };
+
+            if (obj.GetType().GetTypeInfo().GetCustomAttribute(typeof(JsogAttribute), false) != null)
+            {
+                settings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
+            }
 
             if (converter == null)
             {
@@ -83,7 +89,7 @@ namespace APIMatic.Core.Utilities
         /// </summary>
         /// <param name="queryBuilder">The queryBuilder to replace the template parameters.</param>
         /// <param name="parameters">The parameters to replace in the url.</param>
-        internal static void AppendUrlWithTemplateParameters(StringBuilder queryBuilder, IEnumerable<KeyValuePair<string, object>> parameters)
+        public static void AppendUrlWithTemplateParameters(StringBuilder queryBuilder, IEnumerable<KeyValuePair<string, object>> parameters)
         {
             // perform parameter validation
             if (queryBuilder == null)
@@ -137,7 +143,7 @@ namespace APIMatic.Core.Utilities
         /// <param name="parameters">The parameters to append.</param>
         /// <param name="arrayDeserializationFormat">arrayDeserializationFormat.</param>
         /// <param name="separator">separator.</param>
-        internal static void AppendUrlWithQueryParameters(StringBuilder queryBuilder, IEnumerable<KeyValuePair<string, object>> parameters, ArrayDeserialization arrayDeserializationFormat = ArrayDeserialization.UnIndexed, char separator = '&')
+        public static void AppendUrlWithQueryParameters(StringBuilder queryBuilder, IEnumerable<KeyValuePair<string, object>> parameters, ArrayDeserialization arrayDeserializationFormat = ArrayDeserialization.UnIndexed, char separator = '&')
         {
             // perform parameter validation
             if (queryBuilder == null)
@@ -193,7 +199,7 @@ namespace APIMatic.Core.Utilities
         /// </summary>
         /// <param name="queryBuilder">The given query Url to process.</param>
         /// <returns>Clean Url as string.</returns>
-        internal static string CleanUrl(StringBuilder queryBuilder)
+        public static string CleanUrl(StringBuilder queryBuilder)
         {
             // convert to immutable string
             string url = queryBuilder.ToString();
@@ -307,6 +313,14 @@ namespace APIMatic.Core.Utilities
                     string fullSubName = string.IsNullOrWhiteSpace(name) ? subName : name + '[' + subName + ']';
                     PrepareFormFieldsFromObject(fullSubName, subValue, keys, propInfo, arrayDeserializationFormat);
                 }
+            }
+            else if (value is CoreJsonObject)
+            {
+                PrepareFormFieldsFromObject(name, RemoveNullValues((value as CoreJsonObject).GetStoredObject()), keys, propInfo, arrayDeserializationFormat);
+            }
+            else if (value is CoreJsonValue)
+            {
+                PrepareFormFieldsFromObject(name, (value as CoreJsonValue).GetStoredObject(), keys, propInfo, arrayDeserializationFormat);
             }
             else if (!value.GetType().Namespace.StartsWith("System"))
             {
@@ -640,6 +654,31 @@ namespace APIMatic.Core.Utilities
         {
             var regex = new Regex("\\[\\d+\\]$", RegexOptions.IgnoreCase);
             return regex.IsMatch(input);
+        }
+
+        /// <summary>
+        /// Removes null values for fields preparation for forms
+        /// </summary>
+        /// <param name="token"> Input from which null values have to be removed.</param>
+        /// <returns> JToken without null values </returns>
+        private static JToken RemoveNullValues(JToken token)
+        {
+            JObject copy = new JObject();
+
+            foreach (JProperty prop in token.Children<JProperty>())
+            {
+                JToken child = prop.Value;
+                if (child.HasValues)
+                {
+                    child = RemoveNullValues(child);
+                }
+                if (child.Type != JTokenType.Null)
+                {
+                    copy.Add(prop.Name, child);
+                }
+            }
+
+            return copy;
         }
     }
 }
