@@ -3,9 +3,9 @@
 // </copyright>
 namespace APIMatic.Core.Request.Parameters
 {
-    public class HeaderParam : Parameter
+    public class QueryParam : Parameter
     {
-        internal HeaderParam() => typeName = "header";
+        internal QueryParam() => typeName = "query";
 
         internal override void Apply(RequestBuilder requestBuilder)
         {
@@ -13,7 +13,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 return;
             }
-            requestBuilder.headers.Add(key, value.ToString());
+            requestBuilder.queryParameters.Add(key, value);
         }
     }
 }

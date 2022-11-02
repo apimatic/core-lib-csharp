@@ -1,11 +1,13 @@
 ﻿// <copyright file="HttpClientWrapper.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-using APIMatic.Core.Http.Client.Configuration;
-using APIMatic.Core.Types.Sdk;
-using System.Collections.Generic;
+using System;
 using System.Net.Http;
 using System.Text;
+using System.Collections.Generic;
+using APIMatic.Core.Http.Client.Configuration;
+using APIMatic.Core.Request.Parameters;
+using APIMatic.Core.Types.Sdk;
 
 namespace APIMatic.Core.Request
 {
@@ -13,25 +15,36 @@ namespace APIMatic.Core.Request
     {
         private readonly GlobalConfiguration configuration;
         private RetryOption retryOption = RetryOption.Default;
+        private bool contentTypeAllowed = true;
+        private string authName = "";
         private HttpMethod httpMethod;
-        internal StringBuilder serverUrl = new StringBuilder();
-        internal Dictionary<string, string> headers;
+        private readonly Parameter.Builder parameters = new Parameter.Builder();
+
+        internal readonly StringBuilder queryUrl = new StringBuilder();
+        internal readonly Dictionary<string, string> headers = new Dictionary<string, string>();
         internal object body;
-        internal List<KeyValuePair<string, object>> formParameters;
-        internal Dictionary<string, object> queryParameters;
+        internal readonly Dictionary<string, object> bodyParameters = new Dictionary<string, object>();
+        internal readonly List<KeyValuePair<string, object>> formParameters = new List<KeyValuePair<string, object>>();
+        internal readonly Dictionary<string, object> queryParameters = new Dictionary<string, object>();
 
         internal RequestBuilder(GlobalConfiguration configuration) => this.configuration = configuration;
 
         internal RequestBuilder ServerUrl(string serverUrl)
         {
-            this.serverUrl.Append(serverUrl);
+            queryUrl.Append(serverUrl);
             return this;
         }
 
-        public RequestBuilder Init(HttpMethod httpMethod, string path)
+        public RequestBuilder Setup(HttpMethod httpMethod, string path)
         {
             this.httpMethod = httpMethod;
-            serverUrl.Append(path);
+            queryUrl.Append(path);
+            return this;
+        }
+
+        public RequestBuilder DisableContentType()
+        {
+            contentTypeAllowed = false;
             return this;
         }
 
@@ -41,11 +54,33 @@ namespace APIMatic.Core.Request
             return this;
         }
 
+        public RequestBuilder WithAuth(string authName)
+        {
+            this.authName = authName;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the request parameters using <see cref="Parameter.Builder"/>
+        /// </summary>
+        /// <param name="action">The action to be applied on Parameter.Builder for this requestBuilder</param>
+        /// <returns></returns>
+        public RequestBuilder Parameters(Action<Parameter.Builder> action)
+        {
+            action(parameters);
+            return this;
+        }
+
         public CoreRequest Build()
         {
-            configuration.GlobalRuntimeParameters.ForEach(param => param.Apply(this));
-
-            return new CoreRequest(httpMethod, serverUrl.ToString(), headers, body, formParameters, queryParameters)
+            parameters.Validate().Apply(this);
+            configuration.GlobalRuntimeParameters.Validate().Apply(this);
+            bool authManagerFound = configuration.AuthManagers.TryGetValue(authName, out var authManager);
+            if (authManagerFound)
+            {
+                authManager.Validate().Apply(this);
+            }
+            return new CoreRequest(httpMethod, queryUrl.ToString(), headers, body, formParameters, queryParameters)
             {
                 RetryOption = retryOption
             };

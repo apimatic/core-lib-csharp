@@ -28,5 +28,8 @@ namespace APIMatic.Core
             requestBuilderAction(requestBuilder);
             return this;
         }
+        // response hanlder
+        // execute
+        // execute async
     }
 }

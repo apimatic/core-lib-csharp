@@ -23,7 +23,7 @@ namespace APIMatic.Core.Utilities
         /// <summary>
         /// DateTime format to use for parsing and converting dates.
         /// </summary>
-        private static readonly string DateTimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFFK";
+        internal static readonly string DateTimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFFK";
 
         /// <summary>
         /// JSON Serialization of a given object.

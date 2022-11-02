@@ -1,11 +1,13 @@
 ﻿// <copyright file="HttpClientWrapper.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
+using System.Collections.Generic;
+
 namespace APIMatic.Core.Request.Parameters
 {
-    public class HeaderParam : Parameter
+    public class FormParam : Parameter
     {
-        internal HeaderParam() => typeName = "header";
+        internal FormParam() => typeName = "form";
 
         internal override void Apply(RequestBuilder requestBuilder)
         {
@@ -13,7 +15,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 return;
             }
-            requestBuilder.headers.Add(key, value.ToString());
+            requestBuilder.formParameters.Add(new KeyValuePair<string, object>(key, value));
         }
     }
 }

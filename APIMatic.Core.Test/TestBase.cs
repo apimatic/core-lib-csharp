@@ -1,9 +1,10 @@
-﻿using APIMatic.Core.Types.Sdk;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using APIMatic.Core.Types.Sdk;
+using APIMatic.Core.Authentication;
 
 namespace APIMatic.Core.Test
 {
@@ -11,7 +12,6 @@ namespace APIMatic.Core.Test
     public class TestBase
     {
         protected enum MockServer { Server1, Server2 }
-        protected GlobalConfiguration GlobalConfiguration { get; private set; }
 
         protected Mock<CoreRequest> MockRequest(HttpMethod method = null, string queryUrl = null,
             Dictionary<string, string> headers = null, object body = null,
@@ -19,31 +19,31 @@ namespace APIMatic.Core.Test
             Dictionary<string, object> queryParameters = null) =>
             new Mock<CoreRequest>(method, queryUrl, headers, body, formParameters, queryParameters, null, null);
 
+        private static GlobalConfiguration globalConfiguration;
+        protected static Lazy<GlobalConfiguration> LazyGlobalConfiguration => new Lazy<GlobalConfiguration>(() => globalConfiguration ??= new GlobalConfiguration.Builder()
+            .ServerUrls(new Dictionary<Enum, string>
+            {
+                { MockServer.Server1, "http://my/path:3000/{one}"},
+                { MockServer.Server2, "https://my/path/{two}"}
+            }, MockServer.Server1)
+            .AuthManagers(new Dictionary<string, AuthManager>())
+            .GlobalParameters(p => p
+                .Header(h => h.Setup("additionalHead1", "headVal1"))
+                .Header(h => h.Setup("additionalHead2", "headVal2"))
+                .Template(t => t.Setup("one", "v1"))
+                .Template(t => t.Setup("two", "v2")))
+            .GlobalRuntimeParameters(p => p
+                .AdditionalHeaders(ah => ah.Setup(new Dictionary<string, object>
+                {
+                    { "key5", 890.098 }
+                })))
+            .UserAgent("{language}|{version}|{engine}|{engine-version}|{os-info}", new List<(string placeHolder, string value)>
+            {
+                ("{language}", "my lang"),
+                ("{version}", "1.*.*")
+            })
+            .Build()
+        );
 
-        /// <summary>
-        /// Set up the TestCase.
-        /// </summary>
-        [OneTimeSetUp]
-        public void SetUp()
-        {
-            GlobalConfiguration = new GlobalConfiguration.Builder()
-                .ServerUrls(new Dictionary<Enum, string>
-                {
-                    { MockServer.Server1, "http://my/path:3000/{one}"},
-                    { MockServer.Server2, "https://my/path/{two}"}
-                }, MockServer.Server1)
-                .AuthManagers(new Dictionary<string, object>())
-                .HeaderParam(p => p.Init("additionalHead1", "headVal1"))
-                .HeaderParam(p => p.Init("additionalHead2", "headVal2"))
-                .TemplateParam(p => p.Init("one", "v1"))
-                .TemplateParam(p => p.Init("two", "v2"))
-                .RuntimeHeaderParam(p => p.Init("key5", 890.098))
-                .UserAgent("{language}|{version}|{engine}|{engine-version}|{os-info}", new List<(string placeHolder, string value)>
-                {
-                    ("{language}", "my lang"),
-                    ("{version}", "1.*.*")
-                })
-                .Build();
-        }
     }
 }
