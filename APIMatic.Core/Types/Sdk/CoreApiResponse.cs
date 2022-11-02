@@ -3,7 +3,7 @@
 // </copyright>
 using System.Collections.Generic;
 
-namespace APIMatic.Core.Types
+namespace APIMatic.Core.Types.Sdk
 {
     /// <summary>
     /// CoreApiResponse Class.
@@ -19,9 +19,9 @@ namespace APIMatic.Core.Types
         /// <param name="data">Data.</param>
         public CoreApiResponse(int statusCode, Dictionary<string, string> headers, T data)
         {
-            this.StatusCode = statusCode;
-            this.Headers = headers;
-            this.Data = data;
+            StatusCode = statusCode;
+            Headers = headers;
+            Data = data;
         }
 
         /// <summary>

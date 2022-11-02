@@ -2,7 +2,7 @@
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using APIMatic.Core.Http.Client;
-using APIMatic.Core.Types;
+using APIMatic.Core.Types.Sdk;
 
 namespace APIMatic.Core.Http
 {

@@ -1,10 +1,10 @@
-﻿using APIMatic.Core.Authentication;
-using APIMatic.Core.Types;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using APIMatic.Core.Types.Sdk;
+using APIMatic.Core.Authentication;
 
 namespace APIMatic.Core.Test
 {

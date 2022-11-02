@@ -5,7 +5,7 @@ using APIMatic.Core.Utilities;
 using System.Collections.Generic;
 using System.IO;
 
-namespace APIMatic.Core.Types
+namespace APIMatic.Core.Types.Sdk
 {
     /// <summary>
     /// CoreResponse.

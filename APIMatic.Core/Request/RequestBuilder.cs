@@ -1,14 +1,13 @@
 ﻿// <copyright file="HttpClientWrapper.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-using APIMatic.Core.Authentication;
-using APIMatic.Core.Http.Client.Configuration;
-using APIMatic.Core.Request.Parameters;
-using APIMatic.Core.Types;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using System.Collections.Generic;
+using APIMatic.Core.Http.Client.Configuration;
+using APIMatic.Core.Request.Parameters;
+using APIMatic.Core.Types.Sdk;
 
 namespace APIMatic.Core.Request
 {
