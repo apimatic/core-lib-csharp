@@ -2,11 +2,8 @@
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using APIMatic.Core.Http.Client.Configuration;
 using APIMatic.Core.Utilities;
 
 namespace APIMatic.Core.Request.Parameters

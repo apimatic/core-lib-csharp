@@ -15,10 +15,7 @@ namespace APIMatic.Core.Request.Parameters
         protected bool validated = false;
         protected string typeName;
 
-        private string GetName()
-        {
-            return key == "" ? typeName : key;
-        }
+        private string GetName() => key == "" ? typeName : key;
 
         public Parameter Setup(string key, object value)
         {
@@ -49,7 +46,7 @@ namespace APIMatic.Core.Request.Parameters
             return this;
         }
 
-        internal void Validate()
+        internal virtual void Validate()
         {
             if (validated)
             {
@@ -80,11 +77,27 @@ namespace APIMatic.Core.Request.Parameters
 
             internal Builder() { }
 
+            public Builder Template(Action<TemplateParam> action)
+            {
+                var template = new TemplateParam();
+                action(template);
+                parameters.Add(template);
+                return this;
+            }
+
             public Builder Header(Action<HeaderParam> action)
             {
                 var header = new HeaderParam();
                 action(header);
                 parameters.Add(header);
+                return this;
+            }
+
+            public Builder AdditionalHeaders(Action<AdditionalHeaderParams> action)
+            {
+                var headers = new AdditionalHeaderParams();
+                action(headers);
+                parameters.Add(headers);
                 return this;
             }
 
@@ -96,11 +109,35 @@ namespace APIMatic.Core.Request.Parameters
                 return this;
             }
 
-            public Builder Template(Action<TemplateParam> action)
+            public Builder AdditionalQueries(Action<AdditionalQueryParams> action)
             {
-                var template = new TemplateParam();
-                action(template);
-                parameters.Add(template);
+                var queries = new AdditionalQueryParams();
+                action(queries);
+                parameters.Add(queries);
+                return this;
+            }
+
+            public Builder Form(Action<FormParam> action)
+            {
+                var form = new FormParam();
+                action(form);
+                parameters.Add(form);
+                return this;
+            }
+
+            public Builder AdditionalForms(Action<AdditionalFormParams> action)
+            {
+                var forms = new AdditionalFormParams();
+                action(forms);
+                parameters.Add(forms);
+                return this;
+            }
+
+            public Builder Body(Action<BodyParam> action)
+            {
+                var body = new BodyParam();
+                action(body);
+                parameters.Add(body);
                 return this;
             }
 

@@ -32,7 +32,7 @@ namespace APIMatic.Core.Request
 
         internal RequestBuilder ServerUrl(string serverUrl)
         {
-            this.queryUrl.Append(serverUrl);
+            queryUrl.Append(serverUrl);
             return this;
         }
 
