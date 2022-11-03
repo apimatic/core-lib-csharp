@@ -71,7 +71,7 @@ namespace APIMatic.Core.Request
             return this;
         }
 
-        public CoreRequest Build()
+        internal CoreRequest Build()
         {
             parameters.Validate().Apply(this);
             configuration.GlobalRuntimeParameters.Validate().Apply(this);

@@ -37,7 +37,9 @@ namespace APIMatic.Core
         internal Parameter.Builder GlobalRuntimeParameters { get; private set; }
         internal HttpCallBack ApiCallback { get; private set; }
 
-        public RequestBuilder GlobalRequestBuilder(Enum server = null)
+        public string ServerUrl(Enum server = null) => GlobalRequestBuilder(server).queryUrl.ToString();
+
+        internal RequestBuilder GlobalRequestBuilder(Enum server)
         {
             RequestBuilder requestBuilder = new RequestBuilder(this)
                 .ServerUrl(serverUrls[server ?? defaultServer]);
