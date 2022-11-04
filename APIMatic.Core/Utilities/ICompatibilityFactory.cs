@@ -1,11 +1,11 @@
-﻿// <copyright file="ICompatibilityConverter.cs" company="APIMatic">
+﻿// <copyright file="ICompatibilityFactory.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using APIMatic.Core.Types.Sdk;
 
 namespace APIMatic.Core.Utilities
 {
-    public interface IHttpConfiguration<Request, Response, Context>
+    public interface ICompatibilityFactory<Request, Response, Context>
         where Request : CoreRequest
         where Response : CoreResponse
         where Context: CoreContext<Request, Response>
