@@ -75,10 +75,10 @@ namespace APIMatic.Core.Request
             return this;
         }
 
-        internal CoreRequest Build()
+        public CoreRequest Build()
         {
             parameters.Validate().Apply(this);
-            configuration.GlobalRuntimeParameters.Validate().Apply(this);
+            configuration.RuntimeParameters.Validate().Apply(this);
             bool authManagerFound = configuration.AuthManagers.TryGetValue(authName, out var authManager);
             if (authManagerFound)
             {

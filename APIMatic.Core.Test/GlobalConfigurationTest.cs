@@ -20,7 +20,7 @@ namespace APIMatic.Core.Test
         [Test]
         public void TestGlobalRequestQueryUrl()
         {
-            var request = LazyGlobalConfiguration.Value.GlobalRequestBuilder(MockServer.Server1).Build();
+            var request = LazyGlobalConfiguration.Value.GlobalRequestBuilder().Build();
             Assert.AreEqual("http://my/path:3000/v1", request.QueryUrl);
 
             var request2 = LazyGlobalConfiguration.Value.GlobalRequestBuilder(MockServer.Server2).Build();
@@ -30,7 +30,7 @@ namespace APIMatic.Core.Test
         [Test]
         public void TestGlobalRequestHeaders()
         {
-            var request = LazyGlobalConfiguration.Value.GlobalRequestBuilder(MockServer.Server1).Build();
+            var request = LazyGlobalConfiguration.Value.GlobalRequestBuilder().Build();
             Assert.True(request.Headers.Count == 3);
             Assert.AreEqual("headVal1", request.Headers["additionalHead1"]);
             Assert.AreEqual("headVal2", request.Headers["additionalHead2"]);

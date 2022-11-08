@@ -31,15 +31,15 @@ namespace APIMatic.Core
             this.parameters = parameters;
             ApiCallback = apiCallback;
             AuthManagers = authManagers;
-            GlobalRuntimeParameters = runtimeParameters;
+            RuntimeParameters = runtimeParameters;
         }
         internal Dictionary<string, AuthManager> AuthManagers { get; private set; }
-        internal Parameter.Builder GlobalRuntimeParameters { get; private set; }
+        internal Parameter.Builder RuntimeParameters { get; private set; }
         internal HttpCallBack ApiCallback { get; private set; }
 
         public string ServerUrl(Enum server = null) => GlobalRequestBuilder(server).QueryUrl.ToString();
 
-        internal RequestBuilder GlobalRequestBuilder(Enum server)
+        public RequestBuilder GlobalRequestBuilder(Enum server = null)
         {
             RequestBuilder requestBuilder = new RequestBuilder(this);
             requestBuilder.QueryUrl.Append(serverUrls[server ?? defaultServer]);
