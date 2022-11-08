@@ -5,12 +5,14 @@ using System.Collections.Generic;
 using System.Net.Http;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Authentication;
+using APIMatic.Core.Types;
 
 namespace APIMatic.Core.Test
 {
     [TestFixture]
     public class TestBase
     {
+        protected static HttpCallBack ApiCallBack = new HttpCallBack();
         protected enum MockServer { Server1, Server2 }
 
         protected Mock<CoreRequest> MockRequest(HttpMethod method = null, string queryUrl = null,
@@ -27,12 +29,12 @@ namespace APIMatic.Core.Test
                 { MockServer.Server2, "https://my/path/{two}"}
             }, MockServer.Server1)
             .AuthManagers(new Dictionary<string, AuthManager>())
-            .GlobalParameters(p => p
+            .Parameters(p => p
                 .Header(h => h.Setup("additionalHead1", "headVal1"))
                 .Header(h => h.Setup("additionalHead2", "headVal2"))
                 .Template(t => t.Setup("one", "v1"))
                 .Template(t => t.Setup("two", "v2")))
-            .GlobalRuntimeParameters(p => p
+            .RuntimeParameters(p => p
                 .AdditionalHeaders(ah => ah.Setup(new Dictionary<string, object>
                 {
                     { "key5", 890.098 }
@@ -42,6 +44,7 @@ namespace APIMatic.Core.Test
                 ("{language}", "my lang"),
                 ("{version}", "1.*.*")
             })
+            .ApiCallback(ApiCallBack)
             .Build()
         );
 
