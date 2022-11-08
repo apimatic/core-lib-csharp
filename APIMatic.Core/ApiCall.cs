@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace APIMatic.Core
 {
-    class ApiCall<Request, Response, Context, ApiException, ReturnType>
+    public class ApiCall<Request, Response, Context, ApiException, ReturnType>
         where Request : CoreRequest
         where Response : CoreResponse
         where Context : CoreContext<Request, Response>
