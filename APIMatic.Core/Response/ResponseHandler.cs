@@ -15,11 +15,11 @@ namespace APIMatic.Core.Response
         where Context : CoreContext<Request, Response>
         where ApiException : CoreApiException<Request, Response, Context>
     {
-        private readonly Dictionary<int, Lazy<ApiException>> errors;
+        private readonly Dictionary<int, Func<Context, ApiException>> errors;
         private readonly ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory;
 
         internal ResponseHandler(ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory,
-            Dictionary<int, Lazy<ApiException>> errors) => (this.compatibilityFactory, this.errors) = (compatibilityFactory, errors);
+            Dictionary<int, Func<Context, ApiException>> errors) => (this.compatibilityFactory, this.errors) = (compatibilityFactory, errors);
 
         internal ReturnType getResult(CoreContext<CoreRequest, CoreResponse> context)
         {

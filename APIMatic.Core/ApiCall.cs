@@ -19,7 +19,6 @@ namespace APIMatic.Core
         where ApiException : CoreApiException<Request, Response, Context>
     {
         private readonly GlobalConfiguration globalConfiguration;
-        private readonly Dictionary<int, Lazy<ApiException>> errors;
         private readonly ArrayDeserialization arrayDeserialization;
         private readonly ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory;
         private readonly ResponseHandler<Request, Response, Context, ApiException, ReturnType> responseHandler;
@@ -27,13 +26,12 @@ namespace APIMatic.Core
         private RequestBuilder requestBuilder;
 
         public ApiCall(GlobalConfiguration configuration, ICompatibilityFactory<Request, Response, Context, ApiException> compatibility,
-            Dictionary<int, Lazy<ApiException>> globalErrors = null, ArrayDeserialization serializationType = ArrayDeserialization.Indexed)
+            Dictionary<int, Func<Context, ApiException>> globalErrors, ArrayDeserialization serializationType = ArrayDeserialization.Indexed)
         {
             globalConfiguration = configuration;
             compatibilityFactory = compatibility;
             arrayDeserialization = serializationType;
-            errors = globalErrors ?? new Dictionary<int, Lazy<ApiException>>();
-            responseHandler = new ResponseHandler<Request, Response, Context, ApiException, ReturnType>(compatibilityFactory, errors);
+            responseHandler = new ResponseHandler<Request, Response, Context, ApiException, ReturnType>(compatibilityFactory, globalErrors);
         }
 
         public ApiCall<Request, Response, Context, ApiException, ReturnType> Server(Enum server)
