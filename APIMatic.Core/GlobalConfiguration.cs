@@ -37,17 +37,17 @@ namespace APIMatic.Core
         internal Parameter.Builder GlobalRuntimeParameters { get; private set; }
         internal HttpCallBack ApiCallback { get; private set; }
 
-        public string ServerUrl(Enum server = null) => GlobalRequestBuilder(server).queryUrl.ToString();
+        public string ServerUrl(Enum server = null) => GlobalRequestBuilder(server).QueryUrl.ToString();
 
         internal RequestBuilder GlobalRequestBuilder(Enum server)
         {
-            RequestBuilder requestBuilder = new RequestBuilder(this)
-                .ServerUrl(serverUrls[server ?? defaultServer]);
+            RequestBuilder requestBuilder = new RequestBuilder(this);
+            requestBuilder.QueryUrl.Append(serverUrls[server ?? defaultServer]);
             globalParameters.Validate().Apply(requestBuilder);
             return requestBuilder;
         }
 
-        internal HttpClientWrapper HttpClient()
+        internal IHttpClient HttpClient()
         {
             return new HttpClientWrapper(httpConfiguration);
         }

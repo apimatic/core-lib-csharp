@@ -32,15 +32,7 @@ namespace APIMatic.Core.Http.Client
         /// <param name="request">The given HttpRequest to execute.</param>
         /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
         /// <returns> HttpResponse containing raw information.</returns>
-        CoreResponse ExecuteAsString(CoreRequest request);
-
-        /// <summary>
-        /// Execute a given HttpRequest to get binary response back.
-        /// </summary>
-        /// <param name="request">The given HttpRequest to execute.</param>
-        /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
-        /// <returns> HttpResponse containing raw information.</returns>
-        CoreResponse ExecuteAsBinary(CoreRequest request);
+        CoreResponse Execute(CoreRequest request);
 
         /// <summary>
         /// Execute a given HttpRequest to get async string response back.
@@ -49,15 +41,6 @@ namespace APIMatic.Core.Http.Client
         /// <param name="cancellationToken">CancellationToken.</param>
         /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
         /// <returns> HttpResponse containing raw information.</returns>
-        Task<CoreResponse> ExecuteAsStringAsync(CoreRequest request, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Execute a given HttpRequest to get async binary response back.
-        /// </summary>
-        /// <param name="request">The given HttpRequest to execute.</param>
-        /// <param name="cancellationToken">CancellationToken.</param>
-        /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
-        /// <returns> HttpResponse containing raw information.</returns>
-        Task<CoreResponse> ExecuteAsBinaryAsync(CoreRequest request, CancellationToken cancellationToken = default);
+        Task<CoreResponse> ExecuteAsync(CoreRequest request, CancellationToken cancellationToken = default);
     }
 }

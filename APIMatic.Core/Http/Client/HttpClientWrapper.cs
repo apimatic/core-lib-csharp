@@ -34,7 +34,6 @@ namespace APIMatic.Core.Http.Client
         private readonly int backoffFactor;
         private readonly double retryInterval;
         private readonly TimeSpan maximumRetryWaitTime;
-        private ArrayDeserialization arrayDeserializationFormat = ArrayDeserialization.Indexed;
         private HttpClient client;
         private IList<HttpStatusCode> statusCodesToRetry;
         private IList<HttpMethod> requestMethodsToRetry;
@@ -82,9 +81,9 @@ namespace APIMatic.Core.Http.Client
         /// <param name="request">Http request.</param>
         /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
         /// <returns>HttpStringResponse.</returns>
-        public CoreResponse ExecuteAsString(CoreRequest request)
+        public CoreResponse Execute(CoreRequest request)
         {
-            Task<CoreResponse> t = ExecuteAsStringAsync(request);
+            Task<CoreResponse> t = ExecuteAsync(request);
             CoreHelper.RunTaskSynchronously(t);
             return t.Result;
         }
@@ -96,7 +95,7 @@ namespace APIMatic.Core.Http.Client
         /// <param name="cancellationToken"> cancellationToken.</param>
         /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
         /// <returns>Returns the HttpStringResponse.</returns>
-        public async Task<CoreResponse> ExecuteAsStringAsync(CoreRequest request, CancellationToken cancellationToken = default)
+        public async Task<CoreResponse> ExecuteAsync(CoreRequest request, CancellationToken cancellationToken = default)
         {
             // raise the on before request event.
             RaiseOnBeforeHttpRequestEvent(request);
@@ -117,59 +116,9 @@ namespace APIMatic.Core.Http.Client
             int statusCode = (int)responseMessage.StatusCode;
             var headers = GetCombinedResponseHeaders(responseMessage);
             Stream rawBody = await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
-            string body = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+            string body = request.HasBinaryResponse ? await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false) : null;
 
             var response = new CoreResponse(statusCode, headers, rawBody, body);
-
-            // raise the on after response event.
-            RaiseOnAfterHttpResponseEvent(response);
-
-            return response;
-        }
-
-        /// <summary>
-        /// Executes the http request.
-        /// </summary>
-        /// <param name="request">Http request.</param>
-        /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
-        /// <returns>HttpResponse.</returns>
-        public CoreResponse ExecuteAsBinary(CoreRequest request)
-        {
-            Task<CoreResponse> t = ExecuteAsBinaryAsync(request);
-            CoreHelper.RunTaskSynchronously(t);
-            return t.Result;
-        }
-
-        /// <summary>
-        /// Executes the http request asynchronously.
-        /// </summary>
-        /// <param name="request">Http request.</param>
-        /// <param name="cancellationToken">cancellationToken.</param>
-        /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
-        /// <returns>HttpResponse.</returns>
-        public async Task<CoreResponse> ExecuteAsBinaryAsync(CoreRequest request, CancellationToken cancellationToken = default)
-        {
-            // raise the on before request event.
-            RaiseOnBeforeHttpRequestEvent(request);
-
-            HttpResponseMessage responseMessage;
-
-            if (overrideHttpClientConfiguration)
-            {
-                responseMessage = await GetCombinedPolicy(request.RetryOption).ExecuteAsync(
-                    async (cancellation) => await HttpResponseMessage(request, cancellation).ConfigureAwait(false), cancellationToken)
-                    .ConfigureAwait(false);
-            }
-            else
-            {
-                responseMessage = await HttpResponseMessage(request, cancellationToken).ConfigureAwait(false);
-            }
-
-            int statusCode = (int)responseMessage.StatusCode;
-            var headers = GetCombinedResponseHeaders(responseMessage);
-            Stream rawBody = await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
-
-            CoreResponse response = new CoreResponse(statusCode, headers, rawBody);
 
             // raise the on after response event.
             RaiseOnAfterHttpResponseEvent(response);
@@ -220,7 +169,7 @@ namespace APIMatic.Core.Http.Client
 
             if (request.QueryParameters != null)
             {
-                CoreHelper.AppendUrlWithQueryParameters(queryBuilder, request.QueryParameters, arrayDeserializationFormat, parameterSeparator);
+                CoreHelper.AppendUrlWithQueryParameters(queryBuilder, request.QueryParameters, request.ArrayDeserialization, parameterSeparator);
             }
 
             // validate and preprocess url.

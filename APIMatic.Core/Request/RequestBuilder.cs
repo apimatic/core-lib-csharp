@@ -16,11 +16,11 @@ namespace APIMatic.Core.Request
         private readonly GlobalConfiguration configuration;
         private RetryOption retryOption = RetryOption.Default;
         private bool contentTypeAllowed = true;
+        private bool hasBinaryResponse = false;
         private string authName = "";
         private HttpMethod httpMethod;
         private readonly Parameter.Builder parameters = new Parameter.Builder();
 
-        internal readonly StringBuilder queryUrl = new StringBuilder();
         internal readonly Dictionary<string, string> headers = new Dictionary<string, string>();
         internal object body;
         internal readonly Dictionary<string, object> bodyParameters = new Dictionary<string, object>();
@@ -29,16 +29,14 @@ namespace APIMatic.Core.Request
 
         internal RequestBuilder(GlobalConfiguration configuration) => this.configuration = configuration;
 
-        internal RequestBuilder ServerUrl(string serverUrl)
-        {
-            queryUrl.Append(serverUrl);
-            return this;
-        }
+        internal ArrayDeserialization ArrayDeserialization { get; set; }
+
+        internal StringBuilder QueryUrl { get; } = new StringBuilder();
 
         public RequestBuilder Setup(HttpMethod httpMethod, string path)
         {
             this.httpMethod = httpMethod;
-            queryUrl.Append(path);
+            QueryUrl.Append(path);
             return this;
         }
 
@@ -57,6 +55,12 @@ namespace APIMatic.Core.Request
         public RequestBuilder WithAuth(string authName)
         {
             this.authName = authName;
+            return this;
+        }
+
+        public RequestBuilder WithBinaryResponse()
+        {
+            this.hasBinaryResponse = true;
             return this;
         }
 
@@ -80,9 +84,11 @@ namespace APIMatic.Core.Request
             {
                 authManager.Validate().Apply(this);
             }
-            return new CoreRequest(httpMethod, queryUrl.ToString(), headers, body, formParameters, queryParameters)
+            return new CoreRequest(httpMethod, QueryUrl.ToString(), headers, body, formParameters, queryParameters)
             {
-                RetryOption = retryOption
+                RetryOption = retryOption,
+                HasBinaryResponse = hasBinaryResponse,
+                ArrayDeserialization = ArrayDeserialization
             };
         }
     }

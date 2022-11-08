@@ -77,6 +77,16 @@ namespace APIMatic.Core.Types.Sdk
         internal RetryOption RetryOption { get; set; } = RetryOption.Default;
 
         /// <summary>
+        /// Represents an optional binary response field for the request.
+        /// </summary>
+        internal bool HasBinaryResponse { get; set; }
+
+        /// <summary>
+        /// Represents the array deserlization format for the request.
+        /// </summary>
+        internal ArrayDeserialization ArrayDeserialization { get; set; }
+
+        /// <summary>
         /// Concatenate values from a Dictionary to this object.
         /// </summary>
         /// <param name="headersToAdd"> headersToAdd. </param>

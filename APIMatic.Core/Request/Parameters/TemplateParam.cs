@@ -43,7 +43,7 @@ namespace APIMatic.Core.Request.Parameters
                 return;
             }
             string replacerValue = Uri.EscapeUriString(GetReplacerValue(value));
-            requestBuilder.queryUrl.Replace(string.Format("{{{0}}}", key), replacerValue);
+            requestBuilder.QueryUrl.Replace(string.Format("{{{0}}}", key), replacerValue);
         }
     }
 }
