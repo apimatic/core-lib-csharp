@@ -23,7 +23,7 @@ namespace APIMatic.Core
 
         private GlobalConfiguration(ICoreHttpClientConfiguration httpConfiguration, Dictionary<string, AuthManager> authManagers,
             Dictionary<Enum, string> serverUrls, Enum defaultServer, Parameter.Builder parameters,
-            Parameter.Builder globalRuntimeParameters, HttpCallBack apiCallback)
+            Parameter.Builder runtimeParameters, HttpCallBack apiCallback)
         {
             this.httpConfiguration = httpConfiguration;
             this.serverUrls = serverUrls;
@@ -31,7 +31,7 @@ namespace APIMatic.Core
             this.parameters = parameters;
             ApiCallback = apiCallback;
             AuthManagers = authManagers;
-            GlobalRuntimeParameters = globalRuntimeParameters;
+            GlobalRuntimeParameters = runtimeParameters;
         }
         internal Dictionary<string, AuthManager> AuthManagers { get; private set; }
         internal Parameter.Builder GlobalRuntimeParameters { get; private set; }
