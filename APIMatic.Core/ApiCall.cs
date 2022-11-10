@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace APIMatic.Core
 {
-    public class ApiCall<Request, Response, Context, ApiException, ReturnType>
+    public class ApiCall<Request, Response, Context, ApiException, ReturnType, InnerType>
         where Request : CoreRequest
         where Response : CoreResponse
         where Context : CoreContext<Request, Response>
@@ -21,7 +21,7 @@ namespace APIMatic.Core
         private readonly GlobalConfiguration globalConfiguration;
         private readonly ArrayDeserialization arrayDeserialization;
         private readonly ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory;
-        private readonly ResponseHandler<Request, Response, Context, ApiException, ReturnType> responseHandler;
+        private readonly ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> responseHandler;
         private Enum apiCallServer;
         private RequestBuilder requestBuilder;
 
@@ -31,16 +31,16 @@ namespace APIMatic.Core
             globalConfiguration = configuration;
             compatibilityFactory = compatibility;
             arrayDeserialization = serializationType;
-            responseHandler = new ResponseHandler<Request, Response, Context, ApiException, ReturnType>(compatibilityFactory, globalErrors);
+            responseHandler = new ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType>(compatibilityFactory, globalErrors);
         }
 
-        public ApiCall<Request, Response, Context, ApiException, ReturnType> Server(Enum server)
+        public ApiCall<Request, Response, Context, ApiException, ReturnType, InnerType> Server(Enum server)
         {
             apiCallServer = server;
             return this;
         }
 
-        public ApiCall<Request, Response, Context, ApiException, ReturnType> RequestBuilder(Action<RequestBuilder> requestBuilderAction)
+        public ApiCall<Request, Response, Context, ApiException, ReturnType, InnerType> RequestBuilder(Action<RequestBuilder> requestBuilderAction)
         {
             requestBuilder = globalConfiguration.GlobalRequestBuilder(apiCallServer);
             requestBuilder.ArrayDeserialization = arrayDeserialization;
@@ -48,8 +48,8 @@ namespace APIMatic.Core
             return this;
         }
 
-        public ApiCall<Request, Response, Context, ApiException, ReturnType> ResponseHandler(
-            Action<ResponseHandler<Request, Response, Context, ApiException, ReturnType>> responseHandlerAction)
+        public ApiCall<Request, Response, Context, ApiException, ReturnType, InnerType> ResponseHandler(
+            Action<ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType>> responseHandlerAction)
         {
             responseHandlerAction(responseHandler);
             return this;
@@ -69,7 +69,7 @@ namespace APIMatic.Core
             CoreResponse response = await globalConfiguration.HttpClient().ExecuteAsync(request);
             globalConfiguration.ApiCallback.OnAfterHttpResponseEventHandler(response);
             var context = new CoreContext<CoreRequest, CoreResponse>(request, response);
-            return responseHandler.getResult(context);
+            return responseHandler.Result(context);
         }
     }
 }

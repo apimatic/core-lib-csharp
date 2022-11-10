@@ -11,7 +11,7 @@ namespace APIMatic.Core.Utilities
         where Context: CoreContext<Request, Response>
         where ApiException : CoreApiException<Request, Response, Context>
     {
-        ApiException CreateApiException(string reason, CoreContext<Request, Response> context);
+        ApiException CreateApiException(string reason, CoreContext<CoreRequest, CoreResponse> context);
         Request CreateHttpRequest(CoreRequest request);
         Response CreateHttpResponse(CoreResponse response);
         Context CreateHttpContext(CoreRequest request, CoreResponse response);
