@@ -18,6 +18,7 @@ namespace APIMatic.Core.Response
         private readonly ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory;
         private bool nullOn404 = false;
         private Func<string, InnerType> deserializer = responseBody => CoreHelper.JsonDeserialize<InnerType>(responseBody);
+        private Func<InnerType, Context, InnerType> contextAdder;
         private Func<Response, InnerType, ReturnType> returnTypeCreator;
 
         internal ResponseHandler(ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory,
@@ -44,11 +45,41 @@ namespace APIMatic.Core.Response
             return this;
         }
 
+        public ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> ContextAdder(
+            Func<InnerType, Context, InnerType> contextAdder)
+        {
+            this.contextAdder = contextAdder;
+            return this;
+        }
+
         public ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> ReturnTypeCreator(
             Func<Response, InnerType, ReturnType> returnTypeCreator)
         {
             this.returnTypeCreator = returnTypeCreator;
             return this;
+        }
+
+        internal ReturnType Result(CoreContext<CoreRequest, CoreResponse> context)
+        {
+            if (context.IsFailure())
+            {
+                if (nullOn404 && context.Response.StatusCode == 404)
+                {
+                    return default;
+                }
+                throw ResponseError(context);
+            }
+            InnerType result = deserializer(context.Response.Body);
+            result = contextAdder(result, compatibilityFactory.CreateHttpContext(context.Request, context.Response));
+            if (result is ReturnType deserializedResult)
+            {
+                return deserializedResult;
+            }
+            if (returnTypeCreator != null)
+            {
+                return returnTypeCreator(compatibilityFactory.CreateHttpResponse(context.Response), result);
+            }
+            return default;
         }
 
         private ApiException ResponseError(CoreContext<CoreRequest, CoreResponse> context)
@@ -63,28 +94,6 @@ namespace APIMatic.Core.Response
                 return defaultErrorFunction(httpContext);
             }
             return compatibilityFactory.CreateApiException("HTTP Response Not OK", context);
-        }
-
-        internal ReturnType Result(CoreContext<CoreRequest, CoreResponse> context)
-        {
-            if (context.IsFailure())
-            {
-                if (nullOn404 && context.Response.StatusCode == 404)
-                {
-                    return default;
-                }
-                throw ResponseError(context);
-            }
-            InnerType result = deserializer(context.Response.Body);
-            if (result is ReturnType deserializedResult)
-            {
-                return deserializedResult;
-            }
-            if (returnTypeCreator != null)
-            {
-                return returnTypeCreator(compatibilityFactory.CreateHttpResponse(context.Response), result);
-            }
-            return default;
         }
     }
 }
