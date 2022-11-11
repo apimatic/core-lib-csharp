@@ -26,12 +26,12 @@ namespace APIMatic.Core
         private RequestBuilder requestBuilder;
 
         public ApiCall(GlobalConfiguration configuration, ICompatibilityFactory<Request, Response, Context, ApiException> compatibility,
-            Dictionary<int, Func<Context, ApiException>> globalErrors, ArraySerialization serializationType = ArraySerialization.Indexed)
+            Dictionary<int, Func<Context, ApiException>> errors = null, ArraySerialization serialization = ArraySerialization.Indexed)
         {
             globalConfiguration = configuration;
             compatibilityFactory = compatibility;
-            arraySerialization = serializationType;
-            responseHandler = new ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType>(compatibilityFactory, globalErrors);
+            arraySerialization = serialization;
+            responseHandler = new ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType>(compatibilityFactory, errors);
         }
 
         public ApiCall<Request, Response, Context, ApiException, ReturnType, InnerType> Server(Enum server)
@@ -65,6 +65,7 @@ namespace APIMatic.Core
         public async Task<ReturnType> ExecuteAsync()
         {
             CoreRequest request = requestBuilder.Build();
+            request.HasBinaryResponse = responseHandler.IsBinaryResponse;
             globalConfiguration.ApiCallback.OnBeforeHttpRequestEventHandler(request);
             CoreResponse response = await globalConfiguration.HttpClient().ExecuteAsync(request);
             globalConfiguration.ApiCallback.OnAfterHttpResponseEventHandler(response);

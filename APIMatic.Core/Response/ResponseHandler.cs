@@ -21,9 +21,11 @@ namespace APIMatic.Core.Response
         private Func<InnerType, Context, InnerType> contextAdder;
         private Func<Response, InnerType, ReturnType> returnTypeCreator;
 
+        internal bool IsBinaryResponse { get; private set; } = false;
+
         internal ResponseHandler(ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory,
             Dictionary<int, Func<Context, ApiException>> errors)
-            => (this.compatibilityFactory, this.errors) = (compatibilityFactory, errors);
+            => (this.compatibilityFactory, this.errors) = (compatibilityFactory, errors ?? new Dictionary<int, Func<Context, ApiException>>());
 
         public ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> ErrorCase(
             int statusCode, Func<Context, ApiException> error)
@@ -35,6 +37,12 @@ namespace APIMatic.Core.Response
         public ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> NullOn404()
         {
             nullOn404 = true;
+            return this;
+        }
+
+        public ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> ReturnBinaryResponse()
+        {
+            IsBinaryResponse = true;
             return this;
         }
 

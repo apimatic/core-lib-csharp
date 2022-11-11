@@ -16,7 +16,6 @@ namespace APIMatic.Core.Request
         private readonly GlobalConfiguration configuration;
         private RetryOption retryOption = RetryOption.Default;
         private bool contentTypeAllowed = true;
-        private bool hasBinaryResponse = false;
         private string authName = "";
         private HttpMethod httpMethod;
         private readonly Parameter.Builder parameters = new Parameter.Builder();
@@ -58,12 +57,6 @@ namespace APIMatic.Core.Request
             return this;
         }
 
-        public RequestBuilder WithBinaryResponse()
-        {
-            this.hasBinaryResponse = true;
-            return this;
-        }
-
         /// <summary>
         /// Sets the request parameters using <see cref="Parameter.Builder"/>
         /// </summary>
@@ -87,7 +80,6 @@ namespace APIMatic.Core.Request
             return new CoreRequest(httpMethod, QueryUrl.ToString(), headers, body, formParameters, queryParameters)
             {
                 RetryOption = retryOption,
-                HasBinaryResponse = hasBinaryResponse,
                 ArraySerialization = ArraySerialization
             };
         }
