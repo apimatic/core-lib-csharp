@@ -6,7 +6,7 @@ namespace APIMatic.Core.Http.Client.Configuration
     /// <summary>
     /// This enumeration has ArrayDeserialization format.
     /// </summary>
-    public enum ArrayDeserialization
+    public enum ArraySerialization
     {
         /// <summary>
         /// Example: variableName[0] = value1
@@ -26,17 +26,17 @@ namespace APIMatic.Core.Http.Client.Configuration
         /// <summary>
         /// Example: variableName = value1,value2
         /// </summary>
-        Csv = 3,
+        CSV = 3,
 
         /// <summary>
         /// Example: variableName = value1\tvalue2
         /// </summary>
-        Tsv = 4,
+        TSV = 4,
 
         /// <summary>
         /// Example: variableName = value1|value2
         /// </summary>
-        Psv = 5,
+        PSV = 5,
 
         /// <summary>
         /// Example: Ignore format

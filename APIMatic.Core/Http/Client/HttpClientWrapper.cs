@@ -169,7 +169,7 @@ namespace APIMatic.Core.Http.Client
 
             if (request.QueryParameters != null)
             {
-                CoreHelper.AppendUrlWithQueryParameters(queryBuilder, request.QueryParameters, request.ArrayDeserialization, parameterSeparator);
+                CoreHelper.AppendUrlWithQueryParameters(queryBuilder, request.QueryParameters, request.ArraySerialization, parameterSeparator);
             }
 
             // validate and preprocess url.

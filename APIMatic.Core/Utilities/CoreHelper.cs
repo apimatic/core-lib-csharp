@@ -114,7 +114,7 @@ namespace APIMatic.Core.Utilities
                 }
                 else if (pair.Value is ICollection)
                 {
-                    replaceValue = FlattenCollection(pair.Value as ICollection, ArrayDeserialization.None, '/', false);
+                    replaceValue = FlattenCollection(pair.Value as ICollection, ArraySerialization.None, '/', false);
                 }
                 else if (pair.Value is DateTime)
                 {
@@ -143,7 +143,7 @@ namespace APIMatic.Core.Utilities
         /// <param name="parameters">The parameters to append.</param>
         /// <param name="arrayDeserializationFormat">arrayDeserializationFormat.</param>
         /// <param name="separator">separator.</param>
-        public static void AppendUrlWithQueryParameters(StringBuilder queryBuilder, IEnumerable<KeyValuePair<string, object>> parameters, ArrayDeserialization arrayDeserializationFormat = ArrayDeserialization.UnIndexed, char separator = '&')
+        public static void AppendUrlWithQueryParameters(StringBuilder queryBuilder, IEnumerable<KeyValuePair<string, object>> parameters, ArraySerialization arrayDeserializationFormat = ArraySerialization.UnIndexed, char separator = '&')
         {
             // perform parameter validation
             if (queryBuilder == null)
@@ -231,7 +231,7 @@ namespace APIMatic.Core.Utilities
         /// <param name="propInfo">propInfo.</param>
         /// <param name="arrayDeserializationFormat">arrayDeserializationFormat.</param>
         /// <returns>List of KeyValuePairs.</returns>
-        public static List<KeyValuePair<string, object>> PrepareFormFieldsFromObject(string name, object value, List<KeyValuePair<string, object>> keys = null, PropertyInfo propInfo = null, ArrayDeserialization arrayDeserializationFormat = ArrayDeserialization.UnIndexed)
+        public static List<KeyValuePair<string, object>> PrepareFormFieldsFromObject(string name, object value, List<KeyValuePair<string, object>> keys = null, PropertyInfo propInfo = null, ArraySerialization arrayDeserializationFormat = ArraySerialization.UnIndexed)
         {
             keys = keys ?? new List<KeyValuePair<string, object>>();
 
@@ -275,11 +275,11 @@ namespace APIMatic.Core.Utilities
                 while (enumerator.MoveNext())
                 {
                     var fullSubName = name + '[' + i + ']';
-                    if (!hasNested && arrayDeserializationFormat == ArrayDeserialization.UnIndexed)
+                    if (!hasNested && arrayDeserializationFormat == ArraySerialization.UnIndexed)
                     {
                         fullSubName = name + "[]";
                     }
-                    else if (!hasNested && arrayDeserializationFormat == ArrayDeserialization.Plain)
+                    else if (!hasNested && arrayDeserializationFormat == ArraySerialization.Plain)
                     {
                         fullSubName = name;
                     }
@@ -472,7 +472,7 @@ namespace APIMatic.Core.Utilities
         /// <returns>Representative string made up of array elements.</returns>
         private static string FlattenCollection(
             ICollection array,
-            ArrayDeserialization fmt,
+            ArraySerialization fmt,
             char separator,
             bool urlEncode,
             string key = "")
@@ -480,19 +480,19 @@ namespace APIMatic.Core.Utilities
             StringBuilder builder = new StringBuilder();
 
             string format = string.Empty;
-            if (fmt == ArrayDeserialization.UnIndexed)
+            if (fmt == ArraySerialization.UnIndexed)
             {
                 format = string.Format("{0}[]={{0}}{{1}}", key);
             }
-            else if (fmt == ArrayDeserialization.Indexed)
+            else if (fmt == ArraySerialization.Indexed)
             {
                 format = string.Format("{0}[{{2}}]={{0}}{{1}}", key);
             }
-            else if (fmt == ArrayDeserialization.Plain)
+            else if (fmt == ArraySerialization.Plain)
             {
                 format = string.Format("{0}={{0}}{{1}}", key);
             }
-            else if (fmt == ArrayDeserialization.Csv || fmt == ArrayDeserialization.Psv || fmt == ArrayDeserialization.Tsv)
+            else if (fmt == ArraySerialization.CSV || fmt == ArraySerialization.PSV || fmt == ArraySerialization.TSV)
             {
                 builder.Append(string.Format("{0}=", key));
                 format = "{0}{1}";
@@ -583,7 +583,7 @@ namespace APIMatic.Core.Utilities
                             else
                             {
                                 // List of custom type
-                                var innerList = PrepareFormFieldsFromObject(kvp.Key, kvp.Value, arrayDeserializationFormat: ArrayDeserialization.Indexed);
+                                var innerList = PrepareFormFieldsFromObject(kvp.Key, kvp.Value, arrayDeserializationFormat: ArraySerialization.Indexed);
                                 innerList = ApplySerializationFormatToScalarArrays(innerList);
                                 processedParameters.AddRange(innerList);
                             }
@@ -598,7 +598,7 @@ namespace APIMatic.Core.Utilities
                 else
                 {
                     // Custom type
-                    var list = PrepareFormFieldsFromObject(kvp.Key, kvp.Value, arrayDeserializationFormat: ArrayDeserialization.Indexed);
+                    var list = PrepareFormFieldsFromObject(kvp.Key, kvp.Value, arrayDeserializationFormat: ArraySerialization.Indexed);
                     list = ApplySerializationFormatToScalarArrays(list);
                     processedParameters.AddRange(list);
                 }

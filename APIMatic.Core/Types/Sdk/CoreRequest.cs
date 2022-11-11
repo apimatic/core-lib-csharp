@@ -84,7 +84,7 @@ namespace APIMatic.Core.Types.Sdk
         /// <summary>
         /// Represents the array deserlization format for the request.
         /// </summary>
-        internal ArrayDeserialization ArrayDeserialization { get; set; }
+        internal ArraySerialization ArraySerialization { get; set; }
 
         /// <summary>
         /// Concatenate values from a Dictionary to this object.

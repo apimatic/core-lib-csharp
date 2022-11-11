@@ -19,18 +19,18 @@ namespace APIMatic.Core
         where ApiException : CoreApiException<Request, Response, Context>
     {
         private readonly GlobalConfiguration globalConfiguration;
-        private readonly ArrayDeserialization arrayDeserialization;
+        private readonly ArraySerialization arraySerialization;
         private readonly ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory;
         private readonly ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> responseHandler;
         private Enum apiCallServer;
         private RequestBuilder requestBuilder;
 
         public ApiCall(GlobalConfiguration configuration, ICompatibilityFactory<Request, Response, Context, ApiException> compatibility,
-            Dictionary<int, Func<Context, ApiException>> globalErrors, ArrayDeserialization serializationType = ArrayDeserialization.Indexed)
+            Dictionary<int, Func<Context, ApiException>> globalErrors, ArraySerialization serializationType = ArraySerialization.Indexed)
         {
             globalConfiguration = configuration;
             compatibilityFactory = compatibility;
-            arrayDeserialization = serializationType;
+            arraySerialization = serializationType;
             responseHandler = new ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType>(compatibilityFactory, globalErrors);
         }
 
@@ -43,7 +43,7 @@ namespace APIMatic.Core
         public ApiCall<Request, Response, Context, ApiException, ReturnType, InnerType> RequestBuilder(Action<RequestBuilder> requestBuilderAction)
         {
             requestBuilder = globalConfiguration.GlobalRequestBuilder(apiCallServer);
-            requestBuilder.ArrayDeserialization = arrayDeserialization;
+            requestBuilder.ArraySerialization = arraySerialization;
             requestBuilderAction(requestBuilder);
             return this;
         }

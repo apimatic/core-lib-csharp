@@ -29,7 +29,7 @@ namespace APIMatic.Core.Request
 
         internal RequestBuilder(GlobalConfiguration configuration) => this.configuration = configuration;
 
-        internal ArrayDeserialization ArrayDeserialization { get; set; }
+        internal ArraySerialization ArraySerialization { get; set; }
 
         internal StringBuilder QueryUrl { get; } = new StringBuilder();
 
@@ -88,7 +88,7 @@ namespace APIMatic.Core.Request
             {
                 RetryOption = retryOption,
                 HasBinaryResponse = hasBinaryResponse,
-                ArrayDeserialization = ArrayDeserialization
+                ArraySerialization = ArraySerialization
             };
         }
     }
