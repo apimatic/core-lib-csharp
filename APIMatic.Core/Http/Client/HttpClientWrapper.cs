@@ -29,7 +29,7 @@ namespace APIMatic.Core.Http.Client
     /// </summary>
     internal class HttpClientWrapper : IHttpClient
     {
-        private static char parameterSeparator = '&';
+        private readonly char parameterSeparator = '&';
         private readonly int numberOfRetries;
         private readonly int backoffFactor;
         private readonly double retryInterval;
@@ -76,19 +76,6 @@ namespace APIMatic.Core.Http.Client
         public event OnAfterHttpResponseEventHandler OnAfterHttpResponseEvent;
 
         /// <summary>
-        /// Executes the http request.
-        /// </summary>
-        /// <param name="request">Http request.</param>
-        /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
-        /// <returns>HttpStringResponse.</returns>
-        public CoreResponse Execute(CoreRequest request)
-        {
-            Task<CoreResponse> t = ExecuteAsync(request);
-            CoreHelper.RunTaskSynchronously(t);
-            return t.Result;
-        }
-
-        /// <summary>
         /// Executes the http request asynchronously.
         /// </summary>
         /// <param name="request">Http request.</param>
@@ -101,7 +88,7 @@ namespace APIMatic.Core.Http.Client
             RaiseOnBeforeHttpRequestEvent(request);
 
             HttpResponseMessage responseMessage;
-
+    
             if (overrideHttpClientConfiguration)
             {
                 responseMessage = await GetCombinedPolicy(request.RetryOption).ExecuteAsync(
@@ -116,7 +103,7 @@ namespace APIMatic.Core.Http.Client
             int statusCode = (int)responseMessage.StatusCode;
             var headers = GetCombinedResponseHeaders(responseMessage);
             Stream rawBody = await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
-            string body = request.HasBinaryResponse ? await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false) : null;
+            string body = request.HasBinaryResponse ? null : await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             var response = new CoreResponse(statusCode, headers, rawBody, body);
 

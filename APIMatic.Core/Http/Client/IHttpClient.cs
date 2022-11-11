@@ -27,14 +27,6 @@ namespace APIMatic.Core.Http.Client
         event OnAfterHttpResponseEventHandler OnAfterHttpResponseEvent;
 
         /// <summary>
-        /// Execute a given HttpRequest to get string response back.
-        /// </summary>
-        /// <param name="request">The given HttpRequest to execute.</param>
-        /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
-        /// <returns> HttpResponse containing raw information.</returns>
-        CoreResponse Execute(CoreRequest request);
-
-        /// <summary>
         /// Execute a given HttpRequest to get async string response back.
         /// </summary>
         /// <param name="request">The given HttpRequest to execute.</param>
