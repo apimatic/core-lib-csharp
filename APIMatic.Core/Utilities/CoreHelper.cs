@@ -141,9 +141,9 @@ namespace APIMatic.Core.Utilities
         /// </summary>
         /// <param name="queryBuilder">The queryBuilder to append the parameters.</param>
         /// <param name="parameters">The parameters to append.</param>
-        /// <param name="arrayDeserializationFormat">arrayDeserializationFormat.</param>
+        /// <param name="arraySerialization">arraySerializationFormat.</param>
         /// <param name="separator">separator.</param>
-        public static void AppendUrlWithQueryParameters(StringBuilder queryBuilder, IEnumerable<KeyValuePair<string, object>> parameters, ArraySerialization arrayDeserializationFormat = ArraySerialization.UnIndexed, char separator = '&')
+        public static void AppendUrlWithQueryParameters(StringBuilder queryBuilder, IEnumerable<KeyValuePair<string, object>> parameters, ArraySerialization arraySerialization = ArraySerialization.UnIndexed)
         {
             // perform parameter validation
             if (queryBuilder == null)
@@ -174,7 +174,7 @@ namespace APIMatic.Core.Utilities
                 // load element value as string
                 if (pair.Value is ICollection)
                 {
-                    paramKeyValPair = FlattenCollection(pair.Value as ICollection, arrayDeserializationFormat, separator, true, Uri.EscapeDataString(pair.Key));
+                    paramKeyValPair = FlattenCollection(pair.Value as ICollection, arraySerialization, GetSeparator(arraySerialization), true, Uri.EscapeDataString(pair.Key));
                 }
                 else if (pair.Value is DateTime)
                 {
@@ -229,9 +229,9 @@ namespace APIMatic.Core.Utilities
         /// <param name="value">value.</param>
         /// <param name="keys">keys.</param>
         /// <param name="propInfo">propInfo.</param>
-        /// <param name="arrayDeserializationFormat">arrayDeserializationFormat.</param>
+        /// <param name="arraySerializationFormat">arraySerializationFormat.</param>
         /// <returns>List of KeyValuePairs.</returns>
-        public static List<KeyValuePair<string, object>> PrepareFormFieldsFromObject(string name, object value, List<KeyValuePair<string, object>> keys = null, PropertyInfo propInfo = null, ArraySerialization arrayDeserializationFormat = ArraySerialization.UnIndexed)
+        public static List<KeyValuePair<string, object>> PrepareFormFieldsFromObject(string name, object value, List<KeyValuePair<string, object>> keys = null, PropertyInfo propInfo = null, ArraySerialization arraySerializationFormat = ArraySerialization.UnIndexed)
         {
             keys = keys ?? new List<KeyValuePair<string, object>>();
 
@@ -252,7 +252,7 @@ namespace APIMatic.Core.Utilities
                     string pKey = property.Name;
                     object pValue = property.Value;
                     var fullSubName = name + '[' + pKey + ']';
-                    PrepareFormFieldsFromObject(fullSubName, pValue, keys, propInfo, arrayDeserializationFormat);
+                    PrepareFormFieldsFromObject(fullSubName, pValue, keys, propInfo, arraySerializationFormat);
                 }
             }
             else if (value is IList)
@@ -275,11 +275,11 @@ namespace APIMatic.Core.Utilities
                 while (enumerator.MoveNext())
                 {
                     var fullSubName = name + '[' + i + ']';
-                    if (!hasNested && arrayDeserializationFormat == ArraySerialization.UnIndexed)
+                    if (!hasNested && arraySerializationFormat == ArraySerialization.UnIndexed)
                     {
                         fullSubName = name + "[]";
                     }
-                    else if (!hasNested && arrayDeserializationFormat == ArraySerialization.Plain)
+                    else if (!hasNested && arraySerializationFormat == ArraySerialization.Plain)
                     {
                         fullSubName = name;
                     }
@@ -290,7 +290,7 @@ namespace APIMatic.Core.Utilities
                         continue;
                     }
 
-                    PrepareFormFieldsFromObject(fullSubName, subValue, keys, propInfo, arrayDeserializationFormat);
+                    PrepareFormFieldsFromObject(fullSubName, subValue, keys, propInfo, arraySerializationFormat);
                     i++;
                 }
             }
@@ -311,16 +311,16 @@ namespace APIMatic.Core.Utilities
                     var subName = sName.ToString();
                     var subValue = obj[subName];
                     string fullSubName = string.IsNullOrWhiteSpace(name) ? subName : name + '[' + subName + ']';
-                    PrepareFormFieldsFromObject(fullSubName, subValue, keys, propInfo, arrayDeserializationFormat);
+                    PrepareFormFieldsFromObject(fullSubName, subValue, keys, propInfo, arraySerializationFormat);
                 }
             }
             else if (value is CoreJsonObject)
             {
-                PrepareFormFieldsFromObject(name, RemoveNullValues((value as CoreJsonObject).GetStoredObject()), keys, propInfo, arrayDeserializationFormat);
+                PrepareFormFieldsFromObject(name, RemoveNullValues((value as CoreJsonObject).GetStoredObject()), keys, propInfo, arraySerializationFormat);
             }
             else if (value is CoreJsonValue)
             {
-                PrepareFormFieldsFromObject(name, (value as CoreJsonValue).GetStoredObject(), keys, propInfo, arrayDeserializationFormat);
+                PrepareFormFieldsFromObject(name, (value as CoreJsonValue).GetStoredObject(), keys, propInfo, arraySerializationFormat);
             }
             else if (!value.GetType().Namespace.StartsWith("System"))
             {
@@ -337,7 +337,7 @@ namespace APIMatic.Core.Utilities
                     var subName = (jsonProperty != null) ? jsonProperty.PropertyName : pInfo.Name;
                     string fullSubName = string.IsNullOrWhiteSpace(name) ? subName : name + '[' + subName + ']';
                     var subValue = pInfo.GetValue(value, null);
-                    PrepareFormFieldsFromObject(fullSubName, subValue, keys, pInfo, arrayDeserializationFormat);
+                    PrepareFormFieldsFromObject(fullSubName, subValue, keys, pInfo, arraySerializationFormat);
                 }
             }
             else if (value is DateTime)
@@ -372,19 +372,6 @@ namespace APIMatic.Core.Utilities
             return keys;
         }
 
-        ///// <summary>
-        ///// Add/update entries with the new dictionary.
-        ///// </summary>
-        ///// <param name="dictionary">first dictionary.</param>
-        ///// <param name="dictionary2">second dictionary.</param>
-        //public static void Add(this Dictionary<string, object> dictionary, Dictionary<string, object> dictionary2)
-        //{
-        //    foreach (var kvp in dictionary2)
-        //    {
-        //        dictionary[kvp.Key] = kvp.Value;
-        //    }
-        //}
-
         /// <summary>
         /// Runs asynchronous tasks synchronously and throws the first caught exception.
         /// </summary>
@@ -418,6 +405,22 @@ namespace APIMatic.Core.Utilities
         internal static T DeepCloneObject<T>(T obj)
         {
             return JsonDeserialize<T>(JsonSerialize(obj));
+        }
+
+        /// <summary>
+        /// Returns separator according to the arraySerialization.
+        /// </summary>
+        /// <param name="arraySerialization">The array serialization format.</param>
+        /// <returns>The separator character.</returns>
+        private static char GetSeparator(ArraySerialization arraySerialization)
+        {
+            if (arraySerialization == ArraySerialization.CSV)
+                return ',';
+            if (arraySerialization == ArraySerialization.PSV)
+                return '|';
+            if (arraySerialization == ArraySerialization.TSV)
+                return 't';
+            return '&';
         }
 
         /// <summary>
@@ -583,7 +586,7 @@ namespace APIMatic.Core.Utilities
                             else
                             {
                                 // List of custom type
-                                var innerList = PrepareFormFieldsFromObject(kvp.Key, kvp.Value, arrayDeserializationFormat: ArraySerialization.Indexed);
+                                var innerList = PrepareFormFieldsFromObject(kvp.Key, kvp.Value, arraySerializationFormat: ArraySerialization.Indexed);
                                 innerList = ApplySerializationFormatToScalarArrays(innerList);
                                 processedParameters.AddRange(innerList);
                             }
@@ -598,7 +601,7 @@ namespace APIMatic.Core.Utilities
                 else
                 {
                     // Custom type
-                    var list = PrepareFormFieldsFromObject(kvp.Key, kvp.Value, arrayDeserializationFormat: ArraySerialization.Indexed);
+                    var list = PrepareFormFieldsFromObject(kvp.Key, kvp.Value, arraySerializationFormat: ArraySerialization.Indexed);
                     list = ApplySerializationFormatToScalarArrays(list);
                     processedParameters.AddRange(list);
                 }

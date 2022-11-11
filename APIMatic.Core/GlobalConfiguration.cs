@@ -16,26 +16,28 @@ namespace APIMatic.Core
 {
     public class GlobalConfiguration
     {
-        private readonly ICoreHttpClientConfiguration httpConfiguration;
         private readonly Dictionary<Enum, string> serverUrls;
         private readonly Enum defaultServer;
         private readonly Parameter.Builder parameters;
+        private readonly IHttpClient _httpClient;
 
         private GlobalConfiguration(ICoreHttpClientConfiguration httpConfiguration, Dictionary<string, AuthManager> authManagers,
             Dictionary<Enum, string> serverUrls, Enum defaultServer, Parameter.Builder parameters,
             Parameter.Builder runtimeParameters, HttpCallBack apiCallback)
         {
-            this.httpConfiguration = httpConfiguration;
             this.serverUrls = serverUrls;
             this.defaultServer = defaultServer;
             this.parameters = parameters;
             ApiCallback = apiCallback;
             AuthManagers = authManagers;
             RuntimeParameters = runtimeParameters;
+            _httpClient = new HttpClientWrapper(httpConfiguration);
         }
+
         internal Dictionary<string, AuthManager> AuthManagers { get; private set; }
         internal Parameter.Builder RuntimeParameters { get; private set; }
         internal HttpCallBack ApiCallback { get; private set; }
+        internal IHttpClient HttpClient { get { return _httpClient; } }
 
         public string ServerUrl(Enum server = null) => GlobalRequestBuilder(server).QueryUrl.ToString();
 
@@ -45,11 +47,6 @@ namespace APIMatic.Core
             requestBuilder.QueryUrl.Append(serverUrls[server ?? defaultServer]);
             parameters.Validate().Apply(requestBuilder);
             return requestBuilder;
-        }
-
-        internal IHttpClient HttpClient()
-        {
-            return new HttpClientWrapper(httpConfiguration);
         }
 
         public class Builder

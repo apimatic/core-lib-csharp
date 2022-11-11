@@ -55,20 +55,13 @@ namespace APIMatic.Core
             return this;
         }
 
-        public ReturnType Execute()
-        {
-            Task<ReturnType> task = ExecuteAsync();
-            CoreHelper.RunTaskSynchronously(task);
-            return task.Result;
-        }
-
         public async Task<ReturnType> ExecuteAsync()
         {
             CoreRequest request = requestBuilder.Build();
             request.HasBinaryResponse = responseHandler.IsBinaryResponse;
-            globalConfiguration.ApiCallback.OnBeforeHttpRequestEventHandler(request);
-            CoreResponse response = await globalConfiguration.HttpClient().ExecuteAsync(request);
-            globalConfiguration.ApiCallback.OnAfterHttpResponseEventHandler(response);
+            globalConfiguration.ApiCallback?.OnBeforeHttpRequestEventHandler(request);
+            CoreResponse response = await globalConfiguration.HttpClient.ExecuteAsync(request);
+            globalConfiguration.ApiCallback?.OnAfterHttpResponseEventHandler(response);
             var context = new CoreContext<CoreRequest, CoreResponse>(request, response);
             return responseHandler.Result(context);
         }

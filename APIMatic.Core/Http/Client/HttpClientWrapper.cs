@@ -29,15 +29,14 @@ namespace APIMatic.Core.Http.Client
     /// </summary>
     internal class HttpClientWrapper : IHttpClient
     {
-        private readonly char parameterSeparator = '&';
-        private readonly int numberOfRetries;
-        private readonly int backoffFactor;
-        private readonly double retryInterval;
-        private readonly TimeSpan maximumRetryWaitTime;
-        private HttpClient client;
-        private IList<HttpStatusCode> statusCodesToRetry;
-        private IList<HttpMethod> requestMethodsToRetry;
-        private bool overrideHttpClientConfiguration;
+        private readonly int _numberOfRetries;
+        private readonly int _backoffFactor;
+        private readonly double _retryInterval;
+        private readonly TimeSpan _maximumRetryWaitTime;
+        private HttpClient _client;
+        private IList<HttpStatusCode> _statusCodesToRetry;
+        private IList<HttpMethod> _requestMethodsToRetry;
+        private bool _overrideHttpClientConfiguration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpClientWrapper"/> class.
@@ -45,23 +44,23 @@ namespace APIMatic.Core.Http.Client
         /// <param name="httpClientConfig"> HttpClientConfiguration object.</param>
         public HttpClientWrapper(ICoreHttpClientConfiguration httpClientConfig)
         {
-            client = httpClientConfig.HttpClientInstance;
-            overrideHttpClientConfiguration = httpClientConfig.OverrideHttpClientConfiguration;
+            _client = httpClientConfig.HttpClientInstance;
+            _overrideHttpClientConfiguration = httpClientConfig.OverrideHttpClientConfiguration;
 
-            if (overrideHttpClientConfiguration)
+            if (_overrideHttpClientConfiguration)
             {
-                statusCodesToRetry = httpClientConfig.StatusCodesToRetry
+                _statusCodesToRetry = httpClientConfig.StatusCodesToRetry
                 .Where(val => Enum.IsDefined(typeof(HttpStatusCode), val))
                 .Select(val => (HttpStatusCode)val).ToImmutableList();
 
-                requestMethodsToRetry = httpClientConfig.RequestMethodsToRetry
+                _requestMethodsToRetry = httpClientConfig.RequestMethodsToRetry
                     .Select(method => new HttpMethod(method.ToString())).ToList();
 
-                numberOfRetries = httpClientConfig.NumberOfRetries;
-                backoffFactor = httpClientConfig.BackoffFactor;
-                retryInterval = httpClientConfig.RetryInterval;
-                maximumRetryWaitTime = httpClientConfig.MaximumRetryWaitTime;
-                client.Timeout = httpClientConfig.Timeout;
+                _numberOfRetries = httpClientConfig.NumberOfRetries;
+                _backoffFactor = httpClientConfig.BackoffFactor;
+                _retryInterval = httpClientConfig.RetryInterval;
+                _maximumRetryWaitTime = httpClientConfig.MaximumRetryWaitTime;
+                _client.Timeout = httpClientConfig.Timeout;
             }
         }
 
@@ -89,7 +88,7 @@ namespace APIMatic.Core.Http.Client
 
             HttpResponseMessage responseMessage;
     
-            if (overrideHttpClientConfiguration)
+            if (_overrideHttpClientConfiguration)
             {
                 responseMessage = await GetCombinedPolicy(request.RetryOption).ExecuteAsync(
                     async (cancellation) => await HttpResponseMessage(request, cancellation).ConfigureAwait(false), cancellationToken)
@@ -156,7 +155,7 @@ namespace APIMatic.Core.Http.Client
 
             if (request.QueryParameters != null)
             {
-                CoreHelper.AppendUrlWithQueryParameters(queryBuilder, request.QueryParameters, request.ArraySerialization, parameterSeparator);
+                CoreHelper.AppendUrlWithQueryParameters(queryBuilder, request.QueryParameters, request.ArraySerialization);
             }
 
             // validate and preprocess url.
@@ -284,15 +283,15 @@ namespace APIMatic.Core.Http.Client
                 }
             }
 
-            return await client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
+            return await _client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
         }
 
         private bool ShouldRetry(HttpResponseMessage response, RetryOption retryOption)
         {
-            bool isWhiteListedMethod = requestMethodsToRetry.Contains(response.RequestMessage.Method);
+            bool isWhiteListedMethod = _requestMethodsToRetry.Contains(response.RequestMessage.Method);
 
             return retryOption.IsRetryAllowed(isWhiteListedMethod) &&
-                (statusCodesToRetry.Contains(response.StatusCode) || response?.Headers?.RetryAfter != null);
+                (_statusCodesToRetry.Contains(response.StatusCode) || response?.Headers?.RetryAfter != null);
         }
 
         private TimeSpan GetServerWaitDuration(DelegateResult<HttpResponseMessage> response)
@@ -313,16 +312,16 @@ namespace APIMatic.Core.Http.Client
                 .Or<TaskCanceledException>()
                 .Or<HttpRequestException>()
                 .WaitAndRetryAsync(
-                retryCount: this.numberOfRetries,
+                retryCount: this._numberOfRetries,
                 sleepDurationProvider: (retryAttempt, result, context) =>
                 TimeSpan.FromMilliseconds(Math.Max(GetExponentialWaitTime(retryAttempt), GetServerWaitDuration(result).TotalMilliseconds)),
                 onRetryAsync: async (result, timespan, retryAttempt, context) => await Task.CompletedTask);
 
         private AsyncTimeoutPolicy GetTimeoutPolicy()
         {
-            return maximumRetryWaitTime.TotalSeconds == 0
+            return _maximumRetryWaitTime.TotalSeconds == 0
                 ? Policy.TimeoutAsync(Timeout.InfiniteTimeSpan)
-                : Policy.TimeoutAsync(maximumRetryWaitTime);
+                : Policy.TimeoutAsync(_maximumRetryWaitTime);
         }
 
         private AsyncPolicyWrap<HttpResponseMessage> GetCombinedPolicy(RetryOption retryOption) =>
@@ -331,7 +330,7 @@ namespace APIMatic.Core.Http.Client
         private double GetExponentialWaitTime(int retryAttempt)
         {
             double noise = new Random().NextDouble() * 100;
-            return (1000 * this.retryInterval * Math.Pow(backoffFactor, retryAttempt - 1)) + noise;
+            return (1000 * this._retryInterval * Math.Pow(_backoffFactor, retryAttempt - 1)) + noise;
 
         }
     }
