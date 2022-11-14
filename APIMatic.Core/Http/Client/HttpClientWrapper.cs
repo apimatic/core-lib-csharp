@@ -15,7 +15,6 @@ using System.Threading.Tasks;
 using APIMatic.Core.Http.Client.Configuration;
 using APIMatic.Core.Types;
 using APIMatic.Core.Types.Sdk;
-using APIMatic.Core.Utilities;
 using Polly;
 using Polly.Retry;
 using Polly.Timeout;
@@ -151,19 +150,9 @@ namespace APIMatic.Core.Http.Client
             CoreRequest request,
             CancellationToken cancellationToken)
         {
-            var queryBuilder = new StringBuilder(request.QueryUrl);
-
-            if (request.QueryParameters != null)
-            {
-                CoreHelper.AppendUrlWithQueryParameters(queryBuilder, request.QueryParameters, request.ArraySerialization);
-            }
-
-            // validate and preprocess url.
-            string queryUrl = CoreHelper.CleanUrl(queryBuilder);
-
             HttpRequestMessage requestMessage = new HttpRequestMessage
             {
-                RequestUri = new Uri(queryUrl),
+                RequestUri = new Uri(request.QueryUrl),
                 Method = request.HttpMethod,
             };
 

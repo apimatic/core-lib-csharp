@@ -16,36 +16,35 @@ namespace APIMatic.Core
 {
     public class GlobalConfiguration
     {
-        private readonly Dictionary<Enum, string> serverUrls;
-        private readonly Enum defaultServer;
-        private readonly Parameter.Builder parameters;
-        private readonly IHttpClient _httpClient;
+        private readonly Dictionary<Enum, string> _serverUrls;
+        private readonly Enum _defaultServer;
+        private readonly Parameter.Builder _parameters;
+
+        internal Dictionary<string, AuthManager> AuthManagers { get; private set; }
+        internal Parameter.Builder RuntimeParameters { get; private set; }
+        internal HttpCallBack ApiCallback { get; private set; }
+        internal IHttpClient HttpClient { get; private set; }
 
         private GlobalConfiguration(ICoreHttpClientConfiguration httpConfiguration, Dictionary<string, AuthManager> authManagers,
             Dictionary<Enum, string> serverUrls, Enum defaultServer, Parameter.Builder parameters,
             Parameter.Builder runtimeParameters, HttpCallBack apiCallback)
         {
-            this.serverUrls = serverUrls;
-            this.defaultServer = defaultServer;
-            this.parameters = parameters;
+            _serverUrls = serverUrls;
+            _defaultServer = defaultServer;
+            _parameters = parameters;
             ApiCallback = apiCallback;
             AuthManagers = authManagers;
             RuntimeParameters = runtimeParameters;
-            _httpClient = new HttpClientWrapper(httpConfiguration);
+            HttpClient = new HttpClientWrapper(httpConfiguration);
         }
-
-        internal Dictionary<string, AuthManager> AuthManagers { get; private set; }
-        internal Parameter.Builder RuntimeParameters { get; private set; }
-        internal HttpCallBack ApiCallback { get; private set; }
-        internal IHttpClient HttpClient { get { return _httpClient; } }
 
         public string ServerUrl(Enum server = null) => GlobalRequestBuilder(server).QueryUrl.ToString();
 
         public RequestBuilder GlobalRequestBuilder(Enum server = null)
         {
             RequestBuilder requestBuilder = new RequestBuilder(this);
-            requestBuilder.QueryUrl.Append(serverUrls[server ?? defaultServer]);
-            parameters.Validate().Apply(requestBuilder);
+            requestBuilder.QueryUrl.Append(_serverUrls[server ?? _defaultServer]);
+            _parameters.Validate().Apply(requestBuilder);
             return requestBuilder;
         }
 

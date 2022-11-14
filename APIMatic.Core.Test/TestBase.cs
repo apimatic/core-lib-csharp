@@ -30,6 +30,7 @@ namespace APIMatic.Core.Test
             .Build();
 
         private static GlobalConfiguration globalConfiguration;
+
         protected static Lazy<GlobalConfiguration> LazyGlobalConfiguration => new Lazy<GlobalConfiguration>(() => globalConfiguration ??= new GlobalConfiguration.Builder()
             .ServerUrls(new Dictionary<Enum, string>
             {
