@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using APIMatic.Core.Http.Client.Configuration;
 using APIMatic.Core.Types;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
@@ -32,23 +33,28 @@ namespace APIMatic.Core.Request.Parameters
             }
         }
 
-        private object PrepareFormParameterValue(object formParam)
+        private List<KeyValuePair<string, object>> PrepareFormParameters(ArraySerialization arraySerialization)
         {
             var multipartHeaders = new Dictionary<string, IReadOnlyCollection<string>>(StringComparer.OrdinalIgnoreCase);
-            if (formParam is CoreFileStreamInfo file)
+            if (value is CoreFileStreamInfo file)
             {
                 var defaultFileContentType = string.IsNullOrEmpty(file.ContentType) ? "application/octect-stream" : file.ContentType;
                 multipartHeaders["content-type"] = new[] { defaultFileContentType };
                 AddEncodingHeaders(multipartHeaders);
-                return new MultipartFileContent(file, multipartHeaders);
+                return new List<KeyValuePair<string, object>>
+                {
+                    new KeyValuePair<string, object>(key, new MultipartFileContent(file, multipartHeaders))
+                };
             }
             if (IsMultipart())
             {
                 AddEncodingHeaders(multipartHeaders);
-                return new MultipartByteArrayContent(Encoding.ASCII.GetBytes(CoreHelper.JsonSerialize(formParam)), multipartHeaders);
+                return new List<KeyValuePair<string, object>>
+                {
+                    new KeyValuePair<string, object>(key, new MultipartByteArrayContent(Encoding.ASCII.GetBytes(CoreHelper.JsonSerialize(value)), multipartHeaders))
+                };
             }
-            // handle object and list in form parameter cases here
-            return formParam;
+            return CoreHelper.PrepareFormFieldsFromObject(key, value, arraySerializationFormat: arraySerialization);
         }
 
         internal override void Apply(RequestBuilder requestBuilder)
@@ -57,7 +63,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 return;
             }
-            requestBuilder.formParameters.Add(new KeyValuePair<string, object>(key, PrepareFormParameterValue(value)));
+            requestBuilder.formParameters.AddRange(PrepareFormParameters(requestBuilder.ArraySerialization));
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using APIMatic.Core.Http.Client.Configuration;
 using APIMatic.Core.Request.Parameters;
 using APIMatic.Core.Types.Sdk;
+using APIMatic.Core.Utilities;
 
 namespace APIMatic.Core.Request
 {
@@ -77,7 +78,8 @@ namespace APIMatic.Core.Request
             {
                 authManager.Validate().Apply(this);
             }
-            return new CoreRequest(httpMethod, QueryUrl.ToString(), headers, body, formParameters, queryParameters)
+            CoreHelper.AppendUrlWithQueryParameters(QueryUrl, queryParameters, ArraySerialization);
+            return new CoreRequest(httpMethod, CoreHelper.CleanUrl(QueryUrl), headers, body, formParameters, queryParameters)
             {
                 RetryOption = retryOption,
                 ArraySerialization = ArraySerialization

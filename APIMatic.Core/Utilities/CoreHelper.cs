@@ -255,9 +255,9 @@ namespace APIMatic.Core.Utilities
                     PrepareFormFieldsFromObject(fullSubName, pValue, keys, propInfo, arraySerializationFormat);
                 }
             }
-            else if (value is IList)
+            else if (value is IList enumerable)
             {
-                var enumerator = ((IEnumerable)value).GetEnumerator();
+                var enumerator = enumerable.GetEnumerator();
 
                 var hasNested = false;
                 while (enumerator.MoveNext())
@@ -303,24 +303,23 @@ namespace APIMatic.Core.Utilities
                 var enumValue = JsonSerialize(value).Trim('\"');
                 keys.Add(new KeyValuePair<string, object>(name, enumValue));
             }
-            else if (value is IDictionary)
+            else if (value is IDictionary dictionary)
             {
-                var obj = (IDictionary)value;
-                foreach (var sName in obj.Keys)
+                foreach (var sName in dictionary.Keys)
                 {
                     var subName = sName.ToString();
-                    var subValue = obj[subName];
+                    var subValue = dictionary[subName];
                     string fullSubName = string.IsNullOrWhiteSpace(name) ? subName : name + '[' + subName + ']';
                     PrepareFormFieldsFromObject(fullSubName, subValue, keys, propInfo, arraySerializationFormat);
                 }
             }
-            else if (value is CoreJsonObject)
+            else if (value is CoreJsonObject jsonObject)
             {
-                PrepareFormFieldsFromObject(name, RemoveNullValues((value as CoreJsonObject).GetStoredObject()), keys, propInfo, arraySerializationFormat);
+                PrepareFormFieldsFromObject(name, RemoveNullValues(jsonObject.GetStoredObject()), keys, propInfo, arraySerializationFormat);
             }
-            else if (value is CoreJsonValue)
+            else if (value is CoreJsonValue jsonValue)
             {
-                PrepareFormFieldsFromObject(name, (value as CoreJsonValue).GetStoredObject(), keys, propInfo, arraySerializationFormat);
+                PrepareFormFieldsFromObject(name, jsonValue.GetStoredObject(), keys, propInfo, arraySerializationFormat);
             }
             else if (!value.GetType().Namespace.StartsWith("System"))
             {
@@ -340,7 +339,7 @@ namespace APIMatic.Core.Utilities
                     PrepareFormFieldsFromObject(fullSubName, subValue, keys, pInfo, arraySerializationFormat);
                 }
             }
-            else if (value is DateTime)
+            else if (value is DateTime dateTime)
             {
                 string convertedValue = null;
                 object[] pInfo = null;
@@ -362,7 +361,7 @@ namespace APIMatic.Core.Utilities
                     }
                 }
 
-                keys.Add(new KeyValuePair<string, object>(name, convertedValue ?? ((DateTime)value).ToString(DateTimeFormat)));
+                keys.Add(new KeyValuePair<string, object>(name, convertedValue ?? dateTime.ToString(DateTimeFormat)));
             }
             else
             {
