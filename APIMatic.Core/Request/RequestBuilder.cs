@@ -76,7 +76,7 @@ namespace APIMatic.Core.Request
             bool authManagerFound = configuration.AuthManagers.TryGetValue(authName, out var authManager);
             if (authManagerFound)
             {
-                authManager.Validate().Apply(this);
+                authManager.Apply(this);
             }
             CoreHelper.AppendUrlWithQueryParameters(QueryUrl, queryParameters, ArraySerialization);
             return new CoreRequest(httpMethod, CoreHelper.CleanUrl(QueryUrl), headers, body, formParameters, queryParameters)

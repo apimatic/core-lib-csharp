@@ -28,10 +28,9 @@ namespace APIMatic.Core.Authentication
         /// <summary>
         /// Validates the authentication parameters for the HTTP Request.
         /// </summary>
-        public AuthManager Validate()
+        public virtual void Validate()
         {
             parameters.Validate();
-            return this;
         }
 
         /// <summary>
@@ -41,6 +40,7 @@ namespace APIMatic.Core.Authentication
         /// <returns>HttpRequest.</returns>
         internal void Apply(RequestBuilder requestBuilder)
         {
+            Validate();
             parameters.Apply(requestBuilder);
         }
     }
