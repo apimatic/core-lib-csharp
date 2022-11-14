@@ -3,6 +3,7 @@
 // </copyright>
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using APIMatic.Core.Http.Client.Configuration;
 using APIMatic.Core.Types;
@@ -33,7 +34,7 @@ namespace APIMatic.Core.Request.Parameters
             }
         }
 
-        private List<KeyValuePair<string, object>> PrepareFormParameters(ArraySerialization arraySerialization)
+        private IEnumerable<KeyValuePair<string, object>> PrepareFormParameters(ArraySerialization arraySerialization)
         {
             var multipartHeaders = new Dictionary<string, IReadOnlyCollection<string>>(StringComparer.OrdinalIgnoreCase);
             if (value is CoreFileStreamInfo file)
@@ -54,7 +55,7 @@ namespace APIMatic.Core.Request.Parameters
                     new KeyValuePair<string, object>(key, new MultipartByteArrayContent(Encoding.ASCII.GetBytes(CoreHelper.JsonSerialize(value)), multipartHeaders))
                 };
             }
-            return CoreHelper.PrepareFormFieldsFromObject(key, value, arraySerializationFormat: arraySerialization);
+            return CoreHelper.PrepareFormFieldsFromObject(key, value, arraySerializationFormat: arraySerialization).Where(kv => kv.Value != null);
         }
 
         internal override void Apply(RequestBuilder requestBuilder)

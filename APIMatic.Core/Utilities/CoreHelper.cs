@@ -231,7 +231,7 @@ namespace APIMatic.Core.Utilities
         /// <param name="propInfo">propInfo.</param>
         /// <param name="arraySerializationFormat">arraySerializationFormat.</param>
         /// <returns>List of KeyValuePairs.</returns>
-        public static List<KeyValuePair<string, object>> PrepareFormFieldsFromObject(string name, object value, List<KeyValuePair<string, object>> keys = null, PropertyInfo propInfo = null, ArraySerialization arraySerializationFormat = ArraySerialization.UnIndexed)
+        internal static List<KeyValuePair<string, object>> PrepareFormFieldsFromObject(string name, object value, List<KeyValuePair<string, object>> keys = null, PropertyInfo propInfo = null, ArraySerialization arraySerializationFormat = ArraySerialization.UnIndexed)
         {
             keys = keys ?? new List<KeyValuePair<string, object>>();
 
@@ -324,13 +324,11 @@ namespace APIMatic.Core.Utilities
             else if (!value.GetType().Namespace.StartsWith("System"))
             {
                 // Custom object Iterate through its properties
-                var enumerator = value.GetType().GetProperties().GetEnumerator(); ;
-
-                PropertyInfo pInfo = null;
+                var enumerator = value.GetType().GetProperties().GetEnumerator();
                 var t = new JsonPropertyAttribute().GetType();
                 while (enumerator.MoveNext())
                 {
-                    pInfo = enumerator.Current as PropertyInfo;
+                    var pInfo = enumerator.Current as PropertyInfo;
 
                     var jsonProperty = (JsonPropertyAttribute)pInfo.GetCustomAttributes(t, true).FirstOrDefault();
                     var subName = (jsonProperty != null) ? jsonProperty.PropertyName : pInfo.Name;
