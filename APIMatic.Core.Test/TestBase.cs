@@ -6,6 +6,8 @@ using System.Net.Http;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Authentication;
 using APIMatic.Core.Types;
+using APIMatic.Core.Http.Client.Configuration;
+using RichardSzalay.MockHttp;
 
 namespace APIMatic.Core.Test
 {
@@ -21,6 +23,12 @@ namespace APIMatic.Core.Test
             Dictionary<string, object> queryParameters = null) =>
             new Mock<CoreRequest>(method, queryUrl, headers, body, formParameters, queryParameters, null, null);
 
+        protected static readonly MockHttpMessageHandler handlerMock = new MockHttpMessageHandler();
+
+        private static ICoreHttpClientConfiguration _clientConfiguration = new CoreHttpClientConfiguration.Builder()
+            .HttpClientInstance(new HttpClient(handlerMock))
+            .Build();
+
         private static GlobalConfiguration globalConfiguration;
         protected static Lazy<GlobalConfiguration> LazyGlobalConfiguration => new Lazy<GlobalConfiguration>(() => globalConfiguration ??= new GlobalConfiguration.Builder()
             .ServerUrls(new Dictionary<Enum, string>
@@ -29,6 +37,7 @@ namespace APIMatic.Core.Test
                 { MockServer.Server2, "https://my/path/{two}"}
             }, MockServer.Server1)
             .AuthManagers(new Dictionary<string, AuthManager>())
+            .HttpConfiguration(_clientConfiguration)
             .Parameters(p => p
                 .Header(h => h.Setup("additionalHead1", "headVal1"))
                 .Header(h => h.Setup("additionalHead2", "headVal2"))
