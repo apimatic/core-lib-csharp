@@ -62,6 +62,7 @@ namespace APIMatic.Core.Test.Http.Client
             var maximumRetryWaitTime = -1;
 
             var config = _config.ToBuilder()
+                .HttpClientInstance(null)
                 .Timeout(TimeSpan.FromSeconds(timeout))
                 .NumberOfRetries(numberOfRetries)
                 .BackoffFactor(backoffFactor)
@@ -78,8 +79,9 @@ namespace APIMatic.Core.Test.Http.Client
             var defaultRetryInterval = 1;
             var defaultMaximumRetryWaitTime = 120;
 
-
+            // Assert
             Assert.NotNull(config);
+            Assert.NotNull(config.HttpClientInstance);
             Assert.AreEqual(config.Timeout, TimeSpan.FromSeconds(defaultTimeout));
             Assert.AreEqual(config.NumberOfRetries, defaultNumberOfRetries);
             Assert.AreEqual(config.BackoffFactor, defaultBackoffFactor);
