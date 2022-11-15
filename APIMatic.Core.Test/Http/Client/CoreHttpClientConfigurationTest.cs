@@ -12,14 +12,15 @@ namespace APIMatic.Core.Test.Http.Client
         private CoreHttpClientConfiguration _config;
 
         [SetUp]
-        public void SetupHttpClient()
+        public void SetupCoreHttpClient()
         {
             _config = new CoreHttpClientConfiguration.Builder().Build();
         }
 
         [Test]
-        public void TestCoreHttpClientConfigBuilder()
+        public void Builder_BuildWithPrameters_CoreHttpClientConfiguration()
         {
+            // Arrange
             var timeout = 180;
             var numberOfRetries = 3;
             var backoffFactor = 3;
@@ -28,6 +29,7 @@ namespace APIMatic.Core.Test.Http.Client
             var statusCodesToRetry = new List<int>() { 408, 409 };
             var requestMethodsToRetry = new List<HttpMethod>() { HttpMethod.Post, HttpMethod.Get };
 
+            // Act
             var config = _config.ToBuilder()
                 .Timeout(TimeSpan.FromSeconds(timeout))
                 .NumberOfRetries(numberOfRetries)
@@ -38,6 +40,7 @@ namespace APIMatic.Core.Test.Http.Client
                 .RequestMethodsToRetry(requestMethodsToRetry)
             .Build();
 
+            // Assert
             Assert.NotNull(config);
             Assert.AreEqual(config.Timeout, TimeSpan.FromSeconds(timeout));
             Assert.AreEqual(config.NumberOfRetries, numberOfRetries);
@@ -49,8 +52,9 @@ namespace APIMatic.Core.Test.Http.Client
         }
 
         [Test]
-        public void TestCoreHttpClientConfigBuilder_Failover()
+        public void Builder_BuildWithInvalidPrameters_CoreHttpClientConfiguration()
         {
+            // Arrange
             var timeout = 0;
             var numberOfRetries = -1;
             var backoffFactor = 0;
@@ -86,13 +90,14 @@ namespace APIMatic.Core.Test.Http.Client
         }
 
         [Test]
-        public void TestCoreHttpClientConfig_ToString()
+        public void ToString_Default_CoreHttpClientConfiguration()
         {
-            var config = new CoreHttpClientConfiguration.Builder().Build();
-            var expected = "HttpClientConfiguration: 00:01:40 , 0 , 2 , 1 , 00:02:00 , System.Collections.Immutable.ImmutableList`1[System.Int32] , System.Collections.Immutable.ImmutableList`1[System.Net.Http.HttpMethod] , System.Net.Http.HttpClient , True ";
-            var result = config.ToString();
+            // Act
+            var actual = _config.ToString();
 
-            Assert.AreEqual(expected, result);
+            // Assert
+            var expected = "HttpClientConfiguration: 00:01:40 , 0 , 2 , 1 , 00:02:00 , System.Collections.Immutable.ImmutableList`1[System.Int32] , System.Collections.Immutable.ImmutableList`1[System.Net.Http.HttpMethod] , System.Net.Http.HttpClient , True ";
+            Assert.AreEqual(expected, actual);
         }
     }
 }
