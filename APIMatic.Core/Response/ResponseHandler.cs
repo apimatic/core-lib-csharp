@@ -85,7 +85,7 @@ namespace APIMatic.Core.Response
                 }
                 throw ResponseError(context);
             }
-            InnerType result = deserializer(context.Response.Body);
+            InnerType result = ConvertedResponse(context.Response);
             result = contextAdder(result, compatibilityFactory.CreateHttpContext(context.Request, context.Response));
             if (result is ReturnType deserializedResult)
             {
@@ -110,6 +110,15 @@ namespace APIMatic.Core.Response
                 return defaultErrorFunction(httpContext);
             }
             return compatibilityFactory.CreateApiException("HTTP Response Not OK", context);
+        }
+
+        private InnerType ConvertedResponse(CoreResponse response)
+        {
+            if (response.RawBody is InnerType streamResponse)
+            {
+                return streamResponse;
+            }
+            return deserializer(response.Body);
         }
     }
 }

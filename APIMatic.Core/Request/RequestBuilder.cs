@@ -97,7 +97,8 @@ namespace APIMatic.Core.Request
             AppendAcceptHeader();
             return new CoreRequest(httpMethod, CoreHelper.CleanUrl(QueryUrl), headers, bodySerializer(body), formParameters, queryParameters)
             {
-                RetryOption = retryOption
+                RetryOption = retryOption,
+                HasBinaryResponse = HasBinaryResponse
             };
         }
 
