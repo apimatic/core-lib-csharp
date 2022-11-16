@@ -114,9 +114,17 @@ namespace APIMatic.Core.Response
 
         private InnerType ConvertedResponse(CoreResponse response)
         {
+            if (response is InnerType httpResponse)
+            {
+                return httpResponse;
+            }
             if (response.RawBody is InnerType streamResponse)
             {
                 return streamResponse;
+            }
+            if (response.Body is InnerType stringResponse)
+            {
+                return stringResponse;
             }
             return deserializer(response.Body);
         }
