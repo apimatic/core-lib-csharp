@@ -82,11 +82,6 @@ namespace APIMatic.Core.Types.Sdk
         internal bool HasBinaryResponse { get; set; }
 
         /// <summary>
-        /// Represents the array deserlization format for the request.
-        /// </summary>
-        internal ArraySerialization ArraySerialization { get; set; }
-
-        /// <summary>
         /// Concatenate values from a Dictionary to this object.
         /// </summary>
         /// <param name="headersToAdd"> headersToAdd. </param>

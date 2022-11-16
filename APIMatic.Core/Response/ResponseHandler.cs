@@ -3,6 +3,7 @@
 // </copyright>
 using System;
 using System.Collections.Generic;
+using APIMatic.Core.Http.Client.Configuration;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
 
@@ -18,12 +19,21 @@ namespace APIMatic.Core.Response
         private readonly ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory;
         private bool nullOn404 = false;
         private Func<string, InnerType> deserializer = responseBody => CoreHelper.JsonDeserialize<InnerType>(responseBody);
-        private Func<InnerType, Context, InnerType> contextAdder;
+        private Func<InnerType, Context, InnerType> contextAdder = (result, context) => result;
         private Func<Response, InnerType, ReturnType> returnTypeCreator;
+
+        internal ContentType AcceptHeader { get; set; } = ContentType.JSON;
 
         internal ResponseHandler(ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory,
             Dictionary<int, Func<Context, ApiException>> errors)
-            => (this.compatibilityFactory, this.errors) = (compatibilityFactory, errors ?? new Dictionary<int, Func<Context, ApiException>>());
+        {
+            this.compatibilityFactory = compatibilityFactory;
+            this.errors = errors ?? new Dictionary<int, Func<Context, ApiException>>();
+            if (CoreHelper.IsScalarType(typeof(InnerType)))
+            {
+                AcceptHeader = ContentType.SCALAR;
+            }
+        }
 
         public ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> ErrorCase(
             int statusCode, Func<Context, ApiException> error)
@@ -35,6 +45,12 @@ namespace APIMatic.Core.Response
         public ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> NullOn404()
         {
             nullOn404 = true;
+            return this;
+        }
+
+        public ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> XmlResponse()
+        {
+            AcceptHeader = ContentType.XML;
             return this;
         }
 

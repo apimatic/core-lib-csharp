@@ -9,6 +9,7 @@ using APIMatic.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace APIMatic.Core
@@ -45,6 +46,7 @@ namespace APIMatic.Core
         {
             requestBuilder = globalConfiguration.GlobalRequestBuilder(apiCallServer);
             requestBuilder.ArraySerialization = arraySerialization;
+            requestBuilder.HasBinaryResponse = typeof(InnerType) == typeof(Stream);
             requestBuilderAction(requestBuilder);
             return this;
         }
@@ -56,12 +58,12 @@ namespace APIMatic.Core
             return this;
         }
 
-        public async Task<ReturnType> ExecuteAsync()
+        public async Task<ReturnType> ExecuteAsync(CancellationToken cancellationToken = default)
         {
+            requestBuilder.AcceptHeader = responseHandler.AcceptHeader;
             CoreRequest request = requestBuilder.Build();
-            request.HasBinaryResponse = typeof(InnerType) == typeof(Stream);
             globalConfiguration.ApiCallback?.OnBeforeHttpRequestEventHandler(request);
-            CoreResponse response = await globalConfiguration.HttpClient.ExecuteAsync(request).ConfigureAwait(false);
+            CoreResponse response = await globalConfiguration.HttpClient.ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
             globalConfiguration.ApiCallback?.OnAfterHttpResponseEventHandler(response);
             var context = new CoreContext<CoreRequest, CoreResponse>(request, response);
             return responseHandler.Result(context);

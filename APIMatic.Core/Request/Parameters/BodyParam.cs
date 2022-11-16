@@ -25,7 +25,6 @@ namespace APIMatic.Core.Request.Parameters
                 return;
             }
             requestBuilder.bodyParameters.Add(key, value);
-
         }
     }
 }

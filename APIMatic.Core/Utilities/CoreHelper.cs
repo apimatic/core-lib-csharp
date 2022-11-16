@@ -222,6 +222,11 @@ namespace APIMatic.Core.Utilities
             return string.Concat(protocol, query, parameters);
         }
 
+        internal static bool IsScalarType(Type type)
+        {
+            return Type.GetTypeCode(type) != TypeCode.Object;
+        }
+
         /// <summary>
         /// Prepares parameters for serialization as a form encoded string by flattening complex Types such as Collections and Models to a list of KeyValuePairs, where each value is a string representation of the original Type.
         /// </summary>
@@ -373,7 +378,7 @@ namespace APIMatic.Core.Utilities
         /// Runs asynchronous tasks synchronously and throws the first caught exception.
         /// </summary>
         /// <param name="t">The task to be run synchronously.</param>
-        public static void RunTaskSynchronously(Task t)
+        public static T RunTaskSynchronously<T>(Task<T> t)
         {
             try
             {
@@ -390,6 +395,7 @@ namespace APIMatic.Core.Utilities
                     throw;
                 }
             }
+            return t.Result;
         }
 
         /// <summary>
