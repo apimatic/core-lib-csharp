@@ -40,6 +40,6 @@ namespace APIMatic.Core.Http.Client.Configuration
         /// <summary>
         /// Return the value of the content type enum member.
         /// </summary>
-        public static string GetValue(this ContentType contentType) => CoreHelper.JsonSerialize(contentType);
+        public static string GetValue(this ContentType contentType) => CoreHelper.JsonSerialize(contentType).Substring(1).TrimEnd('"');
     }
 }

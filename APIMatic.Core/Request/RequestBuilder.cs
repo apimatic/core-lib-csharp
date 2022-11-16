@@ -23,7 +23,7 @@ namespace APIMatic.Core.Request
         private readonly Parameter.Builder parameters = new Parameter.Builder();
         private bool contentTypeAllowed = true;
         private ContentType contentType = ContentType.JSON;
-        private Func<object, string> bodySerializer = value => CoreHelper.IsScalarType(value.GetType()) ? value.ToString() : CoreHelper.JsonSerialize(value);
+        private Func<dynamic, string> bodySerializer = value => CoreHelper.IsScalarType(value?.GetType()) ? value?.ToString() : CoreHelper.JsonSerialize(value);
 
         internal readonly Dictionary<string, string> headers = new Dictionary<string, string>();
         internal dynamic body;
@@ -34,23 +34,13 @@ namespace APIMatic.Core.Request
         internal RequestBuilder(GlobalConfiguration configuration) => this.configuration = configuration;
         internal StringBuilder QueryUrl { get; } = new StringBuilder();
 
-        internal ContentType AcceptHeader { get; set; }
+        internal ContentType AcceptHeader { get; set; } = ContentType.SCALAR;
 
         internal ArraySerialization ArraySerialization { get; set; }
 
         internal bool HasBinaryResponse { get; set; }
 
-        private string SerializedBody
-        {
-            get
-            {
-                if (bodyParameters.Any())
-                {
-                    body = bodyParameters;
-                }
-                return bodySerializer(body);
-            }
-        }
+        private string SerializedBody { get => bodySerializer(body); }
 
         public RequestBuilder Setup(HttpMethod httpMethod, string path)
         {
@@ -88,7 +78,7 @@ namespace APIMatic.Core.Request
             return this;
         }
 
-        public RequestBuilder XmlBodySerializer(Func<object, string> xmlSerializer)
+        public RequestBuilder XmlBodySerializer(Func<dynamic, string> xmlSerializer)
         {
             contentType = ContentType.XML;
             bodySerializer = xmlSerializer;
@@ -104,6 +94,7 @@ namespace APIMatic.Core.Request
                 authManager.Apply(this);
             }
             CoreHelper.AppendUrlWithQueryParameters(QueryUrl, queryParameters, ArraySerialization);
+            body = bodyParameters.Any() ? bodyParameters : body;
             AppendContentTypeHeader();
             AppendAcceptHeader();
             return new CoreRequest(httpMethod, CoreHelper.CleanUrl(QueryUrl), headers, SerializedBody, formParameters, queryParameters)
@@ -118,7 +109,7 @@ namespace APIMatic.Core.Request
             {
                 return;
             }
-            if (contentType == ContentType.XML || bodyParameters.Any())
+            if (contentType == ContentType.XML)
             {
                 headers.Add("content-type", contentType.GetValue());
                 return;
@@ -128,7 +119,7 @@ namespace APIMatic.Core.Request
                 headers.Add("content-type", ContentType.BINARY.GetValue());
                 return;
             }
-            if (CoreHelper.IsScalarType(body.GetType()))
+            if (CoreHelper.IsScalarType(body?.GetType()))
             {
                 headers.Add("content-type", ContentType.SCALAR.GetValue());
                 return;
