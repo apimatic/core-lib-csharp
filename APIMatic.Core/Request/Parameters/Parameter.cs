@@ -55,7 +55,7 @@ namespace APIMatic.Core.Request.Parameters
             }
             try
             {
-                value = valueSerializer == null ? value : valueSerializer(value);
+                value = valueSerializer(value);
             }
             catch (Exception exp)
             {
