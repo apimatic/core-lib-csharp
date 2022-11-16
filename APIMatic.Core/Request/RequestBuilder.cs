@@ -40,8 +40,6 @@ namespace APIMatic.Core.Request
 
         internal bool HasBinaryResponse { get; set; }
 
-        private object SerializedBody { get => bodySerializer(body); }
-
         public RequestBuilder Setup(HttpMethod httpMethod, string path)
         {
             this.httpMethod = httpMethod;
@@ -97,7 +95,7 @@ namespace APIMatic.Core.Request
             body = bodyParameters.Any() ? bodyParameters : body;
             AppendContentTypeHeader();
             AppendAcceptHeader();
-            return new CoreRequest(httpMethod, CoreHelper.CleanUrl(QueryUrl), headers, SerializedBody, formParameters, queryParameters)
+            return new CoreRequest(httpMethod, CoreHelper.CleanUrl(QueryUrl), headers, bodySerializer(body), formParameters, queryParameters)
             {
                 RetryOption = retryOption
             };
