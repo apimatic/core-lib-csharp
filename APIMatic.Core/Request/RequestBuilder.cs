@@ -22,7 +22,7 @@ namespace APIMatic.Core.Request
         private HttpMethod httpMethod;
         private readonly Parameter.Builder parameters = new Parameter.Builder();
         private bool contentTypeAllowed = true;
-        private ContentType contentType = ContentType.JSON;
+        private ContentType contentType;
         private Func<dynamic, string> bodySerializer = value => CoreHelper.IsScalarType(value?.GetType()) ? value?.ToString() : CoreHelper.JsonSerialize(value);
 
         internal readonly Dictionary<string, string> headers = new Dictionary<string, string>();
@@ -109,14 +109,13 @@ namespace APIMatic.Core.Request
             {
                 return;
             }
+            if (body is CoreFileStreamInfo)
+            {
+                return;
+            }
             if (contentType == ContentType.XML)
             {
                 headers.Add("content-type", contentType.GetValue());
-                return;
-            }
-            if (body is CoreFileStreamInfo)
-            {
-                headers.Add("content-type", ContentType.BINARY.GetValue());
                 return;
             }
             if (CoreHelper.IsScalarType(body?.GetType()))
