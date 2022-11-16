@@ -45,6 +45,7 @@ namespace APIMatic.Core
         {
             requestBuilder = globalConfiguration.GlobalRequestBuilder(apiCallServer);
             requestBuilder.ArraySerialization = arraySerialization;
+            requestBuilder.HasBinaryResponse = typeof(InnerType) == typeof(Stream);
             requestBuilderAction(requestBuilder);
             return this;
         }
@@ -58,8 +59,8 @@ namespace APIMatic.Core
 
         public async Task<ReturnType> ExecuteAsync()
         {
+            requestBuilder.AcceptHeader = responseHandler.AcceptHeader;
             CoreRequest request = requestBuilder.Build();
-            request.HasBinaryResponse = typeof(InnerType) == typeof(Stream);
             globalConfiguration.ApiCallback?.OnBeforeHttpRequestEventHandler(request);
             CoreResponse response = await globalConfiguration.HttpClient.ExecuteAsync(request).ConfigureAwait(false);
             globalConfiguration.ApiCallback?.OnAfterHttpResponseEventHandler(response);

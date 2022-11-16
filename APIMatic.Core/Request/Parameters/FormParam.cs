@@ -24,7 +24,7 @@ namespace APIMatic.Core.Request.Parameters
         }
 
         private bool IsMultipart() => encodingHeaders.TryGetValue("content-type", out var contentType)
-            && contentType != "application/x-www-form-urlencoded";
+            && contentType != ContentType.FORM_URL_ENCODED.GetValue();
 
         private void AddEncodingHeaders(Dictionary<string, IReadOnlyCollection<string>> headers)
         {
@@ -39,7 +39,7 @@ namespace APIMatic.Core.Request.Parameters
             var multipartHeaders = new Dictionary<string, IReadOnlyCollection<string>>(StringComparer.OrdinalIgnoreCase);
             if (value is CoreFileStreamInfo file)
             {
-                var defaultFileContentType = string.IsNullOrEmpty(file.ContentType) ? "application/octect-stream" : file.ContentType;
+                var defaultFileContentType = string.IsNullOrEmpty(file.ContentType) ? ContentType.BINARY.GetValue() : file.ContentType;
                 multipartHeaders["content-type"] = new[] { defaultFileContentType };
                 AddEncodingHeaders(multipartHeaders);
                 return new List<KeyValuePair<string, object>>

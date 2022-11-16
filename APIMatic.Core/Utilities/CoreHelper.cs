@@ -222,6 +222,11 @@ namespace APIMatic.Core.Utilities
             return string.Concat(protocol, query, parameters);
         }
 
+        internal static bool IsScalarType(Type type)
+        {
+            return Type.GetTypeCode(type) != TypeCode.Object;
+        }
+
         /// <summary>
         /// Prepares parameters for serialization as a form encoded string by flattening complex Types such as Collections and Models to a list of KeyValuePairs, where each value is a string representation of the original Type.
         /// </summary>

@@ -11,7 +11,7 @@ namespace APIMatic.Core.Request.Parameters
         protected string key;
         protected object value;
         private bool requiredValueMissing = false;
-        private InvalidOperationException serializationError;
+        private Func<object, object> valueSerializer = value => value;
         protected bool validated = false;
         protected string typeName;
 
@@ -33,16 +33,9 @@ namespace APIMatic.Core.Request.Parameters
             return this;
         }
 
-        public Parameter Serializer(Func<object, object> valueSerializer)
+        public Parameter Serializer(Func<object, string> valueSerializer)
         {
-            try
-            {
-                value = valueSerializer(value);
-            }
-            catch (Exception exp)
-            {
-                serializationError = new InvalidOperationException($"Unable to serialize field: {GetName()}, Due to:\n{exp.Message}");
-            }
+            this.valueSerializer = valueSerializer;
             return this;
         }
 
@@ -60,9 +53,13 @@ namespace APIMatic.Core.Request.Parameters
             {
                 throw new ArgumentNullException($"Missing required {typeName} field: {GetName()}");
             }
-            if (serializationError != null)
+            try
             {
-                throw serializationError;
+                value = valueSerializer == null ? value : valueSerializer(value);
+            }
+            catch (Exception exp)
+            {
+                throw new InvalidOperationException($"Unable to serialize field: {GetName()}, Due to:\n{exp.Message}");
             }
 
             validated = true;
