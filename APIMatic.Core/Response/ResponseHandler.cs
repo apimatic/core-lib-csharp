@@ -19,7 +19,7 @@ namespace APIMatic.Core.Response
         private readonly ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory;
         private bool nullOn404 = false;
         private Func<string, InnerType> deserializer = responseBody => CoreHelper.JsonDeserialize<InnerType>(responseBody);
-        private Func<InnerType, Context, InnerType> contextAdder;
+        private Func<InnerType, Context, InnerType> contextAdder = (result, context) => result;
         private Func<Response, InnerType, ReturnType> returnTypeCreator;
 
         internal ContentType AcceptHeader { get; set; } = ContentType.JSON;
