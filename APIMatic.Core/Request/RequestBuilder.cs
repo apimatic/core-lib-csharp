@@ -23,7 +23,7 @@ namespace APIMatic.Core.Request
         private readonly Parameter.Builder parameters = new Parameter.Builder();
         private bool contentTypeAllowed = true;
         private ContentType contentType;
-        private Func<dynamic, string> bodySerializer = value => CoreHelper.IsScalarType(value?.GetType()) ? value?.ToString() : CoreHelper.JsonSerialize(value);
+        private Func<dynamic, object> bodySerializer = PrepareBody;
 
         internal readonly Dictionary<string, string> headers = new Dictionary<string, string>();
         internal dynamic body;
@@ -40,7 +40,7 @@ namespace APIMatic.Core.Request
 
         internal bool HasBinaryResponse { get; set; }
 
-        private string SerializedBody { get => bodySerializer(body); }
+        private object SerializedBody { get => bodySerializer(body); }
 
         public RequestBuilder Setup(HttpMethod httpMethod, string path)
         {
@@ -78,7 +78,7 @@ namespace APIMatic.Core.Request
             return this;
         }
 
-        public RequestBuilder XmlBodySerializer(Func<dynamic, string> xmlSerializer)
+        public RequestBuilder XmlBodySerializer(Func<dynamic, object> xmlSerializer)
         {
             contentType = ContentType.XML;
             bodySerializer = xmlSerializer;
@@ -150,6 +150,19 @@ namespace APIMatic.Core.Request
                 return false;
             }
             return true;
+        }
+
+        private static object PrepareBody(dynamic value)
+        {
+            if (value == null)
+            {
+                return null;
+            }
+            if (value is CoreFileStreamInfo || CoreHelper.IsScalarType(value.GetType()))
+            {
+                return value;
+            }
+            return CoreHelper.JsonSerialize(value);
         }
     }
 }
