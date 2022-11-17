@@ -21,11 +21,12 @@ namespace APIMatic.Core.Test.Api
             { 404, context => new ApiException("404 Global", context) }
         };
 
-        protected ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, Ret, Inner> CreateApiCall<Ret, Inner>()
-            => new ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, Ret, Inner>(
+        protected ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, ApiResponse<T>, T> CreateApiCall<T>()
+            => new ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, ApiResponse<T>, T>(
                 LazyGlobalConfiguration.Value,
                 compatibilityFactory,
-                errors: globalErrors
+                errors: globalErrors,
+                returnTypeCreator: (response, result) => new ApiResponse<T>(response.StatusCode, response.Headers, result)
             );
     }
 }

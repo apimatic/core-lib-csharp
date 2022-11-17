@@ -30,16 +30,14 @@ namespace APIMatic.Core.Test.Api
             handlerMock.When($"{LazyGlobalConfiguration.Value.ServerUrl()}{url}")
                     .Respond(HttpStatusCode.OK, content);
 
-            var apiCall = CreateApiCall<ApiResponse<ServerResponse>, ServerResponse>()
+            var apiCall = CreateApiCall<ServerResponse>()
                 .Server(MockServer.Server1)
                 .RequestBuilder(requestBuilderAction => requestBuilderAction
                     .Setup(HttpMethod.Get, url))
-                .ResponseHandler(responseHandlerAction => responseHandlerAction
-                    .ReturnTypeCreator((httpResponse, result) => new ApiResponse<ServerResponse>(httpResponse.StatusCode, httpResponse.Headers, result)))
                 .ExecuteAsync();
 
             // Act
-            var actual = CoreHelper.RunTaskSynchronously(apiCall);
+            var actual = CoreHelper.RunTask(apiCall);
 
             // Assert
             Assert.NotNull(actual);
@@ -65,7 +63,7 @@ namespace APIMatic.Core.Test.Api
             handlerMock.When($"{LazyGlobalConfiguration.Value.ServerUrl()}{url}")
                     .Respond(HttpStatusCode.OK, content);
 
-            var apiCall = CreateApiCall<ApiResponse<ServerResponse>, ServerResponse>()
+            var apiCall = CreateApiCall<ServerResponse>()
                 .Server(MockServer.Server1)
                 .RequestBuilder(requestBuilderAction => requestBuilderAction
                     .Setup(HttpMethod.Get, url))
@@ -74,12 +72,11 @@ namespace APIMatic.Core.Test.Api
                         {
                             response.Input = content;
                             return response;
-                        })
-                    .ReturnTypeCreator((httpResponse, result) => new ApiResponse<ServerResponse>(httpResponse.StatusCode, httpResponse.Headers, result)))
+                        }))
                 .ExecuteAsync();
 
             // Act
-            var actual = CoreHelper.RunTaskSynchronously(apiCall);
+            var actual = CoreHelper.RunTask(apiCall);
 
             // Assert
             Assert.NotNull(actual);
