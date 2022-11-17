@@ -379,9 +379,9 @@ namespace APIMatic.Core.Utilities
         /// It also return the result from the given task
         /// </summary>
         /// <param name="t">The task to be run synchronously.</param>
-        public static T RunTaskSynchronously<T>(Task<T> t)
+        public static T RunTask<T>(Task<T> t)
         {
-            RunTaskSynchronously(t);
+            RunVoidTask(t);
             return t.Result;
         }
 
@@ -389,7 +389,7 @@ namespace APIMatic.Core.Utilities
         /// Runs asynchronous tasks synchronously and throws the first caught exception.
         /// </summary>
         /// <param name="t">The task to be run synchronously.</param>
-        public static void RunTaskSynchronously(Task t)
+        public static void RunVoidTask(Task t)
         {
             try
             {
