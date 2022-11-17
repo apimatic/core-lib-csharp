@@ -9,7 +9,7 @@ using APIMatic.Core.Utilities;
 
 namespace APIMatic.Core.Response
 {
-    public class ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType>
+    public class ResponseHandler<Request, Response, Context, ApiException, ResponseType>
         where Request : CoreRequest
         where Response : CoreResponse
         where Context : CoreContext<Request, Response>
@@ -18,9 +18,8 @@ namespace APIMatic.Core.Response
         private readonly Dictionary<int, Func<Context, ApiException>> errors;
         private readonly ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory;
         private bool nullOn404 = false;
-        private Func<string, InnerType> deserializer = responseBody => CoreHelper.JsonDeserialize<InnerType>(responseBody);
-        private Func<InnerType, Context, InnerType> contextAdder = (result, context) => result;
-        private Func<Response, InnerType, ReturnType> returnTypeCreator;
+        private Func<string, ResponseType> deserializer = responseBody => CoreHelper.JsonDeserialize<ResponseType>(responseBody);
+        private Func<ResponseType, Context, ResponseType> contextAdder = (result, context) => result;
 
         internal ContentType AcceptHeader { get; set; } = ContentType.JSON;
 
@@ -29,53 +28,46 @@ namespace APIMatic.Core.Response
         {
             this.compatibilityFactory = compatibilityFactory;
             this.errors = errors ?? new Dictionary<int, Func<Context, ApiException>>();
-            if (CoreHelper.IsScalarType(typeof(InnerType)))
+            if (CoreHelper.IsScalarType(typeof(ResponseType)))
             {
                 AcceptHeader = ContentType.SCALAR;
             }
         }
 
-        public ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> ErrorCase(
+        public ResponseHandler<Request, Response, Context, ApiException, ResponseType> ErrorCase(
             int statusCode, Func<Context, ApiException> error)
         {
             errors[statusCode] = error;
             return this;
         }
 
-        public ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> NullOn404()
+        public ResponseHandler<Request, Response, Context, ApiException, ResponseType> NullOn404()
         {
             nullOn404 = true;
             return this;
         }
 
-        public ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> XmlResponse()
+        public ResponseHandler<Request, Response, Context, ApiException, ResponseType> XmlResponse()
         {
             AcceptHeader = ContentType.XML;
             return this;
         }
 
-        public ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> Deserializer(
-            Func<string, InnerType> deserializer)
+        public ResponseHandler<Request, Response, Context, ApiException, ResponseType> Deserializer(
+            Func<string, ResponseType> deserializer)
         {
             this.deserializer = deserializer;
             return this;
         }
 
-        public ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> ContextAdder(
-            Func<InnerType, Context, InnerType> contextAdder)
+        public ResponseHandler<Request, Response, Context, ApiException, ResponseType> ContextAdder(
+            Func<ResponseType, Context, ResponseType> contextAdder)
         {
             this.contextAdder = contextAdder;
             return this;
         }
 
-        public ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> ReturnTypeCreator(
-            Func<Response, InnerType, ReturnType> returnTypeCreator)
-        {
-            this.returnTypeCreator = returnTypeCreator;
-            return this;
-        }
-
-        internal ReturnType Result(CoreContext<CoreRequest, CoreResponse> context)
+        internal ReturnType Result<ReturnType>(CoreContext<CoreRequest, CoreResponse> context, Func<Response, ResponseType, ReturnType> returnTypeCreator)
         {
             if (context.IsFailure())
             {
@@ -85,17 +77,21 @@ namespace APIMatic.Core.Response
                 }
                 throw ResponseError(context);
             }
-            InnerType result = ConvertedResponse(context.Response);
-            result = contextAdder(result, compatibilityFactory.CreateHttpContext(context.Request, context.Response));
-            if (result is ReturnType deserializedResult)
+            if (typeof(ResponseType) == typeof(void))
             {
-                return deserializedResult;
+                return default;
+            }
+            ResponseType result = ConvertResponse(context.Response);
+            result = contextAdder(result, compatibilityFactory.CreateHttpContext(context.Request, context.Response));
+            if (result is ReturnType convertedResult)
+            {
+                return convertedResult;
             }
             if (returnTypeCreator != null)
             {
                 return returnTypeCreator(compatibilityFactory.CreateHttpResponse(context.Response), result);
             }
-            return default;
+            throw new InvalidOperationException($"Unable to transform {typeof(ResponseType)} into {typeof(ReturnType)}. ReturnTypeCreator is not provided.");
         }
 
         private ApiException ResponseError(CoreContext<CoreRequest, CoreResponse> context)
@@ -112,17 +108,17 @@ namespace APIMatic.Core.Response
             return compatibilityFactory.CreateApiException("HTTP Response Not OK", context);
         }
 
-        private InnerType ConvertedResponse(CoreResponse response)
+        private ResponseType ConvertResponse(CoreResponse response)
         {
-            if (response is InnerType httpResponse)
+            if (response is ResponseType httpResponse)
             {
                 return httpResponse;
             }
-            if (response.RawBody is InnerType streamResponse)
+            if (response.RawBody is ResponseType streamResponse)
             {
                 return streamResponse;
             }
-            if (response.Body is InnerType stringResponse)
+            if (response.Body is ResponseType stringResponse)
             {
                 return stringResponse;
             }

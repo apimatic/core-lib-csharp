@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace APIMatic.Core
 {
-    public class ApiCall<Request, Response, Context, ApiException, ReturnType, InnerType>
+    public class ApiCall<Request, Response, Context, ApiException, ReturnType, ResponseType>
         where Request : CoreRequest
         where Response : CoreResponse
         where Context : CoreContext<Request, Response>
@@ -23,36 +23,39 @@ namespace APIMatic.Core
         private readonly GlobalConfiguration globalConfiguration;
         private readonly ArraySerialization arraySerialization;
         private readonly ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory;
-        private readonly ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType> responseHandler;
+        private readonly ResponseHandler<Request, Response, Context, ApiException, ResponseType> responseHandler;
+        private readonly Func<Response, ResponseType, ReturnType> returnTypeCreator;
         private Enum apiCallServer;
         private RequestBuilder requestBuilder;
 
         public ApiCall(GlobalConfiguration configuration, ICompatibilityFactory<Request, Response, Context, ApiException> compatibility,
-            Dictionary<int, Func<Context, ApiException>> errors = null, ArraySerialization serialization = ArraySerialization.Indexed)
+            Dictionary<int, Func<Context, ApiException>> errors = null, ArraySerialization serialization = ArraySerialization.Indexed,
+            Func<Response, ResponseType, ReturnType> returnTypeCreator = null)
         {
             globalConfiguration = configuration;
             compatibilityFactory = compatibility;
             arraySerialization = serialization;
-            responseHandler = new ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType>(compatibilityFactory, errors);
+            this.returnTypeCreator = returnTypeCreator;
+            responseHandler = new ResponseHandler<Request, Response, Context, ApiException, ResponseType>(compatibilityFactory, errors);
         }
 
-        public ApiCall<Request, Response, Context, ApiException, ReturnType, InnerType> Server(Enum server)
+        public ApiCall<Request, Response, Context, ApiException, ReturnType, ResponseType> Server(Enum server)
         {
             apiCallServer = server;
             return this;
         }
 
-        public ApiCall<Request, Response, Context, ApiException, ReturnType, InnerType> RequestBuilder(Action<RequestBuilder> requestBuilderAction)
+        public ApiCall<Request, Response, Context, ApiException, ReturnType, ResponseType> RequestBuilder(Action<RequestBuilder> requestBuilderAction)
         {
             requestBuilder = globalConfiguration.GlobalRequestBuilder(apiCallServer);
             requestBuilder.ArraySerialization = arraySerialization;
-            requestBuilder.HasBinaryResponse = typeof(InnerType) == typeof(Stream);
+            requestBuilder.HasBinaryResponse = typeof(ResponseType) == typeof(Stream);
             requestBuilderAction(requestBuilder);
             return this;
         }
 
-        public ApiCall<Request, Response, Context, ApiException, ReturnType, InnerType> ResponseHandler(
-            Action<ResponseHandler<Request, Response, Context, ApiException, ReturnType, InnerType>> responseHandlerAction)
+        public ApiCall<Request, Response, Context, ApiException, ReturnType, ResponseType> ResponseHandler(
+            Action<ResponseHandler<Request, Response, Context, ApiException, ResponseType>> responseHandlerAction)
         {
             responseHandlerAction(responseHandler);
             return this;
@@ -66,7 +69,7 @@ namespace APIMatic.Core
             CoreResponse response = await globalConfiguration.HttpClient.ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
             globalConfiguration.ApiCallback?.OnAfterHttpResponseEventHandler(response);
             var context = new CoreContext<CoreRequest, CoreResponse>(request, response);
-            return responseHandler.Result(context);
+            return responseHandler.Result(context, returnTypeCreator);
         }
     }
 }
