@@ -363,7 +363,7 @@ namespace APIMatic.Core.Utilities
         /// <param name="allowExtra">Are extra elements allowed in right array?.</param>
         /// <param name="isOrdered">Should elements in right be compared in order to left?.</param>
         /// <returns>True, if the given object is a proper subset of other other.</returns>
-        internal static bool IsJsonObjectProperSubsetOf(
+        public static bool IsJsonObjectProperSubsetOf(
                 string leftObject,
                 string rightObject,
                 bool checkValues,
@@ -383,7 +383,7 @@ namespace APIMatic.Core.Utilities
         /// </summary>
         /// <param name="inStream">The input stream to read.</param>
         /// <returns>string read from the stream.</returns>
-        internal static string ConvertStreamToString(Stream inStream)
+        public static string ConvertStreamToString(Stream inStream)
         {
             using (StreamReader reader = new StreamReader(inStream))
             {
