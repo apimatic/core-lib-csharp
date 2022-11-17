@@ -7,7 +7,6 @@ using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
-using APIMatic.Core.Types.Sdk;
 using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Utilities
