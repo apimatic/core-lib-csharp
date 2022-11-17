@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using APIMatic.Core.Http.Client.Configuration;
+using APIMatic.Core.Types;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
 
@@ -77,7 +78,7 @@ namespace APIMatic.Core.Response
                 }
                 throw ResponseError(context);
             }
-            if (typeof(ResponseType) == typeof(void))
+            if (typeof(ResponseType) == typeof(VoidType))
             {
                 return default;
             }
