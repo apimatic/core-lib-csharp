@@ -27,6 +27,7 @@ namespace APIMatic.Core.Request
 
         internal readonly Dictionary<string, string> headers = new Dictionary<string, string>();
         internal dynamic body;
+        internal Type bodyType;
         internal readonly Dictionary<string, object> bodyParameters = new Dictionary<string, object>();
         internal readonly List<KeyValuePair<string, object>> formParameters = new List<KeyValuePair<string, object>>();
         internal readonly Dictionary<string, object> queryParameters = new Dictionary<string, object>();
@@ -39,6 +40,8 @@ namespace APIMatic.Core.Request
         internal ArraySerialization ArraySerialization { get; set; }
 
         internal bool HasBinaryResponse { get; set; }
+
+        private Type BodyType { get => bodyParameters.Any() ? typeof(object) : bodyType; }
 
         public RequestBuilder Setup(HttpMethod httpMethod, string path)
         {
@@ -117,12 +120,13 @@ namespace APIMatic.Core.Request
                 headers.Add("content-type", ContentType.XML.GetValue());
                 return;
             }
-            if (CoreHelper.IsScalarType(body?.GetType()))
+
+            if (CoreHelper.IsScalarType(BodyType))
             {
                 headers.Add("content-type", ContentType.SCALAR.GetValue());
                 return;
             }
-            headers.Add("content-type", ContentType.JSON.GetValue());
+            headers.Add("content-type", ContentType.JSON_UTF8.GetValue());
         }
 
         private void AppendAcceptHeader()

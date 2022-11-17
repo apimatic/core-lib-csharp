@@ -18,6 +18,9 @@ namespace APIMatic.Core.Http.Client.Configuration
         [EnumMember(Value = "application/json")]
         JSON,
 
+        [EnumMember(Value = "application/json; charset=utf-8")]
+        JSON_UTF8,
+
         [EnumMember(Value = "application/xml")]
         XML,
 
