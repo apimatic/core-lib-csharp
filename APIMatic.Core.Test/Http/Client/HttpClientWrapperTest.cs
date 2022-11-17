@@ -22,10 +22,10 @@ namespace APIMatic.Core.Test.Http.Client
         }
 
         [Test]
-        public async Task TestHttpClientGetCall_200Response()
+        public async Task HttpClient_GetCall_200Response()
         {
             var request = LazyGlobalConfiguration.Value.GlobalRequestBuilder()
-                .Setup(HttpMethod.Get, "/test/get/200")
+                .Setup(HttpMethod.Get, "/httpclient/get/200")
                 .Parameters(p => p
                     .Body(b => b.Setup("Get Response")))
                 .Build();
@@ -45,7 +45,7 @@ namespace APIMatic.Core.Test.Http.Client
         public async Task TestHttpClientGetCall_400Response()
         {
             var request = LazyGlobalConfiguration.Value.GlobalRequestBuilder()
-                .Setup(HttpMethod.Get, "/test/get/400")
+                .Setup(HttpMethod.Get, "/httpclient/get/400")
                 .Parameters(p => p
                     .Body(b => b.Setup("Get Bad Request")))
                 .Build();
