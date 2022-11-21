@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using APIMatic.Core.Http.Client.Configuration;
+using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Types.Sdk;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;

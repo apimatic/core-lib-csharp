@@ -2,10 +2,11 @@
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Collections.Generic;
-using APIMatic.Core.Http.Client.Configuration;
+using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Request.Parameters;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
@@ -27,6 +28,7 @@ namespace APIMatic.Core.Request
 
         internal readonly Dictionary<string, string> headers = new Dictionary<string, string>();
         internal dynamic body;
+        internal Type bodyType;
         internal readonly Dictionary<string, object> bodyParameters = new Dictionary<string, object>();
         internal readonly List<KeyValuePair<string, object>> formParameters = new List<KeyValuePair<string, object>>();
         internal readonly Dictionary<string, object> queryParameters = new Dictionary<string, object>();
@@ -39,6 +41,8 @@ namespace APIMatic.Core.Request
         internal ArraySerialization ArraySerialization { get; set; }
 
         internal bool HasBinaryResponse { get; set; }
+
+        private Type BodyType { get => bodyParameters.Any() ? typeof(object) : bodyType; }
 
         public RequestBuilder Setup(HttpMethod httpMethod, string path)
         {
@@ -117,12 +121,17 @@ namespace APIMatic.Core.Request
                 headers.Add("content-type", ContentType.XML.GetValue());
                 return;
             }
-            if (CoreHelper.IsScalarType(body?.GetType()))
+            if (body is Stream || body is byte[])
+            {
+                headers.Add("content-type", ContentType.BINARY.GetValue());
+                return;
+            }
+            if (CoreHelper.IsScalarType(BodyType))
             {
                 headers.Add("content-type", ContentType.SCALAR.GetValue());
                 return;
             }
-            headers.Add("content-type", ContentType.JSON.GetValue());
+            headers.Add("content-type", ContentType.JSON_UTF8.GetValue());
         }
 
         private void AppendAcceptHeader()
@@ -157,7 +166,7 @@ namespace APIMatic.Core.Request
             {
                 return null;
             }
-            if (value is CoreFileStreamInfo || CoreHelper.IsScalarType(value.GetType()))
+            if (value is CoreFileStreamInfo || value is Stream || value is byte[] || CoreHelper.IsScalarType(value.GetType()))
             {
                 return value;
             }

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 
-namespace APIMatic.Core.Http.Client.Configuration
+namespace APIMatic.Core.Http.Configuration
 {
     /// <summary>
     /// Represents the current state of the Http Client.

@@ -1,7 +1,7 @@
 ﻿// <copyright file="ArrayDeserialization.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-namespace APIMatic.Core.Http.Client.Configuration
+namespace APIMatic.Core.Http.Configuration
 {
     /// <summary>
     /// This enumeration has ArrayDeserialization format.

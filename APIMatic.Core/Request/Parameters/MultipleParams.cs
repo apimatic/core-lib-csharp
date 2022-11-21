@@ -8,6 +8,7 @@ namespace APIMatic.Core.Request.Parameters
 {
     public abstract class MultipleParams : Parameter
     {
+        private bool multipleValidate;
         protected readonly Builder parameters = new Builder();
 
         public new abstract MultipleParams Setup(string key, object value);
@@ -20,16 +21,17 @@ namespace APIMatic.Core.Request.Parameters
 
         internal override void Validate()
         {
-            if (validated)
+            if (multipleValidate)
             {
                 return;
             }
             parameters.Validate();
+            multipleValidate = true;
         }
 
         internal override void Apply(RequestBuilder requestBuilder)
         {
-            if (!validated)
+            if (!multipleValidate)
             {
                 return;
             }

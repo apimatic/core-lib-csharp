@@ -7,7 +7,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Net.Http;
 
-namespace APIMatic.Core.Http.Client.Configuration
+namespace APIMatic.Core.Http.Configuration
 {
     /// <summary>
     /// HttpClientConfiguration represents the current state of the Http Client.

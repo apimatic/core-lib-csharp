@@ -2,6 +2,7 @@
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using APIMatic.Core.Utilities;
@@ -12,8 +13,16 @@ namespace APIMatic.Core.Request.Parameters
     {
         internal TemplateParam() => typeName = "template";
 
-        private string GetReplacerValueForCollection(ICollection<object> collection) =>
-            string.Join("/", collection.Select(item => GetReplacerValue(item)));
+        private string GetReplacerValueForCollection(ICollection collection)
+        {
+            var replacedValues = new List<string>();
+            var enumerator = collection.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                replacedValues.Add(GetReplacerValue(enumerator.Current));
+            }
+            return string.Join("/", replacedValues);
+        }
 
         private string GetReplacerValue(object value)
         {
@@ -21,7 +30,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 return string.Empty;
             }
-            if (value is ICollection<object> collection)
+            if (value is ICollection collection)
             {
                 return GetReplacerValueForCollection(collection);
             }

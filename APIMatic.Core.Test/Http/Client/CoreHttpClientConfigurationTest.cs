@@ -1,8 +1,8 @@
-﻿using APIMatic.Core.Http.Client.Configuration;
-using System.Net.Http;
+﻿using System.Net.Http;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using APIMatic.Core.Http.Configuration;
 
 namespace APIMatic.Core.Test.Http.Client
 {

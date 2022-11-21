@@ -1,7 +1,7 @@
 ﻿// <copyright file="CoreRequest.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-using APIMatic.Core.Http.Client.Configuration;
+using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Utilities;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,19 +1,17 @@
 ﻿using System.Threading.Tasks;
-using APIMatic.Core.Http.Client;
 using NUnit.Framework;
 using System.Net.Http;
 using System.Text;
 using System.Net;
 using RichardSzalay.MockHttp;
-using System.Collections.Generic;
-using System.Net.Http.Json;
+using APIMatic.Core.Http;
 
 namespace APIMatic.Core.Test.Http.Client
 {
     [TestFixture]
     public class HttpClientWrapperTest : TestBase
     {
-        private IHttpClient _client;
+        private HttpClientWrapper _client;
 
         [SetUp]
         public void SetupHttpClient()

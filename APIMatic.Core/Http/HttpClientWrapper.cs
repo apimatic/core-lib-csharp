@@ -12,7 +12,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using APIMatic.Core.Http.Client.Configuration;
+using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Types;
 using APIMatic.Core.Types.Sdk;
 using Polly;
@@ -21,12 +21,12 @@ using Polly.Timeout;
 using Polly.Wrap;
 using MultipartContent = APIMatic.Core.Types.MultipartContent;
 
-namespace APIMatic.Core.Http.Client
+namespace APIMatic.Core.Http
 {
     /// <summary>
     /// HttpClientWrapper.
     /// </summary>
-    internal class HttpClientWrapper : IHttpClient
+    internal class HttpClientWrapper
     {
         private readonly int _numberOfRetries;
         private readonly int _backoffFactor;
@@ -64,16 +64,6 @@ namespace APIMatic.Core.Http.Client
         }
 
         /// <summary>
-        /// OnBeforeHttpRequestEvent.
-        /// </summary>
-        public event OnBeforeHttpRequestEventHandler OnBeforeHttpRequestEvent;
-
-        /// <summary>
-        /// OnAfterHttpResponseEvent.
-        /// </summary>
-        public event OnAfterHttpResponseEventHandler OnAfterHttpResponseEvent;
-
-        /// <summary>
         /// Executes the http request asynchronously.
         /// </summary>
         /// <param name="request">Http request.</param>
@@ -82,9 +72,6 @@ namespace APIMatic.Core.Http.Client
         /// <returns>Returns the HttpStringResponse.</returns>
         public async Task<CoreResponse> ExecuteAsync(CoreRequest request, CancellationToken cancellationToken = default)
         {
-            // raise the on before request event.
-            RaiseOnBeforeHttpRequestEvent(request);
-
             HttpResponseMessage responseMessage;
     
             if (_overrideHttpClientConfiguration)
@@ -104,9 +91,6 @@ namespace APIMatic.Core.Http.Client
             string body = request.HasBinaryResponse ? null : await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             var response = new CoreResponse(statusCode, headers, rawBody, body);
-
-            // raise the on after response event.
-            RaiseOnAfterHttpResponseEvent(response);
 
             return response;
         }
@@ -128,22 +112,6 @@ namespace APIMatic.Core.Http.Client
             }
 
             return headers;
-        }
-
-        private void RaiseOnBeforeHttpRequestEvent(CoreRequest request)
-        {
-            if ((OnBeforeHttpRequestEvent != null) && (request != null))
-            {
-                OnBeforeHttpRequestEvent(this, request);
-            }
-        }
-
-        private void RaiseOnAfterHttpResponseEvent(CoreResponse response)
-        {
-            if ((OnAfterHttpResponseEvent != null) && (response != null))
-            {
-                OnAfterHttpResponseEvent(this, response);
-            }
         }
 
         private async Task<HttpResponseMessage> HttpResponseMessage(
@@ -201,18 +169,17 @@ namespace APIMatic.Core.Http.Client
                     {
                         byte[] bytes = null;
 
-                        if (request.Body is Stream)
+                        if (request.Body is Stream stream)
                         {
-                            Stream s = (Stream)request.Body;
-                            s.Position = 0;
-                            using (BinaryReader br = new BinaryReader(s))
+                            stream.Position = 0;
+                            using (BinaryReader br = new BinaryReader(stream))
                             {
-                                bytes = br.ReadBytes((int)s.Length);
+                                bytes = br.ReadBytes((int)stream.Length);
                             }
                         }
-                        else if (request.Body is byte[])
+                        else if (request.Body is byte[] byteArray)
                         {
-                            bytes = (byte[])request.Body;
+                            bytes = byteArray;
                         }
                         else
                         {
@@ -241,13 +208,7 @@ namespace APIMatic.Core.Http.Client
 
                     foreach (var param in request.FormParameters)
                     {
-                        if (param.Value is CoreFileStreamInfo fileParam)
-                        {
-                            var fileContent = new MultipartFileContent(fileParam);
-                            fileContent.Rewind();
-                            formContent.Add(fileContent.ToHttpContent(param.Key));
-                        }
-                        else if (param.Value is MultipartContent wrapperObject)
+                        if (param.Value is MultipartContent wrapperObject)
                         {
                             wrapperObject.Rewind();
                             formContent.Add(wrapperObject.ToHttpContent(param.Key));
