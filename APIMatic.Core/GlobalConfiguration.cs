@@ -2,8 +2,8 @@
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using APIMatic.Core.Authentication;
-using APIMatic.Core.Http.Client;
-using APIMatic.Core.Http.Client.Configuration;
+using APIMatic.Core.Http;
+using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Request;
 using APIMatic.Core.Request.Parameters;
 using APIMatic.Core.Types;
@@ -23,7 +23,7 @@ namespace APIMatic.Core
         internal Dictionary<string, AuthManager> AuthManagers { get; private set; }
         internal Parameter.Builder RuntimeParameters { get; private set; }
         internal HttpCallBack ApiCallback { get; private set; }
-        internal IHttpClient HttpClient { get; private set; }
+        internal HttpClientWrapper HttpClient { get; private set; }
 
         private GlobalConfiguration(ICoreHttpClientConfiguration httpConfiguration, Dictionary<string, AuthManager> authManagers,
             Dictionary<Enum, string> serverUrls, Enum defaultServer, Parameter.Builder parameters,

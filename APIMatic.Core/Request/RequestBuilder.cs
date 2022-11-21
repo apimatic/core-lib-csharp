@@ -2,10 +2,11 @@
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Collections.Generic;
-using APIMatic.Core.Http.Client.Configuration;
+using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Request.Parameters;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
@@ -120,7 +121,11 @@ namespace APIMatic.Core.Request
                 headers.Add("content-type", ContentType.XML.GetValue());
                 return;
             }
-
+            if (body is Stream || body is byte[])
+            {
+                headers.Add("content-type", ContentType.BINARY.GetValue());
+                return;
+            }
             if (CoreHelper.IsScalarType(BodyType))
             {
                 headers.Add("content-type", ContentType.SCALAR.GetValue());
@@ -161,7 +166,7 @@ namespace APIMatic.Core.Request
             {
                 return null;
             }
-            if (value is CoreFileStreamInfo || CoreHelper.IsScalarType(value.GetType()))
+            if (value is CoreFileStreamInfo || value is Stream || value is byte[] || CoreHelper.IsScalarType(value.GetType()))
             {
                 return value;
             }

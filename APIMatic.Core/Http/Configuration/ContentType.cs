@@ -6,7 +6,7 @@ using APIMatic.Core.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace APIMatic.Core.Http.Client.Configuration
+namespace APIMatic.Core.Http.Configuration
 {
     /// <summary>
     /// This enumeration has ContentType Values.
@@ -27,7 +27,7 @@ namespace APIMatic.Core.Http.Client.Configuration
         [EnumMember(Value = "text/plain; charset=utf-8")]
         SCALAR,
 
-        [EnumMember(Value = "application/octect-stream")]
+        [EnumMember(Value = "application/octet-stream")]
         BINARY,
 
         [EnumMember(Value = "application/x-www-form-urlencoded")]

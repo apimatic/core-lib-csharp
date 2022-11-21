@@ -6,7 +6,7 @@ using System.Net.Http;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Authentication;
 using APIMatic.Core.Types;
-using APIMatic.Core.Http.Client.Configuration;
+using APIMatic.Core.Http.Configuration;
 
 namespace APIMatic.Core.Test
 {

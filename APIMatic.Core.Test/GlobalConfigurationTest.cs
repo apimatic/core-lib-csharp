@@ -31,10 +31,11 @@ namespace APIMatic.Core.Test
         public void TestGlobalRequestHeaders()
         {
             var request = LazyGlobalConfiguration.Value.GlobalRequestBuilder().Build();
-            Assert.True(request.Headers.Count == 4);
+            Assert.True(request.Headers.Count == 5);
             Assert.AreEqual("headVal1", request.Headers["additionalHead1"]);
             Assert.AreEqual("headVal2", request.Headers["additionalHead2"]);
             Assert.AreEqual("text/plain; charset=utf-8", request.Headers["content-type"]);
+            Assert.AreEqual("890.098", request.Headers["key5"]);
             Assert.True(request.Headers["user-agent"].StartsWith("my lang|1.*.*|"));
         }
     }
