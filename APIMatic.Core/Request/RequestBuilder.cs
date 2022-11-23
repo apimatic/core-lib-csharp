@@ -153,7 +153,7 @@ namespace APIMatic.Core.Request
             {
                 return false;
             }
-            if (headers.Where(p => p.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase)).Any())
+            if (headers.Any(p => p.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase)))
             {
                 return false;
             }

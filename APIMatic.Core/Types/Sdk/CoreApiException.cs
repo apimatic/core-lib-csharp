@@ -36,31 +36,30 @@ namespace APIMatic.Core.Types.Sdk
                 return;
             }
 
-            using (var reader = new StreamReader(context.Response.RawBody))
+            string responseBody = new StreamReader(context.Response.RawBody).ReadToEnd();
+            if (string.IsNullOrWhiteSpace(responseBody))
             {
-                string responseBody = reader.ReadToEnd();
-                if (!string.IsNullOrWhiteSpace(responseBody))
-                {
-                    try
-                    {
-                        JObject body = JObject.Parse(responseBody);
+                return;
+            }
 
-                        if (!GetType().Name.Equals("ApiException", StringComparison.OrdinalIgnoreCase))
-                        {
-                            JsonConvert.PopulateObject(responseBody, this);
-                        }
-                        SetupAdditionalProperties(body);
-                    }
-                    catch (JsonReaderException)
-                    {
-                        // Ignore deserialization and IO issues to prevent exception being thrown when this exception
-                        // instance is being constructed.
-                    }
-                }
+            try
+            {
+                SetupAdditionalProperties(responseBody);
+            }
+            catch (JsonReaderException)
+            {
+                // Ignore deserialization and IO issues to prevent exception being thrown when this exception
+                // instance is being constructed.
             }
         }
 
-        protected virtual void SetupAdditionalProperties(JObject body) { }
+        protected void SetupAdditionalProperties(string responseBody)
+        {
+            if (!GetType().Name.Equals("ApiException", StringComparison.OrdinalIgnoreCase))
+            {
+                JsonConvert.PopulateObject(responseBody, this);
+            }
+        }
 
         /// <summary>
         /// Gets the HTTP response code from the API request.
