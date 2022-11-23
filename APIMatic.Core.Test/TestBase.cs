@@ -16,6 +16,7 @@ namespace APIMatic.Core.Test
     {
         protected static HttpCallBack ApiCallBack = new HttpCallBack();
         protected enum MockServer { Server1, Server2 }
+        protected static readonly int numberOfRetries = 1;
 
         protected Mock<CoreRequest> MockRequest(HttpMethod method = null, string queryUrl = null,
             Dictionary<string, string> headers = null, object body = null,
@@ -23,10 +24,14 @@ namespace APIMatic.Core.Test
             Dictionary<string, object> queryParameters = null) =>
             new Mock<CoreRequest>(method, queryUrl, headers, body, formParameters, queryParameters, null, null);
 
-        protected static readonly MockHttpMessageHandler handlerMock = new MockHttpMessageHandler();
+        protected static readonly MockHttpMessageHandler handlerMock = new MockHttpMessageHandler()
+        {
+            AutoFlush = true
+        };
 
         private static ICoreHttpClientConfiguration _clientConfiguration = new CoreHttpClientConfiguration.Builder()
             .HttpClientInstance(new HttpClient(handlerMock))
+            .NumberOfRetries(numberOfRetries)
             .Build();
 
         private static GlobalConfiguration globalConfiguration;

@@ -1,14 +1,13 @@
 ﻿using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
-using APIMatic.Core.Test.MockTypes.Http.Response;
 using APIMatic.Core.Test.MockTypes.Models;
 using APIMatic.Core.Utilities;
+using System.Collections.Generic;
 
-namespace APIMatic.Core.Test.Api
+namespace APIMatic.Core.Test.Api.Get
 {
     [TestFixture]
     public class ApiCallGetTest : ApiCallTest
@@ -27,11 +26,15 @@ namespace APIMatic.Core.Test.Api
             };
 
             var content = JsonContent.Create(expected);
-            handlerMock.When($"{LazyGlobalConfiguration.Value.ServerUrl()}{url}")
-                    .Respond(HttpStatusCode.OK, content);
+            handlerMock.When(GetCompleteUrl(url))
+                .With(req =>
+                {
+                    Assert.AreEqual("application/json", req.Headers.Accept.ToString());
+                    return true;
+                })
+                .Respond(HttpStatusCode.OK, content);
 
             var apiCall = CreateApiCall<ServerResponse>()
-                .Server(MockServer.Server1)
                 .RequestBuilder(requestBuilderAction => requestBuilderAction
                     .Setup(HttpMethod.Get, url))
                 .ExecuteAsync();
@@ -60,11 +63,15 @@ namespace APIMatic.Core.Test.Api
             };
 
             var content = JsonContent.Create(expected);
-            handlerMock.When($"{LazyGlobalConfiguration.Value.ServerUrl()}{url}")
-                    .Respond(HttpStatusCode.OK, content);
+            handlerMock.When(GetCompleteUrl(url))
+                .With(req =>
+                {
+                    Assert.AreEqual("application/json", req.Headers.Accept.ToString());
+                    return true;
+                })
+                .Respond(HttpStatusCode.OK, content);
 
             var apiCall = CreateApiCall<ServerResponse>()
-                .Server(MockServer.Server1)
                 .RequestBuilder(requestBuilderAction => requestBuilderAction
                     .Setup(HttpMethod.Get, url))
                 .ResponseHandler(responseHandlerAction => responseHandlerAction

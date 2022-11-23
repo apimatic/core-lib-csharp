@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using APIMatic.Core.Http.Configuration;
 
-namespace APIMatic.Core.Test.Http.Client
+namespace APIMatic.Core.Test.Http
 {
     [TestFixture]
     public class CoreHttpClientConfigurationTest
