@@ -1,4 +1,4 @@
-// <copyright file="MultipartContent.cs" company="APIMatic">
+﻿// <copyright file="MultipartContent.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
@@ -17,7 +17,7 @@ namespace APIMatic.Core.Types
         /// <summary>
         /// Initializes a new instance of the <see cref="MultipartContent"/> class.
         /// </summary>
-        public MultipartContent()
+        protected MultipartContent()
         {
             this.Headers = new Dictionary<string, IReadOnlyCollection<string>>();
         }
@@ -26,7 +26,7 @@ namespace APIMatic.Core.Types
         /// Initializes a new instance of the <see cref="MultipartContent"/> class.
         /// </summary>
         /// <param name="headers">headers.</param>
-        public MultipartContent(
+        protected MultipartContent(
             IReadOnlyDictionary<string,
             IReadOnlyCollection<string>> headers)
         {

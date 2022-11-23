@@ -63,7 +63,6 @@ namespace APIMatic.Core.Request.Parameters
             }
 
             validated = true;
-            return;
         }
 
         internal abstract void Apply(RequestBuilder requestBuilder);

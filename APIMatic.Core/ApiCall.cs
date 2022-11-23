@@ -22,7 +22,6 @@ namespace APIMatic.Core
     {
         private readonly GlobalConfiguration globalConfiguration;
         private readonly ArraySerialization arraySerialization;
-        private readonly ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory;
         private readonly ResponseHandler<Request, Response, Context, ApiException, ResponseType> responseHandler;
         private readonly Func<Response, ResponseType, ReturnType> returnTypeCreator;
         private Enum apiCallServer;
@@ -33,10 +32,9 @@ namespace APIMatic.Core
             Func<Response, ResponseType, ReturnType> returnTypeCreator = null)
         {
             globalConfiguration = configuration;
-            compatibilityFactory = compatibility;
             arraySerialization = serialization;
             this.returnTypeCreator = returnTypeCreator;
-            responseHandler = new ResponseHandler<Request, Response, Context, ApiException, ResponseType>(compatibilityFactory, errors);
+            responseHandler = new ResponseHandler<Request, Response, Context, ApiException, ResponseType>(compatibility, errors);
         }
 
         public ApiCall<Request, Response, Context, ApiException, ReturnType, ResponseType> Server(Enum server)
