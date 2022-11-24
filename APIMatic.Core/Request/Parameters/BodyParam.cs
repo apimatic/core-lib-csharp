@@ -29,7 +29,7 @@ namespace APIMatic.Core.Request.Parameters
                 requestBuilder.bodyType = valueType;
                 return;
             }
-            requestBuilder.bodyParameters.Add(key, value);
+            requestBuilder.bodyParameters[key] = value;
         }
     }
 }
