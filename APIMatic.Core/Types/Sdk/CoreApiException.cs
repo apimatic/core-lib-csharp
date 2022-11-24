@@ -53,7 +53,7 @@ namespace APIMatic.Core.Types.Sdk
             }
         }
 
-        protected void SetupAdditionalProperties(string responseBody)
+        protected virtual void SetupAdditionalProperties(string responseBody)
         {
             if (!GetType().Name.Equals("ApiException", StringComparison.OrdinalIgnoreCase))
             {
