@@ -12,6 +12,7 @@ using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace APIMatic.Core.Test.Api.Post
 {
@@ -21,22 +22,24 @@ namespace APIMatic.Core.Test.Api.Post
         public void ApiCall_PostBody_OKResponse()
         {
             //Arrange
-            var inputString = "Post body response.";
+            var text = "Post body response.";
             var url = "/apicall/body-post/200";
 
             var expected = new ServerResponse()
             {
-                Message = inputString,
+                Message = text,
                 Passed = true,
             };
 
             var content = JsonContent.Create(expected);
             handlerMock.When(GetCompleteUrl(url))
-                .WithContent(inputString)
-                .WithHeaders(new Dictionary<string, string>
+                .With(req =>
                 {
-                    { "content-type", "text/plain; charset=utf-8" },
-                    { "accept", "application/json" }
+                    Assert.AreEqual(text, req.Content.ReadAsStringAsync().Result);
+                    Assert.AreEqual("text/plain", req.Content.Headers.ContentType.MediaType);
+                    Assert.AreEqual("utf-8", req.Content.Headers.ContentType.CharSet);
+                    Assert.AreEqual("application/json", req.Headers.Accept.ToString());
+                    return true;
                 })
                 .Respond(HttpStatusCode.OK, content);
 
@@ -44,7 +47,7 @@ namespace APIMatic.Core.Test.Api.Post
                 .RequestBuilder(requestBuilderAction => requestBuilderAction
                     .Setup(HttpMethod.Post, url)
                     .Parameters(p => p
-                        .Body(b => b.Setup(inputString))))
+                        .Body(b => b.Setup(text))))
                 .ExecuteAsync();
 
             // Act
@@ -61,22 +64,24 @@ namespace APIMatic.Core.Test.Api.Post
         public void ApiCall_PostBodyWithContentType_OKResponse()
         {
             //Arrange
-            var inputString = "{\"name\":\"PostBodyWithContentType\"}";
+            var text = "{\"name\":\"PostBodyWithContentType\"}";
             var url = "/apicall/body-post-with-content/200";
 
             var expected = new ServerResponse()
             {
-                Message = inputString,
+                Message = text,
                 Passed = true,
             };
 
             var content = JsonContent.Create(expected);
             handlerMock.When(GetCompleteUrl(url))
-                .WithContent(inputString)
-                .WithHeaders(new Dictionary<string, string>
+                .With(req =>
                 {
-                    { "content-type", "application/json; charset=utf-8" },
-                    { "accept", "application/json" }
+                    Assert.AreEqual(text, req.Content.ReadAsStringAsync().Result);
+                    Assert.AreEqual("application/json", req.Content.Headers.ContentType.MediaType);
+                    Assert.AreEqual("utf-8", req.Content.Headers.ContentType.CharSet);
+                    Assert.AreEqual("application/json", req.Headers.Accept.ToString());
+                    return true;
                 })
                 .Respond(HttpStatusCode.OK, content);
 
@@ -85,7 +90,7 @@ namespace APIMatic.Core.Test.Api.Post
                     .Setup(HttpMethod.Post, url)
                     .Parameters(p => p
                         .Header(h => h.Setup("content-type", "application/json; charset=utf-8"))
-                        .Body(b => b.Setup(inputString))))
+                        .Body(b => b.Setup(text))))
                 .ExecuteAsync();
 
             // Act
@@ -102,22 +107,24 @@ namespace APIMatic.Core.Test.Api.Post
         public void ApiCall_PostBodyWithEmptyContentType_OKResponse()
         {
             //Arrange
-            var inputString = "{\"name\":\"PostBodyWithEmptyContentType\"}";
+            var text = "{\"name\":\"PostBodyWithEmptyContentType\"}";
             var url = "/apicall/body-post-with-empty-content/200";
 
             var expected = new ServerResponse()
             {
-                Message = inputString,
+                Message = text,
                 Passed = true,
             };
 
             var content = JsonContent.Create(expected);
             handlerMock.When(GetCompleteUrl(url))
-                .WithContent(inputString)
-                .WithHeaders(new Dictionary<string, string>
+                .With(req =>
                 {
-                    { "content-type", "text/plain; charset=utf-8" },
-                    { "accept", "application/json" }
+                    Assert.AreEqual(text, req.Content.ReadAsStringAsync().Result);
+                    Assert.AreEqual("text/plain", req.Content.Headers.ContentType.MediaType);
+                    Assert.AreEqual("utf-8", req.Content.Headers.ContentType.CharSet);
+                    Assert.AreEqual("application/json", req.Headers.Accept.ToString());
+                    return true;
                 })
                 .Respond(HttpStatusCode.OK, content);
 
@@ -126,7 +133,7 @@ namespace APIMatic.Core.Test.Api.Post
                     .Setup(HttpMethod.Post, url)
                     .Parameters(p => p
                         .Header(h => h.Setup("content-type", string.Empty))
-                        .Body(b => b.Setup(inputString))))
+                        .Body(b => b.Setup(text))))
                 .ExecuteAsync();
 
             // Act
@@ -154,11 +161,13 @@ namespace APIMatic.Core.Test.Api.Post
 
             var content = JsonContent.Create(expected);
             handlerMock.When(GetCompleteUrl(url))
-                .With(req => req.Content.Headers.ContentType.MediaType.Equals("application/octet-stream"))
-                .WithContent(data)
-                .WithHeaders(new Dictionary<string, string>
+                .With(req =>
                 {
-                    { "accept", "application/json" }
+                    Assert.AreEqual(data, req.Content.ReadAsStringAsync().Result);
+                    Assert.AreEqual("application/octet-stream", req.Content.Headers.ContentType.MediaType);
+                    Assert.IsNull(req.Content.Headers.ContentType.CharSet);
+                    Assert.AreEqual("application/json", req.Headers.Accept.ToString());
+                    return true;
                 })
                 .Respond(HttpStatusCode.OK, content);
 
@@ -182,22 +191,25 @@ namespace APIMatic.Core.Test.Api.Post
         public void ApiCall_PostFormData_OKResponse()
         {
             //Arrange
-            var inputString = "Post form data.";
+            var text = "Post form data.";
             var url = "/apicall/form-post/200";
+            var expectedFormData = "key+1=Post+form+data.";
 
             var expected = new ServerResponse()
             {
-                Message = inputString,
+                Message = text,
                 Passed = true,
             };
 
             var content = JsonContent.Create(expected);
             handlerMock.When(GetCompleteUrl(url))
-                .WithFormData("key 1", inputString)
-                .WithHeaders(new Dictionary<string, string>
+                .With(req =>
                 {
-                    { "content-type", "application/x-www-form-urlencoded" },
-                    { "accept", "application/json" }
+                    Assert.AreEqual(expectedFormData, req.Content.ReadAsStringAsync().Result);
+                    Assert.AreEqual("application/x-www-form-urlencoded", req.Content.Headers.ContentType.MediaType);
+                    Assert.IsNull(req.Content.Headers.ContentType.CharSet);
+                    Assert.AreEqual("application/json", req.Headers.Accept.ToString());
+                    return true;
                 })
                 .Respond(HttpStatusCode.OK, content);
 
@@ -207,7 +219,7 @@ namespace APIMatic.Core.Test.Api.Post
                     .Parameters(p => p
                         .Header(h => h.Setup("content-type", "text/plain; charset=utf-8"))
                         .Form(form => form
-                            .Setup("key 1", inputString))))
+                            .Setup("key 1", text))))
                 .ExecuteAsync();
 
             // Act

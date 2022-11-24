@@ -1,6 +1,12 @@
 ﻿// <copyright file="HttpClientWrapper.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
+using APIMatic.Core.Http.Configuration;
+using APIMatic.Core.Types.Sdk;
+using Polly;
+using Polly.Retry;
+using Polly.Timeout;
+using Polly.Wrap;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -12,13 +18,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using APIMatic.Core.Http.Configuration;
-using APIMatic.Core.Types;
-using APIMatic.Core.Types.Sdk;
-using Polly;
-using Polly.Retry;
-using Polly.Timeout;
-using Polly.Wrap;
 using MultipartContent = APIMatic.Core.Types.MultipartContent;
 
 namespace APIMatic.Core.Http
@@ -73,16 +72,16 @@ namespace APIMatic.Core.Http
         public async Task<CoreResponse> ExecuteAsync(CoreRequest request, CancellationToken cancellationToken = default)
         {
             HttpResponseMessage responseMessage;
-    
+
             if (_overrideHttpClientConfiguration)
             {
                 responseMessage = await GetCombinedPolicy(request.RetryOption).ExecuteAsync(
-                    async (cancellation) => await HttpResponseMessage(request, cancellation).ConfigureAwait(false), cancellationToken)
+                    async (cancellation) => await ExecuteHttpRequest(request, cancellation).ConfigureAwait(false), cancellationToken)
                     .ConfigureAwait(false);
             }
             else
             {
-                responseMessage = await HttpResponseMessage(request, cancellationToken).ConfigureAwait(false);
+                responseMessage = await ExecuteHttpRequest(request, cancellationToken).ConfigureAwait(false);
             }
 
             int statusCode = (int)responseMessage.StatusCode;
@@ -95,28 +94,15 @@ namespace APIMatic.Core.Http
             return response;
         }
 
-        private static Dictionary<string, string> GetCombinedResponseHeaders(HttpResponseMessage responseMessage)
-        {
-            var headers = responseMessage.Headers.ToDictionary(l => l.Key, k => k.Value.First());
-            if (responseMessage.Content != null)
-            {
-                foreach (var contentHeader in responseMessage.Content.Headers)
-                {
-                    if (headers.ContainsKey(contentHeader.Key))
-                    {
-                        continue;
-                    }
-
-                    headers.Add(contentHeader.Key, contentHeader.Value.First());
-                }
-            }
-
-            return headers;
-        }
-
-        private async Task<HttpResponseMessage> HttpResponseMessage(
+        private async Task<HttpResponseMessage> ExecuteHttpRequest(
             CoreRequest request,
             CancellationToken cancellationToken)
+        {
+            var requestMessage = CreateHttpRequestMessageFromRequest(request);
+            return await _client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
+        }
+
+        private HttpRequestMessage CreateHttpRequestMessageFromRequest(CoreRequest request)
         {
             HttpRequestMessage requestMessage = new HttpRequestMessage
             {
@@ -132,108 +118,133 @@ namespace APIMatic.Core.Http
                 }
             }
 
-            if (request.HttpMethod.Equals(HttpMethod.Delete) || request.HttpMethod.Equals(HttpMethod.Post) || request.HttpMethod.Equals(HttpMethod.Put) || request.HttpMethod.Equals(new HttpMethod("PATCH")))
+            if (IsHeaderOnlyHttpMethod(request.HttpMethod))
             {
-                bool multipartRequest = request.FormParameters != null &&
-                        (request.FormParameters.Any(f => f.Value is MultipartContent) ||
-                        request.FormParameters.Any(f => f.Value is CoreFileStreamInfo));
+                return requestMessage;
+            }
 
-                if (request.Body != null)
+            if (request.Body == null)
+            {
+                if (CheckFormParametersForMultiPart(request.FormParameters))
                 {
-                    string contentType = request.Headers.Where(p => p.Key.Equals("content-type", StringComparison.InvariantCultureIgnoreCase))
-                                                    .Select(x => x.Value)
-                                                    .FirstOrDefault();
-
-                    if (request.Body is CoreFileStreamInfo file)
-                    {
-                        file.FileStream.Position = 0;
-                        requestMessage.Content = new StreamContent(file.FileStream);
-                        if (!string.IsNullOrWhiteSpace(file.ContentType))
-                        {
-                            requestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
-                        }
-                        else if (!string.IsNullOrEmpty(contentType))
-                        {
-                            requestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
-                        }
-                        else
-                        {
-                            requestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-                        }
-                    }
-                    else if (!string.IsNullOrEmpty(contentType) && contentType.Equals("application/json; charset=utf-8", StringComparison.OrdinalIgnoreCase))
-                    {
-                        requestMessage.Content = new StringContent((string)request.Body ?? string.Empty, Encoding.UTF8, "application/json");
-                    }
-                    else if (!string.IsNullOrEmpty(contentType))
-                    {
-                        byte[] bytes = null;
-
-                        if (request.Body is Stream stream)
-                        {
-                            stream.Position = 0;
-                            using (BinaryReader br = new BinaryReader(stream))
-                            {
-                                bytes = br.ReadBytes((int)stream.Length);
-                            }
-                        }
-                        else if (request.Body is byte[] byteArray)
-                        {
-                            bytes = byteArray;
-                        }
-                        else
-                        {
-                            bytes = Encoding.UTF8.GetBytes((string)request.Body);
-                        }
-
-                        requestMessage.Content = new ByteArrayContent(bytes ?? Array.Empty<byte>());
-
-                        try
-                        {
-                            requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
-                        }
-                        catch (Exception)
-                        {
-                            requestMessage.Content.Headers.TryAddWithoutValidation("content-type", contentType);
-                        }
-                    }
-                    else
-                    {
-                        requestMessage.Content = new StringContent(request.Body.ToString() ?? string.Empty, Encoding.UTF8, "text/plain");
-                    }
+                    requestMessage.Content = GetMultipartFormDataContentFromRequest(request);
+                    return requestMessage;
                 }
-                else if (multipartRequest)
+
+                requestMessage.Content = new FormUrlEncodedContent(request.FormParameters.Select(param => new KeyValuePair<string, string>(param.Key, param.Value.ToString())).ToList());
+                return requestMessage;
+            }
+
+            string contentType = request.Headers.Where(p => p.Key.Equals("content-type", StringComparison.InvariantCultureIgnoreCase))
+                                .Select(x => x.Value)
+                                .FirstOrDefault();
+
+            if (request.Body is CoreFileStreamInfo file)
+            {
+                file.FileStream.Position = 0;
+                requestMessage.Content = new StreamContent(file.FileStream);
+                requestMessage.Content.Headers.ContentType = GetFileStreamContentType(file, contentType);
+                return requestMessage;
+            }
+
+            if (string.IsNullOrEmpty(contentType))
+            {
+                requestMessage.Content = new StringContent(request.Body.ToString(), Encoding.UTF8, "text/plain");
+                return requestMessage;
+            }
+
+            if (contentType.Equals("application/json; charset=utf-8", StringComparison.OrdinalIgnoreCase))
+            {
+                requestMessage.Content = new StringContent(request.Body.ToString(), Encoding.UTF8, "application/json");
+                return requestMessage;
+            }
+
+            requestMessage.Content = GetByteArrayContentFromRequestBody(request.Body);
+            GetByteArrayContentType(requestMessage.Content.Headers, contentType);
+            return requestMessage;
+        }
+
+        private static void GetByteArrayContentType(HttpContentHeaders contentHeader, string contentType)
+        {
+            try
+            {
+                contentHeader.ContentType = MediaTypeHeaderValue.Parse(contentType);
+            }
+            catch (Exception)
+            {
+                contentHeader.TryAddWithoutValidation("content-type", contentType);
+            }
+        }
+
+        private static MultipartFormDataContent GetMultipartFormDataContentFromRequest(CoreRequest request)
+        {
+            MultipartFormDataContent formContent = new MultipartFormDataContent();
+
+            foreach (var param in request.FormParameters)
+            {
+                if (param.Value is MultipartContent wrapperObject)
                 {
-                    MultipartFormDataContent formContent = new MultipartFormDataContent();
-
-                    foreach (var param in request.FormParameters)
-                    {
-                        if (param.Value is MultipartContent wrapperObject)
-                        {
-                            wrapperObject.Rewind();
-                            formContent.Add(wrapperObject.ToHttpContent(param.Key));
-                        }
-                        else
-                        {
-                            formContent.Add(new StringContent(param.Value.ToString()), param.Key);
-                        }
-                    }
-
-                    requestMessage.Content = formContent;
+                    wrapperObject.Rewind();
+                    formContent.Add(wrapperObject.ToHttpContent(param.Key));
                 }
-                else if (request.FormParameters != null)
+                else
                 {
-                    var parameters = new List<KeyValuePair<string, string>>();
-                    foreach (var param in request.FormParameters)
-                    {
-                        parameters.Add(new KeyValuePair<string, string>(param.Key, param.Value.ToString()));
-                    }
-
-                    requestMessage.Content = new FormUrlEncodedContent(parameters);
+                    formContent.Add(new StringContent(param.Value.ToString()), param.Key);
                 }
             }
 
-            return await _client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
+            return formContent;
+        }
+
+        private ByteArrayContent GetByteArrayContentFromRequestBody(object requestBody)
+        {
+            byte[] bytes = null;
+            if (requestBody is Stream stream)
+            {
+                stream.Position = 0;
+                using (BinaryReader br = new BinaryReader(stream))
+                {
+                    bytes = br.ReadBytes((int)stream.Length);
+                }
+            }
+            else if (requestBody is byte[] byteArray)
+            {
+                bytes = byteArray;
+            }
+            else
+            {
+                bytes = Encoding.UTF8.GetBytes((string)requestBody);
+            }
+
+            return new ByteArrayContent(bytes ?? Array.Empty<byte>());
+        }
+
+        private MediaTypeHeaderValue GetFileStreamContentType(CoreFileStreamInfo file, string contentType)
+        {
+            if (!string.IsNullOrWhiteSpace(file.ContentType))
+            {
+                return new MediaTypeHeaderValue(file.ContentType);
+            }
+
+            if (!string.IsNullOrEmpty(contentType))
+            {
+                return new MediaTypeHeaderValue(contentType);
+            }
+
+            return new MediaTypeHeaderValue("application/octet-stream");
+        }
+
+        private bool IsHeaderOnlyHttpMethod(HttpMethod method)
+        {
+            return !method.Equals(HttpMethod.Delete) && !method.Equals(HttpMethod.Post) &&
+                   !method.Equals(HttpMethod.Put) && !method.Equals(new HttpMethod("PATCH"));
+        }
+
+        private bool CheckFormParametersForMultiPart(List<KeyValuePair<string, object>> formParameters)
+        {
+            return formParameters != null &&
+                   (formParameters.Any(f => f.Value is MultipartContent) ||
+                    formParameters.Any(f => f.Value is CoreFileStreamInfo));
         }
 
         private bool ShouldRetry(HttpResponseMessage response, RetryOption retryOption)
@@ -282,6 +293,25 @@ namespace APIMatic.Core.Http
             double noise = new Random().NextDouble() * 100;
             return (1000 * this._retryInterval * Math.Pow(_backoffFactor, retryAttempt - 1)) + noise;
 
+        }
+
+        private static Dictionary<string, string> GetCombinedResponseHeaders(HttpResponseMessage responseMessage)
+        {
+            var headers = responseMessage.Headers.ToDictionary(l => l.Key, k => k.Value.First());
+            if (responseMessage.Content != null)
+            {
+                foreach (var contentHeader in responseMessage.Content.Headers)
+                {
+                    if (headers.ContainsKey(contentHeader.Key))
+                    {
+                        continue;
+                    }
+
+                    headers.Add(contentHeader.Key, contentHeader.Value.First());
+                }
+            }
+
+            return headers;
         }
     }
 }
