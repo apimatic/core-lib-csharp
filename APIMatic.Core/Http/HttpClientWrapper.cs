@@ -32,10 +32,10 @@ namespace APIMatic.Core.Http
         private readonly int _backoffFactor;
         private readonly double _retryInterval;
         private readonly TimeSpan _maximumRetryWaitTime;
-        private HttpClient _client;
-        private IList<HttpStatusCode> _statusCodesToRetry;
-        private IList<HttpMethod> _requestMethodsToRetry;
-        private bool _overrideHttpClientConfiguration;
+        private readonly HttpClient _client;
+        private readonly IList<HttpStatusCode> _statusCodesToRetry;
+        private readonly IList<HttpMethod> _requestMethodsToRetry;
+        private readonly bool _overrideHttpClientConfiguration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpClientWrapper"/> class.
