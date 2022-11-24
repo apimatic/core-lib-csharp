@@ -13,7 +13,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 return;
             }
-            requestBuilder.queryParameters.Add(key, value);
+            requestBuilder.queryParameters[key] = value;
         }
     }
 }

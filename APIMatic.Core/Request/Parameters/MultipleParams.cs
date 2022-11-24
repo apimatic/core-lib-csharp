@@ -15,7 +15,7 @@ namespace APIMatic.Core.Request.Parameters
 
         public MultipleParams Setup(Dictionary<string, object> multipleParams)
         {
-            multipleParams.ToList().ForEach(keyValPair => Setup(keyValPair.Key, keyValPair.Value));
+            multipleParams?.ToList().ForEach(keyValPair => Setup(keyValPair.Key, keyValPair.Value));
             return this;
         }
 
