@@ -63,8 +63,10 @@ namespace APIMatic.Core.Test.Api.Get
                 })
                 .Respond(_ =>
                 {
-                    var response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
-                    response.Content = stringContent;
+                    var response = new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                    {
+                        Content = stringContent
+                    };
                     response.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(1));
                     return response;
                 });

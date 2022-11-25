@@ -94,8 +94,10 @@ namespace APIMatic.Core.Test.Http
             handlerMock.When(request.QueryUrl)
                     .Respond(_ =>
                     {
-                        var response = new HttpResponseMessage(HttpStatusCode.OK);
-                        response.Content = content;
+                        var response = new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = content
+                        };
                         response.Headers.Add(customHeaderKey, customHeaderValue);
                         return response;
                     });
