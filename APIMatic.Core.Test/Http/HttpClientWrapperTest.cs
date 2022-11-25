@@ -5,12 +5,9 @@ using System.Text;
 using System.Net;
 using RichardSzalay.MockHttp;
 using APIMatic.Core.Http;
-using APIMatic.Core.Authentication;
 using System.Collections.Generic;
 using System;
 using APIMatic.Core.Http.Configuration;
-using APIMatic.Core.Test.MockTypes.Models;
-using APIMatic.Core.Utilities;
 using System.Net.Http.Json;
 
 namespace APIMatic.Core.Test.Http
@@ -102,8 +99,6 @@ namespace APIMatic.Core.Test.Http
                         response.Headers.Add(customHeaderKey, customHeaderValue);
                         return response;
                     });
-
-            var response = await _client.ExecuteAsync(request);
 
             // Act
             var actual = await _client.ExecuteAsync(request);
