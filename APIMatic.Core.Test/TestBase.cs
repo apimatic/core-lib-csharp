@@ -6,6 +6,7 @@ using System.Net.Http;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Authentication;
 using APIMatic.Core.Types;
+using RichardSzalay.MockHttp;
 using APIMatic.Core.Http.Configuration;
 
 namespace APIMatic.Core.Test
@@ -15,6 +16,7 @@ namespace APIMatic.Core.Test
     {
         protected static HttpCallBack ApiCallBack = new HttpCallBack();
         protected enum MockServer { Server1, Server2 }
+        protected static readonly int numberOfRetries = 1;
 
         protected Mock<CoreRequest> MockRequest(HttpMethod method = null, string queryUrl = null,
             Dictionary<string, string> headers = null, object body = null,
@@ -22,9 +24,18 @@ namespace APIMatic.Core.Test
             Dictionary<string, object> queryParameters = null) =>
             new Mock<CoreRequest>(method, queryUrl, headers, body, formParameters, queryParameters, null, null);
 
+        protected static readonly MockHttpMessageHandler handlerMock = new MockHttpMessageHandler()
+        {
+            AutoFlush = true
+        };
+
+        private static ICoreHttpClientConfiguration _clientConfiguration = new CoreHttpClientConfiguration.Builder()
+            .HttpClientInstance(new HttpClient(handlerMock))
+            .NumberOfRetries(numberOfRetries)
+            .Build();
+
         private static GlobalConfiguration globalConfiguration;
 
-        private static ICoreHttpClientConfiguration _clientConfiguration = new CoreHttpClientConfiguration.Builder().Build();
         protected static Lazy<GlobalConfiguration> LazyGlobalConfiguration => new Lazy<GlobalConfiguration>(() => globalConfiguration ??= new GlobalConfiguration.Builder()
             .ServerUrls(new Dictionary<Enum, string>
             {
