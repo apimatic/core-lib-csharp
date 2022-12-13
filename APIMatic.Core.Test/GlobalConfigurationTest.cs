@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
+using APIMatic.Core.Authentication;
+using APIMatic.Core.Http.Configuration;
 using NUnit.Framework;
 
 namespace APIMatic.Core.Test
@@ -37,6 +40,22 @@ namespace APIMatic.Core.Test
             Assert.AreEqual("text/plain; charset=utf-8", request.Headers["content-type"]);
             Assert.AreEqual("890.098", request.Headers["key5"]);
             Assert.True(request.Headers["user-agent"].StartsWith("my lang|1.*.*|"));
+        }
+
+        [Test]
+        public void TestGlobalRequest_NullUserAgent()
+        {
+            var httpClientConfiguration = new CoreHttpClientConfiguration.Builder().Build();
+            var request = new GlobalConfiguration.Builder()
+                .HttpConfiguration(httpClientConfiguration)
+                .UserAgent(null)
+                .ServerUrls(new Dictionary<Enum, string>
+                {
+                    { MockServer.Server1, "http://my/path:3000/{one}"},
+                    { MockServer.Server2, "https://my/path/{two}"}
+                }, MockServer.Server1)
+                .Build().GlobalRequestBuilder().Build();
+            Assert.IsFalse(request.Headers.ContainsKey("user-agent"));
         }
     }
 }
