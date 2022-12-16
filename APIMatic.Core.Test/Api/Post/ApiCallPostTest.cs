@@ -61,6 +61,48 @@ namespace APIMatic.Core.Test.Api.Post
         }
 
         [Test]
+        public void ApiCall_PostBodyNonScalar_OKResponse()
+        {
+            //Arrange
+            int[] arr = { 1, 2, 3 };
+            string responseInts = $"[{string.Join(',', arr)}]";
+            var url = "/apicall/body-post-non-scalar/200";
+
+            var expected = new ServerResponse()
+            {
+                Input = arr,
+                Passed = true,
+            };
+
+            var content = JsonContent.Create(expected);
+            handlerMock.When(GetCompleteUrl(url))
+                .With(req =>
+                {
+                    Assert.AreEqual(responseInts, req.Content.ReadAsStringAsync().Result);
+                    Assert.AreEqual("application/json", req.Content.Headers.ContentType.MediaType);
+                    Assert.AreEqual("utf-8", req.Content.Headers.ContentType.CharSet);
+                    Assert.AreEqual("application/json", req.Headers.Accept.ToString());
+                    return true;
+                })
+                .Respond(HttpStatusCode.OK, content);
+
+            var apiCall = CreateApiCall<ServerResponse>()
+                .RequestBuilder(requestBuilderAction => requestBuilderAction
+                    .Setup(HttpMethod.Post, url)
+                    .Parameters(p => p
+                        .Body(b => b.Setup(arr))))
+                .ExecuteAsync();
+
+            // Act
+            var actual = CoreHelper.RunTask(apiCall);
+
+            // Assert
+            Assert.NotNull(actual);
+            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.NotNull(actual.Data);
+        }
+
+        [Test]
         public void ApiCall_PostBodyWithContentType_OKResponse()
         {
             //Arrange

@@ -8,12 +8,15 @@ using APIMatic.Core.Authentication;
 using APIMatic.Core.Types;
 using RichardSzalay.MockHttp;
 using APIMatic.Core.Http.Configuration;
+using APIMatic.Core.Test.MockTypes.Authentication;
 
 namespace APIMatic.Core.Test
 {
     [TestFixture]
     public class TestBase
     {
+        protected static readonly string _basicAuthUserName = "ApimaticUserName";
+        protected static readonly string _basicAuthPassword = "ApimaticPassword";
         protected static HttpCallBack ApiCallBack = new HttpCallBack();
         protected enum MockServer { Server1, Server2 }
         protected static readonly int numberOfRetries = 1;
@@ -34,6 +37,8 @@ namespace APIMatic.Core.Test
             .NumberOfRetries(numberOfRetries)
             .Build();
 
+        private static BasicAuthManager _basicAuthManager = new BasicAuthManager(_basicAuthUserName, _basicAuthPassword);
+
         private static GlobalConfiguration globalConfiguration;
 
         protected static Lazy<GlobalConfiguration> LazyGlobalConfiguration => new Lazy<GlobalConfiguration>(() => globalConfiguration ??= new GlobalConfiguration.Builder()
@@ -42,7 +47,9 @@ namespace APIMatic.Core.Test
                 { MockServer.Server1, "http://my/path:3000/{one}"},
                 { MockServer.Server2, "https://my/path/{two}"}
             }, MockServer.Server1)
-            .AuthManagers(new Dictionary<string, AuthManager>())
+            .AuthManagers(new Dictionary<string, AuthManager> {
+                        {"global", _basicAuthManager}
+            })
             .HttpConfiguration(_clientConfiguration)
             .Parameters(p => p
                 .Header(h => h.Setup("additionalHead1", "headVal1"))
