@@ -24,6 +24,15 @@ namespace APIMatic.Core.Utilities
         /// DateTime format to use for parsing and converting dates.
         /// </summary>
         internal static readonly string DateTimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFFK";
+        internal static readonly Dictionary<ArraySerialization, string> _serializationFormats = new Dictionary<ArraySerialization, string>()
+        {
+            {ArraySerialization.UnIndexed, "{0}[]={{0}}{{1}}" },
+            {ArraySerialization.Indexed, "{0}[{{2}}]={{0}}{{1}}"},
+            {ArraySerialization.Plain, "{0}={{0}}{{1}}"},
+            {ArraySerialization.PSV, "{0}="},
+            {ArraySerialization.CSV, "{0}="},
+            {ArraySerialization.TSV, "{0}="}
+        };
 
         /// <summary>
         /// JSON Serialization of a given object.
@@ -85,58 +94,6 @@ namespace APIMatic.Core.Utilities
         }
 
         /// <summary>
-        /// Replaces template parameters in the given url.
-        /// </summary>
-        /// <param name="queryBuilder">The queryBuilder to replace the template parameters.</param>
-        /// <param name="parameters">The parameters to replace in the url.</param>
-        public static void AppendUrlWithTemplateParameters(StringBuilder queryBuilder, IEnumerable<KeyValuePair<string, object>> parameters)
-        {
-            // perform parameter validation
-            if (queryBuilder == null)
-            {
-                throw new ArgumentNullException("queryBuilder");
-            }
-
-            if (parameters == null)
-            {
-                return;
-            }
-
-            // iterate and replace parameters
-            foreach (KeyValuePair<string, object> pair in parameters)
-            {
-                string replaceValue = string.Empty;
-
-                // load element value as string
-                if (pair.Value == null)
-                {
-                    replaceValue = string.Empty;
-                }
-                else if (pair.Value is ICollection)
-                {
-                    replaceValue = FlattenCollection(pair.Value as ICollection, ArraySerialization.None, '/', false);
-                }
-                else if (pair.Value is DateTime)
-                {
-                    replaceValue = ((DateTime)pair.Value).ToString(DateTimeFormat);
-                }
-                else if (pair.Value is DateTimeOffset)
-                {
-                    replaceValue = ((DateTimeOffset)pair.Value).ToString(DateTimeFormat);
-                }
-                else
-                {
-                    replaceValue = pair.Value.ToString();
-                }
-
-                replaceValue = Uri.EscapeUriString(replaceValue);
-
-                // find the template parameter and replace it with its value
-                queryBuilder.Replace(string.Format("{{{0}}}", pair.Key), replaceValue);
-            }
-        }
-
-        /// <summary>
         /// Appends the given set of parameters to the given query string.
         /// </summary>
         /// <param name="queryBuilder">The queryBuilder to append the parameters.</param>
@@ -145,22 +102,13 @@ namespace APIMatic.Core.Utilities
         /// <param name="separator">separator.</param>
         public static void AppendUrlWithQueryParameters(StringBuilder queryBuilder, IEnumerable<KeyValuePair<string, object>> parameters, ArraySerialization arraySerialization = ArraySerialization.UnIndexed)
         {
-            // perform parameter validation
-            if (queryBuilder == null)
-            {
-                throw new ArgumentNullException("queryBuilder");
-            }
-
-            if (parameters == null)
+            if (!parameters.Any())
             {
                 return;
             }
-
             // does the query string already has parameters
             bool hasParams = IndexOf(queryBuilder, "?") > 0;
             var processedParameters = ProcessQueryParamsForCustomTypes(parameters);
-
-            // iterate and append parameters
             foreach (KeyValuePair<string, object> pair in processedParameters)
             {
                 // if already has parameters, use the &amp; to append new parameters
@@ -168,7 +116,13 @@ namespace APIMatic.Core.Utilities
 
                 // indicate that now the query has some params
                 hasParams = true;
+                // iterate and append parameters
+                AppendParameters(queryBuilder, arraySerialization, pair);
+            }
+        }
 
+        private static void AppendParameters(StringBuilder queryBuilder, ArraySerialization arraySerialization, KeyValuePair<string, object> pair)
+        {
                 string paramKeyValPair;
 
                 // load element value as string
@@ -176,22 +130,13 @@ namespace APIMatic.Core.Utilities
                 {
                     paramKeyValPair = FlattenCollection(pair.Value as ICollection, arraySerialization, GetSeparator(arraySerialization), true, Uri.EscapeDataString(pair.Key));
                 }
-                else if (pair.Value is DateTime)
-                {
-                    paramKeyValPair = string.Format("{0}={1}", Uri.EscapeDataString(pair.Key), ((DateTime)pair.Value).ToString(DateTimeFormat));
-                }
-                else if (pair.Value is DateTimeOffset)
-                {
-                    paramKeyValPair = string.Format("{0}={1}", Uri.EscapeDataString(pair.Key), ((DateTimeOffset)pair.Value).ToString(DateTimeFormat));
-                }
                 else
                 {
-                    paramKeyValPair = string.Format("{0}={1}", Uri.EscapeDataString(pair.Key), Uri.EscapeDataString(pair.Value.ToString()));
+                    paramKeyValPair = string.Format("{0}={1}", Uri.EscapeDataString(pair.Key), GetElementValue(pair.Value, true));
                 }
 
                 // append keyval pair for current parameter
                 queryBuilder.Append(paramKeyValPair);
-            }
         }
 
         /// <summary>
@@ -236,7 +181,7 @@ namespace APIMatic.Core.Utilities
         /// <param name="propInfo">propInfo.</param>
         /// <param name="arraySerializationFormat">arraySerializationFormat.</param>
         /// <returns>List of KeyValuePairs.</returns>
-        internal static List<KeyValuePair<string, object>> PrepareFormFieldsFromObject(string name, object value, List<KeyValuePair<string, object>> keys = null, PropertyInfo propInfo = null, ArraySerialization arraySerializationFormat = ArraySerialization.UnIndexed)
+        internal static List<KeyValuePair<string, object>> PrepareFormFieldsFromObject(string name, object value, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys = null, PropertyInfo propInfo = null)
         {
             keys = keys ?? new List<KeyValuePair<string, object>>();
 
@@ -257,7 +202,7 @@ namespace APIMatic.Core.Utilities
                     string pKey = property.Name;
                     object pValue = property.Value;
                     var fullSubName = name + '[' + pKey + ']';
-                    PrepareFormFieldsFromObject(fullSubName, pValue, keys, propInfo, arraySerializationFormat);
+                    PrepareFormFieldsFromObject(fullSubName, pValue, arraySerializationFormat, keys, propInfo);
                 }
             }
             else if (value is IList enumerable)
@@ -295,8 +240,8 @@ namespace APIMatic.Core.Utilities
                         continue;
                     }
 
-                    PrepareFormFieldsFromObject(fullSubName, subValue, keys, propInfo, arraySerializationFormat);
-                    i++;
+                    PrepareFormFieldsFromObject(fullSubName, subValue, arraySerializationFormat, keys, propInfo);
+                    i++; 
                 }
             }
             else if (value is JToken)
@@ -315,16 +260,16 @@ namespace APIMatic.Core.Utilities
                     var subName = sName.ToString();
                     var subValue = dictionary[subName];
                     string fullSubName = string.IsNullOrWhiteSpace(name) ? subName : name + '[' + subName + ']';
-                    PrepareFormFieldsFromObject(fullSubName, subValue, keys, propInfo, arraySerializationFormat);
+                    PrepareFormFieldsFromObject(fullSubName, subValue, arraySerializationFormat, keys, propInfo);
                 }
             }
             else if (value is CoreJsonObject jsonObject)
             {
-                PrepareFormFieldsFromObject(name, RemoveNullValues(jsonObject.GetStoredObject()), keys, propInfo, arraySerializationFormat);
+                PrepareFormFieldsFromObject(name, RemoveNullValues(jsonObject.GetStoredObject()), arraySerializationFormat, keys, propInfo);
             }
             else if (value is CoreJsonValue jsonValue)
             {
-                PrepareFormFieldsFromObject(name, jsonValue.GetStoredObject(), keys, propInfo, arraySerializationFormat);
+                PrepareFormFieldsFromObject(name, jsonValue.GetStoredObject(), arraySerializationFormat, keys, propInfo);
             }
             else if (!value.GetType().Namespace.StartsWith("System"))
             {
@@ -339,7 +284,7 @@ namespace APIMatic.Core.Utilities
                     var subName = (jsonProperty != null) ? jsonProperty.PropertyName : pInfo.Name;
                     string fullSubName = string.IsNullOrWhiteSpace(name) ? subName : name + '[' + subName + ']';
                     var subValue = pInfo.GetValue(value, null);
-                    PrepareFormFieldsFromObject(fullSubName, subValue, keys, pInfo, arraySerializationFormat);
+                    PrepareFormFieldsFromObject(fullSubName, subValue, arraySerializationFormat, keys, pInfo);
                 }
             }
             else if (value is DateTime dateTime)
@@ -445,16 +390,6 @@ namespace APIMatic.Core.Utilities
         /// <returns>The index of string inside the string builder.</returns>
         private static int IndexOf(StringBuilder stringBuilder, string strCheck)
         {
-            if (stringBuilder == null)
-            {
-                throw new ArgumentNullException("stringBuilder");
-            }
-
-            if (strCheck == null)
-            {
-                return 0;
-            }
-
             // iterate over the input
             for (int inputCounter = 0; inputCounter < stringBuilder.Length; inputCounter++)
             {
@@ -494,29 +429,7 @@ namespace APIMatic.Core.Utilities
             string key = "")
         {
             StringBuilder builder = new StringBuilder();
-
-            string format = string.Empty;
-            if (fmt == ArraySerialization.UnIndexed)
-            {
-                format = string.Format("{0}[]={{0}}{{1}}", key);
-            }
-            else if (fmt == ArraySerialization.Indexed)
-            {
-                format = string.Format("{0}[{{2}}]={{0}}{{1}}", key);
-            }
-            else if (fmt == ArraySerialization.Plain)
-            {
-                format = string.Format("{0}={{0}}{{1}}", key);
-            }
-            else if (fmt == ArraySerialization.CSV || fmt == ArraySerialization.PSV || fmt == ArraySerialization.TSV)
-            {
-                builder.Append(string.Format("{0}=", key));
-                format = "{0}{1}";
-            }
-            else
-            {
-                format = "{0}{1}";
-            }
+            string format = GetFormatString(fmt, key, builder);
 
             // append all elements in the array into a string
             int index = 0;
@@ -534,22 +447,37 @@ namespace APIMatic.Core.Utilities
             return builder.ToString();
         }
 
+        private static string GetFormatString(ArraySerialization fmt, string key, StringBuilder builder)
+        {
+            string format;
+            if (_serializationFormats.TryGetValue(fmt, out format))
+            {
+                if (fmt == ArraySerialization.CSV || fmt == ArraySerialization.PSV || fmt == ArraySerialization.TSV)
+                {
+                    builder.Append(string.Format(format, key));
+                    format = "{0}{1}";
+                }
+                else
+                {
+                    format = string.Format(format, key);
+                }
+            }
+
+            return format;
+        }
+
         private static string GetElementValue(object element, bool urlEncode)
         {
-            string elemValue = null;
-
-            // replace null values with empty string to maintain index order
-            if (element == null)
-            {
-                elemValue = string.Empty;
-            }
-            else if (element is DateTime)
+            string elemValue = string.Empty;
+            if (element is DateTime)
             {
                 elemValue = ((DateTime)element).ToString(DateTimeFormat);
+                return elemValue;
             }
             else if (element is DateTimeOffset)
             {
                 elemValue = ((DateTimeOffset)element).ToString(DateTimeFormat);
+                return elemValue;
             }
             else
             {
@@ -599,7 +527,7 @@ namespace APIMatic.Core.Utilities
                             else
                             {
                                 // List of custom type
-                                var innerList = PrepareFormFieldsFromObject(kvp.Key, kvp.Value, arraySerializationFormat: ArraySerialization.Indexed);
+                                var innerList = PrepareFormFieldsFromObject(kvp.Key, kvp.Value, arraySerializationFormat : ArraySerialization.Indexed);
                                 innerList = ApplySerializationFormatToScalarArrays(innerList);
                                 processedParameters.AddRange(innerList);
                             }
@@ -631,11 +559,11 @@ namespace APIMatic.Core.Utilities
         private static List<KeyValuePair<string, object>> ApplySerializationFormatToScalarArrays(IEnumerable<KeyValuePair<string, object>> parameters)
         {
             var processedParams = new List<KeyValuePair<string, object>>();
-            var unprocessedParams = parameters.Where(x => IsScalarValuesArray(x.Key) != true);
+            var unprocessedParams = parameters.Where(x => !IsScalarValuesArray(x.Key));
 
             // Extract scalar arrays and group them by key
             var arraysGroupedByKey = parameters
-                .Where(x => IsScalarValuesArray(x.Key) == true)
+                .Where(x => IsScalarValuesArray(x.Key))
                 .Select(x =>
                 {
                     return new KeyValuePair<string, object>(
