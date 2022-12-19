@@ -74,6 +74,19 @@ namespace APIMatic.Core.Test.Utilities
             Assert.AreEqual(expected, actual);
         }
 
+
+        [Test]
+        public void JsonSerialize_CustomAttributeClass()
+        {
+            TestModelC testModelC = new TestModelC()
+            {
+                Name= "Test",   
+            };
+            string expected = "{\"$id\":\"1\",\"Name\":\"Test\"}";
+            string actual = CoreHelper.JsonSerialize(testModelC);
+            Assert.AreEqual(expected, actual);
+        }
+
         [Test]
         public void JsonSerialize_Null_Objects()
         {
@@ -407,7 +420,7 @@ namespace APIMatic.Core.Test.Utilities
                 "dateTime"
             };
 
-            string expected = "http://my/path:3000/v1?dateTime%5BTestDateTime%5D=2022-12-15T00%3A00%3A00";
+            string expected = "http://my/path:3000/v1?dateTime%5BTestDateTime%5D=2022-12-15";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, testModel));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
