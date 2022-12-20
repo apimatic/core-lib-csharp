@@ -786,23 +786,10 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void DeepCloneObject_ServerResponse()
         {
-            StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(SERVER_URL);
             ServerResponse expected = new ServerResponse(true);
             ServerResponse actual = CoreHelper.DeepCloneObject(expected);
             Assert.AreEqual(expected, actual);
         }
         #endregion
-
-        [Test]
-        public void RunTask_Exception()
-        {
-            Task task = Task.Factory.StartNew(() =>
-            {
-                throw new ArgumentException();
-            });
-
-            Assert.Throws<ArgumentException>(() => CoreHelper.RunVoidTask(task));
-        }
     }
 }
