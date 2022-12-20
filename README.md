@@ -10,6 +10,23 @@
 This project contains core logic and the utilities for the APIMatic's C# SDK
 
 ## Prerequisites
+.NET and .NET Core versions 2.0, 2.1, 2.2, 3.0, 3.1, 5.0, 6.0, and 7.0
+
+## Important Classes
+| Name                                                                                 | Description                                                           |
+|--------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| [`AdditionalFormParams`](APIMatic.Core/Request/Parameters/AdditionalFormParams.cs)   | Used to add additional form params to a request                       |
+| [`AdditionalHeaderParams`](APIMatic.Core/Request/Parameters/AdditionalHeaderParams.cs) | Used to add additional header params to a request                     |
+| [`AdditionalQueryParams`](APIMatic.Core/Request/Parameters/AdditionalQueryParams.cs) | Used to add additional query params to a request                      |
+| [`BodyParam`](APIMatic.Core/Request/Parameters/BodyParam.cs)                         | Body parameter class                                                  |
+| [`FormParam`](APIMatic.Core/Request/Parameters/FormParam.cs)                         | Form parameter class                                                  |
+| [`HeaderParam`](APIMatic.Core/Request/Parameters/HeaderParam.cs)                     | Header parameter class                                                |
+| [`QueryParam`](APIMatic.Core/Request/Parameters/QueryParam.cs)                       | Query parameter class                                                 |
+| [`TemplateParam`](APIMatic.Core/Request/Parameters/TemplateParam.cs)                 | Template parameter class                                              |
+| [`RequestBuilder`](APIMatic.Core/Request/RequestBuilder.cs)                          | Used to instantiate a new Request object with the provided properties |
+| [`ResponseHandler`](APIMatic.Core/Response/ResponseHandler.cs)                       | Used to handle and process the response from HttpClient               |
+| [`ApiCall`](APIMatic.Core/ApiCall.cs)  | Deals with the execution of request created from RequestBuilder and processes the response through ResponseHandler  |
+| [`GlobalConfiguration`](APIMatic.Core/GlobalConfiguration.cs)  | Carries the common configuration that will be applicable to all the ApiCalls                |
 
 
 [nuget-url]: https://www.nuget.org/packages/APIMatic.Core
