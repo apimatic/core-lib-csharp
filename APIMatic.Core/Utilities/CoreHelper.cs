@@ -189,134 +189,183 @@ namespace APIMatic.Core.Utilities
             {
                 return keys;
             }
-            else if (value is Stream)
-            {
-                keys.Add(new KeyValuePair<string, object>(name, value));
-                return keys;
-            }
             else if (value is JObject)
             {
-                var valueAccept = value as JObject;
-                foreach (var property in valueAccept.Properties())
-                {
-                    string pKey = property.Name;
-                    object pValue = property.Value;
-                    var fullSubName = name + '[' + pKey + ']';
-                    PrepareFormFieldsFromObject(fullSubName, pValue, arraySerializationFormat, keys, propInfo);
-                }
+                PrepareFormFieldsForJObject(name, value, arraySerializationFormat, keys, propInfo);
             }
             else if (value is IList enumerable)
             {
-                var enumerator = enumerable.GetEnumerator();
-
-                var hasNested = false;
-                while (enumerator.MoveNext())
-                {
-                    var subValue = enumerator.Current;
-                    if (subValue != null && (subValue is JObject || subValue is IList || subValue is IDictionary || !subValue.GetType().Namespace.StartsWith("System")))
-                    {
-                        hasNested = true;
-                        break;
-                    }
-                }
-
-                int i = 0;
-                enumerator.Reset();
-                while (enumerator.MoveNext())
-                {
-                    var fullSubName = name + '[' + i + ']';
-                    if (!hasNested && arraySerializationFormat == ArraySerialization.UnIndexed)
-                    {
-                        fullSubName = name + "[]";
-                    }
-                    else if (!hasNested && arraySerializationFormat == ArraySerialization.Plain)
-                    {
-                        fullSubName = name;
-                    }
-
-                    var subValue = enumerator.Current;
-                    if (subValue == null)
-                    {
-                        continue;
-                    }
-
-                    PrepareFormFieldsFromObject(fullSubName, subValue, arraySerializationFormat, keys, propInfo);
-                    i++; 
-                }
-            }
-            else if (value is JToken)
-            {
-                keys.Add(new KeyValuePair<string, object>(name, value.ToString()));
-            }
-            else if (value is Enum)
-            {
-                var enumValue = JsonSerialize(value).Trim('\"');
-                keys.Add(new KeyValuePair<string, object>(name, enumValue));
+                PrepareFormFieldForEnumerables(name, arraySerializationFormat, keys, propInfo, enumerable);
             }
             else if (value is IDictionary dictionary)
             {
                 foreach (var sName in dictionary.Keys)
                 {
-                    var subName = sName.ToString();
-                    var subValue = dictionary[subName];
-                    string fullSubName = string.IsNullOrWhiteSpace(name) ? subName : name + '[' + subName + ']';
-                    PrepareFormFieldsFromObject(fullSubName, subValue, arraySerializationFormat, keys, propInfo);
+                    PrepareFormFieldsForDictionarykeys(name, arraySerializationFormat, keys, propInfo, dictionary, sName);
                 }
             }
-            else if (value is CoreJsonObject jsonObject)
+            else if (value is CoreJsonObject || value is CoreJsonValue)
             {
-                PrepareFormFieldsFromObject(name, RemoveNullValues(jsonObject.GetStoredObject()), arraySerializationFormat, keys, propInfo);
-            }
-            else if (value is CoreJsonValue jsonValue)
-            {
-                PrepareFormFieldsFromObject(name, jsonValue.GetStoredObject(), arraySerializationFormat, keys, propInfo);
+                PrepareFormFieldsFromObject(name, value, arraySerializationFormat, keys, propInfo);
             }
             else if (!value.GetType().Namespace.StartsWith("System"))
             {
-                // Custom object Iterate through its properties
-                var enumerator = value.GetType().GetProperties().GetEnumerator();
-                var t = new JsonPropertyAttribute().GetType();
-                while (enumerator.MoveNext())
-                {
-                    var pInfo = enumerator.Current as PropertyInfo;
-
-                    var jsonProperty = (JsonPropertyAttribute)pInfo.GetCustomAttributes(t, true).FirstOrDefault();
-                    var subName = (jsonProperty != null) ? jsonProperty.PropertyName : pInfo.Name;
-                    string fullSubName = string.IsNullOrWhiteSpace(name) ? subName : name + '[' + subName + ']';
-                    var subValue = pInfo.GetValue(value, null);
-                    PrepareFormFieldsFromObject(fullSubName, subValue, arraySerializationFormat, keys, pInfo);
-                }
+                PrepareFormFieldsForCustomModels(name, value, arraySerializationFormat, keys);
             }
             else if (value is DateTime dateTime)
             {
-                string convertedValue = null;
-                object[] pInfo = null;
-
-                if (propInfo != null)
-                {
-                    pInfo = propInfo.GetCustomAttributes(true);
-                }
-
-                if (pInfo != null)
-                {
-                    foreach (object attr in pInfo)
-                    {
-                        JsonConverterAttribute converterAttr = attr as JsonConverterAttribute;
-                        if (converterAttr != null)
-                        {
-                            convertedValue = JsonSerialize(value, (JsonConverter)Activator.CreateInstance(converterAttr.ConverterType, converterAttr.ConverterParameters)).Replace("\"", string.Empty);
-                        }
-                    }
-                }
-
+                var convertedValue = ExtractValueFromPropertyInfo(value, propInfo);
                 keys.Add(new KeyValuePair<string, object>(name, convertedValue ?? dateTime.ToString(DateTimeFormat)));
             }
             else
             {
-                keys.Add(new KeyValuePair<string, object>(name, value));
+                keys.Add(new KeyValuePair<string, object>(name, GetProcessedValue(value)));
             }
 
             return keys;
+        }
+
+        private static void PrepareFormFieldsForJObject(string name, object value, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys, PropertyInfo propInfo)
+        {
+            var valueAccept = value as JObject;
+            foreach (var property in valueAccept.Properties())
+            {
+                string pKey = property.Name;
+                object pValue = property.Value;
+                var fullSubName = name + '[' + pKey + ']';
+                PrepareFormFieldsFromObject(fullSubName, pValue, arraySerializationFormat, keys, propInfo);
+            }
+        }
+
+        private static void PrepareFormFieldsForCustomModels(string name, object value, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys)
+        {
+            // Custom object Iterate through its properties
+            var enumerator = value.GetType().GetProperties().GetEnumerator();
+            var t = new JsonPropertyAttribute().GetType();
+            while (enumerator.MoveNext())
+            {
+                PrepareFormFieldsForCustomObject(name, value, arraySerializationFormat, keys, enumerator, t);
+            }
+        }
+
+        private static void PrepareFormFieldForEnumerables(string name, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys, PropertyInfo propInfo, IList enumerable)
+        {
+            var enumerator = enumerable.GetEnumerator();
+
+            var hasNested = false;
+            while (enumerator.MoveNext())
+            {
+                var subValue = enumerator.Current;
+                if (subValue != null && (subValue is JObject || subValue is IList || subValue is IDictionary || !subValue.GetType().Namespace.StartsWith("System")))
+                {
+                    hasNested = true;
+                    break;
+                }
+            }
+
+            int i = 0;
+            enumerator.Reset();
+            while (enumerator.MoveNext())
+            {
+                var fullSubName = name + '[' + i + ']';
+                if (!hasNested && arraySerializationFormat == ArraySerialization.UnIndexed)
+                {
+                    fullSubName = name + "[]";
+                }
+                else if (!hasNested && arraySerializationFormat == ArraySerialization.Plain)
+                {
+                    fullSubName = name;
+                }
+
+                var subValue = enumerator.Current;
+                if (subValue == null)
+                {
+                    continue;
+                }
+
+                PrepareFormFieldsFromObject(fullSubName, subValue, arraySerializationFormat, keys, propInfo);
+                i++;
+            }
+        }
+
+        private static string ExtractValueFromPropertyInfo(object value, PropertyInfo propInfo)
+        {
+            string convertedValue = null;
+            object[] pInfo = null;
+
+            if (propInfo != null)
+            {
+                pInfo = propInfo.GetCustomAttributes(true);
+            }
+
+            if (pInfo != null)
+            {
+                foreach (object attr in pInfo)
+                {
+                    convertedValue = GetConvertedValue(value, convertedValue, attr);
+                }
+            }
+
+            return convertedValue;
+        }
+
+        private static void PrepareFormFieldsForCustomObject(string name, object value, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys, IEnumerator enumerator, Type t)
+        {
+            var pInfo = enumerator.Current as PropertyInfo;
+
+            var jsonProperty = (JsonPropertyAttribute)pInfo.GetCustomAttributes(t, true).FirstOrDefault();
+            var subName = (jsonProperty != null) ? jsonProperty.PropertyName : pInfo.Name;
+            string fullSubName = string.IsNullOrWhiteSpace(name) ? subName : name + '[' + subName + ']';
+            var subValue = pInfo.GetValue(value, null);
+            PrepareFormFieldsFromObject(fullSubName, subValue, arraySerializationFormat, keys, pInfo);
+        }
+
+        private static void PrepareFormFieldsForDictionarykeys(string name, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys, PropertyInfo propInfo, IDictionary dictionary, object sName)
+        {
+            var subName = sName.ToString();
+            var subValue = dictionary[subName];
+            string fullSubName = string.IsNullOrWhiteSpace(name) ? subName : name + '[' + subName + ']';
+            PrepareFormFieldsFromObject(fullSubName, subValue, arraySerializationFormat, keys, propInfo);
+        }
+
+        private static string GetConvertedValue(object value, string convertedValue, object attr)
+        {
+            JsonConverterAttribute converterAttr = attr as JsonConverterAttribute;
+            if (converterAttr != null)
+            {
+                convertedValue = JsonSerialize(value, (JsonConverter)Activator.CreateInstance(converterAttr.ConverterType, converterAttr.ConverterParameters)).Replace("\"", string.Empty);
+            }
+
+            return convertedValue;
+        }
+
+        private static object GetProcessedValue(object value)
+        {
+            if(value is Stream)
+            {
+                return value;
+            }
+
+            if(value is Enum)
+            {
+                return JsonSerialize(value).Trim('\"');
+            }
+
+            if(value is JToken)
+            {
+                return value.ToString();
+            }
+
+            if(value is CoreJsonObject jsonObject)
+            {
+                return RemoveNullValues(jsonObject.GetStoredObject());
+            }  
+            if(value is CoreJsonValue jsonValue)
+            {
+                return jsonValue.GetStoredObject();
+            }
+
+            return value;
         }
 
         /// <summary>
@@ -342,14 +391,7 @@ namespace APIMatic.Core.Utilities
             }
             catch (AggregateException e)
             {
-                if (e.InnerExceptions.Count > 0)
-                {
-                    throw e.InnerExceptions[0];
-                }
-                else
-                {
-                    throw;
-                }
+                throw e.InnerExceptions[0];
             }
         }
 

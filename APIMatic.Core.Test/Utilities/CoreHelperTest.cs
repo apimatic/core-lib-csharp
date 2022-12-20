@@ -782,6 +782,7 @@ namespace APIMatic.Core.Test.Utilities
         }
         #endregion
 
+        #region DeepCloneObject
         [Test]
         public void DeepCloneObject_ServerResponse()
         {
@@ -790,6 +791,18 @@ namespace APIMatic.Core.Test.Utilities
             ServerResponse expected = new ServerResponse(true);
             ServerResponse actual = CoreHelper.DeepCloneObject(expected);
             Assert.AreEqual(expected, actual);
+        }
+        #endregion
+
+        [Test]
+        public void RunTask_Exception()
+        {
+            Task task = Task.Factory.StartNew(() =>
+            {
+                throw new ArgumentException();
+            });
+
+            Assert.Throws<ArgumentException>(() => CoreHelper.RunVoidTask(task));
         }
     }
 }
