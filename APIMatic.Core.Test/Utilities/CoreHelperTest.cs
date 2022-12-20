@@ -18,13 +18,14 @@ namespace APIMatic.Core.Test.Utilities
     [TestFixture]
     public class CoreHelperTest : TestBase
     {
+        internal const string SERVER_URL = "http://my/path:3000/v1";
         #region CleanUrl
 
         [Test]
         public void CleanUrl_ValidUrl()
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            stringBuilder.Append(SERVER_URL);
             string expected = stringBuilder.ToString();
             string actual = CoreHelper.CleanUrl(stringBuilder);
             Assert.AreEqual(expected, actual);
@@ -156,7 +157,7 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_ValidParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var parametersKeys = new List<string>() 
             { 
                 "service", "api"
@@ -164,7 +165,7 @@ namespace APIMatic.Core.Test.Utilities
            
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, "messagingService", "testApi"));
 
-            string expected = "http://my/path:3000/v1?service=messagingService&api=testApi";
+            string expected = $"{SERVER_URL}?service=messagingService&api=testApi";
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
         }
@@ -173,10 +174,10 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_EmptyParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
 
 
-            string expected = "http://my/path:3000/v1";
+            string expected = $"{SERVER_URL}";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters());
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -186,13 +187,13 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_DateTimeParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var parametersKeys = new List<string>()
             {
                 "dateTime"
             };
 
-            string expected = "http://my/path:3000/v1?dateTime=2022-12-14T00:00:00";
+            string expected = $"{SERVER_URL}?dateTime=2022-12-14T00:00:00";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys,  new DateTime(2022,12,14)));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -202,14 +203,16 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_DateTimeOffsetParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var parametersKeys = new List<string>()
             {
                 "dateTime"
             };
            
             var dateTimeOffset = new DateTimeOffset(new DateTime(2022, 12, 14));
-            string expected = "http://my/path:3000/v1?dateTime=2022-12-14T00:00:00+05:00";
+            string dateTimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFFK";
+            string convertedDateTime = dateTimeOffset.ToString(dateTimeFormat);
+            string expected = $"{SERVER_URL}?dateTime={convertedDateTime}";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, dateTimeOffset));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -219,14 +222,14 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_NullParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var parametersKeys = new List<string>()
             {
                 "dateTime"
             };
 
             object obj = null;
-            string expected = "http://my/path:3000/v1";
+            string expected = $"{SERVER_URL}";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, obj));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -237,7 +240,7 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_UnIndexedCollectionParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var stringCollection = new List<string>()
             {
                 "test", "collection"
@@ -248,7 +251,7 @@ namespace APIMatic.Core.Test.Utilities
                 "dateTime"
             };
 
-            string expected = "http://my/path:3000/v1?dateTime[]=test&dateTime[]=collection";
+            string expected = $"{SERVER_URL}?dateTime[]=test&dateTime[]=collection";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -259,7 +262,7 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_IndexedCollectionParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var stringCollection = new List<string>()
             {
                 "test", "collection"
@@ -270,7 +273,7 @@ namespace APIMatic.Core.Test.Utilities
                 "dateTime"
             };
 
-            string expected = "http://my/path:3000/v1?dateTime[0]=test&dateTime[1]=collection";
+            string expected = $"{SERVER_URL}?dateTime[0]=test&dateTime[1]=collection";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection), ArraySerialization.Indexed);
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -280,7 +283,7 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_PlainCollectionParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var stringCollection = new List<string>()
             {
                 "test", "collection"
@@ -291,7 +294,7 @@ namespace APIMatic.Core.Test.Utilities
                 "dateTime"
             };
 
-            string expected = "http://my/path:3000/v1?dateTime=test&dateTime=collection";
+            string expected = $"{SERVER_URL}?dateTime=test&dateTime=collection";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection), ArraySerialization.Plain);
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -301,7 +304,7 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_TabSeparatedCollectionParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var stringCollection = new List<string>()
             {
                 "test", "collection"
@@ -312,7 +315,7 @@ namespace APIMatic.Core.Test.Utilities
                 "dateTime"
             };
 
-            string expected = "http://my/path:3000/v1?dateTime=testtcollection";
+            string expected = $"{SERVER_URL}?dateTime=testtcollection";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection), ArraySerialization.TSV);
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -322,7 +325,7 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_CommaSeparatedCollectionParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var stringCollection = new List<string>()
             {
                 "test", "collection"
@@ -333,7 +336,7 @@ namespace APIMatic.Core.Test.Utilities
                 "dateTime"
             };
 
-            string expected = "http://my/path:3000/v1?dateTime=test,collection";
+            string expected = $"{SERVER_URL}?dateTime=test,collection";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection), ArraySerialization.CSV);
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -343,7 +346,7 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_CustomParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var serverResponse = new ServerResponse(true);
 
             var parametersKeys = new List<string>()
@@ -351,7 +354,7 @@ namespace APIMatic.Core.Test.Utilities
                 "serverResponse"
             };
 
-            string expected = "http://my/path:3000/v1?serverResponse%5Bpassed%5D=True";
+            string expected = $"{SERVER_URL}?serverResponse%5Bpassed%5D=True";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, serverResponse));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -362,7 +365,7 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_IndexedCustomDictionaryParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var hashtable = new Hashtable() 
             { 
                 { "subkey1", "subValue1" } 
@@ -378,7 +381,7 @@ namespace APIMatic.Core.Test.Utilities
                 "dictionary"
             };
 
-            string expected = "http://my/path:3000/v1?dictionary[0]=%5Bkey1%2C%20value1%5D&dictionary[1]=%5Bkey2%2C%20value2%5D";
+            string expected = $"{SERVER_URL}?dictionary[0]=%5Bkey1%2C%20value1%5D&dictionary[1]=%5Bkey2%2C%20value2%5D";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, dictionaryData), ArraySerialization.Indexed);
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -388,7 +391,7 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_CustomDateTimeParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             DateTime dateTime = new DateTime(2022, 12, 15);
             TestModel testModel = new TestModel()
             {
@@ -399,7 +402,7 @@ namespace APIMatic.Core.Test.Utilities
                 "dateTime"
             };
 
-            string expected = "http://my/path:3000/v1?dateTime%5BTestDateTime%5D=2022-12-15T00%3A00%3A00";
+            string expected = $"{SERVER_URL}?dateTime%5BTestDateTime%5D=2022-12-15T00%3A00%3A00";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, testModel));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -409,7 +412,7 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_CustomDateTimeConvertorParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             DateTime dateTime = new DateTime(2022, 12, 15);
             TestModelB testModel = new TestModelB()
             {
@@ -420,7 +423,7 @@ namespace APIMatic.Core.Test.Utilities
                 "dateTime"
             };
 
-            string expected = "http://my/path:3000/v1?dateTime%5BTestDateTime%5D=2022-12-15";
+            string expected = $"{SERVER_URL}?dateTime%5BTestDateTime%5D=2022-12-15";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, testModel));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -431,7 +434,7 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_CustomStreamParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             byte[] buffer = Encoding.ASCII.GetBytes("test");
             Stream memoryStream = new MemoryStream(buffer);
             TestModel testModel = new TestModel()
@@ -443,7 +446,7 @@ namespace APIMatic.Core.Test.Utilities
                 "stream"
             };
 
-            string expected = "http://my/path:3000/v1?stream%5BDateStream%5D=System.IO.MemoryStream&stream%5BTestDateTime%5D=0001-01-01T00%3A00%3A00";
+            string expected = $"{SERVER_URL}?stream%5BDateStream%5D=System.IO.MemoryStream&stream%5BTestDateTime%5D=0001-01-01T00%3A00%3A00";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, testModel));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -453,7 +456,7 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_CustomJObjectParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
            
             dynamic jObject = new JObject();
             jObject.Album = "alpha";
@@ -464,7 +467,7 @@ namespace APIMatic.Core.Test.Utilities
                 "jObject"
             };
 
-            string expected = "http://my/path:3000/v1?jObject%5BAlbum%5D=alpha&jObject%5BArtist%5D=beta";
+            string expected = $"{SERVER_URL}?jObject%5BAlbum%5D=alpha&jObject%5BArtist%5D=beta";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, jObject));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -474,14 +477,14 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_CustomEnumParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
 
             var parametersKeys = new List<string>()
             {
                 "enum"
             };
 
-            string expected = "http://my/path:3000/v1?enum=5";
+            string expected = $"{SERVER_URL}?enum=5";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, ArraySerialization.PSV));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -491,7 +494,7 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_PipeSeparatedCollectionParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var stringCollection = new List<string>()
             {
                 "test", "collection"
@@ -502,7 +505,7 @@ namespace APIMatic.Core.Test.Utilities
                 "dateTime"
             };
 
-            string expected = "http://my/path:3000/v1?dateTime=test|collection";
+            string expected = $"{SERVER_URL}?dateTime=test|collection";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection), ArraySerialization.PSV);
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -512,7 +515,7 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_CustomCollectionParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var stringCollection = new List<ServerResponse>()
             {
                 new ServerResponse(true)
@@ -523,7 +526,7 @@ namespace APIMatic.Core.Test.Utilities
                 "serverResponse"
             };
 
-            string expected = "http://my/path:3000/v1?serverResponse%5B0%5D%5Bpassed%5D=True";
+            string expected = $"{SERVER_URL}?serverResponse%5B0%5D%5Bpassed%5D=True";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -533,14 +536,14 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_CustomNullCollectionParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             IList stringCollection = null;
             var parametersKeys = new List<string>()
             {
                 "serverResponse"
             };
 
-            string expected = "http://my/path:3000/v1";
+            string expected = $"{SERVER_URL}";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -550,14 +553,14 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_WithAlreadyAppendedParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl()+ "?x=9");
+            queryBuilder.Append(SERVER_URL+ "?x=9");
             IList stringCollection = null;
             var parametersKeys = new List<string>()
             {
                 "serverResponse"
             };
 
-            string expected = "http://my/path:3000/v1?x=9";
+            string expected = $"{SERVER_URL}?x=9";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -567,7 +570,7 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_IntegerArrayParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
            
             int[] integers = new int[5];
             integers[0] = 9;
@@ -584,7 +587,7 @@ namespace APIMatic.Core.Test.Utilities
                 "req"
             };
 
-            string expected = "http://my/path:3000/v1?req%5BIntegers%5D[]=9&req%5BIntegers%5D[]=4&req%5BIntegers%5D[]=5&req%5BIntegers%5D[]=6&req%5BIntegers%5D[]=7&req%5BTestDateTime%5D=0001-01-01T00%3A00%3A00";
+            string expected = $"{SERVER_URL}?req%5BIntegers%5D[]=9&req%5BIntegers%5D[]=4&req%5BIntegers%5D[]=5&req%5BIntegers%5D[]=6&req%5BIntegers%5D[]=7&req%5BTestDateTime%5D=0001-01-01T00%3A00%3A00";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, testModel));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -595,7 +598,7 @@ namespace APIMatic.Core.Test.Utilities
         public void AppendQueryParameter_CustomCollectionOfCollectionParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var stringCollection = new List<List<ServerResponse>>()
             {
                new List<ServerResponse>(){ new ServerResponse(true) }
@@ -606,7 +609,7 @@ namespace APIMatic.Core.Test.Utilities
                 "serverResponse"
             };
 
-            string expected = "http://my/path:3000/v1?serverResponse=System.Collections.Generic.List%601%5BAPIMatic.Core.Test.MockTypes.Models.ServerResponse%5D";
+            string expected = $"{SERVER_URL}?serverResponse=System.Collections.Generic.List%601%5BAPIMatic.Core.Test.MockTypes.Models.ServerResponse%5D";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection), ArraySerialization.Plain);
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -630,7 +633,7 @@ namespace APIMatic.Core.Test.Utilities
         public void PrepareFormFieldsFromObject_IndexesCustomDictionaryParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var dictionaryData = new Dictionary<string, string>()
             {
                 {"key1", "value1" },
@@ -651,7 +654,7 @@ namespace APIMatic.Core.Test.Utilities
         public void PrepareFormFieldsFromObject_PlainCustomListParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var arraySerializations = new List<string>()
             {
                 "alpha", "beta", "gamma"
@@ -672,7 +675,7 @@ namespace APIMatic.Core.Test.Utilities
         public void PrepareFormFieldsFromObject_UnIndexedCustomListParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var arraySerializations = new List<string>()
             {
                 "alpha", "beta", "gamma"
@@ -693,7 +696,7 @@ namespace APIMatic.Core.Test.Utilities
         public void PrepareFormFieldsFromObject_UnIndexedCustomListNullParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var arraySerializations = new List<string>()
             {
                 "alpha", "beta", "gamma", null
@@ -714,7 +717,7 @@ namespace APIMatic.Core.Test.Utilities
         public void PrepareFormFieldsFromObject_PlainCustomNestedListParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             var arraySerializations = new List<List<ArraySerialization>>()
             {
                  new List<ArraySerialization>()
@@ -737,7 +740,7 @@ namespace APIMatic.Core.Test.Utilities
         public void PrepareFormFieldsFromObject_IndexedCoreJsonObjectParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             JsonObject jsonObject = JsonObject.FromJsonString("{\"message\" : \"TestCase\"}");
 
 
@@ -753,7 +756,7 @@ namespace APIMatic.Core.Test.Utilities
         public void PrepareFormFieldsFromObject_IndexedCoreJsonObjectNullValuesParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             JsonObject jsonObject = JsonObject.FromJsonString("{\"message\" : {\"prop\" : null}}");
 
 
@@ -766,7 +769,7 @@ namespace APIMatic.Core.Test.Utilities
         public void PrepareFormFieldsFromObject_IndexedCoreJsonValueParameter()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             JsonValue jsonValue = JsonValue.FromString("TestCase");
 
 
@@ -783,7 +786,7 @@ namespace APIMatic.Core.Test.Utilities
         public void DeepCloneObject_ServerResponse()
         {
             StringBuilder queryBuilder = new StringBuilder();
-            queryBuilder.Append(LazyGlobalConfiguration.Value.ServerUrl());
+            queryBuilder.Append(SERVER_URL);
             ServerResponse expected = new ServerResponse(true);
             ServerResponse actual = CoreHelper.DeepCloneObject(expected);
             Assert.AreEqual(expected, actual);
