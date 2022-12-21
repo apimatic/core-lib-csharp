@@ -12,16 +12,8 @@ namespace APIMatic.Core.Types
     /// <summary>
     /// MultipartContent.
     /// </summary>
-    public abstract class MultipartContent
+    internal abstract class MultipartContent
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MultipartContent"/> class.
-        /// </summary>
-        protected MultipartContent()
-        {
-            this.Headers = new Dictionary<string, IReadOnlyCollection<string>>();
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="MultipartContent"/> class.
         /// </summary>

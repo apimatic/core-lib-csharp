@@ -1,4 +1,4 @@
-// <copyright file="MultipartByteArrayContent.cs" company="APIMatic">
+﻿// <copyright file="MultipartByteArrayContent.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System.Collections.Generic;
@@ -9,17 +9,8 @@ namespace APIMatic.Core.Types
     /// <summary>
     /// MultipartByteArrayContent.
     /// </summary>
-    public class MultipartByteArrayContent : MultipartContent
+    internal class MultipartByteArrayContent : MultipartContent
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MultipartByteArrayContent"/> class.
-        /// </summary>
-        /// <param name="byteArray">byteArray.</param>
-        public MultipartByteArrayContent(byte[] byteArray)
-        {
-            this.ByteArray = byteArray;
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="MultipartByteArrayContent"/> class.
         /// </summary>
@@ -39,9 +30,7 @@ namespace APIMatic.Core.Types
         /// <summary>
         /// Rewind the stream.
         /// </summary>
-        public override void Rewind()
-        {
-        }
+        public override void Rewind() { }
 
         /// <summary>
         /// ToHttpContent.

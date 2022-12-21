@@ -18,6 +18,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace APIMatic.Core.Test.Api.Post
 {
+    [TestFixture]
     internal class ApiCallPostXMLTest : ApiCallTest
     {
         [Test]

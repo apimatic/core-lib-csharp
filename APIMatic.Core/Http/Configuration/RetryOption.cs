@@ -43,10 +43,9 @@ namespace APIMatic.Core.Http.Configuration
                     return true;
                 case RetryOption.Disable:
                     return false;
-                case RetryOption.Default:
+                default:
                     return isWhitelistedRequestMethod;
             }
-            return isWhitelistedRequestMethod;
         }
     }
 }

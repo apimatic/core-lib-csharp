@@ -11,17 +11,8 @@ namespace APIMatic.Core.Types
     /// <summary>
     /// MultipartFileContent.
     /// </summary>
-    public class MultipartFileContent : MultipartContent
+    internal class MultipartFileContent : MultipartContent
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MultipartFileContent"/> class.
-        /// </summary>
-        /// <param name="file">file.</param>
-        public MultipartFileContent(CoreFileStreamInfo file)
-        {
-            this.File = file;
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="MultipartFileContent"/> class.
         /// </summary>

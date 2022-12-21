@@ -12,7 +12,6 @@ using APIMatic.Core.Test.MockTypes.Authentication;
 
 namespace APIMatic.Core.Test
 {
-    [TestFixture]
     public class TestBase
     {
         protected static readonly string _basicAuthUserName = "ApimaticUserName";
@@ -20,12 +19,6 @@ namespace APIMatic.Core.Test
         protected static HttpCallBack ApiCallBack = new HttpCallBack();
         protected enum MockServer { Server1, Server2 }
         protected static readonly int numberOfRetries = 1;
-
-        protected Mock<CoreRequest> MockRequest(HttpMethod method = null, string queryUrl = null,
-            Dictionary<string, string> headers = null, object body = null,
-            List<KeyValuePair<string, object>> formParameters = null,
-            Dictionary<string, object> queryParameters = null) =>
-            new Mock<CoreRequest>(method, queryUrl, headers, body, formParameters, queryParameters, null, null);
 
         protected static readonly MockHttpMessageHandler handlerMock = new MockHttpMessageHandler()
         {

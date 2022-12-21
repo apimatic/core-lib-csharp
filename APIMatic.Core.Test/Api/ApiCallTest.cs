@@ -6,14 +6,9 @@ using APIMatic.Core.Test.MockTypes.Exceptions;
 using APIMatic.Core.Test.MockTypes.Http;
 using APIMatic.Core.Test.MockTypes.Http.Request;
 using APIMatic.Core.Test.MockTypes.Http.Response;
-using APIMatic.Core.Request;
-using APIMatic.Core.Response;
-using Polly;
-using System.Net.Http;
 
 namespace APIMatic.Core.Test.Api
 {
-    [TestFixture]
     public class ApiCallTest : TestBase
     {
         private static MockServer _server = MockServer.Server1;
