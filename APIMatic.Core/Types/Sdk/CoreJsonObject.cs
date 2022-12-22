@@ -17,19 +17,16 @@ namespace APIMatic.Core.Types.Sdk
         }
 
         /// <summary>
+        /// Getter for the stored JSON.
+        /// </summary>
+        public JToken GetStoredObject() => json;
+
+        /// <summary>
         /// Return current JSON string.
         /// </summary>
         public override string ToString()
         {
             return JsonConvert.SerializeObject(json, Formatting.None);
-        }
-
-        /// <summary>
-        /// Getter for the stored JSON.
-        /// </summary>
-        public JToken GetStoredObject()
-        {
-            return json;
         }
     }
 }

@@ -65,10 +65,7 @@ namespace APIMatic.Core.Types.Sdk
         /// Gets the HTTP response code from the API request.
         /// </summary>
         [JsonIgnore]
-        public int ResponseCode
-        {
-            get { return HttpContext != null ? HttpContext.Response.StatusCode : -1; }
-        }
+        public int ResponseCode => HttpContext?.Response?.StatusCode ?? -1;
 
         /// <summary>
         /// Gets or sets the HttpContext for the request and response.

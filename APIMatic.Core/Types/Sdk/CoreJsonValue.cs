@@ -20,10 +20,7 @@ namespace APIMatic.Core.Types.Sdk
         /// <summary>
         /// Getter for the stored object.
         /// </summary>
-        public object GetStoredObject()
-        {
-            return value;
-        }
+        public object GetStoredObject() => value;
 
         /// <summary>
         /// Converts current value into string.
