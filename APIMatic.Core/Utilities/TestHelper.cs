@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -56,7 +57,7 @@ namespace APIMatic.Core.Utilities
                 bool isOrdered)
         {
             // Return false if size different and checking was strict
-            if ((!allowExtra) && (rightList.Count != leftList.Count))
+            if (IsDifferentSizeListAllowed(leftList, rightList, allowExtra))
             {
                 return false;
             }
@@ -95,6 +96,11 @@ namespace APIMatic.Core.Utilities
             return true;
         }
 
+        private static bool IsDifferentSizeListAllowed(JArray leftList, JArray rightList, bool allowExtra)
+        {
+            return (!allowExtra) && (rightList.Count != leftList.Count);
+        }
+
         /// <summary>
         /// Check whether the a list (as JSON string) is a subset of another list (as JSON string).
         /// </summary>
@@ -130,13 +136,14 @@ namespace APIMatic.Core.Utilities
                 bool allowExtra,
                 bool isOrdered)
         {
+            if (IsDifferentSizeListAllowed(leftList, rightList, allowExtra))
+            {
+                return false;
+            }
+
             if (isOrdered)
             {
-                if ((!allowExtra) && (rightList.Count != leftList.Count))
-                {
-                    return false;
-                }
-                else if (rightList.Count < leftList.Count)
+                if (rightList.Count < leftList.Count)
                 {
                     return false;
                 }
@@ -154,17 +161,8 @@ namespace APIMatic.Core.Utilities
 
                 return lIndex == leftList.Count;
             }
-            else
-            {
-                if ((!allowExtra) && (rightList.Count != leftList.Count))
-                {
-                    return false;
-                }
 
-                HashSet<object> rHashSet = new HashSet<object>(rightList);
-
-                return rHashSet.IsSupersetOf(leftList);
-            }
+            return IsSuperSetOf(left: rightList, right: leftList);
         }
 
         /// <summary>
@@ -182,7 +180,7 @@ namespace APIMatic.Core.Utilities
 
             foreach (var leftKey in leftDictInv.Keys)
             {
-                if (!leftDictInv.ContainsKey(leftKey))
+                if (!rightDictInv.ContainsKey(leftKey))
                 {
                     return false;
                 }
@@ -419,14 +417,14 @@ namespace APIMatic.Core.Utilities
                 object leftVal = property.Value;
                 object rightVal = rightTree.Property(property.Name).Value;
 
-                if (leftVal is JObject)
+                if (leftVal is JObject leftSideValue)
                 {
                     // If left value is tree, right value should be be tree too
-                    if (rightVal is JObject)
+                    if (rightVal is JObject rightSideValue)
                     {
                         if (!IsProperSubsetOf(
-                                (JObject)leftVal,
-                                (JObject)rightVal,
+                                leftSideValue,
+                                rightSideValue,
                                 checkValues,
                                 allowExtra,
                                 isOrdered))
@@ -445,40 +443,57 @@ namespace APIMatic.Core.Utilities
                     if (checkValues)
                     {
                         // If left value is a primitive, check if it equals right value
-                        if (leftVal == null)
-                        {
-                            if (rightVal != null)
-                            {
-                                return false;
-                            }
-                        }
-                        else if (leftVal is JArray)
+                        if (leftVal is JArray)
                         {
                             if (!(rightVal is JArray))
                             {
                                 return false;
                             }
-
-                            // is array of objects
-                            if (((JArray)leftVal).First is JObject)
+                           
+                            JArray leftJArray = (JArray)leftVal;
+                            JArray rightJArray = (JArray)rightVal;
+                            bool bothArrayContainsJObject = IsArrayOfJObject(leftJArray) && IsArrayOfJObject(rightJArray);
+                            bool containsJObject = ListContainsJObject(leftJArray) && ListContainsJObject(rightJArray);
+                            if (!bothArrayContainsJObject && containsJObject)
+                            {
+                                var leftJToken = leftJArray.Where(x => x is JObject);
+                                JArray leftArray = new JArray(leftJToken);
+                                var rightToken = rightJArray.Where(x => x is JObject);
+                                JArray rightArray = new JArray(rightToken);
+                                // is array of objects
+                                if (!IsArrayOfJsonObjectsProperSubsetOf(
+                                             leftArray,
+                                             rightArray,
+                                             checkValues,
+                                             allowExtra,
+                                             isOrdered))
+                                {
+                                    return false;
+                                }
+                                var remainingLeftListToken = leftJArray.Where(x => !(x is JObject));
+                                JArray remainingLeftList = new JArray(remainingLeftListToken);
+                                var remainingRightListToken = rightJArray.Where(x => !(x is JObject));
+                                JArray remainingRightList = new JArray(remainingRightListToken);
+                                if (!IsListProperSubsetOf(remainingLeftList, remainingRightList, allowExtra, isOrdered))
+                                {
+                                    return false;
+                                }
+                            }
+                            else if (leftJArray.First is JObject && bothArrayContainsJObject)
                             {
                                 if (!IsArrayOfJsonObjectsProperSubsetOf(
-                                        (JArray)leftVal,
-                                        (JArray)rightVal,
-                                        checkValues,
-                                        allowExtra,
-                                        isOrdered))
+                                             leftJArray,
+                                             rightJArray,
+                                             checkValues,
+                                             allowExtra,
+                                             isOrdered))
                                 {
                                     return false;
                                 }
                             }
                             else
                             {
-                                if (!IsListProperSubsetOf(
-                                        (JArray)leftVal,
-                                        (JArray)rightVal,
-                                        allowExtra,
-                                        isOrdered))
+                                if (!IsListProperSubsetOf(leftJArray,rightJArray,allowExtra,isOrdered))
                                 {
                                     return false;
                                 }
@@ -493,6 +508,34 @@ namespace APIMatic.Core.Utilities
             }
 
             return true;
+        }
+
+        private static bool ListContainsJObject(JArray jArray)
+        {
+            bool containsJObject = false;
+            foreach (var item in jArray)
+            {
+                if (item is JObject)
+                {
+                    containsJObject = true;
+                    break;
+                }
+            }
+            return containsJObject;
+        }
+
+        private static bool IsArrayOfJObject(JArray jArray)
+        {
+            bool listOfJObject = true;
+            foreach (var item in jArray)
+            {
+                if(!(item is JObject))
+                {
+                    listOfJObject = false;
+                    break;
+                }
+            }
+            return listOfJObject;
         }
     }
 }

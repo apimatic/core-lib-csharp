@@ -448,6 +448,7 @@ namespace APIMatic.Core.Test.Utilities
 
             string expected = $"{SERVER_URL}?stream%5BDateStream%5D=System.IO.MemoryStream&stream%5BTestDateTime%5D=0001-01-01T00%3A00%3A00";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, testModel));
+            memoryStream.Dispose();
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
         }
