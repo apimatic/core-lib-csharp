@@ -1,4 +1,4 @@
-﻿// <copyright file="HttpClientWrapper.cs" company="APIMatic">
+﻿// <copyright file="RequestBuilder.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
@@ -15,6 +15,9 @@ using APIMatic.Core.Authentication;
 
 namespace APIMatic.Core.Request
 {
+    /// <summary>
+    /// Used to instantiate a new Request object with the provided properties
+    /// </summary>
     public class RequestBuilder
     {
         private readonly GlobalConfiguration configuration;
@@ -44,6 +47,12 @@ namespace APIMatic.Core.Request
 
         private Type BodyType { get => bodyParameters.Any() ? typeof(object) : bodyType; }
 
+        /// <summary>
+        /// Required: Sets the API route and http method
+        /// </summary>
+        /// <param name="httpMethod"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public RequestBuilder Setup(HttpMethod httpMethod, string path)
         {
             this.httpMethod = httpMethod;
@@ -51,18 +60,32 @@ namespace APIMatic.Core.Request
             return this;
         }
 
+        /// <summary>
+        /// This disables the Accept and Content-Type headers from request
+        /// </summary>
+        /// <returns></returns>
         public RequestBuilder DisableContentType()
         {
             contentTypeAllowed = false;
             return this;
         }
 
+        /// <summary>
+        /// This configures the retry option for the request
+        /// </summary>
+        /// <param name="retryOption"></param>
+        /// <returns></returns>
         public RequestBuilder WithRetryOption(RetryOption retryOption)
         {
             this.retryOption = retryOption;
             return this;
         }
 
+        /// <summary>
+        /// This finds and apply the Authentication on to the given request
+        /// </summary>
+        /// <param name="authName"></param>
+        /// <returns></returns>
         public RequestBuilder WithAuth(string authName)
         {
             this.authName = authName;
@@ -72,14 +95,19 @@ namespace APIMatic.Core.Request
         /// <summary>
         /// Sets the request parameters using <see cref="Parameter.Builder"/>
         /// </summary>
-        /// <param name="action">The action to be applied on Parameter.Builder for this requestBuilder</param>
+        /// <param name="_params">The action to be applied on Parameter.Builder for this requestBuilder</param>
         /// <returns></returns>
-        public RequestBuilder Parameters(Action<Parameter.Builder> action)
+        public RequestBuilder Parameters(Action<Parameter.Builder> _params)
         {
-            action(parameters);
+            _params(parameters);
             return this;
         }
 
+        /// <summary>
+        /// This converts the request body into XML format
+        /// </summary>
+        /// <param name="xmlSerializer"></param>
+        /// <returns></returns>
         public RequestBuilder XmlBodySerializer(Func<dynamic, object> xmlSerializer)
         {
             xmlRequest = true;
@@ -87,6 +115,10 @@ namespace APIMatic.Core.Request
             return this;
         }
 
+        /// <summary>
+        /// This applies all the configuration and build an instance of CoreRequest
+        /// </summary>
+        /// <returns></returns>
         public CoreRequest Build()
         {
             parameters.Validate().Apply(this);

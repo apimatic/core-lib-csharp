@@ -1,4 +1,4 @@
-﻿// <copyright file="HttpClientWrapper.cs" company="APIMatic">
+﻿// <copyright file="FormParam.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
@@ -12,6 +12,9 @@ using APIMatic.Core.Utilities;
 
 namespace APIMatic.Core.Request.Parameters
 {
+    /// <summary>
+    /// Form parameter class used to send a request parameter in form
+    /// </summary>
     public class FormParam : Parameter
     {
         private readonly Dictionary<string, string> encodingHeaders = new Dictionary<string, string>();

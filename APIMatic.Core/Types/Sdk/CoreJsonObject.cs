@@ -1,12 +1,14 @@
 ﻿// <copyright file="CoreJsonObject.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Types.Sdk
 {
+    /// <summary>
+    /// This is the base class for JsonObject
+    /// </summary>
     public class CoreJsonObject
     {
         private readonly JToken json;

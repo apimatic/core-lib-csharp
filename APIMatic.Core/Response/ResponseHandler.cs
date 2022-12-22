@@ -1,4 +1,4 @@
-﻿// <copyright file="HttpClientWrapper.cs" company="APIMatic">
+﻿// <copyright file="ResponseHandler.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
@@ -10,6 +10,14 @@ using APIMatic.Core.Utilities;
 
 namespace APIMatic.Core.Response
 {
+    /// <summary>
+    /// Used to handle and process the response received from HttpClient
+    /// </summary>
+    /// <typeparam name="Request"> Class Type that holds http request info </typeparam>
+    /// <typeparam name="Response"> Class Type that holds http response info </typeparam>
+    /// <typeparam name="Context"> Class Type that holds http context info </typeparam>
+    /// <typeparam name="ApiException"> Class Type that holds BaseException info </typeparam>
+    /// <typeparam name="ResponseType"> Expected type of http response </typeparam>
     public class ResponseHandler<Request, Response, Context, ApiException, ResponseType>
         where Request : CoreRequest
         where Response : CoreResponse
@@ -35,6 +43,12 @@ namespace APIMatic.Core.Response
             }
         }
 
+        /// <summary>
+        /// This adds an case for throwing error, for a particular error code
+        /// </summary>
+        /// <param name="statusCode"></param>
+        /// <param name="error"></param>
+        /// <returns></returns>
         public ResponseHandler<Request, Response, Context, ApiException, ResponseType> ErrorCase(
             int statusCode, Func<Context, ApiException> error)
         {
@@ -42,18 +56,31 @@ namespace APIMatic.Core.Response
             return this;
         }
 
+        /// <summary>
+        /// This controls returning null on error code 404
+        /// </summary>
+        /// <returns></returns>
         public ResponseHandler<Request, Response, Context, ApiException, ResponseType> NullOn404()
         {
             nullOn404 = true;
             return this;
         }
 
+        /// <summary>
+        /// This controls converting response into xml response
+        /// </summary>
+        /// <returns></returns>
         public ResponseHandler<Request, Response, Context, ApiException, ResponseType> XmlResponse()
         {
             AcceptHeader = ContentType.XML;
             return this;
         }
 
+        /// <summary>
+        /// Used to Deserialize the body of the received http response
+        /// </summary>
+        /// <param name="deserializer"></param>
+        /// <returns></returns>
         public ResponseHandler<Request, Response, Context, ApiException, ResponseType> Deserializer(
             Func<string, ResponseType> deserializer)
         {
@@ -61,6 +88,11 @@ namespace APIMatic.Core.Response
             return this;
         }
 
+        /// <summary>
+        /// Updates the actual http response with http context using the provided function
+        /// </summary>
+        /// <param name="contextAdder"></param>
+        /// <returns></returns>
         public ResponseHandler<Request, Response, Context, ApiException, ResponseType> ContextAdder(
             Func<ResponseType, Context, ResponseType> contextAdder)
         {
@@ -68,6 +100,14 @@ namespace APIMatic.Core.Response
             return this;
         }
 
+        /// <summary>
+        /// This applies all the configurations, processes the http response and returns expected response
+        /// </summary>
+        /// <typeparam name="ReturnType"> Real expected type from the API endpoint </typeparam>
+        /// <param name="context"></param>
+        /// <param name="returnTypeCreator"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
         internal ReturnType Result<ReturnType>(CoreContext<CoreRequest, CoreResponse> context, Func<Response, ResponseType, ReturnType> returnTypeCreator)
         {
             if (context.IsFailure())

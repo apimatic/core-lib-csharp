@@ -1,10 +1,13 @@
-﻿// <copyright file="HttpClientWrapper.cs" company="APIMatic">
+﻿// <copyright file="BodyParam.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
 
 namespace APIMatic.Core.Request.Parameters
 {
+    /// <summary>
+    /// Body parameter class used to send a request parameter in body
+    /// </summary>
     public class BodyParam : Parameter
     {
         internal BodyParam() => typeName = "body";

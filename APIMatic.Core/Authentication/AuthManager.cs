@@ -1,4 +1,4 @@
-﻿// <copyright file="IAuthentication.cs" company="APIMatic">
+﻿// <copyright file="AuthManager.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
@@ -8,7 +8,7 @@ using APIMatic.Core.Request.Parameters;
 namespace APIMatic.Core.Authentication
 {
     /// <summary>
-    /// IAuthentication adds the authenticaion layer to the HTTP Calls.
+    /// AuthManager adds the authentication layer to the HTTP Calls.
     /// <summary>
     public class AuthManager
     {
@@ -17,11 +17,11 @@ namespace APIMatic.Core.Authentication
         /// <summary>
         /// Sets the authorization parameters using <see cref="Parameter.Builder"/>
         /// </summary>
-        /// <param name="action">The action to be applied on Parameter.Builder</param>
+        /// <param name="_params">The action to be applied on Parameter.Builder</param>
         /// <returns></returns>
-        protected AuthManager Parameters(Action<Parameter.Builder> action)
+        protected AuthManager Parameters(Action<Parameter.Builder> _params)
         {
-            action(parameters);
+            _params(parameters);
             return this;
         }
 

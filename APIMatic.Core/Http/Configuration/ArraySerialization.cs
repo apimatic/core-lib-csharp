@@ -1,10 +1,10 @@
-﻿// <copyright file="ArrayDeserialization.cs" company="APIMatic">
+﻿// <copyright file="ArraySerialization.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 namespace APIMatic.Core.Http.Configuration
 {
     /// <summary>
-    /// This enumeration has ArrayDeserialization format.
+    /// This enumeration has ArraySerialization format.
     /// </summary>
     public enum ArraySerialization
     {

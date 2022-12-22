@@ -1,4 +1,4 @@
-﻿// <copyright file="ArrayDeserialization.cs" company="APIMatic">
+﻿// <copyright file="ContentType.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System.Runtime.Serialization;

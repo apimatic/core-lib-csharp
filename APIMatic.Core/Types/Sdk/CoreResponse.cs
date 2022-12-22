@@ -8,7 +8,7 @@ using System.IO;
 namespace APIMatic.Core.Types.Sdk
 {
     /// <summary>
-    /// CoreResponse.
+    /// This is the base class for http response.
     /// </summary>
     public class CoreResponse
     {

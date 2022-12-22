@@ -1,13 +1,13 @@
 ﻿// <copyright file="CoreJsonValue.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Types.Sdk
 {
+    /// <summary>
+    /// This is the base class for JsonValue
+    /// </summary>
     public class CoreJsonValue
     {
         private readonly object value;

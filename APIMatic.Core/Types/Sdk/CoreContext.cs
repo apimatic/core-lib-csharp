@@ -4,6 +4,11 @@
 
 namespace APIMatic.Core.Types.Sdk
 {
+    /// <summary>
+    /// This is the base class for http context
+    /// </summary>
+    /// <typeparam name="Req"></typeparam>
+    /// <typeparam name="Res"></typeparam>
     public class CoreContext<Req, Res>
         where Req : CoreRequest
         where Res : CoreResponse

@@ -14,6 +14,9 @@ using System.Text.RegularExpressions;
 
 namespace APIMatic.Core
 {
+    /// <summary>
+    /// Carries the common configuration that will be applicable to all the ApiCalls
+    /// </summary>
     public class GlobalConfiguration
     {
         private readonly Dictionary<Enum, string> _serverUrls;
@@ -38,8 +41,18 @@ namespace APIMatic.Core
             HttpClient = new HttpClientWrapper(httpConfiguration);
         }
 
+        /// <summary>
+        /// Returns the server url associated with a particular server
+        /// </summary>
+        /// <param name="server"></param>
+        /// <returns></returns>
         public string ServerUrl(Enum server = null) => GlobalRequestBuilder(server).QueryUrl.ToString();
 
+        /// <summary>
+        /// Returns the global request builder after applying the global configurations
+        /// </summary>
+        /// <param name="server"></param>
+        /// <returns></returns>
         public RequestBuilder GlobalRequestBuilder(Enum server = null)
         {
             RequestBuilder requestBuilder = new RequestBuilder(this);
@@ -48,6 +61,9 @@ namespace APIMatic.Core
             return requestBuilder;
         }
 
+        /// <summary>
+        /// Initializes the immutable instance of GlobalConfiguration class
+        /// </summary>
         public class Builder
         {
             private ICoreHttpClientConfiguration httpConfiguration;
@@ -58,18 +74,34 @@ namespace APIMatic.Core
             private readonly Parameter.Builder runtimeParameters = new Parameter.Builder();
             private HttpCallBack apiCallback;
 
+            /// <summary>
+            /// Configures the http configurations
+            /// </summary>
+            /// <param name="httpConfiguration"></param>
+            /// <returns></returns>
             public Builder HttpConfiguration(ICoreHttpClientConfiguration httpConfiguration)
             {
                 this.httpConfiguration = httpConfiguration;
                 return this;
             }
 
+            /// <summary>
+            /// Configures the dictionary of auth managers
+            /// </summary>
+            /// <param name="authManagers"></param>
+            /// <returns></returns>
             public Builder AuthManagers(Dictionary<string, AuthManager> authManagers)
             {
                 this.authManagers = authManagers;
                 return this;
             }
 
+            /// <summary>
+            /// Configures the server urls and select a default one
+            /// </summary>
+            /// <param name="serverUrls"></param>
+            /// <param name="defaultServer"></param>
+            /// <returns></returns>
             public Builder ServerUrls(Dictionary<Enum, string> serverUrls, Enum defaultServer)
             {
                 this.serverUrls = serverUrls;
@@ -77,24 +109,45 @@ namespace APIMatic.Core
                 return this;
             }
 
-            public Builder Parameters(Action<Parameter.Builder> action)
+            /// <summary>
+            /// Configures the common parameters for all the API calls
+            /// </summary>
+            /// <param name="_params"></param>
+            /// <returns></returns>
+            public Builder Parameters(Action<Parameter.Builder> _params)
             {
-                action(parameters);
+                _params(parameters);
                 return this;
             }
 
-            public Builder RuntimeParameters(Action<Parameter.Builder> action)
+            /// <summary>
+            /// Configures the common parameters which will applied with highest priority
+            /// </summary>
+            /// <param name="_params"></param>
+            /// <returns></returns>
+            public Builder RuntimeParameters(Action<Parameter.Builder> _params)
             {
-                action(runtimeParameters);
+                _params(runtimeParameters);
                 return this;
             }
 
+            /// <summary>
+            /// Sets the HttpCallback
+            /// </summary>
+            /// <param name="apiCallback"></param>
+            /// <returns></returns>
             public Builder ApiCallback(HttpCallBack apiCallback)
             {
                 this.apiCallback = apiCallback;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the user-agent header and configure values and place holders in it
+            /// </summary>
+            /// <param name="userAgent"></param>
+            /// <param name="userAgentConfig"></param>
+            /// <returns></returns>
             public Builder UserAgent(string userAgent, List<(string placeHolder, string value)> userAgentConfig = null)
             {
                 if (userAgent == null)
@@ -110,6 +163,10 @@ namespace APIMatic.Core
                 return this;
             }
 
+            /// <summary>
+            /// This applies all the configuration and build an instance of GlobalConfiguration
+            /// </summary>
+            /// <returns></returns>
             public GlobalConfiguration Build() => new GlobalConfiguration(httpConfiguration, authManagers, serverUrls, defaultServer,
                     parameters, runtimeParameters, apiCallback);
 

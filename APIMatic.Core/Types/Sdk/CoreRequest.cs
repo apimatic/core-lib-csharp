@@ -10,7 +10,7 @@ using System.Net.Http;
 namespace APIMatic.Core.Types.Sdk
 {
     /// <summary>
-    /// CoreRequest.
+    /// This is the base class for http request.
     /// </summary>
     public class CoreRequest
     {

@@ -1,9 +1,6 @@
-﻿using Moq;
-using NUnit.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Authentication;
 using APIMatic.Core.Types;
 using RichardSzalay.MockHttp;
@@ -16,11 +13,11 @@ namespace APIMatic.Core.Test
     {
         protected static readonly string _basicAuthUserName = "ApimaticUserName";
         protected static readonly string _basicAuthPassword = "ApimaticPassword";
-        protected static HttpCallBack ApiCallBack = new HttpCallBack();
+        protected static HttpCallBack ApiCallBack = new();
         protected enum MockServer { Server1, Server2 }
         protected static readonly int numberOfRetries = 1;
 
-        protected static readonly MockHttpMessageHandler handlerMock = new MockHttpMessageHandler()
+        protected static readonly MockHttpMessageHandler handlerMock = new()
         {
             AutoFlush = true
         };
@@ -30,11 +27,11 @@ namespace APIMatic.Core.Test
             .NumberOfRetries(numberOfRetries)
             .Build();
 
-        private static BasicAuthManager _basicAuthManager = new BasicAuthManager(_basicAuthUserName, _basicAuthPassword);
+        private static BasicAuthManager _basicAuthManager = new(_basicAuthUserName, _basicAuthPassword);
 
         private static GlobalConfiguration globalConfiguration;
 
-        protected static Lazy<GlobalConfiguration> LazyGlobalConfiguration => new Lazy<GlobalConfiguration>(() => globalConfiguration ??= new GlobalConfiguration.Builder()
+        protected static Lazy<GlobalConfiguration> LazyGlobalConfiguration => new(() => globalConfiguration ??= new GlobalConfiguration.Builder()
             .ServerUrls(new Dictionary<Enum, string>
             {
                 { MockServer.Server1, "http://my/path:3000/{one}"},

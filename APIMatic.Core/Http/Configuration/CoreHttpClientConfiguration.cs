@@ -1,4 +1,4 @@
-﻿// <copyright file="HttpClientConfiguration.cs" company="APIMatic">
+﻿// <copyright file="CoreHttpClientConfiguration.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
@@ -10,7 +10,7 @@ using System.Net.Http;
 namespace APIMatic.Core.Http.Configuration
 {
     /// <summary>
-    /// HttpClientConfiguration represents the current state of the Http Client.
+    /// CoreHttpClientConfiguration represents the current state of the Http Client.
     /// </summary>
     public class CoreHttpClientConfiguration : ICoreHttpClientConfiguration
     {

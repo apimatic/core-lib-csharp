@@ -1,4 +1,4 @@
-﻿// <copyright file="HttpClientWrapper.cs" company="APIMatic">
+﻿// <copyright file="Parameter.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace APIMatic.Core.Request.Parameters
 {
+    /// <summary>
+    /// Base class for all the request parameters, holding the common functionality
+    /// </summary>
     public abstract class Parameter
     {
         protected string key;
@@ -67,82 +70,134 @@ namespace APIMatic.Core.Request.Parameters
 
         internal abstract void Apply(RequestBuilder requestBuilder);
 
+        /// <summary>
+        /// Used to build a request by creating and adding multiple parameters into the RequestBuilder
+        /// </summary>
         public class Builder
         {
             private readonly List<Parameter> parameters = new List<Parameter>();
 
             internal Builder() { }
 
-            public Builder Template(Action<TemplateParam> action)
+            /// <summary>
+            /// Creates and configure a TemplateParam using its Action
+            /// </summary>
+            /// <param name="_template"></param>
+            /// <returns></returns>
+            public Builder Template(Action<TemplateParam> _template)
             {
                 var template = new TemplateParam();
-                action(template);
+                _template(template);
                 parameters.Add(template);
                 return this;
             }
 
-            public Builder Header(Action<HeaderParam> action)
+            /// <summary>
+            /// Creates and configure a HeaderParam using its Action
+            /// </summary>
+            /// <param name="_header"></param>
+            /// <returns></returns>
+            public Builder Header(Action<HeaderParam> _header)
             {
                 var header = new HeaderParam();
-                action(header);
+                _header(header);
                 parameters.Add(header);
                 return this;
             }
 
-            public Builder AdditionalHeaders(Action<AdditionalHeaderParams> action)
+            /// <summary>
+            /// Creates and configure AdditionalHeaderParams using its Action
+            /// </summary>
+            /// <param name="_headers"></param>
+            /// <returns></returns>
+
+            public Builder AdditionalHeaders(Action<AdditionalHeaderParams> _headers)
             {
                 var headers = new AdditionalHeaderParams();
-                action(headers);
+                _headers(headers);
                 parameters.Add(headers);
                 return this;
             }
 
-            public Builder Query(Action<QueryParam> action)
+            /// <summary>
+            /// Creates and configure a QueryParam using its Action
+            /// </summary>
+            /// <param name="_query"></param>
+            /// <returns></returns>
+            public Builder Query(Action<QueryParam> _query)
             {
                 var query = new QueryParam();
-                action(query);
+                _query(query);
                 parameters.Add(query);
                 return this;
             }
 
-            public Builder AdditionalQueries(Action<AdditionalQueryParams> action)
+            /// <summary>
+            /// Creates and configure AdditionalQueryParams using its Action
+            /// </summary>
+            /// <param name="_queries"></param>
+            /// <returns></returns>
+            public Builder AdditionalQueries(Action<AdditionalQueryParams> _queries)
             {
                 var queries = new AdditionalQueryParams();
-                action(queries);
+                _queries(queries);
                 parameters.Add(queries);
                 return this;
             }
 
-            public Builder Form(Action<FormParam> action)
+            /// <summary>
+            /// Creates and configure a FormParam using its Action
+            /// </summary>
+            /// <param name="_form"></param>
+            /// <returns></returns>
+            public Builder Form(Action<FormParam> _form)
             {
                 var form = new FormParam();
-                action(form);
+                _form(form);
                 parameters.Add(form);
                 return this;
             }
 
-            public Builder AdditionalForms(Action<AdditionalFormParams> action)
+            /// <summary>
+            /// Creates and configure a AdditionalFormParams using its Action
+            /// </summary>
+            /// <param name="_forms"></param>
+            /// <returns></returns>
+            public Builder AdditionalForms(Action<AdditionalFormParams> _forms)
             {
                 var forms = new AdditionalFormParams();
-                action(forms);
+                _forms(forms);
                 parameters.Add(forms);
                 return this;
             }
 
-            public Builder Body(Action<BodyParam> action)
+            /// <summary>
+            /// Creates and configure a BodyParam using its Action
+            /// </summary>
+            /// <param name="_body"></param>
+            /// <returns></returns>
+            public Builder Body(Action<BodyParam> _body)
             {
                 var body = new BodyParam();
-                action(body);
+                _body(body);
                 parameters.Add(body);
                 return this;
             }
 
+            /// <summary>
+            /// Validates all the added parameters
+            /// </summary>
+            /// <returns></returns>
             internal Builder Validate()
             {
                 parameters.ForEach(p => p.Validate());
                 return this;
             }
 
+            /// <summary>
+            /// Adds all the parameters into the RequestBuilder
+            /// </summary>
+            /// <returns></returns>
             internal void Apply(RequestBuilder requestBuilder)
             {
                 parameters.ForEach(p => p.Apply(requestBuilder));

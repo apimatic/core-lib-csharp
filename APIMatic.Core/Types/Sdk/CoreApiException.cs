@@ -1,11 +1,9 @@
-﻿// <copyright file="CoreApiResponse.cs" company="APIMatic">
+﻿// <copyright file="CoreApiException.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
-using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Types.Sdk
 {
