@@ -3,5 +3,8 @@
 // </copyright>
 namespace APIMatic.Core.Types
 {
+    /// <summary>
+    /// This represents the void ReturnType for API calls
+    /// </summary>
     public class VoidType { }
 }
