@@ -1,4 +1,4 @@
-﻿// <copyright file="HttpClientWrapper.cs" company="APIMatic">
+﻿// <copyright file="ApiCall.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using APIMatic.Core.Http.Configuration;

@@ -1,4 +1,4 @@
-﻿// <copyright file="HttpClientWrapper.cs" company="APIMatic">
+﻿// <copyright file="GlobalConfiguration.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using APIMatic.Core.Authentication;
@@ -75,7 +75,7 @@ namespace APIMatic.Core
             private HttpCallBack apiCallback;
 
             /// <summary>
-            /// Configures the http configurations
+            /// Required: Configures the http configurations
             /// </summary>
             /// <param name="httpConfiguration"></param>
             /// <returns></returns>
@@ -97,7 +97,7 @@ namespace APIMatic.Core
             }
 
             /// <summary>
-            /// Configures the server urls and select a default one
+            /// Required: Configures the server urls and select a default one
             /// </summary>
             /// <param name="serverUrls"></param>
             /// <param name="defaultServer"></param>
