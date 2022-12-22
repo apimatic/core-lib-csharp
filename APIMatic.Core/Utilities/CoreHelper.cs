@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using APIMatic.Core.Http.Configuration;
+using APIMatic.Core.Types;
 using APIMatic.Core.Types.Sdk;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -169,7 +170,7 @@ namespace APIMatic.Core.Utilities
 
         internal static bool IsScalarType(Type type)
         {
-            return Type.GetTypeCode(type) != TypeCode.Object;
+            return Type.GetTypeCode(type) != TypeCode.Object || type == typeof(VoidType);
         }
 
         /// <summary>

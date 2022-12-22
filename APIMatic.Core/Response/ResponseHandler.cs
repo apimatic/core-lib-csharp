@@ -111,15 +111,11 @@ namespace APIMatic.Core.Response
 
         private ResponseType ConvertResponse(CoreResponse response)
         {
-            if (response is ResponseType httpResponse)
-            {
-                return httpResponse;
-            }
             if (response.RawBody is ResponseType streamResponse)
             {
                 return streamResponse;
             }
-            if (response.Body is ResponseType stringResponse)
+            if (response.Body is ResponseType stringResponse && AcceptHeader != ContentType.XML)
             {
                 return stringResponse;
             }

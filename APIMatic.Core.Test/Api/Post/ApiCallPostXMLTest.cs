@@ -46,7 +46,9 @@ namespace APIMatic.Core.Test.Api.Post
             var apiCall = CreateApiCall<ServerResponse>()
               .RequestBuilder(requestBuilderAction => requestBuilderAction
                   .Setup(HttpMethod.Post, url)
-                  .XmlBodySerializer(serializer => XmlUtility.ToXml(body, "long")))
+                  .Parameters(p => p
+                      .Body(b => b.Setup(body)))
+                  .XmlBodySerializer(xmlSerializer => XmlUtility.ToXml(xmlSerializer, "long")))
               .ResponseHandler(responseHandlerAction => responseHandlerAction
                   .Deserializer(response => CoreHelper.JsonDeserialize<ServerResponse>(response)))
               .ExecuteAsync();
@@ -86,7 +88,9 @@ namespace APIMatic.Core.Test.Api.Post
             var apiCall = CreateApiCall<ServerResponse>()
               .RequestBuilder(requestBuilderAction => requestBuilderAction
                   .Setup(HttpMethod.Post, url)
-                  .XmlBodySerializer(serializer => XmlUtility.ToXml(body, "string")))
+                  .Parameters(p => p
+                      .Body(b => b.Setup(body)))
+                  .XmlBodySerializer(xmlSerializer => XmlUtility.ToXml(xmlSerializer, "string")))
               .ResponseHandler(responseHandlerAction => responseHandlerAction
                   .Deserializer(response => CoreHelper.JsonDeserialize<ServerResponse>(response)))
               .ExecuteAsync();
