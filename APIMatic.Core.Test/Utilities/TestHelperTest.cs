@@ -252,6 +252,15 @@ namespace APIMatic.Core.Test.Utilities
         }
 
         [Test]
+        public void IsJsonObjectProperSubsetOf_JObjectDifferentButSameValue()
+        {
+            string leftObject = "{\"address\": [{\"street\" : \"H # 531, S #20\"}, \"25\"]}";
+            string rightObject = "{\"address\": [{\"street\" : \"H # 531, S #20\"}, \"25\"]}";
+
+            Assert.IsTrue(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+        }
+
+        [Test]
         public void IsJsonObjectProperSubsetOf_LeftValueNull()
         {
             string leftObject = "{\"address\": null}";
