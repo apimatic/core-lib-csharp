@@ -150,6 +150,8 @@ dotnet_diagnostic.S1118.severity = none
 dotnet_diagnostic.S112.severity = none
 # Constructors should only call non-overridable methods
 dotnet_diagnostic.S1699.severity = none
+# S1168: Empty arrays and collections should be returned instead of null
+dotnet_diagnostic.S1168.severity = none
 
 # CA1707: Identifiers should not contain underscores
 dotnet_diagnostic.CA1707.severity = none
