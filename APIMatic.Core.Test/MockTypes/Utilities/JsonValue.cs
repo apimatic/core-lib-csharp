@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using APIMatic.Core.Types.Sdk;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using APIMatic.Core.Types.Sdk;
-using System.Collections.Generic;
 
 namespace APIMatic.Core.Test.Utilities
 {

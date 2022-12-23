@@ -1,14 +1,14 @@
-﻿using System.Threading.Tasks;
-using NUnit.Framework;
-using System.Net.Http;
-using System.Text;
-using System.Net;
-using RichardSzalay.MockHttp;
-using APIMatic.Core.Http;
+﻿using System;
 using System.Collections.Generic;
-using System;
-using APIMatic.Core.Http.Configuration;
+using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
+using System.Threading.Tasks;
+using APIMatic.Core.Http;
+using APIMatic.Core.Http.Configuration;
+using NUnit.Framework;
+using RichardSzalay.MockHttp;
 
 namespace APIMatic.Core.Test.Http
 {
@@ -20,11 +20,11 @@ namespace APIMatic.Core.Test.Http
 
         [SetUp]
         public void SetupHttpClient()
-        { 
+        {
             var clientConfiguration = new CoreHttpClientConfiguration.Builder()
                 .HttpClientInstance(new HttpClient(handlerMock), false)
                 .Build();
-            
+
             _config = new GlobalConfiguration.Builder()
                 .ServerUrls(new Dictionary<Enum, string>
                 {

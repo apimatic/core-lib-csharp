@@ -1,8 +1,8 @@
-﻿using System.Net.Http;
-using NUnit.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using APIMatic.Core.Http.Configuration;
+using NUnit.Framework;
 
 namespace APIMatic.Core.Test.Http
 {

@@ -15,7 +15,7 @@ namespace APIMatic.Core.Utilities
     public interface ICompatibilityFactory<Request, Response, Context, ApiException>
         where Request : CoreRequest
         where Response : CoreResponse
-        where Context: CoreContext<Request, Response>
+        where Context : CoreContext<Request, Response>
         where ApiException : CoreApiException<Request, Response, Context>
     {
         ApiException CreateApiException(string reason, CoreContext<CoreRequest, CoreResponse> context);

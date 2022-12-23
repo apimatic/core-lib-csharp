@@ -449,7 +449,7 @@ namespace APIMatic.Core.Utilities
                             {
                                 return false;
                             }
-                           
+
                             JArray leftJArray = (JArray)leftVal;
                             JArray rightJArray = (JArray)rightVal;
                             bool bothArrayContainsJObject = IsArrayOfJObject(leftJArray) && IsArrayOfJObject(rightJArray);
@@ -493,7 +493,7 @@ namespace APIMatic.Core.Utilities
                             }
                             else
                             {
-                                if (!IsListProperSubsetOf(leftJArray,rightJArray,allowExtra,isOrdered))
+                                if (!IsListProperSubsetOf(leftJArray, rightJArray, allowExtra, isOrdered))
                                 {
                                     return false;
                                 }
@@ -529,7 +529,7 @@ namespace APIMatic.Core.Utilities
             bool listOfJObject = true;
             foreach (var item in jArray)
             {
-                if(!(item is JObject))
+                if (!(item is JObject))
                 {
                     listOfJObject = false;
                     break;

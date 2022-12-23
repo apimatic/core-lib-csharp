@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using APIMatic.Core.Authentication;
-using APIMatic.Core.Types;
-using RichardSzalay.MockHttp;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Test.MockTypes.Authentication;
+using APIMatic.Core.Types;
+using RichardSzalay.MockHttp;
 
 namespace APIMatic.Core.Test
 {

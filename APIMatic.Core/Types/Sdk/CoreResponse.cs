@@ -1,9 +1,9 @@
 ﻿// <copyright file="CoreResponse.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-using APIMatic.Core.Utilities;
 using System.Collections.Generic;
 using System.IO;
+using APIMatic.Core.Utilities;
 
 namespace APIMatic.Core.Types.Sdk
 {

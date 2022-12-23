@@ -269,7 +269,7 @@ namespace APIMatic.Core.Test.Utilities
             Assert.IsFalse(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
-         [Test]
+        [Test]
         public void IsJsonObjectProperSubsetOf_LeftRightNull()
         {
             string leftObject = "{\"address\": null}";

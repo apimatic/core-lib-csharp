@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Net.Http.Json;
-using System.Net.Http;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Test.MockTypes.Exceptions;
 using APIMatic.Core.Test.MockTypes.Models;
+using APIMatic.Core.Utilities;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
-using APIMatic.Core.Utilities;
-using System.Net.Http.Headers;
 
 namespace APIMatic.Core.Test.Api.Get
 {

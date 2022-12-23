@@ -1,8 +1,8 @@
 ﻿// <copyright file="HttpRequest.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-using System.Net.Http;
 using System.Collections.Generic;
+using System.Net.Http;
 using APIMatic.Core.Types.Sdk;
 
 namespace APIMatic.Core.Test.MockTypes.Http.Request

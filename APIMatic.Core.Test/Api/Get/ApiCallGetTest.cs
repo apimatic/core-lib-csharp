@@ -1,19 +1,19 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using NUnit.Framework;
-using RichardSzalay.MockHttp;
-using APIMatic.Core.Test.MockTypes.Models;
-using APIMatic.Core.Utilities;
 using System.Text;
-using System;
-using System.Collections.Generic;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Test.MockTypes.Convertors;
-using System.IO;
-using APIMatic.Core.Test.MockTypes.Http.Response;
-using APIMatic.Core.Types;
 using APIMatic.Core.Test.MockTypes.Exceptions;
+using APIMatic.Core.Test.MockTypes.Http.Response;
+using APIMatic.Core.Test.MockTypes.Models;
+using APIMatic.Core.Types;
+using APIMatic.Core.Utilities;
+using NUnit.Framework;
+using RichardSzalay.MockHttp;
 
 namespace APIMatic.Core.Test.Api.Get
 {
@@ -597,7 +597,7 @@ namespace APIMatic.Core.Test.Api.Get
                 .ExecuteAsync();
 
             // Act and Assert
-            var actual =  CoreHelper.RunTask(apiCall);
+            var actual = CoreHelper.RunTask(apiCall);
 
             Assert.Null(actual);
         }

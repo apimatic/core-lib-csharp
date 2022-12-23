@@ -1,16 +1,16 @@
 ﻿// <copyright file="ApiCall.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-using APIMatic.Core.Http.Configuration;
-using APIMatic.Core.Request;
-using APIMatic.Core.Response;
-using APIMatic.Core.Types.Sdk;
-using APIMatic.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using APIMatic.Core.Http.Configuration;
+using APIMatic.Core.Request;
+using APIMatic.Core.Response;
+using APIMatic.Core.Types.Sdk;
+using APIMatic.Core.Utilities;
 
 namespace APIMatic.Core
 {

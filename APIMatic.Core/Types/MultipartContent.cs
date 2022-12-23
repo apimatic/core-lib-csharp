@@ -8,7 +8,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 
 namespace APIMatic.Core.Types
-{ 
+{
     /// <summary>
     /// MultipartContent.
     /// </summary>

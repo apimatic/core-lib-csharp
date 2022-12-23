@@ -1,8 +1,8 @@
 ﻿// <copyright file="HttpResponse.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using APIMatic.Core.Types.Sdk;
 
 namespace APIMatic.Core.Test.MockTypes.Http.Response

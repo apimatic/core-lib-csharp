@@ -124,20 +124,20 @@ namespace APIMatic.Core.Utilities
 
         private static void AppendParameters(StringBuilder queryBuilder, ArraySerialization arraySerialization, KeyValuePair<string, object> pair)
         {
-                string paramKeyValPair;
+            string paramKeyValPair;
 
-                // load element value as string
-                if (pair.Value is ICollection)
-                {
-                    paramKeyValPair = FlattenCollection(pair.Value as ICollection, arraySerialization, GetSeparator(arraySerialization), true, Uri.EscapeDataString(pair.Key));
-                }
-                else
-                {
-                    paramKeyValPair = string.Format("{0}={1}", Uri.EscapeDataString(pair.Key), GetElementValue(pair.Value, true));
-                }
+            // load element value as string
+            if (pair.Value is ICollection)
+            {
+                paramKeyValPair = FlattenCollection(pair.Value as ICollection, arraySerialization, GetSeparator(arraySerialization), true, Uri.EscapeDataString(pair.Key));
+            }
+            else
+            {
+                paramKeyValPair = string.Format("{0}={1}", Uri.EscapeDataString(pair.Key), GetElementValue(pair.Value, true));
+            }
 
-                // append keyval pair for current parameter
-                queryBuilder.Append(paramKeyValPair);
+            // append keyval pair for current parameter
+            queryBuilder.Append(paramKeyValPair);
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace APIMatic.Core.Utilities
             {
                 PrepareFormFieldsFromObject(name, RemoveNullValues(jsonObject.GetStoredObject()), arraySerializationFormat, keys, propInfo);
             }
-            else if(value is CoreJsonValue jsonValue)
+            else if (value is CoreJsonValue jsonValue)
             {
                 PrepareFormFieldsFromObject(name, jsonValue.GetStoredObject(), arraySerializationFormat, keys, propInfo);
             }
@@ -339,17 +339,17 @@ namespace APIMatic.Core.Utilities
 
         private static object GetProcessedValue(object value)
         {
-            if(value is Stream)
+            if (value is Stream)
             {
                 return value;
             }
 
-            if(value is Enum)
+            if (value is Enum)
             {
                 return JsonSerialize(value).Trim('\"');
             }
 
-            if(value is JToken)
+            if (value is JToken)
             {
                 return value.ToString();
             }
@@ -557,7 +557,7 @@ namespace APIMatic.Core.Utilities
                             else
                             {
                                 // List of custom type
-                                var innerList = PrepareFormFieldsFromObject(kvp.Key, kvp.Value, arraySerializationFormat : ArraySerialization.Indexed);
+                                var innerList = PrepareFormFieldsFromObject(kvp.Key, kvp.Value, arraySerializationFormat: ArraySerialization.Indexed);
                                 innerList = ApplySerializationFormatToScalarArrays(innerList);
                                 processedParameters.AddRange(innerList);
                             }

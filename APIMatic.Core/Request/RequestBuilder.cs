@@ -2,16 +2,16 @@
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
-using System.Collections.Generic;
+using APIMatic.Core.Authentication;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Request.Parameters;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
-using System.Linq;
-using APIMatic.Core.Authentication;
 
 namespace APIMatic.Core.Request
 {

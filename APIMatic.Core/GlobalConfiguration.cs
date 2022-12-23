@@ -1,16 +1,16 @@
 ﻿// <copyright file="GlobalConfiguration.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using APIMatic.Core.Authentication;
 using APIMatic.Core.Http;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Request;
 using APIMatic.Core.Request.Parameters;
 using APIMatic.Core.Types;
-using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 
 namespace APIMatic.Core
 {

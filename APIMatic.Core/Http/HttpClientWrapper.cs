@@ -1,12 +1,6 @@
 ﻿// <copyright file="HttpClientWrapper.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-using APIMatic.Core.Http.Configuration;
-using APIMatic.Core.Types.Sdk;
-using Polly;
-using Polly.Retry;
-using Polly.Timeout;
-using Polly.Wrap;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -18,6 +12,12 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using APIMatic.Core.Http.Configuration;
+using APIMatic.Core.Types.Sdk;
+using Polly;
+using Polly.Retry;
+using Polly.Timeout;
+using Polly.Wrap;
 using MultipartContent = APIMatic.Core.Types.MultipartContent;
 
 namespace APIMatic.Core.Http
