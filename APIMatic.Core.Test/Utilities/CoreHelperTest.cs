@@ -366,10 +366,6 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var hashtable = new Hashtable()
-            {
-                { "subkey1", "subValue1" }
-            };
             var dictionaryData = new Dictionary<string, string>()
             {
                 {"key1", "value1" },

@@ -423,15 +423,15 @@ namespace APIMatic.Core.Utilities
             // iterate over the input
             for (int inputCounter = 0; inputCounter < stringBuilder.Length; inputCounter++)
             {
-                int matchCounter;
+                int matchCounter = 0;
+                bool IsInBoundOfString() => matchCounter < strCheck.Length;
+                bool IsInBoundOfStringBuilder() => inputCounter + matchCounter < stringBuilder.Length;
+                bool IsMatchLocated() => stringBuilder[inputCounter + matchCounter] == strCheck[matchCounter];
 
-                // attempt to locate a potential match
-                for (matchCounter = 0;
-                        (matchCounter < strCheck.Length)
-                        && (inputCounter + matchCounter < stringBuilder.Length)
-                        && (stringBuilder[inputCounter + matchCounter] == strCheck[matchCounter]);
-                    matchCounter++)
+                while (IsInBoundOfString() && IsInBoundOfStringBuilder() && IsMatchLocated())
                 {
+                    // attempts to locate a potential match
+                    matchCounter++;
                 }
 
                 // verify the match

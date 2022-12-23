@@ -339,14 +339,10 @@ namespace APIMatic.Core.Utilities
                 }
             }
 
-            // left and right should also of the same size
-            if (checkSize)
+            // if checking for size, right items should have been exhaustively read
+            if (checkSize && rItr.MoveNext())
             {
-                // right items should have been exhaustively read?
-                if (rItr.MoveNext())
-                {
-                    return false;
-                }
+                return false;
             }
 
             return true;
@@ -443,15 +439,13 @@ namespace APIMatic.Core.Utilities
                     if (checkValues)
                     {
                         // If left value is a primitive, check if it equals right value
-                        if (leftVal is JArray)
+                        if (leftVal is JArray leftJArray)
                         {
-                            if (!(rightVal is JArray))
+                            if (!(rightVal is JArray rightJArray))
                             {
                                 return false;
                             }
 
-                            JArray leftJArray = (JArray)leftVal;
-                            JArray rightJArray = (JArray)rightVal;
                             bool bothArrayContainsJObject = IsArrayOfJObject(leftJArray) && IsArrayOfJObject(rightJArray);
                             bool containsJObject = ListContainsJObject(leftJArray) && ListContainsJObject(rightJArray);
                             if (!bothArrayContainsJObject && containsJObject)
