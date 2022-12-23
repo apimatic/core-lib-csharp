@@ -137,19 +137,19 @@ dotnet_diagnostic.IDE0061.severity = none
 dotnet_diagnostic.IDE0007.severity = none
 
 # Update this method so that its implementation is not identical to 'blah'
-dotnet_diagnostic.S4144.severity = None
+dotnet_diagnostic.S4144.severity = none
 # Update this implementation of 'ISerializable' to conform to the recommended serialization pattern
-dotnet_diagnostic.S3925.severity = None
+dotnet_diagnostic.S3925.severity = none
 # Rename classes to match pascal case naming rules
-dotnet_diagnostic.S101.severity = None
+dotnet_diagnostic.S101.severity = none
 # Extract this nested code block into a separate method
-dotnet_diagnostic.S1199.severity = None
+dotnet_diagnostic.S1199.severity = none
 # Utility classes should not have public constructors
-dotnet_diagnostic.S1118.severity = None
+dotnet_diagnostic.S1118.severity = none
 # 'System.Exception' should not be thrown by user code
-dotnet_diagnostic.S112.severity = None
+dotnet_diagnostic.S112.severity = none
 # Constructors should only call non-overridable methods
-dotnet_diagnostic.S1699.severity = None
+dotnet_diagnostic.S1699.severity = none
 
 # CA1707: Identifiers should not contain underscores
 dotnet_diagnostic.CA1707.severity = none
