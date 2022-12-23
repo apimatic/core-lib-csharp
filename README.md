@@ -1,8 +1,7 @@
 # APIMatic Core Library for C#
 
 [![Version][nuget-version]][nuget-url]
-[![Build][test-badge]][test-url]
-[![Tests][test-badge]][test-url]
+[![Build & Tests][test-badge]][test-url]
 [![Lint][lint-badge]][lint-url]
 [![Test Coverage][coverage-badge]][coverage-url]
 [![Maintainability][maintainability-badge]][maintainability-url]
