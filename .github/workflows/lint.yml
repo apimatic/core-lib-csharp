@@ -23,4 +23,5 @@ jobs:
         env:
           VALIDATE_CSHARP: true
           DEFAULT_BRANCH: main
+          FILTER_REGEX_EXCLUDE: .*APIMatic.Core.Test/.*
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
