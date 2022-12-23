@@ -1,39 +1,31 @@
 ﻿// <copyright file="CoreUnixDateTimeConverter.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
+using System;
+using System.Globalization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace APIMatic.Core.Utilities.Date
 {
-    using System;
-    using System.Globalization;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
-
     /// <summary>
     /// Extends from DateTimeConverterBase, uses unix DateTime format.
     /// </summary>
     public class CoreUnixDateTimeConverter : DateTimeConverterBase
     {
-        private DateTimeStyles dateTimeStyles = DateTimeStyles.RoundtripKind;
-
         /// <summary>
         /// Gets or sets DateTimeStyles.
         /// </summary>
-        public DateTimeStyles DateTimeStyles
-        {
-            get { return dateTimeStyles; }
-            set { dateTimeStyles = value; }
-        }
+        public DateTimeStyles DateTimeStyles { get; set; } = DateTimeStyles.RoundtripKind;
 
         /// <inheritdoc/>
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             double text;
-            if (value is DateTime)
+            if (value is DateTime dateTime)
             {
-                var dateTime = (DateTime)value;
-
-                if ((dateTimeStyles & DateTimeStyles.AdjustToUniversal) == DateTimeStyles.AdjustToUniversal
-                    || (dateTimeStyles & DateTimeStyles.AssumeUniversal) == DateTimeStyles.AssumeUniversal)
+                if ((DateTimeStyles & DateTimeStyles.AdjustToUniversal) == DateTimeStyles.AdjustToUniversal
+                    || (DateTimeStyles & DateTimeStyles.AssumeUniversal) == DateTimeStyles.AssumeUniversal)
                 {
                     dateTime = dateTime.ToUniversalTime();
                 }

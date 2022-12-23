@@ -1,12 +1,13 @@
 ﻿// <copyright file="CoreListDateTimeConverter.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
+using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace APIMatic.Core.Utilities.Date
 {
-    using System;
-    using System.Collections.Generic;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
 
     /// <summary>
     /// Extends from JsonConverter, allows the use of a custom converter.

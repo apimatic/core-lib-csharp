@@ -6,7 +6,5 @@ using System;
 namespace APIMatic.Core.Utilities
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    internal class JsogAttribute : Attribute
-    {
-    }
+    internal class JsogAttribute : Attribute { }
 }

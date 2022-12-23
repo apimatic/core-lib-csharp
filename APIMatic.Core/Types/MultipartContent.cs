@@ -22,7 +22,7 @@ namespace APIMatic.Core.Types
             IReadOnlyDictionary<string,
             IReadOnlyCollection<string>> headers)
         {
-            this.Headers = headers;
+            Headers = headers;
         }
 
         /// <summary>
@@ -51,9 +51,9 @@ namespace APIMatic.Core.Types
             string contentDispositionName,
             HttpContentHeaders headers)
         {
-            if (this.Headers.ContainsKey("content-type"))
+            if (Headers.ContainsKey("content-type"))
             {
-                bool isContentTypeValid = MediaTypeHeaderValue.TryParse(this.Headers["content-type"].FirstOrDefault(), out var parsedContentType);
+                bool isContentTypeValid = MediaTypeHeaderValue.TryParse(Headers["content-type"].FirstOrDefault(), out var parsedContentType);
 
                 if (isContentTypeValid)
                 {
@@ -66,7 +66,7 @@ namespace APIMatic.Core.Types
                 Name = contentDispositionName,
             };
 
-            var headersList = this.Headers.Where(kv => !this.IsReservedHeader(kv.Key));
+            var headersList = Headers.Where(kv => !IsReservedHeader(kv.Key));
 
             foreach (var header in headersList)
             {

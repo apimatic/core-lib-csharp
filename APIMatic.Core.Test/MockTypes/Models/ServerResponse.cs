@@ -3,9 +3,7 @@ using Newtonsoft.Json;
 
 namespace APIMatic.Core.Test.MockTypes.Models
 {
-#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     internal class ServerResponse : BaseModel
-#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerResponse"/> class.
@@ -25,9 +23,9 @@ namespace APIMatic.Core.Test.MockTypes.Models
             string message = null,
             object input = null)
         {
-            this.Passed = passed;
-            this.Message = message;
-            this.Input = input;
+            Passed = passed;
+            Message = message;
+            Input = input;
         }
 
         /// <summary>
@@ -53,7 +51,7 @@ namespace APIMatic.Core.Test.MockTypes.Models
         {
             var toStringOutput = new List<string>();
 
-            this.ToString(toStringOutput);
+            ToString(toStringOutput);
 
             return $"ServerResponse : ({string.Join(", ", toStringOutput)})";
         }
@@ -72,9 +70,9 @@ namespace APIMatic.Core.Test.MockTypes.Models
             }
 
             return obj is ServerResponse other &&
-                this.Passed.Equals(other.Passed) &&
-                ((this.Message == null && other.Message == null) || (this.Message?.Equals(other.Message) == true)) &&
-                ((this.Input == null && other.Input == null) || (this.Input?.Equals(other.Input) == true));
+                Passed.Equals(other.Passed) &&
+                ((Message == null && other.Message == null) || (Message?.Equals(other.Message) == true)) &&
+                ((Input == null && other.Input == null) || (Input?.Equals(other.Input) == true));
         }
 
 
@@ -84,9 +82,9 @@ namespace APIMatic.Core.Test.MockTypes.Models
         /// <param name="toStringOutput">List of strings.</param>
         protected new void ToString(List<string> toStringOutput)
         {
-            toStringOutput.Add($"this.Passed = {this.Passed}");
-            toStringOutput.Add($"this.Message = {(this.Message == null ? "null" : this.Message == string.Empty ? "" : this.Message)}");
-            toStringOutput.Add($"Input = {(this.Input == null ? "null" : this.Input.ToString())}");
+            toStringOutput.Add($"this.Passed = {Passed}");
+            toStringOutput.Add($"this.Message = {(Message == null ? "null" : Message == string.Empty ? "" : Message)}");
+            toStringOutput.Add($"Input = {(Input == null ? "null" : Input.ToString())}");
 
             base.ToString(toStringOutput);
         }

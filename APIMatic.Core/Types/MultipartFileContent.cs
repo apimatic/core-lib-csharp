@@ -24,7 +24,7 @@ namespace APIMatic.Core.Types
             IReadOnlyCollection<string>> headers)
             : base(headers)
         {
-            this.File = file;
+            File = file;
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace APIMatic.Core.Types
         /// </summary>
         public override void Rewind()
         {
-            this.File.FileStream.Position = 0;
+            File.FileStream.Position = 0;
         }
 
         /// <summary>
@@ -47,8 +47,8 @@ namespace APIMatic.Core.Types
         /// <returns>HttpContent.</returns>
         public override HttpContent ToHttpContent(string contentDispositionName)
         {
-            var streamContent = new StreamContent(this.File.FileStream);
-            this.SetHeaders(contentDispositionName, streamContent.Headers);
+            var streamContent = new StreamContent(File.FileStream);
+            SetHeaders(contentDispositionName, streamContent.Headers);
 
             return streamContent;
         }
@@ -67,14 +67,14 @@ namespace APIMatic.Core.Types
             headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
             {
                 Name = contentDispositionName,
-                FileName = string.IsNullOrWhiteSpace(this.File.FileName) ? "file" : this.File.FileName,
+                FileName = string.IsNullOrWhiteSpace(File.FileName) ? "file" : File.FileName,
             };
 
-            if (!string.IsNullOrEmpty(this.File.ContentType))
+            if (!string.IsNullOrEmpty(File.ContentType))
             {
-                headers.ContentType = new MediaTypeHeaderValue(this.File.ContentType);
+                headers.ContentType = new MediaTypeHeaderValue(File.ContentType);
             }
-            else if (!this.Headers.ContainsKey("content-type"))
+            else if (!Headers.ContainsKey("content-type"))
             {
                 headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
             }

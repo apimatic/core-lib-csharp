@@ -19,7 +19,7 @@ namespace APIMatic.Core.Types
         public MultipartByteArrayContent(byte[] byteArray, IReadOnlyDictionary<string, IReadOnlyCollection<string>> headers)
             : base(headers)
         {
-            this.ByteArray = byteArray;
+            ByteArray = byteArray;
         }
 
         /// <summary>
@@ -39,8 +39,8 @@ namespace APIMatic.Core.Types
         /// <returns>HttpContent.</returns>
         public override HttpContent ToHttpContent(string contentDispositionName)
         {
-            var byteArrayContent = new ByteArrayContent(this.ByteArray);
-            this.SetHeaders(contentDispositionName, byteArrayContent.Headers);
+            var byteArrayContent = new ByteArrayContent(ByteArray);
+            SetHeaders(contentDispositionName, byteArrayContent.Headers);
 
             return byteArrayContent;
         }

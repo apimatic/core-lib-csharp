@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using APIMatic.Core.Http.Configuration;
-using APIMatic.Core.Test.MockTypes.Convertors;
 using APIMatic.Core.Test.MockTypes.Exceptions;
 using APIMatic.Core.Test.MockTypes.Http.Response;
 using APIMatic.Core.Test.MockTypes.Models;

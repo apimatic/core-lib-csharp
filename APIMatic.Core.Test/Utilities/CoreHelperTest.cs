@@ -2,12 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Test.MockTypes.Models;
-using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
 using APIMatic.Core.Utilities.Date;
 using Newtonsoft.Json.Linq;
@@ -100,8 +97,10 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void JsonSerialize_DateTime_RFCFormat()
         {
-            List<DateTime> list = new List<DateTime>();
-            list.Add(DateTime.Parse("2018-4-12"));
+            List<DateTime> list = new List<DateTime>
+            {
+                DateTime.Parse("2018-4-12")
+            };
             string expected = "[\"Thu, 12 Apr 2018 00:00:00 GMT\"]";
             string actual = CoreHelper.JsonSerialize(list, new CoreCustomDateTimeConverter("r"));
             Assert.AreEqual(expected, actual);
@@ -131,8 +130,10 @@ namespace APIMatic.Core.Test.Utilities
         public void JsonDeserialize_DateTime()
         {
             DateTime dateTime = new DateTime(2022, 12, 12);
-            List<DateTime?> expected = new List<DateTime?>();
-            expected.Add(dateTime);
+            List<DateTime?> expected = new List<DateTime?>
+            {
+                dateTime
+            };
             string dateTimeString = CoreHelper.JsonSerialize(expected, new CoreCustomDateTimeConverter("r"));
 
             List<DateTime> actual = CoreHelper.JsonDeserialize<List<DateTime>>(dateTimeString, new CoreCustomDateTimeConverter("r"));

@@ -273,7 +273,7 @@ namespace APIMatic.Core.Http
                 .Or<TaskCanceledException>()
                 .Or<HttpRequestException>()
                 .WaitAndRetryAsync(
-                retryCount: this._numberOfRetries,
+                retryCount: _numberOfRetries,
                 sleepDurationProvider: (retryAttempt, result, context) =>
                 TimeSpan.FromMilliseconds(Math.Max(GetExponentialWaitTime(retryAttempt), GetServerWaitDuration(result).TotalMilliseconds)),
                 onRetryAsync: async (result, timespan, retryAttempt, context) => await Task.CompletedTask);
@@ -291,7 +291,7 @@ namespace APIMatic.Core.Http
         private double GetExponentialWaitTime(int retryAttempt)
         {
             double noise = new Random().NextDouble() * 100;
-            return (1000 * this._retryInterval * Math.Pow(_backoffFactor, retryAttempt - 1)) + noise;
+            return (1000 * _retryInterval * Math.Pow(_backoffFactor, retryAttempt - 1)) + noise;
 
         }
 

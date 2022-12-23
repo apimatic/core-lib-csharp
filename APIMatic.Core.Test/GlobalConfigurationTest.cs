@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using APIMatic.Core.Authentication;
 using APIMatic.Core.Http.Configuration;
 using NUnit.Framework;
 

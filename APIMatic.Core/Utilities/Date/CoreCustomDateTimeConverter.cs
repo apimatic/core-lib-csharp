@@ -1,10 +1,10 @@
 ﻿// <copyright file="CoreCustomDateTimeConverter.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
+using Newtonsoft.Json.Converters;
+
 namespace APIMatic.Core.Utilities.Date
 {
-    using Newtonsoft.Json.Converters;
-
     /// <summary>
     /// Extends from IsoDateTimeConverter to allow a custom DateTime format.
     /// </summary>

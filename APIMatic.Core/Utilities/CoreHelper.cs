@@ -258,8 +258,7 @@ namespace APIMatic.Core.Utilities
             {
                 foreach (object attr in pInfo)
                 {
-                    JsonConverterAttribute converterAttr = attr as JsonConverterAttribute;
-                    if (converterAttr != null)
+                    if (attr is JsonConverterAttribute converterAttr)
                     {
                         convertedValue = JsonSerialize(value, (JsonConverter)Activator.CreateInstance(converterAttr.ConverterType, converterAttr.ConverterParameters)).Replace("\"", string.Empty);
                     }
@@ -403,11 +402,17 @@ namespace APIMatic.Core.Utilities
         private static char GetSeparator(ArraySerialization arraySerialization)
         {
             if (arraySerialization == ArraySerialization.CSV)
+            {
                 return ',';
+            }
             if (arraySerialization == ArraySerialization.PSV)
+            {
                 return '|';
+            }
             if (arraySerialization == ArraySerialization.TSV)
+            {
                 return 't';
+            }
             return '&';
         }
 
@@ -479,8 +484,7 @@ namespace APIMatic.Core.Utilities
 
         private static string GetFormatString(ArraySerialization fmt, string key, StringBuilder builder)
         {
-            string format;
-            if (_serializationFormats.TryGetValue(fmt, out format))
+            if (_serializationFormats.TryGetValue(fmt, out var format))
             {
                 if (fmt == ArraySerialization.CSV || fmt == ArraySerialization.PSV || fmt == ArraySerialization.TSV)
                 {
@@ -498,15 +502,15 @@ namespace APIMatic.Core.Utilities
 
         private static string GetElementValue(object element, bool urlEncode)
         {
-            string elemValue = string.Empty;
-            if (element is DateTime)
+            string elemValue;
+            if (element is DateTime time)
             {
-                elemValue = ((DateTime)element).ToString(DateTimeFormat);
+                elemValue = time.ToString(DateTimeFormat);
                 return elemValue;
             }
-            else if (element is DateTimeOffset)
+            else if (element is DateTimeOffset offset)
             {
-                elemValue = ((DateTimeOffset)element).ToString(DateTimeFormat);
+                elemValue = offset.ToString(DateTimeFormat);
                 return elemValue;
             }
             else

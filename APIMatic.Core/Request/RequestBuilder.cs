@@ -45,7 +45,7 @@ namespace APIMatic.Core.Request
 
         internal bool HasBinaryResponse { get; set; }
 
-        private Type BodyType { get => bodyParameters.Any() ? typeof(object) : bodyType; }
+        private Type BodyType => bodyParameters.Any() ? typeof(object) : bodyType;
 
         /// <summary>
         /// Required: Sets the API route and http method

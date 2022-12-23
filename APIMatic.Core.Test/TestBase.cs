@@ -13,7 +13,7 @@ namespace APIMatic.Core.Test
     {
         protected static readonly string _basicAuthUserName = "ApimaticUserName";
         protected static readonly string _basicAuthPassword = "ApimaticPassword";
-        protected static HttpCallBack ApiCallBack = new();
+        protected static readonly HttpCallBack ApiCallBack = new();
         protected enum MockServer { Server1, Server2 }
         protected static readonly int numberOfRetries = 1;
 
@@ -22,12 +22,12 @@ namespace APIMatic.Core.Test
             AutoFlush = true
         };
 
-        private static ICoreHttpClientConfiguration _clientConfiguration = new CoreHttpClientConfiguration.Builder()
+        private static readonly ICoreHttpClientConfiguration _clientConfiguration = new CoreHttpClientConfiguration.Builder()
             .HttpClientInstance(new HttpClient(handlerMock))
             .NumberOfRetries(numberOfRetries)
             .Build();
 
-        private static BasicAuthManager _basicAuthManager = new(_basicAuthUserName, _basicAuthPassword);
+        private static readonly BasicAuthManager _basicAuthManager = new(_basicAuthUserName, _basicAuthPassword);
 
         private static GlobalConfiguration globalConfiguration;
 
