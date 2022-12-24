@@ -28,7 +28,7 @@ jobs:
         run: dotnet pack ./APIMatic.Core/APIMatic.Core.csproj -c release -p:PackageVersion=${{ github.event.inputs.Version }}
         
       - name: Push To NuGet
-        run: dotnet nuget push ./APIMatic.Core/bin/release/APIMatic.Core.${{ github.event.inputs.Version }}.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://github.com/apimatic/core-lib-csharp/actions
+        run: dotnet nuget push ./APIMatic.Core/bin/release/APIMatic.Core.${{ github.event.inputs.Version }}.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://github.com/apimatic/core-lib-csharp/actions/workflows/release.yml
         
       - name: Create Tag
         id: tag_version
