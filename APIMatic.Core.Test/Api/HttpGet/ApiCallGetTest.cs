@@ -14,7 +14,7 @@ using APIMatic.Core.Utilities;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
 
-namespace APIMatic.Core.Test.Api.Get
+namespace APIMatic.Core.Test.Api.HttpGet
 {
     [TestFixture]
     public class ApiCallGetTest : ApiCallTest

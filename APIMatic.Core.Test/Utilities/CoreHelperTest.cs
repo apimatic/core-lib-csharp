@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Test.MockTypes.Models;
+using APIMatic.Core.Test.MockTypes.Utilities;
 using APIMatic.Core.Utilities;
 using APIMatic.Core.Utilities.Date;
 using Newtonsoft.Json.Linq;

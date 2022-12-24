@@ -4,7 +4,7 @@ using APIMatic.Core.Types.Sdk;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace APIMatic.Core.Test.Utilities
+namespace APIMatic.Core.Test.MockTypes.Utilities
 {
     [JsonConverter(typeof(JsonValueSerializer))]
     public class JsonValue : CoreJsonValue

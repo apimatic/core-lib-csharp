@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
-using APIMatic.Core.Request;
 using APIMatic.Core.Request.Parameters;
 using APIMatic.Core.Types;
 using APIMatic.Core.Types.Sdk;

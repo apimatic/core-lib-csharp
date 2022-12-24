@@ -10,9 +10,9 @@ namespace APIMatic.Core.Test.Api
 {
     public class ApiCallTest : TestBase
     {
-        private static MockServer _server = MockServer.Server1;
-        private static readonly CompatibilityFactory _compatibilityFactory = new CompatibilityFactory();
-        private static readonly Dictionary<int, Func<HttpContext, ApiException>> _globalErrors = new Dictionary<int, Func<HttpContext, ApiException>>
+        private static readonly MockServer _server = MockServer.Server1;
+        private static readonly CompatibilityFactory _compatibilityFactory = new();
+        private static readonly Dictionary<int, Func<HttpContext, ApiException>> _globalErrors = new()
         {
             { 400, context => new Child1Exception("400 Global Child 1", context) },
             { 402, context => new Child2Exception("402 Global Child 2", context) },

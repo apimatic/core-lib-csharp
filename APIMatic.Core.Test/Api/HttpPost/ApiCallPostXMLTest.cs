@@ -1,22 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Reflection;
-using System.Text;
-using System.Threading;
 using APIMatic.Core.Test.MockTypes.Models;
-using APIMatic.Core.Types;
-using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
-using static System.Net.Mime.MediaTypeNames;
 
-namespace APIMatic.Core.Test.Api.Post
+namespace APIMatic.Core.Test.Api.HttpPost
 {
     [TestFixture]
     internal class ApiCallPostXMLTest : ApiCallTest
