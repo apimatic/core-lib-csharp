@@ -3,7 +3,7 @@ using System.IO;
 
 namespace APIMatic.Core.Test.MockTypes.Models
 {
-    internal class TestModel
+    public class TestModel
     {
         public Stream DateStream { get; set; }
 

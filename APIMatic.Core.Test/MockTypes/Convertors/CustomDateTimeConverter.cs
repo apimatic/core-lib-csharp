@@ -1,7 +1,4 @@
-﻿// <copyright file="CustomDateTimeConverter.cs" company="APIMatic">
-// Copyright (c) APIMatic. All rights reserved.
-// </copyright>
-namespace APIMatic.Core.Test.MockTypes.Convertors
+﻿namespace APIMatic.Core.Test.MockTypes.Convertors
 {
     using APIMatic.Core.Utilities.Date;
 

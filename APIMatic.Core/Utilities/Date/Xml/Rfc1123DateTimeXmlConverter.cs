@@ -1,7 +1,4 @@
-﻿// <copyright file="Rfc1123DateTimeXmlUtility.cs" company="APIMatic">
-// Copyright (c) APIMatic. All rights reserved.
-// </copyright>
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -14,7 +11,7 @@ namespace APIMatic.Core.Utilities.Date.Xml
     /// <summary>
     /// CoreRfc1123DateTimeXmlUtility contains a bunch of utility methods.
     /// </summary>
-    public class Rfc1123DateTimeXmlUtility
+    public class Rfc1123DateTimeXmlConverter
     {
         /// <summary>
         /// Converts given date string to DateTime as per RFC 1123 time format.
@@ -42,11 +39,6 @@ namespace APIMatic.Core.Utilities.Date.Xml
         /// <returns>Date time as string.</returns>
         public static string Rfc1123DateToString(DateTime date)
         {
-            if (date == null)
-            {
-                return null;
-            }
-
             var rfc1123DateTime = date.ToUniversalTime().ToString("r");
             return rfc1123DateTime;
         }
@@ -92,16 +84,9 @@ namespace APIMatic.Core.Utilities.Date.Xml
                 {
                     var nodeName = rootName ?? "DateTime";
                     var dateTime = Rfc1123DateToString(date);
-                    if (!string.IsNullOrWhiteSpace(dateTime))
-                    {
-                        writer.WriteStartDocument();
-                        writer.WriteElementString(nodeName, dateTime);
-                        writer.WriteEndDocument();
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    writer.WriteStartDocument();
+                    writer.WriteElementString(nodeName, dateTime);
+                    writer.WriteEndDocument();
                 }
 
                 var xml = XElement.Parse(sb.ToString());

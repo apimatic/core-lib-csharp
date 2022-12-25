@@ -77,9 +77,13 @@ namespace APIMatic.Core.Utilities
                     var serializer = new XmlSerializer(typeof(T), arrayItem);
                     serializer.Serialize(xmlWriter, item);
                 }
-
+                if (arrayName != null)
+                {
+                    xmlWriter.WriteEndElement(); 
+                }
                 xmlWriter.WriteEndDocument();
-                var xml = XElement.Parse(sb.ToString());
+                xmlWriter.Close();
+                var xml = XElement.Parse(sb.ToString()); 
                 xml.Descendants().Where(e => string.IsNullOrEmpty(e.Value)).Remove();
 
                 return xml.ToString();
@@ -106,35 +110,24 @@ namespace APIMatic.Core.Utilities
             }
 
             var arrayNodeName = string.Empty;
-            var xml = string.Empty;
-
-            if (arrayName != null)
-            {
-                arrayNodeName = arrayName ?? typeof(T).Name;
-                xml = "<" + arrayNodeName + ">";
-            }
-
+            var xml = new StringBuilder();
+            arrayNodeName = arrayName ?? typeof(T).Name;
+            xml.Append($"<{arrayNodeName}>");
             foreach (var item in obj as IEnumerable)
             {
-                if (arrayItemName != null)
-                {
-                    xml += "<" + arrayItemName + ">";
-                    xml += item;
-                    xml += "</" + arrayItemName + ">";
-                }
-                else
-                {
-                    xml += "<" + typeof(T).Name + ">";
-                    xml += item;
-                    xml += "</" + typeof(T).Name + ">";
-                }
+                GenerateSubArrayXML<T>(arrayItemName, xml, item);
             }
-
-            xml += arrayName != null ? "</" + arrayNodeName + ">" : string.Empty;
-            var xmlDoc = XElement.Parse(xml);
+            xml.Append("</" + arrayNodeName + ">");
+            var xmlDoc = XElement.Parse(xml.ToString());
             xmlDoc.Descendants().Where(e => string.IsNullOrEmpty(e.Value)).Remove();
 
             return xmlDoc.ToString();
+        }
+
+        private static void GenerateSubArrayXML<T>(string arrayItemName, StringBuilder stringBuilder, object item)
+        {    
+            arrayItemName = arrayItemName ?? typeof(T).Name;
+            stringBuilder.Append($"<{arrayItemName}>{item}</{arrayItemName}>");
         }
 
         /// <summary>

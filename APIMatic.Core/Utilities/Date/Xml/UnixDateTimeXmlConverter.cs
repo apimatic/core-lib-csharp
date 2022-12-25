@@ -1,4 +1,4 @@
-﻿// <copyright file="Rfc3339DateTimeXmlUtility.cs" company="APIMatic">
+﻿// <copyright file="UnixDateTimeXmlUtility.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
@@ -11,48 +11,47 @@ using System.Xml.Linq;
 namespace APIMatic.Core.Utilities.Date.Xml
 {
     /// <summary>
-    /// CoreRfc3339DateTimeXmlUtility contains a bunch of utility methods.
+    /// UnixDateTimeXmlConverter contains a bunch of utility methods.
     /// </summary>
-    public class Rfc3339DateTimeXmlUtility
+    public class UnixDateTimeXmlConverter
     {
         /// <summary>
-        /// Converts given date string to DateTime as per RFC 3339 time format.
+        /// Converts given date string to unix datetime.
         /// </summary>
-        /// <param name="date">Date time as string.</param>
-        /// <returns>Datetime object.</returns>
-        public static DateTime? StringToRfc3339Date(string date)
+        /// <param name="date">Date string.</param>
+        /// <returns>DateTime object.</returns>
+        public static DateTime? StringToUnixDate(string date)
         {
             if (string.IsNullOrWhiteSpace(date))
             {
                 return null;
             }
 
-            var rfc3339DateTime = XmlConvert.ToDateTime(date, XmlDateTimeSerializationMode.Utc);
-            return rfc3339DateTime;
+            DateTime unixDateTime;
+            unixDateTime = DateTimeOffset.FromUnixTimeSeconds(long.Parse(date)).DateTime.ToLocalTime();
+
+            return unixDateTime;
         }
 
         /// <summary>
-        /// Converts given DateTime to string as per RFC 3339 time format.
+        /// Converts given DateTime to unix datetime string.
         /// </summary>
-        /// <param name="date">DateTime object.</param>
-        /// <returns>Date time as string.</returns>
-        public static string Rfc3339DateToString(DateTime? date)
+        /// <param name="date"> DateTime object.</param>
+        /// <returns>Date time string.</returns>
+        public static string UnixDateToString(DateTime date)
         {
-            if (date == null)
-            {
-                return null;
-            }
+            var dateTimeOffset = new DateTimeOffset(date.ToUniversalTime());
+            var unixDateTime = dateTimeOffset.ToUnixTimeSeconds().ToString();
 
-            var rfc3339DateTime = XmlConvert.ToString(date.GetValueOrDefault(), XmlDateTimeSerializationMode.Utc);
-            return rfc3339DateTime;
+            return unixDateTime;
         }
 
         /// <summary>
-        /// Converts given XML string to DateTime as per RFC 3339 time format.
+        /// Converts given XML string to unix datetime.
         /// </summary>
-        /// <param name="date">Date time as string.</param>
-        /// <returns>Datetime object.</returns>
-        public static DateTime? FromRfc3339DateTimeXml(string date)
+        /// <param name="date">Date time string.</param>
+        /// <returns>DateTime object.</returns>
+        public static DateTime? FromUnixDateTimeXml(string date)
         {
             if (string.IsNullOrWhiteSpace(date))
             {
@@ -69,35 +68,28 @@ namespace APIMatic.Core.Utilities.Date.Xml
                     return null;
                 }
 
-                var dateTime = StringToRfc3339Date(ele);
+                var dateTime = StringToUnixDate(ele);
                 return dateTime;
             }
         }
 
         /// <summary>
-        /// Converts given DateTime to XML string as per RFC 3339 time format.
+        /// Converts given DateTime to unix datetime and returns it as XML string.
         /// </summary>
         /// <param name="date">DateTime object.</param>
         /// <param name="rootName">Root name.</param>
-        /// <returns>Date time as string.</returns>
-        public static string ToRfc3339DateTimeXml(DateTime? date, string rootName = null)
+        /// <returns>Date time string.</returns>
+        public static string ToUnixDateTimeXml(DateTime date, string rootName = null)
         {
             using (var sb = new StringWriter())
             {
                 using (var writer = XmlWriter.Create(sb))
                 {
                     var nodeName = rootName ?? "DateTime";
-                    var dateTime = Rfc3339DateToString(date);
-                    if (!string.IsNullOrWhiteSpace(dateTime))
-                    {
-                        writer.WriteStartDocument();
-                        writer.WriteElementString(nodeName, dateTime);
-                        writer.WriteEndDocument();
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    var dateTime = UnixDateToString(date);
+                    writer.WriteStartDocument();
+                    writer.WriteElementString(nodeName, dateTime);
+                    writer.WriteEndDocument();
                 }
 
                 var xml = XElement.Parse(sb.ToString());
@@ -108,12 +100,11 @@ namespace APIMatic.Core.Utilities.Date.Xml
         }
 
         /// <summary>
-        /// Extracts DateTime list from the given XML string as per RFC 3339 time
-        /// format.
+        /// Extracts DateTime list in unix datetime from the given XML string.
         /// </summary>
         /// <param name="dates">Dates as string.</param>
         /// <returns>List of DateTime objects.</returns>
-        public static List<DateTime> FromRfc3339DateTimeListXml(string dates)
+        public static List<DateTime> FromUnixDateTimeListXml(string dates)
         {
             if (string.IsNullOrWhiteSpace(dates))
             {
@@ -122,20 +113,20 @@ namespace APIMatic.Core.Utilities.Date.Xml
 
             var doc = XDocument.Parse(dates);
             var list = doc.Root.Elements()
-                .Select(e => StringToRfc3339Date(e.Value).GetValueOrDefault()).ToList();
+                .Select(e => StringToUnixDate(e.Value).GetValueOrDefault()).ToList();
 
             return list;
         }
 
         /// <summary>
-        /// Converts given DateTime data to XML string as per RFC 3339 time format.
+        /// Converts given DateTime data to unix datetime XML string.
         /// </summary>
-        /// <param name="dates">Dates enumeration.</param>
+        /// <param name="dates">DateTime enumeration.</param>
         /// <param name="rootName">Root name.</param>
         /// <param name="arrayNodeName">Node name.</param>
         /// <param name="arrayItemName">Item name.</param>
-        /// <returns>Date time as string.</returns>
-        public static string ToRfc3339DateTimeListXml(IEnumerable<DateTime?> dates, string rootName = null, string arrayNodeName = null, string arrayItemName = null)
+        /// <returns>DateTime as string.</returns>
+        public static string ToUnixDateTimeListXml(IEnumerable<DateTime> dates, string rootName = null, string arrayNodeName = null, string arrayItemName = null)
         {
             using (var sb = new StringWriter())
             {
@@ -160,7 +151,7 @@ namespace APIMatic.Core.Utilities.Date.Xml
                     {
                         foreach (var date in dates)
                         {
-                            var dateTime = Rfc3339DateToString(date);
+                            var dateTime = UnixDateToString(date);
                             writer.WriteElementString(itemName, dateTime);
                         }
                     }
