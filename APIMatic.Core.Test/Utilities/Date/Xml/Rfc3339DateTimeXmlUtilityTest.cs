@@ -98,6 +98,7 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
             };
 
             string expected = "<DateTime>\r\n  <dateTime>2017-01-18T06:03:01Z</dateTime>\r\n  <dateTime>2017-01-18T06:03:01Z</dateTime>\r\n</DateTime>";
+            expected = StringReplacer.ReplaceBackSlashR(expected);
             string actual = Rfc3339DateTimeXmlConverter.ToRfc3339DateTimeListXml(dateTimes);
             Assert.AreEqual(expected, actual);
         }
@@ -112,6 +113,7 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
             };
 
             string expected = "<DateTime>\r\n  <dateTime>\r\n    <dateTime>2017-01-18T06:03:01Z</dateTime>\r\n    <dateTime>2017-01-18T06:03:01Z</dateTime>\r\n  </dateTime>\r\n</DateTime>";
+            expected = StringReplacer.ReplaceBackSlashR(expected);
             string actual = Rfc3339DateTimeXmlConverter.ToRfc3339DateTimeListXml(dateTimes, arrayNodeName: "dateTime");
             Assert.AreEqual(expected, actual);
         }

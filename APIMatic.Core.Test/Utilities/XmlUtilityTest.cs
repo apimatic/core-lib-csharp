@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using APIMatic.Core.Test.MockTypes.Models;
+using APIMatic.Core.Test.Utilities.Date;
 using APIMatic.Core.Utilities;
 using NUnit.Framework;
 
@@ -29,6 +30,7 @@ namespace APIMatic.Core.Test.Utilities
             };
 
             string expected = "<ArrayOfTestModel xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <TestModel>\r\n    <TestDateTime>0001-01-01T00:00:00</TestDateTime>\r\n    <Integers>\r\n      <int>1</int>\r\n      <int>2</int>\r\n      <int>3</int>\r\n    </Integers>\r\n  </TestModel>\r\n</ArrayOfTestModel>";
+            expected = StringReplacer.ReplaceBackSlashR(expected);
             string actual = XmlUtility.ModelsArrayToXml(testModels);
             Assert.AreEqual(expected, actual);
         }
@@ -45,6 +47,7 @@ namespace APIMatic.Core.Test.Utilities
             };
 
             string expected = "<TestModel xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n  <TestDateTime>0001-01-01T00:00:00</TestDateTime>\r\n  <Integers>\r\n    <int>1</int>\r\n    <int>2</int>\r\n    <int>3</int>\r\n  </Integers>\r\n</TestModel>";
+            expected = StringReplacer.ReplaceBackSlashR(expected);
             string actual = XmlUtility.ModelsArrayToXml(testModels, arrayItemName: "TestModel");
             Assert.AreEqual(expected, actual);
         }
@@ -70,6 +73,7 @@ namespace APIMatic.Core.Test.Utilities
             };
 
             string expected = "<abd>\r\n  <xyz xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\r\n    <TestDateTime>0001-01-01T00:00:00</TestDateTime>\r\n    <Integers>\r\n      <int>1</int>\r\n      <int>2</int>\r\n      <int>3</int>\r\n    </Integers>\r\n  </xyz>\r\n</abd>";
+            expected = StringReplacer.ReplaceBackSlashR(expected);
             string actual = XmlUtility.ModelsArrayToXml(testModels, arrayName: "abd", arrayItemName: "xyz");
             Assert.AreEqual(expected, actual);
         }
@@ -104,8 +108,9 @@ namespace APIMatic.Core.Test.Utilities
             };
 
             string expected = "<root>\r\n  <String>alpha</String>\r\n  <String>beta</String>\r\n  <String>gamma</String>\r\n</root>";
+            expected = StringReplacer.ReplaceBackSlashR(expected);
             string actual = XmlUtility.NativeTypesArrayToXml(testModels, arrayName: "root");
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expected, StringReplacer.ReplaceBackSlashR(actual));
         }
 
         [Test]
@@ -117,6 +122,7 @@ namespace APIMatic.Core.Test.Utilities
             };
 
             string expected = "<String>\r\n  <String>alpha</String>\r\n  <String>beta</String>\r\n  <String>gamma</String>\r\n</String>";
+            expected = StringReplacer.ReplaceBackSlashR(expected);
             string actual = XmlUtility.NativeTypesArrayToXml(testModels);
             Assert.AreEqual(expected, actual);
         }
@@ -161,7 +167,8 @@ namespace APIMatic.Core.Test.Utilities
 
             string actual = XmlUtility.DictionaryToXml(testDictionary, rootName: "root");
             string expected = "<root>\r\n  <entry key=\"key1\">value1</entry>\r\n  <entry key=\"key2\">value2</entry>\r\n</root>";
-            Assert.AreEqual(expected, actual);
+            expected = StringReplacer.ReplaceBackSlashR(expected);
+            Assert.AreEqual(expected, StringReplacer.ReplaceBackSlashR(actual));
         }
 
         [Test]
