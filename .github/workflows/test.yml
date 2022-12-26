@@ -41,4 +41,4 @@ jobs:
         CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_KEY }}
       with:
         coverageLocations: |
-          ${{ steps.test.outputs }}:lcov
+          ${{join(steps.test.outputs.*, '')}}:lcov
