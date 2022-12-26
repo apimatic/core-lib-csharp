@@ -1,7 +1,7 @@
-﻿namespace APIMatic.Core.Test.MockTypes.Convertors
-{
-    using APIMatic.Core.Utilities.Date;
+﻿using APIMatic.Core.Utilities.Date;
 
+namespace APIMatic.Core.Test.MockTypes.Convertors
+{
     /// <summary>
     /// Extends from IsoDateTimeConverter to allow a custom DateTime format.
     /// </summary>

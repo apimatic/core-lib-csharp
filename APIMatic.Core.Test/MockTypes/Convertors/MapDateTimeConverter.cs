@@ -1,11 +1,8 @@
-﻿// <copyright file="MapDateTimeConverter.cs" company="APIMatic">
-// Copyright (c) APIMatic. All rights reserved.
-// </copyright>
+﻿using System;
+using APIMatic.Core.Utilities.Date;
+
 namespace APIMatic.Core.Test.MockTypes.Convertors
 {
-    using System;
-    using APIMatic.Core.Utilities.Date;
-
     /// <summary>
     /// Extends from JsonConverter, allows the use of a custom converter.
     /// </summary>
