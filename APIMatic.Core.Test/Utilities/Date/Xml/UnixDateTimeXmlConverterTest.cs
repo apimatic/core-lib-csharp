@@ -76,9 +76,8 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
                 new DateTime(2017, 1, 18, 6, 3, 1),
                 new DateTime(2017, 1, 18, 6, 3, 1)
             };
-            string expected = "<dateTimes>\r\n  <dateTime>1484701381</dateTime>\r\n  <dateTime>1484701381</dateTime>\r\n</dateTimes>";
-            expected = StringReplacer.ReplaceBackSlashR(expected);
-            string actual = UnixDateTimeXmlConverter.ToUnixDateTimeListXml(dateTimes, "dateTimes");
+            string expected = "<dateTimes>\n  <dateTime>1484701381</dateTime>\n  <dateTime>1484701381</dateTime>\n</dateTimes>";
+            string actual = StringReplacer.ReplaceBackSlashR(UnixDateTimeXmlConverter.ToUnixDateTimeListXml(dateTimes, "dateTimes"));
             Assert.AreEqual(expected, actual);
         }
 
@@ -99,9 +98,8 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
                 new DateTime(2017, 1, 18, 6, 3, 1),
                 new DateTime(2017, 1, 18, 6, 3, 1)
             };
-            string expected = "<DateTime>\r\n  <dateTime>\r\n    <dateTime>1484701381</dateTime>\r\n    <dateTime>1484701381</dateTime>\r\n  </dateTime>\r\n</DateTime>";
-            expected = StringReplacer.ReplaceBackSlashR(expected);
-            string actual = UnixDateTimeXmlConverter.ToUnixDateTimeListXml(dateTimes, null, "dateTime");
+            string expected = "<DateTime>\n  <dateTime>\n    <dateTime>1484701381</dateTime>\n    <dateTime>1484701381</dateTime>\n  </dateTime>\n</DateTime>";
+            string actual = StringReplacer.ReplaceBackSlashR(UnixDateTimeXmlConverter.ToUnixDateTimeListXml(dateTimes, null, "dateTime"));
             Assert.AreEqual(expected, actual);
         }
 
@@ -113,9 +111,8 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
                 new DateTime(2017, 1, 18, 6, 3, 1),
                 new DateTime(2017, 1, 18, 6, 3, 1)
             };
-            string expected = "<Unix>\r\n  <dateTime>\r\n    <dateTime>1484701381</dateTime>\r\n    <dateTime>1484701381</dateTime>\r\n  </dateTime>\r\n</Unix>";
-            expected = StringReplacer.ReplaceBackSlashR(expected);
-            string actual = UnixDateTimeXmlConverter.ToUnixDateTimeListXml(dateTimes, "Unix", "dateTime");
+            string expected = "<Unix>\n  <dateTime>\n    <dateTime>1484701381</dateTime>\n    <dateTime>1484701381</dateTime>\n  </dateTime>\n</Unix>";
+            string actual = StringReplacer.ReplaceBackSlashR(UnixDateTimeXmlConverter.ToUnixDateTimeListXml(dateTimes, "Unix", "dateTime"));
             Assert.AreEqual(expected, actual);
         }
 
