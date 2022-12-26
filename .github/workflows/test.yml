@@ -8,7 +8,6 @@ on:
 
 permissions:
   contents: read
-
 jobs:
   test:
     strategy:
@@ -31,4 +30,13 @@ jobs:
       run: dotnet build
 
     - name: Test
-      run: dotnet test
+      run: dotnet test APIMatic.Core.Test/APIMatic.Core.Test.csproj -p:CollectCoverage=true -p:CoverletOutputFormat=lcov
+    
+    - name: Upload coverage report
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.dotnet == '7.0.x' }}
+      uses: paambaati/codeclimate-action@v3.0.0
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_KEY }}
+      with:
+        coverageLocations: |
+          ${{github.workspace}}/APIMatic.Core.Test/coverage.info:lcov
