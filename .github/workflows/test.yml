@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+
 jobs:
   test:
     strategy:
@@ -30,6 +31,11 @@ jobs:
       run: dotnet build
 
     - name: Test
+      if: ${{ matrix.os != 'ubuntu-latest' || matrix.dotnet != '7.0.x' }}
+      run: dotnet test
+
+    - name: Test & Coverage Collection
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.dotnet == '7.0.x' }}
       run: dotnet test APIMatic.Core.Test/APIMatic.Core.Test.csproj -p:CollectCoverage=true -p:CoverletOutputFormat=lcov
     
     - name: Upload coverage report
