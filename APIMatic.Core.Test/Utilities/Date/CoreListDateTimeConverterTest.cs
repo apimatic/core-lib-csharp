@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using APIMatic.Core.Test.MockTypes.Convertors;
 using APIMatic.Core.Test.MockTypes.Models;
 using APIMatic.Core.Utilities;
@@ -31,7 +28,7 @@ namespace APIMatic.Core.Test.Utilities.Date
         {
             TestModelListOfDateTime testModelListOfDateTime = new TestModelListOfDateTime()
             {
-               DateTimeOffsets= new List<DateTimeOffset> { new DateTimeOffset(new DateTime(2017, 1, 18, 6,3, 1))}
+                DateTimeOffsets = new List<DateTimeOffset> { new DateTimeOffset(new DateTime(2017, 1, 18, 6, 3, 1)) }
             };
 
             string actual = CoreHelper.JsonSerialize(testModelListOfDateTime);
@@ -59,6 +56,7 @@ namespace APIMatic.Core.Test.Utilities.Date
             };
             string listOfDateTime = "{\"DateTimes\":null,\"DateTimeOffsets\":[\"2017-01-18T06:03:01\"]}";
             TestModelListOfDateTime actual = CoreHelper.JsonDeserialize<TestModelListOfDateTime>(listOfDateTime, new ListDateTimeConverter());
+            Assert.AreEqual(expected.DateTimeOffsets, actual.DateTimeOffsets);
             Assert.IsNotNull(actual.DateTimeOffsets);
             Assert.IsNull(actual.DateTimes);
         }

@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using APIMatic.Core.Test.MockTypes.Convertors;
 using APIMatic.Core.Test.MockTypes.Models;
 using APIMatic.Core.Utilities;
@@ -23,8 +20,10 @@ namespace APIMatic.Core.Test.Utilities.Date
                 new DateTime(2017, 1, 18, 6, 3, 1, DateTimeKind.Utc),
                 new DateTime(2017, 1, 18, 6, 3, 1, DateTimeKind.Utc)
             };
-            var unixDateTimeConverter = new UnixDateTimeConverter();
-            unixDateTimeConverter.DateTimeStyles = DateTimeStyles.AssumeUniversal;
+            var unixDateTimeConverter = new UnixDateTimeConverter
+            {
+                DateTimeStyles = DateTimeStyles.AssumeUniversal
+            };
             var actual = CoreHelper.JsonDeserialize<List<DateTime>>(
                     "[1484719381,1484719381]", unixDateTimeConverter);
             Assert.AreEqual(expected, actual);
@@ -57,8 +56,10 @@ namespace APIMatic.Core.Test.Utilities.Date
         [Test]
         public void UnixDateTimeConverter_AssumeUniversalDateTimeStyles()
         {
-            var unixDateTimeConverter = new UnixDateTimeConverter();
-            unixDateTimeConverter.DateTimeStyles = DateTimeStyles.AssumeUniversal;
+            var unixDateTimeConverter = new UnixDateTimeConverter
+            {
+                DateTimeStyles = DateTimeStyles.AssumeUniversal
+            };
             var listOfDateTime = CoreHelper.JsonDeserialize<List<DateTime>>(
                     "[1484719381,1484719381]", unixDateTimeConverter);
             var expected = "[1484719381.0,1484719381.0]";
@@ -71,8 +72,10 @@ namespace APIMatic.Core.Test.Utilities.Date
         [Test]
         public void UnixDateTimeConverter_AdjustToUniversalDateTimeStyles()
         {
-            var unixDateTimeConverter = new UnixDateTimeConverter();
-            unixDateTimeConverter.DateTimeStyles = DateTimeStyles.AdjustToUniversal;
+            var unixDateTimeConverter = new UnixDateTimeConverter
+            {
+                DateTimeStyles = DateTimeStyles.AdjustToUniversal
+            };
             var listOfDateTime = CoreHelper.JsonDeserialize<List<DateTime>>(
                     "[1484719381,1484719381]", unixDateTimeConverter);
             var expected = "[1484719381.0,1484719381.0]";

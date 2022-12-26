@@ -4,7 +4,7 @@ using APIMatic.Core.Test.MockTypes.Exceptions;
 using APIMatic.Core.Test.MockTypes.Http;
 using APIMatic.Core.Test.MockTypes.Http.Request;
 using APIMatic.Core.Test.MockTypes.Http.Response;
-using Tester.Standard.Utilities;
+using APIMatic.Core.Test.MockTypes.Utilities;
 
 namespace APIMatic.Core.Test.Api
 {

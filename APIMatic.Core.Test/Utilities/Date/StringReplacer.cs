@@ -1,5 +1,4 @@
-﻿
-namespace APIMatic.Core.Test.Utilities.Date
+﻿namespace APIMatic.Core.Test.Utilities.Date
 {
     internal class StringReplacer
     {

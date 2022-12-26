@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using APIMatic.Core.Test.MockTypes.Convertors;
 using APIMatic.Core.Test.MockTypes.Models;
 using APIMatic.Core.Utilities;
-using APIMatic.Core.Utilities.Date;
 using NUnit.Framework;
 
 namespace APIMatic.Core.Test.Utilities.Date
