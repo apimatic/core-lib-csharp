@@ -32,7 +32,7 @@ jobs:
 
     - name: Test
       id: test
-      run: dotnet test -r coverage --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=lcov >> $GITHUB_OUTPUT
+      run: echo "dotnet test -r coverage --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=lcov" >> $GITHUB_OUTPUT
     
     - name: Upload coverage report
       if: ${{ matrix.os == 'ubuntu-latest' && matrix.dotnet == '7.0.x' }}
