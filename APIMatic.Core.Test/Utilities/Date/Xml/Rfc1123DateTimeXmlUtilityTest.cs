@@ -87,9 +87,8 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
                 new DateTime(2017, 1, 18, 6, 3, 1),
                 new DateTime(2017, 1, 18, 6, 3, 1)
             };
-            string expected = "<DateTime>\r\n  <dateTime>\r\n    <dateTime>Wed, 18 Jan 2017 01:03:01 GMT</dateTime>\r\n    <dateTime>Wed, 18 Jan 2017 01:03:01 GMT</dateTime>\r\n  </dateTime>\r\n</DateTime>";
-            expected = StringReplacer.ReplaceBackSlashR(expected);
-            string actual = Rfc1123DateTimeXmlConverter.ToRfc1123DateTimeListXml(dateTimes, arrayNodeName: "dateTime");
+            string expected = "<DateTime>\n  <dateTime>\n    <dateTime>Wed, 18 Jan 2017 01:03:01 GMT</dateTime>\n    <dateTime>Wed, 18 Jan 2017 01:03:01 GMT</dateTime>\n  </dateTime>\n</DateTime>";
+            string actual = StringReplacer.ReplaceBackSlashR(Rfc1123DateTimeXmlConverter.ToRfc1123DateTimeListXml(dateTimes, arrayNodeName: "dateTime"));
             Assert.AreEqual(expected, actual);
         }
 
@@ -101,9 +100,8 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
                 new DateTime(2017, 1, 18, 6, 3, 1),
                 new DateTime(2017, 1, 18, 6, 3, 1)
             };
-            string expected = "<DateTime>\r\n  <dateTime>Wed, 18 Jan 2017 01:03:01 GMT</dateTime>\r\n  <dateTime>Wed, 18 Jan 2017 01:03:01 GMT</dateTime>\r\n</DateTime>";
-            expected = StringReplacer.ReplaceBackSlashR(expected);
-            string actual = Rfc1123DateTimeXmlConverter.ToRfc1123DateTimeListXml(dateTimes);
+            string expected = "<DateTime>\n  <dateTime>Wed, 18 Jan 2017 01:03:01 GMT</dateTime>\n  <dateTime>Wed, 18 Jan 2017 01:03:01 GMT</dateTime>\n</DateTime>";
+            string actual = StringReplacer.ReplaceBackSlashR(Rfc1123DateTimeXmlConverter.ToRfc1123DateTimeListXml(dateTimes));
             Assert.AreEqual(expected, actual);
         }
 

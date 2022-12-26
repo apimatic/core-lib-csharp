@@ -4,7 +4,7 @@
     {
         internal static string ReplaceBackSlashR(string value)
         {
-            return value.Replace("/r", "");
+            return value.Replace("\r", "");
         }
     }
 }
