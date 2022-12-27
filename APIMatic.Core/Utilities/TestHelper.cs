@@ -416,89 +416,76 @@ namespace APIMatic.Core.Utilities
                 if (leftVal is JObject leftSideValue)
                 {
                     // If left value is tree, right value should be be tree too
-                    if (rightVal is JObject rightSideValue)
+                    if (!(rightVal is JObject rightSideValue))
                     {
-                        if (!IsProperSubsetOf(
-                                leftSideValue,
-                                rightSideValue,
-                                checkValues,
-                                allowExtra,
-                                isOrdered))
-                        {
-                            return false;
-                        }
+                        return false;
                     }
-                    else
+                    if (!IsProperSubsetOf(leftSideValue, rightSideValue, checkValues, allowExtra, isOrdered))
                     {
                         return false;
                     }
                 }
-                else
+                else if (checkValues)
                 {
-                    // Value comparison if checkValues
-                    if (checkValues)
+                    // If left value is a primitive, check if it equals right value
+                    if (leftVal is JArray leftJArray)
                     {
-                        // If left value is a primitive, check if it equals right value
-                        if (leftVal is JArray leftJArray)
-                        {
-                            if (!(rightVal is JArray rightJArray))
-                            {
-                                return false;
-                            }
-
-                            bool bothArrayContainsJObject = IsArrayOfJObject(leftJArray) && IsArrayOfJObject(rightJArray);
-                            bool containsJObject = ListContainsJObject(leftJArray) && ListContainsJObject(rightJArray);
-                            if (!bothArrayContainsJObject && containsJObject)
-                            {
-                                var leftJToken = leftJArray.Where(x => x is JObject);
-                                JArray leftArray = new JArray(leftJToken);
-                                var rightToken = rightJArray.Where(x => x is JObject);
-                                JArray rightArray = new JArray(rightToken);
-                                // is array of objects
-                                if (!IsArrayOfJsonObjectsProperSubsetOf(
-                                             leftArray,
-                                             rightArray,
-                                             checkValues,
-                                             allowExtra,
-                                             isOrdered))
-                                {
-                                    return false;
-                                }
-                                var remainingLeftListToken = leftJArray.Where(x => !(x is JObject));
-                                JArray remainingLeftList = new JArray(remainingLeftListToken);
-                                var remainingRightListToken = rightJArray.Where(x => !(x is JObject));
-                                JArray remainingRightList = new JArray(remainingRightListToken);
-                                if (!IsListProperSubsetOf(remainingLeftList, remainingRightList, allowExtra, isOrdered))
-                                {
-                                    return false;
-                                }
-                            }
-                            else if (leftJArray.First is JObject && bothArrayContainsJObject)
-                            {
-                                if (!IsArrayOfJsonObjectsProperSubsetOf(
-                                             leftJArray,
-                                             rightJArray,
-                                             checkValues,
-                                             allowExtra,
-                                             isOrdered))
-                                {
-                                    return false;
-                                }
-                            }
-                            else
-                            {
-                                if (!IsListProperSubsetOf(leftJArray, rightJArray, allowExtra, isOrdered))
-                                {
-                                    return false;
-                                }
-                            }
-                        }
-                        else if (!leftVal.Equals(rightVal))
+                        if (!DoesRightValContainsSameItems(leftJArray, rightVal, allowExtra, isOrdered))
                         {
                             return false;
                         }
                     }
+                    else if (!leftVal.Equals(rightVal))
+                    {
+                        return false;
+                    }
                 }
+            }
+
+            return true;
+        }
+
+        private static bool DoesRightValContainsSameItems(JArray leftJArray, object rightVal, bool allowExtra, bool isOrdered)
+        {
+            if (!(rightVal is JArray rightJArray))
+            {
+                return false;
+            }
+
+            bool bothArrayContainsJObject = IsArrayOfJObject(leftJArray) && IsArrayOfJObject(rightJArray);
+            bool containsJObject = ListContainsJObject(leftJArray) && ListContainsJObject(rightJArray);
+            if (!bothArrayContainsJObject && containsJObject)
+            {
+                var leftJToken = leftJArray.Where(x => x is JObject);
+                JArray leftArray = new JArray(leftJToken);
+                var rightToken = rightJArray.Where(x => x is JObject);
+                JArray rightArray = new JArray(rightToken);
+                // is array of objects
+                if (!IsArrayOfJsonObjectsProperSubsetOf(leftArray, rightArray,
+                    true, allowExtra, isOrdered))
+                {
+                    return false;
+                }
+                var remainingLeftListToken = leftJArray.Where(x => !(x is JObject));
+                JArray remainingLeftList = new JArray(remainingLeftListToken);
+                var remainingRightListToken = rightJArray.Where(x => !(x is JObject));
+                JArray remainingRightList = new JArray(remainingRightListToken);
+                if (!IsListProperSubsetOf(remainingLeftList, remainingRightList, allowExtra, isOrdered))
+                {
+                    return false;
+                }
+            }
+            else if (leftJArray.First is JObject && bothArrayContainsJObject)
+            {
+                if (!IsArrayOfJsonObjectsProperSubsetOf(leftJArray, rightJArray, true,
+                    allowExtra, isOrdered))
+                {
+                    return false;
+                }
+            }
+            else if (!IsListProperSubsetOf(leftJArray, rightJArray, allowExtra, isOrdered))
+            {
+                return false;
             }
 
             return true;

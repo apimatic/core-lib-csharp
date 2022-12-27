@@ -21,7 +21,7 @@ namespace APIMatic.Core.Test.MockTypes.Models
         /// <param name="toStringOutput">List of strings.</param>
         protected void ToString(List<string> toStringOutput)
         {
-            toStringOutput.Add($"Additional Properties: {CoreHelper.JsonSerialize(this.AdditionalProperties)}");
+            toStringOutput.Add($"Additional Properties: {CoreHelper.JsonSerialize(AdditionalProperties)}");
         }
     }
 }

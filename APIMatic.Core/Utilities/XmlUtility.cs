@@ -5,12 +5,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using APIMatic.Core.Utilities.Date.Xml;
 
 namespace APIMatic.Core.Utilities
 {
@@ -32,15 +30,11 @@ namespace APIMatic.Core.Utilities
             {
                 return string.Empty;
             }
-
-            var sb = new StringBuilder();
-            var text = XmlWriter.Create(sb);
-            var serializer = rootName != null ? new XmlSerializer(typeof(T), new XmlRootAttribute(rootName)) :
+            var xml = new XmlPrinter();
+            var serializer = rootName != null ?
+                new XmlSerializer(typeof(T), new XmlRootAttribute(rootName)) :
                 new XmlSerializer(typeof(T));
-            serializer.Serialize(text, obj);
-            var xml = XElement.Parse(sb.ToString());
-            xml.Descendants().Where(e => string.IsNullOrEmpty(e.Value)).Remove();
-
+            serializer.Serialize(xml.writer, obj);
             return xml.ToString();
         }
 
@@ -59,39 +53,29 @@ namespace APIMatic.Core.Utilities
                 return string.Empty;
             }
 
-            if (arrayItemName != null)
-            {
-                var sb = new StringBuilder();
-                var xmlWriter = XmlWriter.Create(sb);
-                var arrayItem = new XmlRootAttribute(arrayItemName);
-
-                xmlWriter.WriteStartDocument();
-
-                if (arrayName != null)
-                {
-                    xmlWriter.WriteStartElement(arrayName);
-                }
-
-                foreach (var item in obj as IEnumerable)
-                {
-                    var serializer = new XmlSerializer(typeof(T), arrayItem);
-                    serializer.Serialize(xmlWriter, item);
-                }
-                if (arrayName != null)
-                {
-                    xmlWriter.WriteEndElement(); 
-                }
-                xmlWriter.WriteEndDocument();
-                xmlWriter.Close();
-                var xml = XElement.Parse(sb.ToString()); 
-                xml.Descendants().Where(e => string.IsNullOrEmpty(e.Value)).Remove();
-
-                return xml.ToString();
-            }
-            else
+            if (arrayItemName == null)
             {
                 return ToXml(obj, arrayName);
             }
+
+            var xml = new XmlPrinter();
+            xml.StartDocument();
+            if (arrayName != null)
+            {
+                xml.StartItem(arrayName);
+            }
+            var arrayItem = new XmlRootAttribute(arrayItemName);
+            foreach (var item in obj as IEnumerable)
+            {
+                var serializer = new XmlSerializer(typeof(T), arrayItem);
+                serializer.Serialize(xml.writer, item);
+            }
+            if (arrayName != null)
+            {
+                xml.CloseItem();
+            }
+            xml.CloseDocument();
+            return xml.ToString();
         }
 
         /// <summary>
@@ -109,25 +93,18 @@ namespace APIMatic.Core.Utilities
                 return string.Empty;
             }
 
-            var arrayNodeName = string.Empty;
-            var xml = new StringBuilder();
-            arrayNodeName = arrayName ?? typeof(T).Name;
-            xml.Append($"<{arrayNodeName}>");
+            var xml = new XmlPrinter();
+            xml.StartDocument();
+            xml.StartItem(arrayName ?? typeof(T).Name);
+
             foreach (var item in obj as IEnumerable)
             {
-                GenerateSubArrayXML<T>(arrayItemName, xml, item);
+                xml.AddElement(arrayItemName ?? typeof(T).Name, item.ToString());
             }
-            xml.Append("</" + arrayNodeName + ">");
-            var xmlDoc = XElement.Parse(xml.ToString());
-            xmlDoc.Descendants().Where(e => string.IsNullOrEmpty(e.Value)).Remove();
 
-            return xmlDoc.ToString();
-        }
-
-        private static void GenerateSubArrayXML<T>(string arrayItemName, StringBuilder stringBuilder, object item)
-        {    
-            arrayItemName = arrayItemName ?? typeof(T).Name;
-            stringBuilder.Append($"<{arrayItemName}>{item}</{arrayItemName}>");
+            xml.CloseItem();
+            xml.CloseDocument();
+            return xml.ToString();
         }
 
         /// <summary>

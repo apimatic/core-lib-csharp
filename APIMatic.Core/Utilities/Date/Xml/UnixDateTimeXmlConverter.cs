@@ -3,9 +3,7 @@
 // </copyright>
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Xml;
 using System.Xml.Linq;
 
 namespace APIMatic.Core.Utilities.Date.Xml
@@ -38,12 +36,14 @@ namespace APIMatic.Core.Utilities.Date.Xml
         /// </summary>
         /// <param name="date"> DateTime object.</param>
         /// <returns>Date time string.</returns>
-        public static string UnixDateToString(DateTime date)
+        public static string UnixDateToString(DateTime? date)
         {
-            var dateTimeOffset = new DateTimeOffset(date.ToUniversalTime());
-            var unixDateTime = dateTimeOffset.ToUnixTimeSeconds().ToString();
-
-            return unixDateTime;
+            if (date == null)
+            {
+                return null;
+            }
+            var dateTimeOffset = new DateTimeOffset(date.Value.ToUniversalTime());
+            return dateTimeOffset.ToUnixTimeSeconds().ToString();
         }
 
         /// <summary>
@@ -58,45 +58,7 @@ namespace APIMatic.Core.Utilities.Date.Xml
                 return null;
             }
 
-            using (var reader = XmlReader.Create(new StringReader(date)))
-            {
-                reader.Read();
-                var ele = reader.ReadElementContentAsString();
-
-                if (string.IsNullOrWhiteSpace(ele))
-                {
-                    return null;
-                }
-
-                var dateTime = StringToUnixDate(ele);
-                return dateTime;
-            }
-        }
-
-        /// <summary>
-        /// Converts given DateTime to unix datetime and returns it as XML string.
-        /// </summary>
-        /// <param name="date">DateTime object.</param>
-        /// <param name="rootName">Root name.</param>
-        /// <returns>Date time string.</returns>
-        public static string ToUnixDateTimeXml(DateTime date, string rootName = null)
-        {
-            using (var sb = new StringWriter())
-            {
-                using (var writer = XmlWriter.Create(sb))
-                {
-                    var nodeName = rootName ?? "DateTime";
-                    var dateTime = UnixDateToString(date);
-                    writer.WriteStartDocument();
-                    writer.WriteElementString(nodeName, dateTime);
-                    writer.WriteEndDocument();
-                }
-
-                var xml = XElement.Parse(sb.ToString());
-                xml.Descendants().Where(e => string.IsNullOrEmpty(e.Value)).Remove();
-
-                return xml.ToString();
-            }
+            return StringToUnixDate(XDocument.Parse(date).Root.Value);
         }
 
         /// <summary>
@@ -111,11 +73,20 @@ namespace APIMatic.Core.Utilities.Date.Xml
                 return null;
             }
 
-            var doc = XDocument.Parse(dates);
-            var list = doc.Root.Elements()
-                .Select(e => StringToUnixDate(e.Value).GetValueOrDefault()).ToList();
+            return XDocument.Parse(dates).Root.Elements()
+                .Select(e => StringToUnixDate(e.Value).GetValueOrDefault())
+                .ToList();
+        }
 
-            return list;
+        /// <summary>
+        /// Converts given DateTime to unix datetime and returns it as XML string.
+        /// </summary>
+        /// <param name="date">DateTime object.</param>
+        /// <param name="rootName">Root name.</param>
+        /// <returns>Date time string.</returns>
+        public static string ToUnixDateTimeXml(DateTime? date, string rootName = null)
+        {
+            return XmlPrinter.Print(date, UnixDateToString, rootName ?? "DateTime");
         }
 
         /// <summary>
@@ -126,50 +97,9 @@ namespace APIMatic.Core.Utilities.Date.Xml
         /// <param name="arrayNodeName">Node name.</param>
         /// <param name="arrayItemName">Item name.</param>
         /// <returns>DateTime as string.</returns>
-        public static string ToUnixDateTimeListXml(IEnumerable<DateTime> dates, string rootName = null, string arrayNodeName = null, string arrayItemName = null)
+        public static string ToUnixDateTimeListXml(IEnumerable<DateTime?> dates, string rootName = null, string arrayNodeName = null, string arrayItemName = null)
         {
-            using (var sb = new StringWriter())
-            {
-                using (var writer = XmlWriter.Create(sb))
-                {
-                    var root = rootName ?? "DateTime";
-                    var itemName = arrayItemName ?? "dateTime";
-
-                    writer.WriteStartDocument();
-                    writer.WriteStartElement(root);
-
-                    if (arrayNodeName != null)
-                    {
-                        writer.WriteStartElement(arrayNodeName);
-                    }
-
-                    if (dates == null)
-                    {
-                        writer.WriteElementString(itemName, string.Empty);
-                    }
-                    else
-                    {
-                        foreach (var date in dates)
-                        {
-                            var dateTime = UnixDateToString(date);
-                            writer.WriteElementString(itemName, dateTime);
-                        }
-                    }
-
-                    if (arrayNodeName != null)
-                    {
-                        writer.WriteEndElement();
-                    }
-
-                    writer.WriteEndElement();
-                    writer.WriteEndDocument();
-                }
-
-                var xml = XElement.Parse(sb.ToString());
-                xml.Descendants().Where(e => string.IsNullOrEmpty(e.Value)).Remove();
-
-                return xml.ToString();
-            }
+            return XmlPrinter.PrintArray(dates, UnixDateToString, rootName ?? "DateTime", arrayItemName ?? "dateTime", arrayNodeName);
         }
     }
 }
