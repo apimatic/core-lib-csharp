@@ -112,7 +112,7 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
                 dateTime
             };
             string rfcDateTimeString = Rfc3339ToString(dateTime);
-            string expected = $"<DateTime>\n  <dateTime>\n    <dateTime>{rfcDateTimeString}</dateTime>\n    <dateTime>{rfcDateTimeString}</dateTime>\n  </dateTime>\n</DateTime>";
+            string expected = $"<dateTime>\n  <dateTime>{rfcDateTimeString}</dateTime>\n  <dateTime>{rfcDateTimeString}</dateTime>\n</dateTime>";
             string actual = StringReplacer.ReplaceBackSlashR(Rfc3339DateTimeXmlConverter.ToRfc3339DateTimeListXml(dateTimes, arrayNodeName: "dateTime"));
             Assert.AreEqual(expected, actual);
         }

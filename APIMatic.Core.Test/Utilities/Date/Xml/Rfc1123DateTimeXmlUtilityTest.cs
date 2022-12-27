@@ -89,7 +89,7 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
                 dateTime
             };
             string expectedDateTime = Rfc1123DateTimeToString(dateTime);
-            string expected = $"<DateTime>\n  <dateTime>\n    <dateTime>{expectedDateTime}</dateTime>\n    <dateTime>{expectedDateTime}</dateTime>\n  </dateTime>\n</DateTime>";
+            string expected = $"<dateTime>\n  <dateTime>{expectedDateTime}</dateTime>\n  <dateTime>{expectedDateTime}</dateTime>\n</dateTime>";
             string actual = StringReplacer.ReplaceBackSlashR(Rfc1123DateTimeXmlConverter.ToRfc1123DateTimeListXml(dateTimes, arrayNodeName: "dateTime"));
             Assert.AreEqual(expected, actual);
         }

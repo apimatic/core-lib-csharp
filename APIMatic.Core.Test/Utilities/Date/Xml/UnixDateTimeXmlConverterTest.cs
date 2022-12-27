@@ -103,7 +103,7 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
                 dateTime
             };
             string expectedDateTimeString = UnixDateToString(dateTime);
-            string expected = $"<DateTime>\n  <dateTime>\n    <dateTime>{expectedDateTimeString}</dateTime>\n    <dateTime>{expectedDateTimeString}</dateTime>\n  </dateTime>\n</DateTime>";
+            string expected = $"<dateTime>\n  <dateTime>{expectedDateTimeString}</dateTime>\n  <dateTime>{expectedDateTimeString}</dateTime>\n</dateTime>";
             string actual = StringReplacer.ReplaceBackSlashR(UnixDateTimeXmlConverter.ToUnixDateTimeListXml(dateTimes, null, "dateTime"));
             Assert.AreEqual(expected, actual);
         }
@@ -118,8 +118,8 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
                 dateTime
             };
             string expectedDateTimeString = UnixDateToString(dateTime);
-            string expected = $"<Unix>\n  <dateTime>\n    <dateTime>{expectedDateTimeString}</dateTime>\n    <dateTime>{expectedDateTimeString}</dateTime>\n  </dateTime>\n</Unix>";
-            string actual = StringReplacer.ReplaceBackSlashR(UnixDateTimeXmlConverter.ToUnixDateTimeListXml(dateTimes, "Unix", "dateTime"));
+            string expected = $"<Unix>\n  <dateTime>{expectedDateTimeString}</dateTime>\n  <dateTime>{expectedDateTimeString}</dateTime>\n</Unix>";
+            string actual = StringReplacer.ReplaceBackSlashR(UnixDateTimeXmlConverter.ToUnixDateTimeListXml(dateTimes, "Unix"));
             Assert.AreEqual(expected, actual);
         }
 
