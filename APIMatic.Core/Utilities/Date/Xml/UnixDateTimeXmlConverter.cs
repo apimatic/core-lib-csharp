@@ -86,15 +86,7 @@ namespace APIMatic.Core.Utilities.Date.Xml
         /// <returns>Date time string.</returns>
         public static string ToUnixDateTimeXml(DateTime? date, string rootName = null)
         {
-            if (date == null)
-            {
-                return null;
-            }
-            var xml = new XmlPrinter();
-            xml.StartDocument();
-            xml.AddElement(rootName ?? "DateTime", UnixDateToString(date));
-            xml.CloseDocument();
-            return xml.ToString();
+            return XmlPrinter.Print(date, UnixDateToString, rootName ?? "DateTime");
         }
 
         /// <summary>
@@ -105,23 +97,9 @@ namespace APIMatic.Core.Utilities.Date.Xml
         /// <param name="arrayNodeName">Node name.</param>
         /// <param name="arrayItemName">Item name.</param>
         /// <returns>DateTime as string.</returns>
-        public static string ToUnixDateTimeListXml(IEnumerable<DateTime> dates, string rootName = null, string arrayNodeName = null, string arrayItemName = null)
+        public static string ToUnixDateTimeListXml(IEnumerable<DateTime?> dates, string rootName = null, string arrayNodeName = null, string arrayItemName = null)
         {
-            var xml = new XmlPrinter();
-            xml.StartDocument();
-            xml.StartItem(arrayNodeName ?? rootName ?? "DateTime");
-            var itemName = arrayItemName ?? "dateTime";
-            if (dates == null)
-            {
-                xml.AddElement(itemName, string.Empty);
-            }
-            else
-            {
-                dates.ToList().ForEach(date => xml.AddElement(itemName, UnixDateToString(date)));
-            }
-            xml.CloseItem();
-            xml.CloseDocument();
-            return xml.ToString();
+            return XmlPrinter.PrintArray(dates, UnixDateToString, rootName ?? "DateTime", arrayItemName ?? "dateTime", arrayNodeName);
         }
     }
 }

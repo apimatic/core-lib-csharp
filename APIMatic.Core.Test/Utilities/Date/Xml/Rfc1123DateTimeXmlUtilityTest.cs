@@ -87,7 +87,7 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
         [Test]
         public void ToRfc1123DateTimeListXml_WithInValidDate()
         {
-            List<DateTime> dateTimes = null;
+            List<DateTime?> dateTimes = null;
             string expected = "<DateTime />";
             string actual = Rfc1123DateTimeXmlConverter.ToRfc1123DateTimeListXml(dateTimes);
             Assert.AreEqual(expected, actual);
@@ -97,13 +97,13 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
         public void ToRfc1123DateTimeXml_WithValidDateArrayNodeName()
         {
             DateTime dateTime = new DateTime(2017, 1, 18, 6, 3, 1);
-            List<DateTime> dateTimes = new List<DateTime>
+            List<DateTime?> dateTimes = new List<DateTime?>
             {
                 dateTime,
                 dateTime
             };
             string expectedDateTime = Rfc1123DateTimeToString(dateTime);
-            string expected = $"<dateTime>\n  <dateTime>{expectedDateTime}</dateTime>\n  <dateTime>{expectedDateTime}</dateTime>\n</dateTime>";
+            string expected = $"<DateTime>\n  <dateTime>\n    <dateTime>{expectedDateTime}</dateTime>\n    <dateTime>{expectedDateTime}</dateTime>\n  </dateTime>\n</DateTime>";
             string actual = StringReplacer.ReplaceBackSlashR(Rfc1123DateTimeXmlConverter.ToRfc1123DateTimeListXml(dateTimes, arrayNodeName: "dateTime"));
             Assert.AreEqual(expected, actual);
         }
@@ -112,7 +112,7 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
         public void ToRfc1123DateTimeXml_WithValidDateWithoutArrayNode()
         {
             DateTime dateTime = new DateTime(2017, 1, 18, 6, 3, 1);
-            List<DateTime> dateTimes = new List<DateTime>
+            List<DateTime?> dateTimes = new List<DateTime?>
             {
                 dateTime,
                 dateTime

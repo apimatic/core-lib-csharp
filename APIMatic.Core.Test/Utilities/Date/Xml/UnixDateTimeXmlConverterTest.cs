@@ -86,7 +86,7 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
         public void ToUnixDateTimeListXml_WithXMLDates()
         {
             DateTime dateTime = new DateTime(2017, 1, 18, 6, 3, 1);
-            var dateTimes = new List<DateTime>
+            var dateTimes = new List<DateTime?>
             {
                 dateTime,
                 dateTime
@@ -100,7 +100,7 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
         [Test]
         public void ToUnixDateTimeListXml_WithXMLNullDates()
         {
-            List<DateTime> dateTimes = null;
+            List<DateTime?> dateTimes = null;
             string expected = "<dateTimes />";
             string actual = UnixDateTimeXmlConverter.ToUnixDateTimeListXml(dateTimes, "dateTimes");
             Assert.AreEqual(expected, actual);
@@ -110,13 +110,13 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
         public void ToUnixDateTimeListXml_XMLDatesWithArrayNodes()
         {
             DateTime dateTime = new DateTime(2017, 1, 18, 6, 3, 1);
-            var dateTimes = new List<DateTime>
+            var dateTimes = new List<DateTime?>
             {
                 dateTime,
                 dateTime
             };
             string expectedDateTimeString = UnixDateToString(dateTime);
-            string expected = $"<dateTime>\n  <dateTime>{expectedDateTimeString}</dateTime>\n  <dateTime>{expectedDateTimeString}</dateTime>\n</dateTime>";
+            string expected = $"<DateTime>\n  <dateTime>\n    <dateTime>{expectedDateTimeString}</dateTime>\n    <dateTime>{expectedDateTimeString}</dateTime>\n  </dateTime>\n</DateTime>";
             string actual = StringReplacer.ReplaceBackSlashR(UnixDateTimeXmlConverter.ToUnixDateTimeListXml(dateTimes, null, "dateTime"));
             Assert.AreEqual(expected, actual);
         }
@@ -125,7 +125,7 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
         public void ToUnixDateTimeListXml_WithRootName()
         {
             DateTime dateTime = new DateTime(2017, 1, 18, 6, 3, 1);
-            var dateTimes = new List<DateTime>
+            var dateTimes = new List<DateTime?>
             {
                 dateTime,
                 dateTime

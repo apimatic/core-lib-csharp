@@ -81,15 +81,7 @@ namespace APIMatic.Core.Utilities.Date.Xml
         /// <returns>Date time as string.</returns>
         public static string ToRfc1123DateTimeXml(DateTime? date, string rootName = null)
         {
-            if (date == null)
-            {
-                return null;
-            }
-            var xml = new XmlPrinter();
-            xml.StartDocument();
-            xml.AddElement(rootName ?? "DateTime", Rfc1123DateToString(date));
-            xml.CloseDocument();
-            return xml.ToString();
+            return XmlPrinter.Print(date, Rfc1123DateToString, rootName ?? "DateTime");
         }
 
         /// <summary>
@@ -100,23 +92,9 @@ namespace APIMatic.Core.Utilities.Date.Xml
         /// <param name="arrayNodeName">Node name.</param>
         /// <param name="arrayItemName">Item name.</param>
         /// <returns>Date time as string.</returns>
-        public static string ToRfc1123DateTimeListXml(IEnumerable<DateTime> dates, string rootName = null, string arrayNodeName = null, string arrayItemName = null)
+        public static string ToRfc1123DateTimeListXml(IEnumerable<DateTime?> dates, string rootName = null, string arrayNodeName = null, string arrayItemName = null)
         {
-            var xml = new XmlPrinter();
-            xml.StartDocument();
-            xml.StartItem(arrayNodeName ?? rootName ?? "DateTime");
-            var itemName = arrayItemName ?? "dateTime";
-            if (dates == null)
-            {
-                xml.AddElement(itemName, string.Empty);
-            }
-            else
-            {
-                dates.ToList().ForEach(date => xml.AddElement(itemName, Rfc1123DateToString(date)));
-            }
-            xml.CloseItem();
-            xml.CloseDocument();
-            return xml.ToString();
+            return XmlPrinter.PrintArray(dates, Rfc1123DateToString, rootName ?? "DateTime", arrayItemName ?? "dateTime", arrayNodeName);
         }
     }
 }
