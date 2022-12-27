@@ -9,9 +9,6 @@
 ## Introduction
 This project contains core logic and the utilities for the APIMatic's C# SDK
 
-## Prerequisites
-.NET and .NET Core versions 2.0, 2.1, 2.2, 3.0, 3.1, 5.0, 6.0, and 7.0
-
 ## Important Classes
 | Name                                                                                 | Description                                                           |
 |--------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
