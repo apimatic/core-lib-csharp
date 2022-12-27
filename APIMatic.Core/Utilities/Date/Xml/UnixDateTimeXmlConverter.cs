@@ -36,12 +36,14 @@ namespace APIMatic.Core.Utilities.Date.Xml
         /// </summary>
         /// <param name="date"> DateTime object.</param>
         /// <returns>Date time string.</returns>
-        public static string UnixDateToString(DateTime date)
+        public static string UnixDateToString(DateTime? date)
         {
-            var dateTimeOffset = new DateTimeOffset(date.ToUniversalTime());
-            var unixDateTime = dateTimeOffset.ToUnixTimeSeconds().ToString();
-
-            return unixDateTime;
+            if (date == null)
+            {
+                return null;
+            }
+            var dateTimeOffset = new DateTimeOffset(date.Value.ToUniversalTime());
+            return dateTimeOffset.ToUnixTimeSeconds().ToString();
         }
 
         /// <summary>
@@ -82,8 +84,12 @@ namespace APIMatic.Core.Utilities.Date.Xml
         /// <param name="date">DateTime object.</param>
         /// <param name="rootName">Root name.</param>
         /// <returns>Date time string.</returns>
-        public static string ToUnixDateTimeXml(DateTime date, string rootName = null)
+        public static string ToUnixDateTimeXml(DateTime? date, string rootName = null)
         {
+            if (date == null)
+            {
+                return null;
+            }
             var xml = new XmlPrinter();
             xml.StartDocument();
             xml.AddElement(rootName ?? "DateTime", UnixDateToString(date));

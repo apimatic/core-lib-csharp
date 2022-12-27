@@ -35,10 +35,9 @@ namespace APIMatic.Core.Utilities.Date.Xml
         /// </summary>
         /// <param name="date">DateTime object.</param>
         /// <returns>Date time as string.</returns>
-        public static string Rfc1123DateToString(DateTime date)
+        public static string Rfc1123DateToString(DateTime? date)
         {
-            var rfc1123DateTime = date.ToUniversalTime().ToString("r");
-            return rfc1123DateTime;
+            return date?.ToUniversalTime().ToString("r");
         }
 
         /// <summary>
@@ -80,8 +79,12 @@ namespace APIMatic.Core.Utilities.Date.Xml
         /// <param name="date">DateTime object.</param>
         /// <param name="rootName">Root name.</param>
         /// <returns>Date time as string.</returns>
-        public static string ToRfc1123DateTimeXml(DateTime date, string rootName = null)
+        public static string ToRfc1123DateTimeXml(DateTime? date, string rootName = null)
         {
+            if (date == null)
+            {
+                return null;
+            }
             var xml = new XmlPrinter();
             xml.StartDocument();
             xml.AddElement(rootName ?? "DateTime", Rfc1123DateToString(date));

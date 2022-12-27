@@ -87,6 +87,10 @@ namespace APIMatic.Core.Utilities.Date.Xml
         /// <returns>Date time as string.</returns>
         public static string ToRfc3339DateTimeXml(DateTime? date, string rootName = null)
         {
+            if (date == null)
+            {
+                return null;
+            }
             var xml = new XmlPrinter();
             xml.StartDocument();
             xml.AddElement(rootName ?? "DateTime", Rfc3339DateToString(date));

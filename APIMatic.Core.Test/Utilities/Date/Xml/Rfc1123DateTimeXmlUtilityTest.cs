@@ -35,6 +35,13 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
         }
 
         [Test]
+        public void Rfc1123DateToString_WithInvalidDate()
+        {
+            string actual = Rfc1123DateTimeXmlConverter.Rfc1123DateToString(null);
+            Assert.Null(actual);
+        }
+
+        [Test]
         public void ToRfc1123DateTimeXml_WithValidDate()
         {
             DateTime dateTime = new DateTime(2017, 1, 18, 6, 1, 3);
@@ -42,6 +49,13 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
             string expected = $"<DateTime>{expectedDateTime}</DateTime>";
             string actual = Rfc1123DateTimeXmlConverter.ToRfc1123DateTimeXml(dateTime);
             Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void ToRfc1123DateTimeXml_WithInvalidDate()
+        {
+            string actual = Rfc1123DateTimeXmlConverter.ToRfc1123DateTimeXml(null);
+            Assert.Null(actual);
         }
 
         [Test]

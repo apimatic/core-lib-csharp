@@ -16,6 +16,12 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
             string actual = UnixDateTimeXmlConverter.UnixDateToString(dateTime);
             Assert.AreEqual(expected, actual);
         }
+        [Test]
+        public void UnixDateToString_WithInvalidDate()
+        {
+            string actual = UnixDateTimeXmlConverter.UnixDateToString(null);
+            Assert.Null(actual);
+        }
 
         [Test]
         public void StringToUnixDate_WithNullString()
@@ -67,6 +73,13 @@ namespace APIMatic.Core.Test.Utilities.Date.Xml
             string expected = $"<DateTime>{expectedDateTimeString}</DateTime>";
             string actual = UnixDateTimeXmlConverter.ToUnixDateTimeXml(dateTime);
             Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void ToUnixDateTimeXml_WithInvalidDateXMLString()
+        {
+            string actual = UnixDateTimeXmlConverter.ToUnixDateTimeXml(null);
+            Assert.Null(actual);
         }
 
         [Test]
