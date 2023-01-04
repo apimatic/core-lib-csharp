@@ -415,34 +415,47 @@ namespace APIMatic.Core.Utilities
 
                 if (leftVal is JObject leftSideValue)
                 {
-                    // If left value is tree, right value should be be tree too
-                    if (!(rightVal is JObject rightSideValue))
-                    {
-                        return false;
-                    }
-                    if (!IsProperSubsetOf(leftSideValue, rightSideValue, checkValues, allowExtra, isOrdered))
-                    {
-                        return false;
-                    }
+                    return IsProperSubsetOfJObject(checkValues, allowExtra, isOrdered, rightVal, leftSideValue);
                 }
                 else if (checkValues)
                 {
-                    // If left value is a primitive, check if it equals right value
-                    if (leftVal is JArray leftJArray)
-                    {
-                        if (!DoesRightValContainsSameItems(leftJArray, rightVal, allowExtra, isOrdered))
-                        {
-                            return false;
-                        }
-                    }
-                    else if (!leftVal.Equals(rightVal))
-                    {
-                        return false;
-                    }
+                    return CheckValuesAreSameOnBothSides(allowExtra, isOrdered, leftVal, rightVal);
                 }
             }
-
             return true;
+        }
+
+        private static bool IsProperSubsetOfJObject(bool checkValues, bool allowExtra, bool isOrdered, object rightVal, JObject leftSideValue)
+        {
+            bool isProperSubset = true;
+            // If left value is tree, right value should be be tree too
+            if (!(rightVal is JObject rightSideValue))
+            {
+                return false;
+            }
+            if (!IsProperSubsetOf(leftSideValue, rightSideValue, checkValues, allowExtra, isOrdered))
+            {
+                isProperSubset = false;
+            }
+            return isProperSubset;
+        }
+
+        private static bool CheckValuesAreSameOnBothSides(bool allowExtra, bool isOrdered, object leftVal, object rightVal)
+        {
+            bool isSame = true;
+            // If left value is a primitive, check if it equals right value
+            if (leftVal is JArray leftJArray)
+            {
+                if (!DoesRightValContainsSameItems(leftJArray, rightVal, allowExtra, isOrdered))
+                {
+                    isSame = false;
+                }
+            }
+            else if (!leftVal.Equals(rightVal))
+            {
+                isSame = false;
+            }
+            return isSame;
         }
 
         private static bool DoesRightValContainsSameItems(JArray leftJArray, object rightVal, bool allowExtra, bool isOrdered)
@@ -470,10 +483,7 @@ namespace APIMatic.Core.Utilities
                 JArray remainingLeftList = new JArray(remainingLeftListToken);
                 var remainingRightListToken = rightJArray.Where(x => !(x is JObject));
                 JArray remainingRightList = new JArray(remainingRightListToken);
-                if (!IsListProperSubsetOf(remainingLeftList, remainingRightList, allowExtra, isOrdered))
-                {
-                    return false;
-                }
+                return DoesRightValContainsSameItems(remainingLeftList, remainingRightList, allowExtra, isOrdered);
             }
             else if (leftJArray.First is JObject && bothArrayContainsJObject)
             {

@@ -129,7 +129,7 @@ namespace APIMatic.Core.Utilities
             // load element value as string
             if (pair.Value is ICollection)
             {
-                paramKeyValPair = FlattenCollection(pair.Value as ICollection, arraySerialization, GetSeparator(arraySerialization), true, Uri.EscapeDataString(pair.Key));
+                paramKeyValPair = FlattenCollection(pair.Value as ICollection, arraySerialization, Uri.EscapeDataString(pair.Key));
             }
             else
             {
@@ -196,7 +196,7 @@ namespace APIMatic.Core.Utilities
             }
             else if (value is IList enumerable)
             {
-                PrepareFormFieldsForEnumerable(name, arraySerializationFormat, keys, propInfo, enumerable);
+                PrepareFormFieldsForEnumerable(name, enumerable, arraySerializationFormat, keys, propInfo);
             }
             else if (value is Stream || value is JToken || value is Enum)
             {
@@ -205,30 +205,21 @@ namespace APIMatic.Core.Utilities
             }
             else if (value is IDictionary dictionary)
             {
-                PrepareFormFieldsForDictionary(name, arraySerializationFormat, keys, propInfo, dictionary);
+                PrepareFormFieldsForDictionary(name, dictionary, arraySerializationFormat, keys, propInfo);
+                return keys;
             }
-            else if (value is CoreJsonObject jsonObject)
+            else if (value is CoreJsonObject || value is CoreJsonValue)
             {
-                PrepareFormFieldsFromObject(name, RemoveNullValues(jsonObject.GetStoredObject()), arraySerializationFormat, keys, propInfo);
-            }
-            else if (value is CoreJsonValue jsonValue)
-            {
-                PrepareFormFieldsFromObject(name, jsonValue.GetStoredObject(), arraySerializationFormat, keys, propInfo);
+                PrepareFormFieldsFromObject(name, GetProcessedValue(value), arraySerializationFormat, keys, propInfo);
             }
             else if (!value.GetType().Namespace.StartsWith("System"))
             {
                 PrepareFormFieldsForCustomTypes(name, value, arraySerializationFormat, keys);
             }
-            else if (value is DateTime dateTime)
-            {
-                var convertedValue = GetConvertedValue(value, propInfo);
-                keys.Add(new KeyValuePair<string, object>(name, convertedValue ?? dateTime.ToString(DateTimeFormat)));
-            }
             else
             {
-                keys.Add(new KeyValuePair<string, object>(name, GetProcessedValue(value)));
+                keys.Add(new KeyValuePair<string, object>(name, GetProcessedValue(value, propInfo)));
             }
-
             return keys;
         }
 
@@ -285,7 +276,7 @@ namespace APIMatic.Core.Utilities
             }
         }
 
-        private static void PrepareFormFieldsForDictionary(string name, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys, PropertyInfo propInfo, IDictionary dictionary)
+        private static void PrepareFormFieldsForDictionary(string name, IDictionary dictionary, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys = null, PropertyInfo propInfo = null)
         {
             foreach (var sName in dictionary.Keys)
             {
@@ -296,7 +287,7 @@ namespace APIMatic.Core.Utilities
             }
         }
 
-        private static void PrepareFormFieldsForEnumerable(string name, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys, PropertyInfo propInfo, IList enumerable)
+        private static void PrepareFormFieldsForEnumerable(string name, IList enumerable, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys, PropertyInfo propInfo)
         {
             var enumerator = enumerable.GetEnumerator();
             bool hasNested = HasCustomeNestedType(enumerator);
@@ -337,21 +328,31 @@ namespace APIMatic.Core.Utilities
             return false;
         }
 
-        private static object GetProcessedValue(object value)
+        private static object GetProcessedValue(object value, PropertyInfo propInfo = null)
         {
             if (value is Stream)
             {
                 return value;
             }
-
             if (value is Enum)
             {
                 return JsonSerialize(value).Trim('\"');
             }
-
             if (value is JToken)
             {
                 return value.ToString();
+            }
+            if (value is CoreJsonObject jsonObject)
+            {
+                return RemoveNullValues(jsonObject.GetStoredObject());
+            }
+            if (value is CoreJsonValue jsonValue)
+            {
+                return jsonValue.GetStoredObject();
+            }
+            if (value is DateTime dateTime)
+            {
+                return GetConvertedValue(dateTime, propInfo) ?? dateTime.ToString(DateTimeFormat);
             }
             return value;
         }
@@ -460,8 +461,6 @@ namespace APIMatic.Core.Utilities
         private static string FlattenCollection(
             ICollection array,
             ArraySerialization fmt,
-            char separator,
-            bool urlEncode,
             string key = "")
         {
             StringBuilder builder = new StringBuilder();
@@ -469,9 +468,10 @@ namespace APIMatic.Core.Utilities
 
             // append all elements in the array into a string
             int index = 0;
+            char separator = GetSeparator(fmt);
             foreach (object element in array)
             {
-                builder.AppendFormat(format, GetElementValue(element, urlEncode), separator, index++);
+                builder.AppendFormat(format, GetElementValue(element, true), separator, index++);
             }
 
             // remove the last separator, if appended
