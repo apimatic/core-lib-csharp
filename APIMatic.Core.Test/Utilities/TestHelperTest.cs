@@ -304,6 +304,16 @@ namespace APIMatic.Core.Test.Utilities
         }
 
         [Test]
+        public void IsJsonObjectProperSubsetOf_EmptyObject()
+        {
+            string leftObject = "{}";
+
+            string rightObject = "{}";
+
+            Assert.IsTrue(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+        }
+
+        [Test]
         public void IsSameAsFile_GistURL()
         {
             string gistUrl = "https://gist.githubusercontent.com/asadali214/0a64efec5353d351818475f928c50767/raw/8ad3533799ecb4e01a753aaf04d248e6702d4947/testFile.txt";
