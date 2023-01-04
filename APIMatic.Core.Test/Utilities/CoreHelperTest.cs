@@ -317,7 +317,7 @@ namespace APIMatic.Core.Test.Utilities
                 "dateTime"
             };
 
-            string expected = $"{SERVER_URL}?dateTime=testtcollection";
+            string expected = $"{SERVER_URL}?dateTime=test\tcollection";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection), ArraySerialization.TSV);
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);

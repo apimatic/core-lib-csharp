@@ -599,16 +599,8 @@ namespace APIMatic.Core.Utilities
                 var enumerator = dictionary.GetEnumerator();
                 if (enumerator.MoveNext())
                 {
-                    var item = enumerator.Current;
-                    if (item is DictionaryEntry entry)
-                    {
-                        HandleParameter(processedParameters, kvp, entry.Value);
-                    }
-                    else
-                    {
-                        // List of custom type
-                        HandleCustomType(processedParameters, kvp);
-                    }
+                    var item = ((DictionaryEntry)enumerator.Current).Value;
+                    HandleParameter(processedParameters, kvp, item);
                 }
             }
         }
