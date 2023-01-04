@@ -299,18 +299,7 @@ namespace APIMatic.Core.Utilities
         private static void PrepareFormFieldsForEnumerable(string name, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys, PropertyInfo propInfo, IList enumerable)
         {
             var enumerator = enumerable.GetEnumerator();
-
-            var hasNested = false;
-            while (enumerator.MoveNext())
-            {
-                var subValue = enumerator.Current;
-                if (subValue != null && (subValue is JObject || subValue is IList || subValue is IDictionary || !subValue.GetType().Namespace.StartsWith("System")))
-                {
-                    hasNested = true;
-                    break;
-                }
-            }
-
+            bool hasNested = HasCustomeNestedType(enumerator);
             int i = 0;
             enumerator.Reset();
             while (enumerator.MoveNext())
@@ -330,10 +319,22 @@ namespace APIMatic.Core.Utilities
                 {
                     continue;
                 }
-
                 PrepareFormFieldsFromObject(fullSubName, subValue, arraySerializationFormat, keys, propInfo);
                 i++;
             }
+        }
+
+        private static bool HasCustomeNestedType(IEnumerator enumerator)
+        {
+            while (enumerator.MoveNext())
+            {
+                var subValue = enumerator.Current;
+                if (subValue != null && (subValue is JObject || subValue is IList || subValue is IDictionary || !subValue.GetType().Namespace.StartsWith("System")))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static object GetProcessedValue(object value)
@@ -545,44 +546,52 @@ namespace APIMatic.Core.Utilities
 
                 if (kvp.Value.GetType().Namespace.StartsWith("System"))
                 {
-                    if (kvp.Value is IList)
-                    {
-                        var list = kvp.Value as IList;
-
-                        if (list?.Count != 0)
-                        {
-                            var item = list[0];
-
-                            if (item.GetType().Namespace.StartsWith("System"))
-                            {
-                                // List of scalar type
-                                processedParameters.Add(kvp);
-                            }
-                            else
-                            {
-                                // List of custom type
-                                var innerList = PrepareFormFieldsFromObject(kvp.Key, kvp.Value, arraySerializationFormat: ArraySerialization.Indexed);
-                                innerList = ApplySerializationFormatToScalarArrays(innerList);
-                                processedParameters.AddRange(innerList);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Scalar type
-                        processedParameters.Add(kvp);
-                    }
+                    HandlePrimitiveTypes(processedParameters, kvp);
                 }
                 else
                 {
                     // Custom type
-                    var list = PrepareFormFieldsFromObject(kvp.Key, kvp.Value, arraySerializationFormat: ArraySerialization.Indexed);
-                    list = ApplySerializationFormatToScalarArrays(list);
-                    processedParameters.AddRange(list);
+                    HandleCustomType(processedParameters, kvp);
                 }
             }
 
             return processedParameters;
+        }
+
+        private static void HandleCustomType(List<KeyValuePair<string, object>> processedParameters, KeyValuePair<string, object> kvp)
+        {
+            var list = PrepareFormFieldsFromObject(kvp.Key, kvp.Value, arraySerializationFormat: ArraySerialization.Indexed);
+            list = ApplySerializationFormatToScalarArrays(list);
+            processedParameters.AddRange(list);
+        }
+
+        private static void HandlePrimitiveTypes(List<KeyValuePair<string, object>> processedParameters, KeyValuePair<string, object> kvp)
+        {
+            if (kvp.Value is IList)
+            {
+                var list = kvp.Value as IList;
+
+                if (list?.Count != 0)
+                {
+                    var item = list[0];
+
+                    if (item.GetType().Namespace.StartsWith("System"))
+                    {
+                        // List of scalar type
+                        processedParameters.Add(kvp);
+                    }
+                    else
+                    {
+                        // List of custom type
+                        HandleCustomType(processedParameters, kvp);
+                    }
+                }
+            }
+            else
+            {
+                // Scalar type
+                processedParameters.Add(kvp);
+            }
         }
 
         /// <summary>

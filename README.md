@@ -3,6 +3,7 @@
 [![Version][nuget-version]][nuget-url]
 [![Build & Tests][test-badge]][test-url]
 [![Test Coverage][coverage-badge]][coverage-url]
+[![Maintainability][maintainability-badge]][maintainability-url]
 [![Licence][license-badge]][license-url]
 
 ## Introduction
@@ -32,5 +33,7 @@ This project contains core logic and the utilities for the APIMatic's C# SDK
 [test-url]: https://github.com/apimatic/core-lib-csharp/actions/workflows/test.yml
 [coverage-badge]: https://api.codeclimate.com/v1/badges/d613a5f73f605369e745/test_coverage
 [coverage-url]: https://codeclimate.com/github/apimatic/core-lib-csharp/test_coverage
+[maintainability-badge]: https://api.codeclimate.com/v1/badges/d613a5f73f605369e745/maintainability
+[maintainability-url]: https://codeclimate.com/github/apimatic/core-lib-csharp/maintainability
 [license-badge]: https://img.shields.io/badge/licence-APIMATIC-blue
 [license-url]: LICENSE
