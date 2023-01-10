@@ -570,38 +570,37 @@ namespace APIMatic.Core.Utilities
             if (kvp.Value is IList list)
             {
                 HandleListParameter(processedParameters, kvp, list);
+                return;
             }
-            else if (kvp.Value is IDictionary dictionary)
+            if (kvp.Value is IDictionary dictionary)
             {
                 HandleDictionaryParameter(processedParameters, kvp, dictionary);
+                return;
             }
-            else
-            {
-                // Scalar type
-                processedParameters.Add(kvp);
-            }
+            // Scalar type
+            processedParameters.Add(kvp);
         }
 
         private static void HandleListParameter(List<KeyValuePair<string, object>> processedParameters, KeyValuePair<string, object> kvp, IList list)
         {
-            if (list?.Count != 0)
+            if (list == null || list.Count == 0)
             {
-                var item = list[0];
-
-                HandleParameter(processedParameters, kvp, item);
+                return;
             }
+            HandleParameter(processedParameters, kvp, list[0]);
         }
 
         private static void HandleDictionaryParameter(List<KeyValuePair<string, object>> processedParameters, KeyValuePair<string, object> kvp, IDictionary dictionary)
         {
-            if (dictionary?.Count != 0)
+            if (dictionary == null || dictionary.Count == 0)
             {
-                var enumerator = dictionary.GetEnumerator();
-                if (enumerator.MoveNext())
-                {
-                    var item = ((DictionaryEntry)enumerator.Current).Value;
-                    HandleParameter(processedParameters, kvp, item);
-                }
+                return;
+            }
+            var enumerator = dictionary.GetEnumerator();
+            if (enumerator.MoveNext())
+            {
+                var item = ((DictionaryEntry)enumerator.Current).Value;
+                HandleParameter(processedParameters, kvp, item);
             }
         }
 
@@ -611,11 +610,9 @@ namespace APIMatic.Core.Utilities
             {
                 // List of scalar type
                 processedParameters.Add(kvp);
+                return;
             }
-            else
-            {
-                HandleCustomType(processedParameters, kvp);
-            }
+            HandleCustomType(processedParameters, kvp);
         }
 
         /// <summary>
