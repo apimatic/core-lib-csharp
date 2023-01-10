@@ -413,7 +413,7 @@ namespace APIMatic.Core.Utilities
             }
             if (arraySerialization == ArraySerialization.TSV)
             {
-                return 't';
+                return '\t';
             }
             return '&';
         }
@@ -567,31 +567,52 @@ namespace APIMatic.Core.Utilities
 
         private static void HandlePrimitiveTypes(List<KeyValuePair<string, object>> processedParameters, KeyValuePair<string, object> kvp)
         {
-            if (kvp.Value is IList)
+            if (kvp.Value is IList list)
             {
-                var list = kvp.Value as IList;
-
-                if (list?.Count != 0)
-                {
-                    var item = list[0];
-
-                    if (item.GetType().Namespace.StartsWith("System"))
-                    {
-                        // List of scalar type
-                        processedParameters.Add(kvp);
-                    }
-                    else
-                    {
-                        // List of custom type
-                        HandleCustomType(processedParameters, kvp);
-                    }
-                }
+                HandleListParameter(processedParameters, kvp, list);
+                return;
             }
-            else
+            if (kvp.Value is IDictionary dictionary)
             {
-                // Scalar type
+                HandleDictionaryParameter(processedParameters, kvp, dictionary);
+                return;
+            }
+            // Scalar type
+            processedParameters.Add(kvp);
+        }
+
+        private static void HandleListParameter(List<KeyValuePair<string, object>> processedParameters, KeyValuePair<string, object> kvp, IList list)
+        {
+            if (list == null || list.Count == 0)
+            {
+                return;
+            }
+            HandleParameter(processedParameters, kvp, list[0]);
+        }
+
+        private static void HandleDictionaryParameter(List<KeyValuePair<string, object>> processedParameters, KeyValuePair<string, object> kvp, IDictionary dictionary)
+        {
+            if (dictionary == null || dictionary.Count == 0)
+            {
+                return;
+            }
+            var enumerator = dictionary.GetEnumerator();
+            if (enumerator.MoveNext())
+            {
+                var item = ((DictionaryEntry)enumerator.Current).Value;
+                HandleParameter(processedParameters, kvp, item);
+            }
+        }
+
+        private static void HandleParameter(List<KeyValuePair<string, object>> processedParameters, KeyValuePair<string, object> kvp, object entry)
+        {
+            if (entry.GetType().Namespace.StartsWith("System"))
+            {
+                // List of scalar type
                 processedParameters.Add(kvp);
+                return;
             }
+            HandleCustomType(processedParameters, kvp);
         }
 
         /// <summary>
