@@ -237,6 +237,73 @@ namespace APIMatic.Core.Test.Utilities
             Assert.AreEqual(expected, actual);
         }
 
+        [Test]
+        public void AppendQueryParameter_NullListParameter()
+        {
+            StringBuilder queryBuilder = new StringBuilder();
+            queryBuilder.Append(SERVER_URL);
+            List<string> parametersKeys = new List<string>()
+            {
+                "list"
+            };
+
+            List<string> obj = null;
+            string expected = $"{SERVER_URL}";
+            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, obj));
+            string actual = queryBuilder.ToString();
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void AppendQueryParameter_EmptyListParameter()
+        {
+            StringBuilder queryBuilder = new StringBuilder();
+            queryBuilder.Append(SERVER_URL);
+            List<string> parametersKeys = new List<string>()
+            {
+                "list"
+            };
+
+            List<string> obj = new List<string>();
+            string expected = $"{SERVER_URL}";
+            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, obj));
+            string actual = queryBuilder.ToString();
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void AppendQueryParameter_NullDictionaryParameter()
+        {
+            StringBuilder queryBuilder = new StringBuilder();
+            queryBuilder.Append(SERVER_URL);
+            List<string> parametersKeys = new List<string>()
+            {
+                "dictionary"
+            };
+
+            Dictionary<string, string> dictionary = null;
+            string expected = $"{SERVER_URL}";
+            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, dictionary));
+            string actual = queryBuilder.ToString();
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void AppendQueryParameter_EmptyDictionaryParameter()
+        {
+            StringBuilder queryBuilder = new StringBuilder();
+            queryBuilder.Append(SERVER_URL);
+            List<string> parametersKeys = new List<string>()
+            {
+                "dictionary"
+            };
+
+            Dictionary<string, string> dictionary = new Dictionary<string, string>();
+            string expected = $"{SERVER_URL}";
+            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, dictionary));
+            string actual = queryBuilder.ToString();
+            Assert.AreEqual(expected, actual);
+        }
 
         [Test]
         public void AppendQueryParameter_UnIndexedCollectionParameter()
