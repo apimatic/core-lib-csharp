@@ -297,7 +297,7 @@ namespace APIMatic.Core.Http
 
         private static Dictionary<string, string> GetCombinedResponseHeaders(HttpResponseMessage responseMessage)
         {
-            var headers = responseMessage.Headers.ToDictionary(l => l.Key, k => k.Value.First());
+            var headers = responseMessage.Headers.ToDictionary(l => l.Key, k => k.Value.First(), StringComparer.InvariantCultureIgnoreCase);
             if (responseMessage.Content != null)
             {
                 foreach (var contentHeader in responseMessage.Content.Headers)
