@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using APIMatic.Core.Response;
 using APIMatic.Core.Test.MockTypes.Exceptions;
 using APIMatic.Core.Test.MockTypes.Http;
 using APIMatic.Core.Test.MockTypes.Http.Request;
@@ -12,19 +13,23 @@ namespace APIMatic.Core.Test.Api
     {
         private static readonly MockServer _server = MockServer.Server1;
         private static readonly CompatibilityFactory _compatibilityFactory = new();
-        private static readonly Dictionary<int, Func<HttpContext, ApiException>> _globalErrors = new()
+        private static readonly Dictionary<string, ErrorCase<HttpRequest, HttpResponse, HttpContext, ApiException>> _globalErrors = new()
         {
-            { 400, context => new Child1Exception("400 Global Child 1", context) },
-            { 402, context => new Child2Exception("402 Global Child 2", context) },
-            { 403, context => new ApiException("403 Global", context) },
-            { 404, context => new ApiException("404 Global", context) }
+            { "400", CreateErrorCase("400 Global Child 1", (reason, context) => new Child1Exception(reason, context)) },
+            { "402", CreateErrorCase("402 Global Child 2", (reason, context)  => new Child2Exception(reason, context)) },
+            { "403", CreateErrorCase("403 Global", (reason, context)  => new ApiException(reason, context)) },
+            { "404", CreateErrorCase("404 Global", (reason, context)  => new ApiException(reason, context)) },
+            { "0", CreateErrorCase("Default Global", (reason, context)  => new ApiException(reason, context)) },
         };
+
+        protected static ErrorCase<HttpRequest, HttpResponse, HttpContext, ApiException> CreateErrorCase(string reason, Func<string, HttpContext, ApiException> error, bool isErrorTemplate = false)
+            => new(reason, error, isErrorTemplate);
 
         protected ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, ApiResponse<T>, T> CreateApiCall<T>()
             => new ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, ApiResponse<T>, T>(
                 LazyGlobalConfiguration.Value,
                 _compatibilityFactory,
-                errors: _globalErrors,
+                globalErrors: _globalErrors,
                 returnTypeCreator: (response, result) => new ApiResponse<T>(response.StatusCode, response.Headers, result)
             ).Server(_server);
 
@@ -38,7 +43,13 @@ namespace APIMatic.Core.Test.Api
             => new ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, T, T>(
                 LazyGlobalConfiguration.Value,
                 _compatibilityFactory,
-                errors: _globalErrors
+                globalErrors: _globalErrors
+            ).Server(_server);
+
+        protected ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, T, T> CreateSimpleApiCallWithoutErrors<T>()
+            => new ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, T, T>(
+                LazyGlobalConfiguration.Value,
+                _compatibilityFactory
             ).Server(_server);
 
         protected string GetCompleteUrl(string path)

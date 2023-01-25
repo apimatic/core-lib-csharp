@@ -503,7 +503,7 @@ namespace APIMatic.Core.Test.Api.HttpGet
             var apiCall = CreateSimpleApiCall<ServerResponse>()
                 .RequestBuilder(requestBuilderAction => requestBuilderAction.Setup(HttpMethod.Get, url))
                 .ResponseHandler(responseHandlerAction => responseHandlerAction
-                    .ErrorCase(400, context => new ApiException("400 Local ApiException", context)))
+                    .ErrorCase("400", CreateErrorCase("400 Local ApiException", (reason, context) => new ApiException(reason, context))))
                 .ExecuteAsync();
 
             // Act and Assert
@@ -538,7 +538,7 @@ namespace APIMatic.Core.Test.Api.HttpGet
             var apiCall = CreateSimpleApiCall<ServerResponse>()
                 .RequestBuilder(requestBuilderAction => requestBuilderAction.Setup(HttpMethod.Get, url))
                 .ResponseHandler(responseHandlerAction => responseHandlerAction
-                    .ErrorCase(0, context => new Child2Exception("This is a default exception", context)))
+                    .ErrorCase("0", CreateErrorCase("This is a default exception", (reason, context) => new Child2Exception(reason, context))))
                 .ExecuteAsync();
 
             // Act and Assert

@@ -24,7 +24,8 @@ namespace APIMatic.Core.Response
         where Context : CoreContext<Request, Response>
         where ApiException : CoreApiException<Request, Response, Context>
     {
-        private readonly Dictionary<int, Func<Context, ApiException>> errors;
+        private readonly Dictionary<string, ErrorCase<Request, Response, Context, ApiException>> globalErrors;
+        private readonly Dictionary<string, ErrorCase<Request, Response, Context, ApiException>> localErrors;
         private readonly ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory;
         private bool nullOn404 = false;
         private Func<string, ResponseType> deserializer = responseBody => CoreHelper.JsonDeserialize<ResponseType>(responseBody);
@@ -33,10 +34,12 @@ namespace APIMatic.Core.Response
         internal ContentType AcceptHeader { get; set; } = ContentType.JSON;
 
         internal ResponseHandler(ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory,
-            Dictionary<int, Func<Context, ApiException>> errors)
+            Dictionary<string, ErrorCase<Request, Response, Context, ApiException>> globalErrors)
         {
             this.compatibilityFactory = compatibilityFactory;
-            this.errors = errors ?? new Dictionary<int, Func<Context, ApiException>>();
+            this.globalErrors = globalErrors ?? new Dictionary<string, ErrorCase<Request, Response, Context, ApiException>>();
+            localErrors = new Dictionary<string, ErrorCase<Request, Response, Context, ApiException>>();
+
             if (CoreHelper.IsScalarType(typeof(ResponseType)))
             {
                 AcceptHeader = ContentType.SCALAR;
@@ -50,9 +53,9 @@ namespace APIMatic.Core.Response
         /// <param name="error"></param>
         /// <returns></returns>
         public ResponseHandler<Request, Response, Context, ApiException, ResponseType> ErrorCase(
-            int statusCode, Func<Context, ApiException> error)
+            string statusCode, ErrorCase<Request, Response, Context, ApiException> errorCase)
         {
-            errors[statusCode] = error;
+            localErrors[statusCode] = errorCase;
             return this;
         }
 
@@ -138,15 +141,57 @@ namespace APIMatic.Core.Response
         private ApiException ResponseError(CoreContext<CoreRequest, CoreResponse> context)
         {
             Context httpContext = compatibilityFactory.CreateHttpContext(context.Request, context.Response);
-            if (errors.TryGetValue(context.Response.StatusCode, out var errorFunction))
+            var statusCode = context.Response.StatusCode.ToString();
+            if (GetStatusCodeErrorCase(localErrors, statusCode, out var localErrorCase))
             {
-                return errorFunction(httpContext);
+                return localErrorCase.GetError(httpContext);
             }
-            if (errors.TryGetValue(0, out var defaultErrorFunction))
+            if (GetStatusCodeErrorCase(globalErrors, statusCode, out var globalErrorCase))
             {
-                return defaultErrorFunction(httpContext);
+                return globalErrorCase.GetError(httpContext);
+            }
+            if (GetDefaultErrorCaseFromErrors(out var defaultErrorCase))
+            {
+                return defaultErrorCase.GetError(httpContext);
             }
             return compatibilityFactory.CreateApiException("HTTP Response Not OK", context);
+        }
+
+        private bool GetStatusCodeErrorCase(Dictionary<string, ErrorCase<Request, Response, Context, ApiException>> errors, string statusCode, out ErrorCase<Request, Response, Context, ApiException> errorCase)
+        {
+            if (errors.TryGetValue(statusCode, out errorCase))
+            {
+                return true;
+            }
+            if (GetRangedStatusCodeErrorCase(errors, statusCode, out errorCase))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private bool GetRangedStatusCodeErrorCase(Dictionary<string, ErrorCase<Request, Response, Context, ApiException>> errors, string statusCode, out ErrorCase<Request, Response, Context, ApiException> errorCase)
+        {
+            errorCase = default;
+            if (statusCode.StartsWith("4") || statusCode.StartsWith("5"))
+            {
+                var rangedStatusCode = $"{statusCode[0]}XX";
+                return errors.TryGetValue(rangedStatusCode, out errorCase);
+            }
+            return false;
+        }
+
+        private bool GetDefaultErrorCaseFromErrors(out ErrorCase<Request, Response, Context, ApiException> errorCase)
+        {
+            if (localErrors.TryGetValue("0", out errorCase))
+            {
+                return true;
+            }
+            if (globalErrors.TryGetValue("0", out errorCase))
+            {
+                return true;
+            }
+            return false;
         }
 
         private ResponseType ConvertResponse(CoreResponse response)
