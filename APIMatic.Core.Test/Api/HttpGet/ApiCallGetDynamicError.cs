@@ -175,7 +175,7 @@ namespace APIMatic.Core.Test.Api.HttpGet
 
             // Act and Assert
             var exp = Assert.Throws<Child2Exception>(() => CoreHelper.RunTask(apiCall));
-            Assert.AreEqual("Not Implemented error: , 15, True, , {\r\n  \"field\": \"This is a field of body in child exception class\",\r\n  \"integer\": 15,\r\n  \"bool\": true\r\n}.", exp.Message);
+            Assert.AreEqual("Not Implemented error: , 15, true, , {\"field\":\"This is a field of body in child exception class\",\"integer\":15,\"bool\":true}.", exp.Message);
             Assert.Null(exp.ExceptionData);
         }
 

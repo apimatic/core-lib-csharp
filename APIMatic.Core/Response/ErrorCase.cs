@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Json.Pointer;
 using APIMatic.Core.Types.Sdk;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace APIMatic.Core.Response
 {
@@ -173,7 +174,7 @@ namespace APIMatic.Core.Response
                 {
                     JToken responseBodyToken = JToken.Parse(responseBody);
                     var jPointer = new JsonPointer(pointerKey);
-                    return jPointer.Evaluate(responseBodyToken).ToString();
+                    return jPointer.Evaluate(responseBodyToken).ToString(Formatting.None);
                 }
                 catch (Exception)
                 {
