@@ -16,10 +16,10 @@ namespace APIMatic.Core.Test.Api
         private static readonly Dictionary<string, ErrorCase<HttpRequest, HttpResponse, HttpContext, ApiException>> _globalErrors = new()
         {
             { "400", CreateErrorCase("400 Global Child 1", (reason, context) => new Child1Exception(reason, context)) },
-            { "402", CreateErrorCase("402 Global Child 2", (reason, context)  => new Child2Exception(reason, context)) },
-            { "403", CreateErrorCase("403 Global", (reason, context)  => new ApiException(reason, context)) },
-            { "404", CreateErrorCase("404 Global", (reason, context)  => new ApiException(reason, context)) },
-            { "0", CreateErrorCase("Default Global", (reason, context)  => new ApiException(reason, context)) },
+            { "402", CreateErrorCase("402 Global Child 2", (reason, context) => new Child2Exception(reason, context)) },
+            { "403", CreateErrorCase("403 Global", (reason, context) => new ApiException(reason, context)) },
+            { "404", CreateErrorCase("404 Global", (reason, context) => new ApiException(reason, context)) },
+            { "0", CreateErrorCase("Default Global", (reason, context) => new ApiException(reason, context)) },
         };
 
         protected static ErrorCase<HttpRequest, HttpResponse, HttpContext, ApiException> CreateErrorCase(string reason, Func<string, HttpContext, ApiException> error, bool isErrorTemplate = false)

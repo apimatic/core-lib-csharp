@@ -49,9 +49,6 @@ namespace APIMatic.Core.Test.Api.HttpGet
         {
             //Arrange
             var url = "/apicall/error/dynamic/local/403/missing/header";
-            var expected = new Dictionary<string, object>();
-
-            var content = JsonContent.Create(expected);
             handlerMock.When(GetCompleteUrl(url))
                 .With(req =>
                 {
