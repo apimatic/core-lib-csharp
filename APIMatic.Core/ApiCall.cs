@@ -45,13 +45,13 @@ namespace APIMatic.Core
         /// <param name="serialization"></param>
         /// <param name="returnTypeCreator"></param>
         public ApiCall(GlobalConfiguration configuration, ICompatibilityFactory<Request, Response, Context, ApiException> compatibility,
-            Dictionary<int, Func<Context, ApiException>> errors = null, ArraySerialization serialization = ArraySerialization.Indexed,
+            Dictionary<string, ErrorCase<Request, Response, Context, ApiException>> globalErrors = null, ArraySerialization serialization = ArraySerialization.Indexed,
             Func<Response, ResponseType, ReturnType> returnTypeCreator = null)
         {
             globalConfiguration = configuration;
             arraySerialization = serialization;
             this.returnTypeCreator = returnTypeCreator;
-            responseHandler = new ResponseHandler<Request, Response, Context, ApiException, ResponseType>(compatibility, errors);
+            responseHandler = new ResponseHandler<Request, Response, Context, ApiException, ResponseType>(compatibility, globalErrors);
         }
 
         /// <summary>
