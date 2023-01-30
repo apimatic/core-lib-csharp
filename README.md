@@ -21,6 +21,7 @@ This project contains core logic and the utilities for the APIMatic's C# SDK
 | [`QueryParam`](APIMatic.Core/Request/Parameters/QueryParam.cs)                       | Query parameter class                                                 |
 | [`TemplateParam`](APIMatic.Core/Request/Parameters/TemplateParam.cs)                 | Template parameter class                                              |
 | [`RequestBuilder`](APIMatic.Core/Request/RequestBuilder.cs)                          | Used to instantiate a new Request object with the provided properties |
+| [`ErrorCase`](APIMatic.Core/Response/ErrorCase.cs)                                   | Used to generate an ApiException from the HttpClient response         |
 | [`ResponseHandler`](APIMatic.Core/Response/ResponseHandler.cs)                       | Used to handle and process the response from HttpClient               |
 | [`ApiCall`](APIMatic.Core/ApiCall.cs)  | Deals with the execution of request created from RequestBuilder and processes the response through ResponseHandler  |
 | [`GlobalConfiguration`](APIMatic.Core/GlobalConfiguration.cs)  | Carries the common configuration that will be applicable to all the ApiCalls                |

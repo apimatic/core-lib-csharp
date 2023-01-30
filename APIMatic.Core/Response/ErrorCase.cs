@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 namespace APIMatic.Core.Response
 {
     /// <summary>
-    /// This class is used to generate an ApiException.
+    /// Used to generate an ApiException from the HttpClient response
     /// </summary>
     /// <typeparam name="Request"> Class Type that holds http request info </typeparam>
     /// <typeparam name="Response"> Class Type that holds http response info </typeparam>
