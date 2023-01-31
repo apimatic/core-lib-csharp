@@ -19,7 +19,6 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>APIMatic;dotnet;core;Core Library</PackageTags>
         <PackageProjectUrl>https://www.apimatic.io</PackageProjectUrl>
-        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
 
