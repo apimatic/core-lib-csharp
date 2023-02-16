@@ -36,5 +36,5 @@ This project contains core logic and the utilities for the APIMatic's C# SDK
 [coverage-url]: https://codeclimate.com/github/apimatic/core-lib-csharp/test_coverage
 [maintainability-badge]: https://api.codeclimate.com/v1/badges/d613a5f73f605369e745/maintainability
 [maintainability-url]: https://codeclimate.com/github/apimatic/core-lib-csharp/maintainability
-[license-badge]: https://img.shields.io/badge/licence-APIMATIC-blue
+[license-badge]: https://img.shields.io/badge/licence-MIT-blue
 [license-url]: LICENSE
