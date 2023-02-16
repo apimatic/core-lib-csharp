@@ -161,6 +161,8 @@ dotnet_diagnostic.S1168.severity = none
 dotnet_diagnostic.CA1707.severity = none
 # CA1822: Mark members as static
 dotnet_diagnostic.CA1822.severity = none
+# CA1507: Use nameof in place of string literal
+dotnet_diagnostic.CA1507.severity = none
 # CA1305: Specify IFormatProvider
 dotnet_diagnostic.CA1305.severity = none
 # CA1309: Use ordinal string comparison
