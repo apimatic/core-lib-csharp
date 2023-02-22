@@ -4,12 +4,6 @@ Write a summary of the changes made in the PR.
 ## Why
 Exlpain the reasons for the changes.
 
-## Dependency Change
-If a new dependency is being added, please ensure that it adheres to the following guideline https://github.com/apimatic/apimatic-codegen/wiki/Policy-of-adding-new-dependencies-in-the-core-libraries
-
-## Breaking change
-If the PR is introducing a breaking change, please ensure that it adhares to the following guideline 
-
 ## Type of change
 Select multiple if applicable.
 
@@ -22,6 +16,14 @@ Select multiple if applicable.
 - [ ] Revert (reverts a commit)
 - [ ] CI/Build (adds or updates a script, change in external dependencies)
 
+## Dependency Change
+If a new dependency is being added, please ensure that it adheres to the following guideline https://github.com/apimatic/apimatic-codegen/wiki/Policy-of-adding-new-dependencies-in-the-core-libraries
+
+## Breaking change
+If the PR is introducing a breaking change, please ensure that it adhares to the following guideline 
+
+## Testing
+List the steps that were taken to test the changes
 
 ## Checklist
 - [ ] My code follows the coding conventions
