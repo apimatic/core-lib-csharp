@@ -508,16 +508,7 @@ namespace APIMatic.Core.Utilities
 
         private static bool IsArrayOfJObject(JArray jArray)
         {
-            bool listOfJObject = true;
-            foreach (var item in jArray)
-            {
-                if (!(item is JObject))
-                {
-                    listOfJObject = false;
-                    break;
-                }
-            }
-            return listOfJObject;
+            return jArray.All(item => item is JObject);
         }
     }
 }
