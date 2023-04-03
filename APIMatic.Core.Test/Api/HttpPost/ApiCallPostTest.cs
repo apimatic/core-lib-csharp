@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -441,6 +442,49 @@ namespace APIMatic.Core.Test.Api.HttpPost
                             { "keyA", text2 },
                             { "keyB", text3 }
                         }))))
+                .ExecuteAsync();
+
+            // Act
+            var actual = CoreHelper.RunTask(apiCall);
+
+            // Assert
+            Assert.NotNull(actual);
+            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.NotNull(actual.Data);
+            Assert.AreEqual(actual.Data.Message, expected.Message);
+        }
+
+        [Test]
+        public void ApiCall_PostNullHeaderValue_OKResponse()
+        {
+            //Arrange
+            var text = "Post null header value.";
+            var url = "/apicall/null-header-post/200";
+            var headerKey = "null-key";
+
+            var expected = new ServerResponse()
+            {
+                Message = text,
+                Passed = true,
+            };
+
+            var content = JsonContent.Create(expected);
+            handlerMock.When(GetCompleteUrl(url))
+                .With(req =>
+                {
+                    Assert.AreEqual(text, req.Content.ReadAsStringAsync().Result);
+                    Assert.IsTrue(req.Headers.Contains(headerKey));
+                    Assert.AreEqual(string.Empty, req.Headers.GetValues(headerKey).FirstOrDefault());
+                    return true;
+                })
+                .Respond(HttpStatusCode.OK, content);
+
+            var apiCall = CreateApiCall<ServerResponse>()
+                .RequestBuilder(requestBuilderAction => requestBuilderAction
+                    .Setup(HttpMethod.Post, url)
+                    .Parameters(p => p
+                        .Body(b => b.Setup(text))
+                        .Header(h => h.Setup(headerKey, null))))
                 .ExecuteAsync();
 
             // Act
