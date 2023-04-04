@@ -148,7 +148,7 @@ namespace APIMatic.Core.Utilities
 
             foreach (Match m in mc)
             {
-                val = m.Value.TrimStart('>').TrimEnd(new char[] { '<', '/' });
+                val = m.Value.TrimStart('>').TrimEnd('<', '/');
                 list.Add((T)Convert.ChangeType(val, typeof(T)));
             }
 
