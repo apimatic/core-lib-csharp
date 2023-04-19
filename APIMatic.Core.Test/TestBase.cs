@@ -25,6 +25,7 @@ namespace APIMatic.Core.Test
         private static readonly ICoreHttpClientConfiguration _clientConfiguration = new CoreHttpClientConfiguration.Builder()
             .HttpClientInstance(new HttpClient(handlerMock))
             .NumberOfRetries(numberOfRetries)
+            .SkipSslCertVerification(false)
             .Build();
 
         private static readonly BasicAuthManager _basicAuthManager = new(_basicAuthUserName, _basicAuthPassword);

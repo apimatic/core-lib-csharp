@@ -60,6 +60,12 @@ namespace APIMatic.Core.Http
                 _maximumRetryWaitTime = httpClientConfig.MaximumRetryWaitTime;
                 _client.Timeout = httpClientConfig.Timeout;
             }
+
+            if (httpClientConfig.SkipSslCertVerification)
+            {
+                var httpClientHandler = new HttpClientHandler();
+                _client = new HttpClient(httpClientHandler, disposeHandler: true);
+            }
         }
 
         /// <summary>
@@ -292,7 +298,6 @@ namespace APIMatic.Core.Http
         {
             double noise = new Random().NextDouble() * 100;
             return (1000 * _retryInterval * Math.Pow(_backoffFactor, retryAttempt - 1)) + noise;
-
         }
 
         private static Dictionary<string, string> GetCombinedResponseHeaders(HttpResponseMessage responseMessage)

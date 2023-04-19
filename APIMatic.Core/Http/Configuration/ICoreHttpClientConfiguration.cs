@@ -18,6 +18,11 @@ namespace APIMatic.Core.Http.Configuration
         TimeSpan Timeout { get; }
 
         /// <summary>
+        /// Gets Whether to skip verification of SSL certificates.
+        /// </summary>
+        bool SkipSslCertVerification { get; }
+
+        /// <summary>
         /// Number of times the request is retried.
         /// </summary>
         int NumberOfRetries { get; }
