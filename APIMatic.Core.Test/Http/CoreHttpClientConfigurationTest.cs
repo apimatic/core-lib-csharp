@@ -63,10 +63,12 @@ namespace APIMatic.Core.Test.Http
             var backoffFactor = 0;
             var retryInterval = -1;
             var maximumRetryWaitTime = -1;
+            var skipSslCertVerification = false;
 
             var config = _config.ToBuilder()
                 .HttpClientInstance(null)
                 .Timeout(TimeSpan.FromSeconds(timeout))
+                .SkipSslCertVerification(skipSslCertVerification)
                 .NumberOfRetries(numberOfRetries)
                 .BackoffFactor(backoffFactor)
                 .RetryInterval(retryInterval)
@@ -86,6 +88,7 @@ namespace APIMatic.Core.Test.Http
             Assert.NotNull(config);
             Assert.NotNull(config.HttpClientInstance);
             Assert.AreEqual(config.Timeout, TimeSpan.FromSeconds(defaultTimeout));
+            Assert.AreEqual(config.SkipSslCertVerification, skipSslCertVerification);
             Assert.AreEqual(config.NumberOfRetries, defaultNumberOfRetries);
             Assert.AreEqual(config.BackoffFactor, defaultBackoffFactor);
             Assert.AreEqual(config.RetryInterval, defaultRetryInterval);
