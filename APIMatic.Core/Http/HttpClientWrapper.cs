@@ -63,7 +63,11 @@ namespace APIMatic.Core.Http
 
             if (httpClientConfig.SkipSslCertVerification)
             {
-                var httpClientHandler = new HttpClientHandler();
+                var httpClientHandler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; }
+                };
+
                 _client = new HttpClient(httpClientHandler, disposeHandler: true);
             }
         }
