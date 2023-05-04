@@ -16,6 +16,7 @@ namespace APIMatic.Core.Test.Http
         [Test]
         public void TestHttpClientSSLCertificateVerification_ExceptionResponse()
         {
+            var expectedValue = "The SSL connection could not be established, see inner exception.";
             var clientConfiguration = new CoreHttpClientConfiguration.Builder()
                 .Build();
 
@@ -36,7 +37,7 @@ namespace APIMatic.Core.Test.Http
 
             // Act
             var ex = Assert.ThrowsAsync<HttpRequestException>(() => client.ExecuteAsync(request));
-            Assert.AreEqual(ex.Message, "The SSL connection could not be established, see inner exception.");
+            Assert.AreEqual(expectedValue, ex.Message);
         }
 
         [Test]
