@@ -246,7 +246,7 @@ namespace APIMatic.Core.Http.Configuration
             /// <returns>Builder.</returns>
             public Builder HttpClientInstance(HttpClient httpClientInstance, bool overrideHttpClientConfiguration = true)
             {
-                this.httpClientInstance = httpClientInstance ?? new HttpClient();
+                this.httpClientInstance = httpClientInstance;
                 this.overrideHttpClientConfiguration = overrideHttpClientConfiguration;
                 return this;
             }
@@ -257,6 +257,25 @@ namespace APIMatic.Core.Http.Configuration
             /// <returns>HttpClientConfiguration.</returns>
             public CoreHttpClientConfiguration Build()
             {
+                if (overrideHttpClientConfiguration)
+                {
+                    if (skipSslCertVerification)
+                    {
+                        var httpClientHandler = new HttpClientHandler
+                        {
+                            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; }
+                        };
+
+                        httpClientInstance = new HttpClient(httpClientHandler, disposeHandler: true);
+                    }
+                    else
+                    {
+                        httpClientInstance = httpClientInstance ?? new HttpClient();
+                    }
+
+                    httpClientInstance.Timeout = timeout;
+                }
+
                 return new CoreHttpClientConfiguration(
                         timeout,
                         skipSslCertVerification,
@@ -266,7 +285,7 @@ namespace APIMatic.Core.Http.Configuration
                         maximumRetryWaitTime,
                         statusCodesToRetry,
                         requestMethodsToRetry,
-                        httpClientInstance,
+                        httpClientInstance ?? new HttpClient(),
                         overrideHttpClientConfiguration);
             }
         }

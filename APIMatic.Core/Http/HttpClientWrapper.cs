@@ -58,17 +58,6 @@ namespace APIMatic.Core.Http
                 _backoffFactor = httpClientConfig.BackoffFactor;
                 _retryInterval = httpClientConfig.RetryInterval;
                 _maximumRetryWaitTime = httpClientConfig.MaximumRetryWaitTime;
-                _client.Timeout = httpClientConfig.Timeout;
-            }
-
-            if (httpClientConfig.SkipSslCertVerification)
-            {
-                var httpClientHandler = new HttpClientHandler
-                {
-                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; }
-                };
-
-                _client = new HttpClient(httpClientHandler, disposeHandler: true);
             }
         }
 
