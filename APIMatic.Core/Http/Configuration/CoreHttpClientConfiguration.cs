@@ -261,21 +261,14 @@ namespace APIMatic.Core.Http.Configuration
                 {
                     if (skipSslCertVerification)
                     {
-                        var httpClientHandler = new HttpClientHandler
-                        {
-                            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; }
-                        };
-
-                        httpClientInstance = new HttpClient(httpClientHandler, disposeHandler: true);
+                        httpClientInstance = GetOverriddenSSLCertVerificationHttpClient();
                     }
                     else
                     {
                         httpClientInstance = httpClientInstance ?? new HttpClient();
                     }
-
                     httpClientInstance.Timeout = timeout;
                 }
-
                 return new CoreHttpClientConfiguration(
                         timeout,
                         skipSslCertVerification,
@@ -287,6 +280,15 @@ namespace APIMatic.Core.Http.Configuration
                         requestMethodsToRetry,
                         httpClientInstance ?? new HttpClient(),
                         overrideHttpClientConfiguration);
+            }
+
+            private HttpClient GetOverriddenSSLCertVerificationHttpClient()
+            {
+                var httpClientHandler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; }
+                };
+                return new HttpClient(httpClientHandler, disposeHandler: true);
             }
         }
     }
