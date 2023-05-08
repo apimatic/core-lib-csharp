@@ -20,7 +20,6 @@ namespace APIMatic.Core.Http.Configuration
         /// </summary>
         private CoreHttpClientConfiguration(
             TimeSpan timeout,
-            bool skipSslCertVerification,
             int numberOfRetries,
             int backoffFactor,
             double retryInterval,
@@ -31,7 +30,6 @@ namespace APIMatic.Core.Http.Configuration
             bool overrideHttpClientConfiguration)
         {
             Timeout = timeout;
-            SkipSslCertVerification = skipSslCertVerification;
             NumberOfRetries = numberOfRetries;
             BackoffFactor = backoffFactor;
             RetryInterval = retryInterval;
@@ -46,11 +44,6 @@ namespace APIMatic.Core.Http.Configuration
         /// Gets Http client timeout.
         /// </summary>
         public TimeSpan Timeout { get; }
-
-        /// <summary>
-        /// Gets Whether to skip verification of SSL certificates.
-        /// </summary>
-        public bool SkipSslCertVerification { get; }
 
         /// <summary>
         /// Gets Number of times the request is retried.
@@ -97,7 +90,6 @@ namespace APIMatic.Core.Http.Configuration
         {
             return "HttpClientConfiguration: " +
                 $"{Timeout} , " +
-                $"{SkipSslCertVerification} , " +
                 $"{NumberOfRetries} , " +
                 $"{BackoffFactor} , " +
                 $"{RetryInterval} , " +
@@ -116,7 +108,6 @@ namespace APIMatic.Core.Http.Configuration
         {
             var builder = new Builder()
                 .Timeout(Timeout)
-                .SkipSslCertVerification(SkipSslCertVerification)
                 .NumberOfRetries(NumberOfRetries)
                 .BackoffFactor(BackoffFactor)
                 .RetryInterval(RetryInterval)
@@ -134,7 +125,6 @@ namespace APIMatic.Core.Http.Configuration
         public class Builder
         {
             private TimeSpan timeout = TimeSpan.FromSeconds(100);
-            private bool skipSslCertVerification = false;
             private int numberOfRetries = 0;
             private int backoffFactor = 2;
             private double retryInterval = 1;
@@ -147,7 +137,7 @@ namespace APIMatic.Core.Http.Configuration
             {
                 "GET", "PUT"
             }.Select(val => new HttpMethod(val)).ToImmutableList();
-            private HttpClient httpClientInstance = null;
+            private HttpClient httpClientInstance = new HttpClient();
             private bool overrideHttpClientConfiguration = true;
 
             /// <summary>
@@ -158,17 +148,6 @@ namespace APIMatic.Core.Http.Configuration
             public Builder Timeout(TimeSpan timeout)
             {
                 this.timeout = timeout.TotalSeconds <= 0 ? TimeSpan.FromSeconds(100) : timeout;
-                return this;
-            }
-
-            /// <summary>
-            /// Sets the SkipSslCertVerification.
-            /// </summary>
-            /// <param name="skipSslCertVerification">Bool for skipping (or not) SSL certificate verification</param>
-            /// <returns>Builder.</returns>
-            public Builder SkipSslCertVerification(bool skipSslCertVerification)
-            {
-                this.skipSslCertVerification = skipSslCertVerification;
                 return this;
             }
 
@@ -246,7 +225,7 @@ namespace APIMatic.Core.Http.Configuration
             /// <returns>Builder.</returns>
             public Builder HttpClientInstance(HttpClient httpClientInstance, bool overrideHttpClientConfiguration = true)
             {
-                this.httpClientInstance = httpClientInstance;
+                this.httpClientInstance = httpClientInstance ?? new HttpClient();
                 this.overrideHttpClientConfiguration = overrideHttpClientConfiguration;
                 return this;
             }
@@ -259,40 +238,14 @@ namespace APIMatic.Core.Http.Configuration
             {
                 return new CoreHttpClientConfiguration(
                         timeout,
-                        skipSslCertVerification,
                         numberOfRetries,
                         backoffFactor,
                         retryInterval,
                         maximumRetryWaitTime,
                         statusCodesToRetry,
                         requestMethodsToRetry,
-                        GetInitializedHttpClientInstance(),
+                        httpClientInstance,
                         overrideHttpClientConfiguration);
-            }
-
-            private HttpClient GetInitializedHttpClientInstance()
-            {
-                if (overrideHttpClientConfiguration)
-                {
-                    if (skipSslCertVerification)
-                    {
-                        var httpClientHandler = new HttpClientHandler
-                        {
-                            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; }
-                        };
-                        return new HttpClient(httpClientHandler, disposeHandler: true)
-                        {
-                            Timeout = timeout,
-                        };
-                    }
-
-                    var httpClient = httpClientInstance ?? new HttpClient();
-                    httpClient.Timeout = timeout;
-
-                    return httpClient;
-                }
-
-                return httpClientInstance ?? new HttpClient();
             }
         }
     }
