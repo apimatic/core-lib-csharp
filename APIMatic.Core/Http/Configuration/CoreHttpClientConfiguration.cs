@@ -147,7 +147,7 @@ namespace APIMatic.Core.Http.Configuration
             {
                 "GET", "PUT"
             }.Select(val => new HttpMethod(val)).ToImmutableList();
-            private HttpClient httpClientInstance = new HttpClient();
+            private HttpClient httpClientInstance = null;
             private bool overrideHttpClientConfiguration = true;
 
             /// <summary>
@@ -257,18 +257,7 @@ namespace APIMatic.Core.Http.Configuration
             /// <returns>HttpClientConfiguration.</returns>
             public CoreHttpClientConfiguration Build()
             {
-                if (overrideHttpClientConfiguration)
-                {
-                    if (skipSslCertVerification)
-                    {
-                        httpClientInstance = GetOverriddenSSLCertVerificationHttpClient();
-                    }
-                    else
-                    {
-                        httpClientInstance = httpClientInstance ?? new HttpClient();
-                    }
-                    httpClientInstance.Timeout = timeout;
-                }
+                httpClientInstance = GetInitializedHttpClientInstance();
                 return new CoreHttpClientConfiguration(
                         timeout,
                         skipSslCertVerification,
@@ -278,17 +267,33 @@ namespace APIMatic.Core.Http.Configuration
                         maximumRetryWaitTime,
                         statusCodesToRetry,
                         requestMethodsToRetry,
-                        httpClientInstance ?? new HttpClient(),
+                        httpClientInstance,
                         overrideHttpClientConfiguration);
             }
 
-            private HttpClient GetOverriddenSSLCertVerificationHttpClient()
+            private HttpClient GetInitializedHttpClientInstance()
             {
-                var httpClientHandler = new HttpClientHandler
+                if (overrideHttpClientConfiguration)
                 {
-                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; }
-                };
-                return new HttpClient(httpClientHandler, disposeHandler: true);
+                    if (skipSslCertVerification)
+                    {
+                        var httpClientHandler = new HttpClientHandler
+                        {
+                            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; }
+                        };
+                        return new HttpClient(httpClientHandler, disposeHandler: true)
+                        {
+                            Timeout = timeout,
+                        };
+                    }
+
+                    var httpClient = httpClientInstance ?? new HttpClient();
+                    httpClient.Timeout = timeout;
+
+                    return httpClient;
+                }
+
+                return httpClientInstance ?? new HttpClient();
             }
         }
     }
