@@ -257,7 +257,6 @@ namespace APIMatic.Core.Http.Configuration
             /// <returns>HttpClientConfiguration.</returns>
             public CoreHttpClientConfiguration Build()
             {
-                httpClientInstance = GetInitializedHttpClientInstance();
                 return new CoreHttpClientConfiguration(
                         timeout,
                         skipSslCertVerification,
@@ -267,7 +266,7 @@ namespace APIMatic.Core.Http.Configuration
                         maximumRetryWaitTime,
                         statusCodesToRetry,
                         requestMethodsToRetry,
-                        httpClientInstance,
+                        GetInitializedHttpClientInstance(),
                         overrideHttpClientConfiguration);
             }
 
