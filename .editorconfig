@@ -179,6 +179,9 @@ dotnet_diagnostic.CA1310.severity = none
 # JSON002: Probable JSON string detected
 dotnet_diagnostic.JSON002.severity = none
 
+# S4830: Server certificates should be verified during SSL/TLS connection
+dotnet_diagnostic.S4830.severity = none
+
 [*.vb]
 ###############################
 # VB Coding Conventions       #
