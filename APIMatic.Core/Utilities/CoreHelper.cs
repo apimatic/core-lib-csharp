@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Types;
 using APIMatic.Core.Types.Sdk;
+using APIMatic.Core.Types.Sdk.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -92,6 +93,55 @@ namespace APIMatic.Core.Utilities
             {
                 return JsonConvert.DeserializeObject<T>(json, converter);
             }
+        }
+
+        /// <summary>
+        /// Try to deserialize the json into given type
+        /// </summary>
+        /// <param name="types"></param>
+        /// <param name="token"></param>
+        /// <param name="serializer"></param>
+        /// <param name="isOneOf"></param>
+        /// <returns></returns>
+        /// <exception cref="OneOfValidationException"></exception>
+        /// <exception cref="AnyOfValidationException"></exception>
+        public static object TryDeserializeOneOfAnyOf(Dictionary<Type, string> types, JToken token, JsonSerializer serializer, bool isOneOf)
+        {
+            List<string> mappedTypes = new List<string>();
+            List<string> unMappedTypes = new List<string>();
+            object deserializedObject = null;
+            foreach (var type in types.Keys)
+            {
+                using (var reader = token.CreateReader())
+                {
+                    try
+                    {
+                        deserializedObject = serializer.Deserialize(reader, type);
+                        mappedTypes.Add(types[type]);
+
+                        if (isOneOf && mappedTypes.Count > 1)
+                        {
+                            throw new OneOfValidationException(mappedTypes[0], mappedTypes[1], "");
+                        }
+
+                    }
+                    catch (JsonSerializationException)
+                    {
+                        unMappedTypes.Add(types[type]);
+                    }
+                }
+            }
+
+            if (!isOneOf && mappedTypes.Count == 0)
+            {
+                throw new AnyOfValidationException(unMappedTypes, "");
+            }
+
+            if (isOneOf && mappedTypes.Count == 0)
+            {
+                throw new OneOfValidationException(unMappedTypes, "");
+            }
+            return deserializedObject;
         }
 
         /// <summary>
