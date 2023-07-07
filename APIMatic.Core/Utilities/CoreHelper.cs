@@ -105,11 +105,17 @@ namespace APIMatic.Core.Utilities
         /// <returns></returns>
         /// <exception cref="OneOfValidationException"></exception>
         /// <exception cref="AnyOfValidationException"></exception>
-        public static object TryDeserializeOneOfAnyOf(Dictionary<Type, string> types, JToken token, JsonSerializer serializer, bool isOneOf)
+        public static object TryDeserializeOneOfAnyOf(Dictionary<Type, string> types, JsonReader jsonReader, JsonSerializer serializer, bool isOneOf)
         {
+            JToken token = JToken.ReadFrom(jsonReader);
+            if (token.Type == JTokenType.Null)
+            {
+                return default;
+            }
             List<string> mappedTypes = new List<string>();
             List<string> unMappedTypes = new List<string>();
             object deserializedObject = null;
+            var json = token.ToString();
             foreach (var type in types.Keys)
             {
                 using (var reader = token.CreateReader())
@@ -121,7 +127,7 @@ namespace APIMatic.Core.Utilities
 
                         if (isOneOf && mappedTypes.Count > 1)
                         {
-                            throw new OneOfValidationException(mappedTypes[0], mappedTypes[1], "");
+                            throw new OneOfValidationException(mappedTypes[0], mappedTypes[1], json);
                         }
 
                     }
@@ -134,12 +140,12 @@ namespace APIMatic.Core.Utilities
 
             if (!isOneOf && mappedTypes.Count == 0)
             {
-                throw new AnyOfValidationException(unMappedTypes, "");
+                throw new AnyOfValidationException(unMappedTypes, json);
             }
 
             if (isOneOf && mappedTypes.Count == 0)
             {
-                throw new OneOfValidationException(unMappedTypes, "");
+                throw new OneOfValidationException(unMappedTypes, json);
             }
             return deserializedObject;
         }
