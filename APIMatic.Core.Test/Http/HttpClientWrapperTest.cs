@@ -53,7 +53,7 @@ namespace APIMatic.Core.Test.Http
 
             var actual = await _client.ExecuteAsync(request);
 
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.AreEqual(actual.Body, request.Body);
         }
 
@@ -73,7 +73,7 @@ namespace APIMatic.Core.Test.Http
 
             var actual = await _client.ExecuteAsync(request);
 
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.BadRequest);
+            Assert.AreEqual((int)HttpStatusCode.BadRequest, actual.StatusCode);
             Assert.AreEqual(actual.Body, request.Body);
         }
 
@@ -105,7 +105,7 @@ namespace APIMatic.Core.Test.Http
             // Act
             var actual = await _client.ExecuteAsync(request);
 
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.AreEqual(customHeaderValue, actual.Headers[customHeaderKey]);
         }
     }

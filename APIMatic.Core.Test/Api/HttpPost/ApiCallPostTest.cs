@@ -52,7 +52,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(actual.Data.Message, expected.Message);
         }
@@ -101,7 +101,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(actual.Data.Message, expected.Message);
         }
@@ -143,7 +143,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(expected.Message, actual.Data.Message);
         }
@@ -188,7 +188,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(expected.Message, actual.Data.Message);
         }
@@ -231,7 +231,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(actual.Data.Message, expected.Message);
         }
@@ -273,7 +273,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
         }
 
@@ -401,7 +401,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(actual.Data.Message, expected.Message);
         }
@@ -449,7 +449,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(actual.Data.Message, expected.Message);
         }
@@ -492,7 +492,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(actual.Data.Message, expected.Message);
         }

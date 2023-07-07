@@ -52,7 +52,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
         }
 
@@ -94,7 +94,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
         }
     }
