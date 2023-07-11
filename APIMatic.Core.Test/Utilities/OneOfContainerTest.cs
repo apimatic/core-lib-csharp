@@ -190,7 +190,7 @@ namespace APIMatic.Core.Test.Utilities
             }
 
             Assert.NotNull(exception);
-            Assert.AreEqual("We could not match any acceptable type from atom, orbit on: {\r\n  \"NumberOfShells\": 12,\r\n  \"NumberOfProtons\": 13\r\n}", exception.Message);
+            Assert.AreEqual("We could not match any acceptable type from atom, orbit on: {\n  \"NumberOfShells\": 12,\n  \"NumberOfProtons\": 13\n}", exception.Message.Replace("\r", ""));
         }
 
         [Test]
@@ -209,8 +209,8 @@ namespace APIMatic.Core.Test.Utilities
             }
 
             Assert.NotNull(exception);
-            string expectedMessage = "There are more than one matching types i.e. atom and orbit on: {\r\n  \"NumberOfElectrons\": 12,\r\n  \"NumberOfProtons\": 13,\r\n  \"NumberOfShells\": 3\r\n}";
-            Assert.AreEqual(expectedMessage, exception.Message);
+            string expectedMessage = "There are more than one matching types i.e. atom and orbit on: {\n  \"NumberOfElectrons\": 12,\n  \"NumberOfProtons\": 13,\n  \"NumberOfShells\": 3\n}";
+            Assert.AreEqual(expectedMessage, exception.Message.Replace("\r", ""));
         }
 
         [Test]
