@@ -10,37 +10,45 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
     {
         public static NativeAnyOfContainer FromPrecision(double precision)
         {
-            return new PrecisionCase(precision);
+            return new PrecisionCase().Set(precision);
         }
 
         public static NativeAnyOfContainer FromMString(string mString)
         {
-            return string.IsNullOrEmpty(mString) ? null : new MStringCase(mString);
+            return string.IsNullOrEmpty(mString) ? null : new MStringCase().Set(mString);
         }
 
         public abstract T Match<T>(ICases<T> cases);
 
-        public interface ICases<T>
+        public interface ICases<out T>
         {
             T Precision(double precision);
 
             T MString(string mString);
         }
 
-        [JsonConverter(typeof(PrecisionCaseConverter))]
-        private class PrecisionCase : NativeAnyOfContainer
+        [JsonConverter(typeof(CaseConverter<PrecisionCase, double>), new JsonToken[] { JsonToken.Float })]
+        private class PrecisionCase : NativeAnyOfContainer, ICaseValue<PrecisionCase, double>
         {
-            [JsonProperty]
-            internal readonly double precision;
-
-            public PrecisionCase(double precision)
-            {
-                this.precision = precision;
-            }
+            private double precision;
 
             public override T Match<T>(ICases<T> cases)
             {
                 return cases.Precision(precision);
+            }
+
+            public PrecisionCase Set(object value)
+            {
+                if (value is double newValue)
+                {
+                    precision = newValue;
+                    return this;
+                }
+                throw new InvalidOperationException();
+            }
+            public double Get()
+            {
+                return precision;
             }
 
             public override string ToString()
@@ -49,77 +57,33 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             }
         }
 
-        [JsonConverter(typeof(StringCaseConverter))]
-        private class MStringCase : NativeAnyOfContainer
+        [JsonConverter(typeof(CaseConverter<MStringCase, string>), new JsonToken[] { JsonToken.String })]
+        private class MStringCase : NativeAnyOfContainer, ICaseValue<MStringCase, string>
         {
-            [JsonProperty]
-            internal readonly string mString;
-
-            public MStringCase(string mString)
-            {
-                this.mString = mString;
-            }
+            private string mString;
 
             public override T Match<T>(ICases<T> cases)
             {
                 return cases.MString(mString);
             }
 
+            public MStringCase Set(object value)
+            {
+                if (value is string newValue)
+                {
+                    mString = newValue;
+                    return this;
+                }
+                throw new InvalidOperationException();
+            }
+            public string Get()
+            {
+                return mString;
+            }
+
             public override string ToString()
             {
                 return mString.ToString();
-            }
-        }
-
-        private class PrecisionCaseConverter : JsonConverter<PrecisionCase>
-        {
-            public override PrecisionCase ReadJson(JsonReader reader, Type objectType, PrecisionCase existingValue, bool hasExistingValue, JsonSerializer serializer)
-            {
-                if (reader.TokenType != JsonToken.Float)
-                {
-                    throw new JsonSerializationException("Invalid PrecisionCase");
-                }
-                try
-                {
-                    double value = serializer.Deserialize<double>(reader);
-                    return new PrecisionCase(value);
-                }
-                catch (Exception)
-                {
-                    throw new JsonSerializationException("Invalid PrecisionCase");
-                }
-            }
-
-            public override void WriteJson(JsonWriter writer, PrecisionCase value, JsonSerializer serializer)
-            {
-                serializer.Serialize(writer, value.precision);
-            }
-        }
-
-
-        private class StringCaseConverter : JsonConverter<MStringCase>
-        {
-            public override MStringCase ReadJson(JsonReader reader, Type objectType, MStringCase existingValue, bool hasExistingValue, JsonSerializer serializer)
-            {
-                if (reader.TokenType != JsonToken.String)
-                {
-                    throw new JsonSerializationException("Invalid StringCase");
-                }
-
-                try
-                {
-                    string value = serializer.Deserialize<string>(reader);
-                    return new MStringCase(value);
-                }
-                catch (Exception)
-                {
-                    throw new JsonSerializationException("Invalid StringCase");
-                }
-            }
-
-            public override void WriteJson(JsonWriter writer, MStringCase value, JsonSerializer serializer)
-            {
-                serializer.Serialize(writer, value.mString);
             }
         }
 

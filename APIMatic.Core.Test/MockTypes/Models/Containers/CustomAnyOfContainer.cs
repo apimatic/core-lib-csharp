@@ -10,32 +10,40 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
     {
         public static CustomAnyOfContainer FromAtom(Atom atom)
         {
-            return new AtomCase(atom);
+            return new AtomCase().Set(atom);
         }
 
         public static CustomAnyOfContainer Fromorbit(Orbit orbit)
         {
-            return new OrbitCase(orbit);
+            return new OrbitCase().Set(orbit);
         }
 
         public abstract T Match<T>(ICases<T> cases);
 
-        public interface ICases<T>
+        public interface ICases<out T>
         {
             T Atom(Atom atom);
 
             T Orbit(Orbit orbit);
         }
 
-        [JsonConverter(typeof(AtomCaseConverter))]
-        private class AtomCase : CustomAnyOfContainer
+        [JsonConverter(typeof(CaseConverter<AtomCase, Atom>))]
+        private class AtomCase : CustomAnyOfContainer, ICaseValue<AtomCase, Atom>
         {
-            [JsonProperty]
-            internal readonly Atom atom;
+            private Atom atom;
 
-            public AtomCase(Atom atom)
+            public AtomCase Set(object value)
             {
-                this.atom = atom;
+                if (value is Atom newValue)
+                {
+                    atom = newValue;
+                    return this;
+                }
+                throw new InvalidOperationException();
+            }
+            public Atom Get()
+            {
+                return atom;
             }
 
             public override T Match<T>(ICases<T> cases)
@@ -49,17 +57,25 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             }
         }
 
-        [JsonConverter(typeof(OrbitCaseConverter))]
-        private class OrbitCase : CustomAnyOfContainer
+        [JsonConverter(typeof(CaseConverter<OrbitCase, Orbit>))]
+        private class OrbitCase : CustomAnyOfContainer, ICaseValue<OrbitCase, Orbit>
         {
-            [JsonProperty]
-            internal readonly Orbit orbit;
+            private Orbit orbit;
 
-            public OrbitCase(Orbit orbit)
+            public Orbit Get()
             {
-                this.orbit = orbit;
+                return orbit;
             }
 
+            public OrbitCase Set(object value)
+            {
+                if (value is Orbit newValue)
+                {
+                    orbit = newValue;
+                    return this;
+                }
+                throw new InvalidOperationException();
+            }
             public override T Match<T>(ICases<T> cases)
             {
                 return cases.Orbit(orbit);
@@ -68,49 +84,6 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             public override string ToString()
             {
                 return orbit.ToString();
-            }
-        }
-
-        private class AtomCaseConverter : JsonConverter<AtomCase>
-        {
-            public override AtomCase ReadJson(JsonReader reader, Type objectType, AtomCase existingValue, bool hasExistingValue, JsonSerializer serializer)
-            {
-                try
-                {
-                    Atom value = serializer.Deserialize<Atom>(reader);
-                    return new AtomCase(value);
-                }
-                catch (Exception)
-                {
-                    throw new JsonSerializationException("Invalid AtomCase");
-                }
-            }
-
-            public override void WriteJson(JsonWriter writer, AtomCase value, JsonSerializer serializer)
-            {
-                serializer.Serialize(writer, value.atom);
-            }
-        }
-
-
-        private class OrbitCaseConverter : JsonConverter<OrbitCase>
-        {
-            public override OrbitCase ReadJson(JsonReader reader, Type objectType, OrbitCase existingValue, bool hasExistingValue, JsonSerializer serializer)
-            {
-                try
-                {
-                    Orbit value = serializer.Deserialize<Orbit>(reader);
-                    return new OrbitCase(value);
-                }
-                catch (Exception)
-                {
-                    throw new JsonSerializationException("Invalid OrbitCase");
-                }
-            }
-
-            public override void WriteJson(JsonWriter writer, OrbitCase value, JsonSerializer serializer)
-            {
-                serializer.Serialize(writer, value.orbit);
             }
         }
 

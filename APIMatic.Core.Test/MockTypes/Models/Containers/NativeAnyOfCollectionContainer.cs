@@ -6,22 +6,22 @@ using System.Linq;
 
 namespace APIMatic.Core.Test.MockTypes.Models.Containers
 {
-    [JsonConverter(typeof(NativeOneOfCollectionConverter))]
-    public abstract class NativeOneOfCollectionContainer
+    [JsonConverter(typeof(NativeAnyOfCollectionConverter))]
+    public abstract class NativeAnyOfCollectionContainer
     {
-        public static NativeOneOfCollectionContainer FromPrecisionArray(double[] precision)
+        public static NativeAnyOfCollectionContainer FromPrecisionArray(double[] precision)
         {
             return new PrecisionArrayCase().Set(precision);
         }
 
-        public static NativeOneOfCollectionContainer FromMString(string[] mString)
+        public static NativeAnyOfCollectionContainer FromMString(string[] mString)
         {
             return mString == null || mString.Length == 0 ? null : new MStringArrayCase().Set(mString);
         }
 
         public abstract T Match<T>(ICases<T> cases);
 
-        public interface ICases<out T>
+        public interface ICases<T>
         {
             T Precision(double[] precision);
 
@@ -29,7 +29,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         }
 
         [JsonConverter(typeof(CaseConverter<PrecisionArrayCase, double[]>), new JsonToken[] { JsonToken.Float, JsonToken.StartArray })]
-        private class PrecisionArrayCase : NativeOneOfCollectionContainer, ICaseValue<PrecisionArrayCase, double[]>
+        private class PrecisionArrayCase : NativeAnyOfCollectionContainer, ICaseValue<PrecisionArrayCase, double[]>
         {
             private double[] precision;
 
@@ -60,7 +60,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         }
 
         [JsonConverter(typeof(CaseConverter<MStringArrayCase, string[]>), new JsonToken[] { JsonToken.String, JsonToken.StartArray })]
-        private class MStringArrayCase : NativeOneOfCollectionContainer, ICaseValue<MStringArrayCase, string[]>
+        private class MStringArrayCase : NativeAnyOfCollectionContainer, ICaseValue<MStringArrayCase, string[]>
         {
             private string[] mString;
 
@@ -90,23 +90,20 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             }
         }
 
-        private class NativeOneOfCollectionConverter : JsonConverter<NativeOneOfCollectionContainer>
+        private class NativeAnyOfCollectionConverter : JsonConverter<NativeAnyOfCollectionContainer>
         {
-            public override bool CanRead => true;
-            public override bool CanWrite => false;
-
-            public override NativeOneOfCollectionContainer ReadJson(JsonReader reader, Type objectType, NativeOneOfCollectionContainer existingValue, bool hasExistingValue, JsonSerializer serializer)
+            public override NativeAnyOfCollectionContainer ReadJson(JsonReader reader, Type objectType, NativeAnyOfCollectionContainer existingValue, bool hasExistingValue, JsonSerializer serializer)
             {
                 Dictionary<Type, string> types = new Dictionary<Type, string>
                 {
                     { typeof(PrecisionArrayCase), "precision" },
                     { typeof(MStringArrayCase), "string" }
                 };
-                var deserializedObject = CoreHelper.TryDeserializeOneOfAnyOf(types, reader, serializer, true);
-                return deserializedObject as NativeOneOfCollectionContainer;
+                var deserializedObject = CoreHelper.TryDeserializeOneOfAnyOf(types, reader, serializer, false);
+                return deserializedObject as NativeAnyOfCollectionContainer;
             }
 
-            public override void WriteJson(JsonWriter writer, NativeOneOfCollectionContainer value, JsonSerializer serializer)
+            public override void WriteJson(JsonWriter writer, NativeAnyOfCollectionContainer value, JsonSerializer serializer)
             {
                 throw new NotImplementedException();
             }

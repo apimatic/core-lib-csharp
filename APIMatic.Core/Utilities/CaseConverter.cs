@@ -45,11 +45,6 @@ namespace APIMatic.Core.Utilities
 
         private List<object> DeserializeCollection(JsonReader reader)
         {
-            if (_typeTokens == null || reader.TokenType != JsonToken.StartArray)
-            {
-                throw new InvalidOperationException();
-            }
-
             var collection = new List<object>();
             while (reader.Read())
             {

@@ -124,6 +124,10 @@ namespace APIMatic.Core.Utilities
                     {
                         deserializedObject = serializer.Deserialize(reader, type);
                         mappedTypes.Add(types[type]);
+                        if (!isOneOf)
+                        {
+                            return deserializedObject;
+                        }
 
                         if (isOneOf && mappedTypes.Count > 1)
                         {
@@ -138,15 +142,18 @@ namespace APIMatic.Core.Utilities
                 }
             }
 
-            if (!isOneOf && mappedTypes.Count == 0)
+            if (mappedTypes.Count == 0)
             {
-                throw new AnyOfValidationException(unMappedTypes, json);
+                if (!isOneOf)
+                {
+                    throw new AnyOfValidationException(unMappedTypes, json);
+                }
+                else
+                {
+                    throw new OneOfValidationException(unMappedTypes, json);
+                }
             }
 
-            if (isOneOf && mappedTypes.Count == 0)
-            {
-                throw new OneOfValidationException(unMappedTypes, json);
-            }
             return deserializedObject;
         }
 
