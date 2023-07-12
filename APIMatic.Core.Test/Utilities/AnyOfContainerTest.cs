@@ -2,6 +2,7 @@
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
+using System.Collections.Generic;
 using APIMatic.Core.Test.MockTypes.Models;
 using APIMatic.Core.Test.MockTypes.Models.Containers;
 using APIMatic.Core.Types;
@@ -228,6 +229,109 @@ namespace APIMatic.Core.Test.Utilities
             foreach (var form in formScalar)
             {
                 form.Match(new TestCustom());
+            }
+        }
+
+        [Test]
+        public void TestCustomTypeArrayOfMap()
+        {
+            // Parameters for the API call
+            ArrayOfMapContainer formScalar = CoreHelper.JsonDeserialize<ArrayOfMapContainer>("[ { \"key1\" : {\"NumberOfElectrons\":12,\"NumberOfProtons\":13 } } ]");
+            Assert.IsNotNull(formScalar);
+            formScalar.Match(new TestCustomArrayOfMap());
+            formScalar = CoreHelper.JsonDeserialize<ArrayOfMapContainer>(CoreHelper.JsonSerialize(formScalar));
+            formScalar.Match(new TestCustomArrayOfMap());
+            formScalar = CoreHelper.JsonDeserialize<ArrayOfMapContainer>("[{ \"key1\" : {\"NumberOfElectrons\":12,\"NumberOfShells\":3 } } ]");
+            formScalar.Match(new TestCustomArrayOfMap());
+            formScalar = CoreHelper.JsonDeserialize<ArrayOfMapContainer>(CoreHelper.JsonSerialize(formScalar));
+            formScalar.Match(new TestCustomArrayOfMap());
+        }
+
+        private class TestCustomArrayOfMap : ArrayOfMapContainer.ICases<VoidType>
+        {
+            public VoidType Atom(List<Dictionary<string, Atom>> atoms)
+            {
+                Atom expectedAtom = new Atom(12, 13);
+                List<Dictionary<string, Atom>> expected = new List<Dictionary<string, Atom>>
+                {
+                    new Dictionary<string, Atom>()
+                    {
+                        { "key1", expectedAtom }
+                    }
+                };
+
+                Assert.AreEqual(expected, atoms);
+                Console.WriteLine(atoms.ToString());
+                return null;
+            }
+
+            public VoidType Orbit(List<Dictionary<string, Orbit>> orbit)
+            {
+                Orbit expectedOrbit = new Orbit(12, 3);
+                List<Dictionary<string, Orbit>> expected = new List<Dictionary<string, Orbit>>
+                {
+                    new Dictionary<string, Orbit>()
+                    {
+                        { "key1", expectedOrbit }
+                    }
+                };
+
+                Assert.AreEqual(expected, orbit);
+                Console.WriteLine(orbit);
+                return null;
+            }
+        }
+
+        [Test]
+        public void TestCustomTypeMapOfArray()
+        {
+            // Parameters for the API call
+            MapOfArrayContainer formScalar = CoreHelper.JsonDeserialize<MapOfArrayContainer>("{ \"key1\" : [{\"NumberOfElectrons\":12,\"NumberOfProtons\":13 } ]} ");
+            Assert.IsNotNull(formScalar);
+            formScalar.Match(new TestCustomMapOfArray());
+            formScalar = CoreHelper.JsonDeserialize<MapOfArrayContainer>(CoreHelper.JsonSerialize(formScalar));
+            formScalar.Match(new TestCustomMapOfArray());
+            formScalar = CoreHelper.JsonDeserialize<MapOfArrayContainer>("{ \"key1\" : [{\"NumberOfElectrons\":12,\"NumberOfShells\":3 } ] } ");
+            formScalar.Match(new TestCustomMapOfArray());
+            formScalar = CoreHelper.JsonDeserialize<MapOfArrayContainer>(CoreHelper.JsonSerialize(formScalar));
+            formScalar.Match(new TestCustomMapOfArray());
+        }
+
+        private class TestCustomMapOfArray : MapOfArrayContainer.ICases<VoidType>
+        {
+            public VoidType Atom(Dictionary<string, List<Atom>> atoms)
+            {
+                Atom expectedAtom = new Atom(12, 13);
+                Dictionary<string, List<Atom>> expected = new Dictionary<string, List<Atom>>
+                {
+                    { "key1", new List<Atom>
+                        {
+                            expectedAtom
+                        }
+                    }
+                };
+
+                Assert.AreEqual(expected, atoms);
+                Console.WriteLine(atoms.ToString());
+                return null;
+            }
+
+            public VoidType Orbit(Dictionary<string, List<Orbit>> orbit)
+            {
+                Orbit expectedOrbit = new Orbit(12, 3);
+                Dictionary<string, List<Orbit>> expected = new Dictionary<string, List<Orbit>>
+                {
+                    {
+                        "key1", new List<Orbit>
+                        {
+                            expectedOrbit
+                        }
+                    }
+                };
+
+                Assert.AreEqual(expected, orbit);
+                Console.WriteLine(orbit);
+                return null;
             }
         }
     }

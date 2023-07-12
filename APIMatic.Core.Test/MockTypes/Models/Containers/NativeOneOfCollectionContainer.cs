@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using APIMatic.Core.Utilities;
-using System.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Test.MockTypes.Models.Containers
 {
@@ -19,6 +19,11 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             return mString == null || mString.Length == 0 ? null : new MStringArrayCase().Set(mString);
         }
 
+        public static NativeOneOfCollectionContainer FromCutomTypeDictionary(Dictionary<string, Atom> customTypeDictionary)
+        {
+            return new CustomTypeDictionaryCase().Set(customTypeDictionary);
+        }
+
         public abstract T Match<T>(ICases<T> cases);
 
         public interface ICases<out T>
@@ -26,9 +31,11 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             T Precision(double[] precision);
 
             T MString(string[] mString);
+
+            T CustomTypeDictionary(Dictionary<string, Atom> customTypeDictionary);
         }
 
-        [JsonConverter(typeof(CaseConverter<PrecisionArrayCase, double[]>), new JsonToken[] { JsonToken.Float, JsonToken.StartArray })]
+        [JsonConverter(typeof(CaseConverter<PrecisionArrayCase, double[]>), new JTokenType[] { JTokenType.Float })]
         private class PrecisionArrayCase : NativeOneOfCollectionContainer, ICaseValue<PrecisionArrayCase, double[]>
         {
             private double[] precision;
@@ -38,14 +45,10 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
                 return cases.Precision(precision);
             }
 
-            public PrecisionArrayCase Set(object value)
+            public PrecisionArrayCase Set(double[] value)
             {
-                if (value is List<object> newValue)
-                {
-                    precision = newValue.Cast<double>().ToArray();
-                    return this;
-                }
-                throw new InvalidOperationException();
+                precision = value;
+                return this;
             }
 
             public double[] Get()
@@ -59,7 +62,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             }
         }
 
-        [JsonConverter(typeof(CaseConverter<MStringArrayCase, string[]>), new JsonToken[] { JsonToken.String, JsonToken.StartArray })]
+        [JsonConverter(typeof(CaseConverter<MStringArrayCase, string[]>), new JTokenType[] { JTokenType.String })]
         private class MStringArrayCase : NativeOneOfCollectionContainer, ICaseValue<MStringArrayCase, string[]>
         {
             private string[] mString;
@@ -69,14 +72,10 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
                 return cases.MString(mString);
             }
 
-            public MStringArrayCase Set(object value)
+            public MStringArrayCase Set(string[] value)
             {
-                if (value is List<object> newValue)
-                {
-                    mString = newValue.Cast<string>().ToArray();
-                    return this;
-                }
-                throw new InvalidOperationException();
+                mString = value;
+                return this;
             }
 
             public string[] Get()
@@ -90,6 +89,33 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             }
         }
 
+        [JsonConverter(typeof(CaseConverter<CustomTypeDictionaryCase, Dictionary<string, Atom>>))]
+        private class CustomTypeDictionaryCase : NativeOneOfCollectionContainer, ICaseValue<CustomTypeDictionaryCase, Dictionary<string, Atom>>
+        {
+            private Dictionary<string, Atom> customTypeDict;
+
+            public override T Match<T>(ICases<T> cases)
+            {
+                return cases.CustomTypeDictionary(customTypeDict);
+            }
+
+            public CustomTypeDictionaryCase Set(Dictionary<string, Atom> value)
+            {
+                customTypeDict = value;
+                return this;
+            }
+
+            public Dictionary<string, Atom> Get()
+            {
+                return customTypeDict;
+            }
+
+            public override string ToString()
+            {
+                return customTypeDict.ToString();
+            }
+        }
+
         private class NativeOneOfCollectionConverter : JsonConverter<NativeOneOfCollectionContainer>
         {
             public override bool CanRead => true;
@@ -100,7 +126,8 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
                 Dictionary<Type, string> types = new Dictionary<Type, string>
                 {
                     { typeof(PrecisionArrayCase), "precision" },
-                    { typeof(MStringArrayCase), "string" }
+                    { typeof(MStringArrayCase), "string" },
+                    { typeof(CustomTypeDictionaryCase), "customDictionary" },
                 };
                 var deserializedObject = CoreHelper.TryDeserializeOneOfAnyOf(types, reader, serializer, true);
                 return deserializedObject as NativeOneOfCollectionContainer;

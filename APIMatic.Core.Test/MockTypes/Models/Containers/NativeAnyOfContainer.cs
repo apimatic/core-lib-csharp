@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using APIMatic.Core.Utilities;
+using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Test.MockTypes.Models.Containers
 {
@@ -27,7 +28,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             T MString(string mString);
         }
 
-        [JsonConverter(typeof(CaseConverter<PrecisionCase, double>), new JsonToken[] { JsonToken.Float })]
+        [JsonConverter(typeof(CaseConverter<PrecisionCase, double>), new JTokenType[] { JTokenType.Float })]
         private class PrecisionCase : NativeAnyOfContainer, ICaseValue<PrecisionCase, double>
         {
             private double precision;
@@ -37,14 +38,10 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
                 return cases.Precision(precision);
             }
 
-            public PrecisionCase Set(object value)
+            public PrecisionCase Set(double value)
             {
-                if (value is double newValue)
-                {
-                    precision = newValue;
-                    return this;
-                }
-                throw new InvalidOperationException();
+                precision = value;
+                return this;
             }
             public double Get()
             {
@@ -57,7 +54,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             }
         }
 
-        [JsonConverter(typeof(CaseConverter<MStringCase, string>), new JsonToken[] { JsonToken.String })]
+        [JsonConverter(typeof(CaseConverter<MStringCase, string>), new JTokenType[] { JTokenType.String })]
         private class MStringCase : NativeAnyOfContainer, ICaseValue<MStringCase, string>
         {
             private string mString;
@@ -67,14 +64,10 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
                 return cases.MString(mString);
             }
 
-            public MStringCase Set(object value)
+            public MStringCase Set(string value)
             {
-                if (value is string newValue)
-                {
-                    mString = newValue;
-                    return this;
-                }
-                throw new InvalidOperationException();
+                mString = value;
+                return this;
             }
             public string Get()
             {

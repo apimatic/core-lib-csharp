@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using APIMatic.Core.Utilities;
-using System.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Test.MockTypes.Models.Containers
 {
@@ -28,7 +28,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             T MString(string[] mString);
         }
 
-        [JsonConverter(typeof(CaseConverter<PrecisionArrayCase, double[]>), new JsonToken[] { JsonToken.Float, JsonToken.StartArray })]
+        [JsonConverter(typeof(CaseConverter<PrecisionArrayCase, double[]>), new JTokenType[] { JTokenType.Float })]
         private class PrecisionArrayCase : NativeAnyOfCollectionContainer, ICaseValue<PrecisionArrayCase, double[]>
         {
             private double[] precision;
@@ -38,14 +38,10 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
                 return cases.Precision(precision);
             }
 
-            public PrecisionArrayCase Set(object value)
+            public PrecisionArrayCase Set(double[] value)
             {
-                if (value is List<object> newValue)
-                {
-                    precision = newValue.Cast<double>().ToArray();
-                    return this;
-                }
-                throw new InvalidOperationException();
+                precision = value;
+                return this;
             }
 
             public double[] Get()
@@ -59,7 +55,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             }
         }
 
-        [JsonConverter(typeof(CaseConverter<MStringArrayCase, string[]>), new JsonToken[] { JsonToken.String, JsonToken.StartArray })]
+        [JsonConverter(typeof(CaseConverter<MStringArrayCase, string[]>), new JTokenType[] { JTokenType.String })]
         private class MStringArrayCase : NativeAnyOfCollectionContainer, ICaseValue<MStringArrayCase, string[]>
         {
             private string[] mString;
@@ -69,14 +65,10 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
                 return cases.MString(mString);
             }
 
-            public MStringArrayCase Set(object value)
+            public MStringArrayCase Set(string[] value)
             {
-                if (value is List<object> newValue)
-                {
-                    mString = newValue.Cast<string>().ToArray();
-                    return this;
-                }
-                throw new InvalidOperationException();
+                mString = value;
+                return this;
             }
 
             public string[] Get()

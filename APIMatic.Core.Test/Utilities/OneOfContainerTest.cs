@@ -5,6 +5,7 @@ using System;
 using APIMatic.Core.Utilities;
 using APIMatic.Core.Test.MockTypes.Models.Containers;
 using APIMatic.Core.Test.MockTypes.Models;
+using System.Collections.Generic;
 
 namespace APIMatic.Core.Test.Utilities
 {
@@ -70,22 +71,27 @@ namespace APIMatic.Core.Test.Utilities
         public void TestNativeCollectionType()
         {
             // Parameters for the API call
-            NativeOneOfCollectionContainer formScalar = CoreHelper.JsonDeserialize<NativeOneOfCollectionContainer>("[\"some string array\"]");
+            NativeOneOfCollectionContainer formScalar = CoreHelper.JsonDeserialize<NativeOneOfCollectionContainer>("[\"some string array\", \"test\"]");
             Assert.IsNotNull(formScalar);
-            formScalar.Match(new TestNativeCollection());
+            formScalar.Match(new TestCollection());
             formScalar = CoreHelper.JsonDeserialize<NativeOneOfCollectionContainer>(CoreHelper.JsonSerialize(formScalar));
-            formScalar.Match(new TestNativeCollection());
-            formScalar = CoreHelper.JsonDeserialize<NativeOneOfCollectionContainer>("[0.987]");
-            formScalar.Match(new TestNativeCollection());
+            formScalar.Match(new TestCollection());
+            formScalar = CoreHelper.JsonDeserialize<NativeOneOfCollectionContainer>("[0.987, 0.6987]");
+            formScalar.Match(new TestCollection());
             formScalar = CoreHelper.JsonDeserialize<NativeOneOfCollectionContainer>(CoreHelper.JsonSerialize(formScalar));
-            formScalar.Match(new TestNativeCollection());
+            formScalar.Match(new TestCollection());
+
+            formScalar = CoreHelper.JsonDeserialize<NativeOneOfCollectionContainer>("{\"key1\" : {\"NumberOfElectrons\":12,\"NumberOfProtons\":13} }");
+            formScalar.Match(new TestCollection());
+            formScalar = CoreHelper.JsonDeserialize<NativeOneOfCollectionContainer>(CoreHelper.JsonSerialize(formScalar));
+            formScalar.Match(new TestCollection());
         }
 
-        private class TestNativeCollection : NativeOneOfCollectionContainer.ICases<VoidType>
+        private class TestCollection : NativeOneOfCollectionContainer.ICases<VoidType>
         {
             public VoidType MString(string[] mString)
             {
-                string[] expectedStringArray = { "some string array" };
+                string[] expectedStringArray = { "some string array", "test" };
                 CollectionAssert.AreEqual(expectedStringArray, mString);
                 Console.WriteLine(string.Join(", ", mString));
                 return null;
@@ -93,9 +99,20 @@ namespace APIMatic.Core.Test.Utilities
 
             public VoidType Precision(double[] precision)
             {
-                double[] expectedPrecision = { 0.987 };
+                double[] expectedPrecision = { 0.987, 0.6987 };
                 CollectionAssert.AreEqual(expectedPrecision, precision);
                 Console.WriteLine(string.Join(", ", precision));
+                return null;
+            }
+
+            public VoidType CustomTypeDictionary(Dictionary<string, Atom> customDictionary)
+            {
+                Dictionary<string, Atom> expected = new Dictionary<string, Atom>()
+                {
+                    { "key1", new Atom(12, 13) }
+                };
+                CollectionAssert.AreEqual(expected, customDictionary);
+                Console.WriteLine(expected.ToString());
                 return null;
             }
         }
@@ -154,7 +171,6 @@ namespace APIMatic.Core.Test.Utilities
             formScalar.Match(new TestCustom());
         }
 
-
         private class TestCustom : CustomOneOfContainer.ICases<VoidType>
         {
             public VoidType Atom(Atom atom)
@@ -211,6 +227,42 @@ namespace APIMatic.Core.Test.Utilities
             Assert.NotNull(exception);
             string expectedMessage = "There are more than one matching types i.e. atom and orbit on: {\n  \"NumberOfElectrons\": 12,\n  \"NumberOfProtons\": 13,\n  \"NumberOfShells\": 3\n}";
             Assert.AreEqual(expectedMessage, exception.Message.Replace("\r", ""));
+        }
+
+        [Test]
+        public void TestCustomTypeCollection()
+        {
+            // Parameters for the API call
+            CustomOneOfCollectionContainer formScalar = CoreHelper.JsonDeserialize<CustomOneOfCollectionContainer>("[{\"NumberOfElectrons\":12,\"NumberOfProtons\":13}]");
+            Assert.IsNotNull(formScalar);
+            formScalar.Match(new TestCustomCollection());
+            formScalar = CoreHelper.JsonDeserialize<CustomOneOfCollectionContainer>(CoreHelper.JsonSerialize(formScalar));
+            formScalar.Match(new TestCustomCollection());
+            formScalar = CoreHelper.JsonDeserialize<CustomOneOfCollectionContainer>("[{\"NumberOfElectrons\":12,\"NumberOfShells\":3}]");
+            formScalar.Match(new TestCustomCollection());
+            formScalar = CoreHelper.JsonDeserialize<CustomOneOfCollectionContainer>(CoreHelper.JsonSerialize(formScalar));
+            formScalar.Match(new TestCustomCollection());
+        }
+
+        private class TestCustomCollection : CustomOneOfCollectionContainer.ICases<VoidType>
+        {
+            public VoidType Atom(Atom[] atom)
+            {
+                Atom expectedAtom = new Atom(12, 13);
+                Atom[] expected = { expectedAtom };
+                Assert.AreEqual(expected, atom);
+                Console.WriteLine(atom);
+                return null;
+            }
+
+            public VoidType Orbit(Orbit[] orbit)
+            {
+                Orbit expectedOrbit = new Orbit(12, 3);
+                Orbit[] expected = { expectedOrbit };
+                Assert.AreEqual(expected, orbit);
+                Console.WriteLine(orbit);
+                return null;
+            }
         }
 
         [Test]

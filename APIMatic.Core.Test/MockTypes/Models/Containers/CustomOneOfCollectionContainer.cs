@@ -37,14 +37,10 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
                 return cases.Atom(atoms);
             }
 
-            public AtomCase Set(object value)
+            public AtomCase Set(Atom[] value)
             {
-                if (value is Atom[] newValue)
-                {
-                    atoms = newValue;
-                    return this;
-                }
-                throw new InvalidOperationException();
+                atoms = value;
+                return this;
             }
             public Atom[] Get()
             {
@@ -72,14 +68,10 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
                 return orbits;
             }
 
-            public OrbitCase Set(object value)
+            public OrbitCase Set(Orbit[] value)
             {
-                if (value is Orbit[] newValue)
-                {
-                    orbits = newValue;
-                    return this;
-                }
-                throw new InvalidOperationException();
+                orbits = value;
+                return this;
             }
 
             public override string ToString()

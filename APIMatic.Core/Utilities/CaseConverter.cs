@@ -2,30 +2,27 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Utilities
 {
     public class CaseConverter<C, T> : JsonConverter<C> where C : ICaseValue<C, T>, new()
     {
-        private readonly IEnumerable<JsonToken> _typeTokens = null;
-        private readonly bool _isNativeCollection = false;
+        private readonly IEnumerable<JTokenType> _typeTokens = null;
 
         public CaseConverter() { }
 
-        public CaseConverter(JsonToken[] typeTokens)
+        public CaseConverter(JTokenType[] typeTokens)
         {
-            if (typeTokens.Contains(JsonToken.StartArray))
-            {
-                _isNativeCollection = true;
-            }
             _typeTokens = typeTokens.Any() ? typeTokens : null;
         }
 
         public override C ReadJson(JsonReader reader, Type objectType, C existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
+            JToken token = JToken.ReadFrom(reader);
             try
             {
-                object value = _isNativeCollection ? DeserializeCollection(reader) : Deserialize(reader, serializer);
+                T value = Deserialize(token, serializer);
                 return new C().Set(value);
             }
             catch (Exception)
@@ -34,34 +31,28 @@ namespace APIMatic.Core.Utilities
             }
         }
 
-        private object Deserialize(JsonReader reader, JsonSerializer serializer)
+        private T Deserialize(JToken token, JsonSerializer serializer)
         {
-            if (_typeTokens == null || _typeTokens.Contains(reader.TokenType))
+            if (_typeTokens == null || VerifyInternalType(token))
             {
-                return serializer.Deserialize<T>(reader);
+                return serializer.Deserialize<T>(token.CreateReader());
             }
             throw new InvalidOperationException();
         }
 
-        private List<object> DeserializeCollection(JsonReader reader)
+        private bool VerifyInternalType(JToken token)
         {
-            var collection = new List<object>();
-            while (reader.Read())
+            if (_typeTokens.Contains(token.Type))
             {
-                if (_typeTokens.Contains(reader.TokenType))
-                {
-                    collection.Add(reader.Value);
-                }
-                else if (reader.TokenType == JsonToken.EndArray)
-                {
-                    break;
-                }
-                else
-                {
-                    throw new InvalidOperationException();
-                }
+                return true;
             }
-            return collection;
+
+            if (token.Type != JTokenType.Array && token.Type != JTokenType.Object)
+            {
+                return false;
+            }
+
+            return token.All(tkn => VerifyInternalType(tkn));
         }
 
         public override void WriteJson(JsonWriter writer, C value, JsonSerializer serializer)
@@ -70,10 +61,10 @@ namespace APIMatic.Core.Utilities
         }
     }
 
-    public interface ICaseValue<out C, out T>
+    public interface ICaseValue<out C, T>
     {
         T Get();
 
-        C Set(object value);
+        C Set(T value);
     }
 }
