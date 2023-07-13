@@ -6,7 +6,7 @@ using System;
 namespace APIMatic.Core.Test.MockTypes.Models.Containers
 {
     [JsonConverter(
-        typeof(UnionTypeConverter<CustomAnyOfContainer>),
+        typeof(UnionTypeConverter<ArrayOfMapContainer>),
         new Type[] {
             typeof(AtomCase),
             typeof(OrbitCase)

@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace APIMatic.Core.Test.MockTypes.Models.Containers
 {
     [JsonConverter(
-       typeof(UnionTypeConverter<CustomAnyOfContainer>),
+       typeof(UnionTypeConverter<MapOfArrayContainer>),
        new Type[] {
             typeof(AtomCase),
             typeof(OrbitCase)
