@@ -9,76 +9,76 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
     [JsonConverter(typeof(NativeAnyOfCollectionConverter))]
     public abstract class NativeAnyOfCollectionContainer
     {
-        public static NativeAnyOfCollectionContainer FromPrecisionArray(double[] precision)
+        public static NativeAnyOfCollectionContainer FromPrecisionArray(double[] value)
         {
-            return new PrecisionArrayCase().Set(precision);
+            return new PrecisionArrayCase().Set(value);
         }
 
-        public static NativeAnyOfCollectionContainer FromMString(string[] mString)
+        public static NativeAnyOfCollectionContainer FromMString(string[] value)
         {
-            return mString == null || mString.Length == 0 ? null : new MStringArrayCase().Set(mString);
+            return value == null || value.Length == 0 ? null : new MStringArrayCase().Set(value);
         }
 
         public abstract T Match<T>(ICases<T> cases);
 
         public interface ICases<T>
         {
-            T Precision(double[] precision);
+            T Precision(double[] value);
 
-            T MString(string[] mString);
+            T MString(string[] value);
         }
 
         [JsonConverter(typeof(CaseConverter<PrecisionArrayCase, double[]>), new JTokenType[] { JTokenType.Float })]
         private class PrecisionArrayCase : NativeAnyOfCollectionContainer, ICaseValue<PrecisionArrayCase, double[]>
         {
-            private double[] precision;
+            private double[] value;
 
             public override T Match<T>(ICases<T> cases)
             {
-                return cases.Precision(precision);
+                return cases.Precision(value);
             }
 
             public PrecisionArrayCase Set(double[] value)
             {
-                precision = value;
+                this.value = value;
                 return this;
             }
 
             public double[] Get()
             {
-                return precision;
+                return value;
             }
 
             public override string ToString()
             {
-                return precision.ToString();
+                return value.ToString();
             }
         }
 
         [JsonConverter(typeof(CaseConverter<MStringArrayCase, string[]>), new JTokenType[] { JTokenType.String })]
         private class MStringArrayCase : NativeAnyOfCollectionContainer, ICaseValue<MStringArrayCase, string[]>
         {
-            private string[] mString;
+            private string[] value;
 
             public override T Match<T>(ICases<T> cases)
             {
-                return cases.MString(mString);
+                return cases.MString(value);
             }
 
             public MStringArrayCase Set(string[] value)
             {
-                mString = value;
+                this.value = value;
                 return this;
             }
 
             public string[] Get()
             {
-                return mString;
+                return value;
             }
 
             public override string ToString()
             {
-                return mString.ToString();
+                return value.ToString();
             }
         }
 

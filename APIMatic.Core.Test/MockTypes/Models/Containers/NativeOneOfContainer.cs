@@ -10,75 +10,75 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
     [JsonConverter(typeof(NativeConverter))]
     public abstract class NativeOneOfContainer
     {
-        public static NativeOneOfContainer FromPrecision(double precision)
+        public static NativeOneOfContainer FromPrecision(double value)
         {
-            return new PrecisionCase().Set(precision);
+            return new PrecisionCase().Set(value);
         }
 
-        public static NativeOneOfContainer FromMString(string mString)
+        public static NativeOneOfContainer FromMString(string value)
         {
-            return string.IsNullOrEmpty(mString) ? null : new MStringCase().Set(mString);
+            return string.IsNullOrEmpty(value) ? null : new MStringCase().Set(value);
         }
 
         public abstract T Match<T>(ICases<T> cases);
 
         public interface ICases<out T>
         {
-            T Precision(double precision);
+            T Precision(double value);
 
-            T MString(string mString);
+            T MString(string value);
         }
 
         [JsonConverter(typeof(CaseConverter<PrecisionCase, double>), new JTokenType[] { JTokenType.Float })]
         private class PrecisionCase : NativeOneOfContainer, ICaseValue<PrecisionCase, double>
         {
-            private double precision;
+            private double value;
 
             public override T Match<T>(ICases<T> cases)
             {
-                return cases.Precision(precision);
+                return cases.Precision(value);
             }
 
             public PrecisionCase Set(double value)
             {
-                precision = value;
+                this.value = value;
                 return this;
             }
             public double Get()
             {
-                return precision;
+                return value;
             }
 
             public override string ToString()
             {
-                return precision.ToString();
+                return value.ToString();
             }
         }
 
         [JsonConverter(typeof(CaseConverter<MStringCase, string>), new JTokenType[] { JTokenType.String })]
         private class MStringCase : NativeOneOfContainer, ICaseValue<MStringCase, string>
         {
-            private string mString;
+            private string value;
 
             public override T Match<T>(ICases<T> cases)
             {
-                return cases.MString(mString);
+                return cases.MString(value);
             }
 
             public MStringCase Set(string value)
             {
-                mString = value;
+                this.value = value;
                 return this;
             }
 
             public string Get()
             {
-                return mString;
+                return value;
             }
 
             public override string ToString()
             {
-                return mString.ToString();
+                return value.ToString();
             }
         }
 

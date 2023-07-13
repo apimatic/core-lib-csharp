@@ -35,17 +35,17 @@ namespace APIMatic.Core.Test.Utilities
 
         private class TestNative : NativeAnyOfContainer.ICases<VoidType>
         {
-            public VoidType MString(string mString)
+            public VoidType MString(string value)
             {
-                Assert.AreEqual("some string", mString);
-                Console.WriteLine(mString);
+                Assert.AreEqual("some string", value);
+                Console.WriteLine(value);
                 return null;
             }
 
-            public VoidType Precision(double precision)
+            public VoidType Precision(double value)
             {
-                Assert.AreEqual(0.987d, precision);
-                Console.WriteLine(precision);
+                Assert.AreEqual(0.987d, value);
+                Console.WriteLine(value);
                 return null;
             }
         }
@@ -87,19 +87,19 @@ namespace APIMatic.Core.Test.Utilities
 
         private class TestNativeCollection : NativeAnyOfCollectionContainer.ICases<VoidType>
         {
-            public VoidType MString(string[] mString)
+            public VoidType MString(string[] value)
             {
                 string[] expectedStringArray = { "some string array" };
-                CollectionAssert.AreEqual(expectedStringArray, mString);
-                Console.WriteLine(string.Join(", ", mString));
+                CollectionAssert.AreEqual(expectedStringArray, value);
+                Console.WriteLine(string.Join(", ", value));
                 return null;
             }
 
-            public VoidType Precision(double[] precision)
+            public VoidType Precision(double[] value)
             {
                 double[] expectedPrecision = { 0.987 };
-                CollectionAssert.AreEqual(expectedPrecision, precision);
-                Console.WriteLine(string.Join(", ", precision));
+                CollectionAssert.AreEqual(expectedPrecision, value);
+                Console.WriteLine(string.Join(", ", value));
                 return null;
             }
         }
@@ -160,19 +160,19 @@ namespace APIMatic.Core.Test.Utilities
 
         private class TestCustom : CustomAnyOfContainer.ICases<VoidType>
         {
-            public VoidType Atom(Atom atom)
+            public VoidType Atom(Atom value)
             {
                 Atom expected = new Atom(12, 13);
-                Assert.AreEqual(expected, atom);
-                Console.WriteLine(atom);
+                Assert.AreEqual(expected, value);
+                Console.WriteLine(value);
                 return null;
             }
 
-            public VoidType Orbit(Orbit orbit)
+            public VoidType Orbit(Orbit value)
             {
                 Orbit expected = new Orbit(12, 3);
-                Assert.AreEqual(expected, orbit);
-                Console.WriteLine(orbit);
+                Assert.AreEqual(expected, value);
+                Console.WriteLine(value);
                 return null;
             }
         }
@@ -249,7 +249,7 @@ namespace APIMatic.Core.Test.Utilities
 
         private class TestCustomArrayOfMap : ArrayOfMapContainer.ICases<VoidType>
         {
-            public VoidType Atom(List<Dictionary<string, Atom>> atoms)
+            public VoidType Atom(List<Dictionary<string, Atom>> value)
             {
                 Atom expectedAtom = new Atom(12, 13);
                 List<Dictionary<string, Atom>> expected = new List<Dictionary<string, Atom>>
@@ -260,12 +260,12 @@ namespace APIMatic.Core.Test.Utilities
                     }
                 };
 
-                Assert.AreEqual(expected, atoms);
-                Console.WriteLine(atoms.ToString());
+                Assert.AreEqual(expected, value);
+                Console.WriteLine(value.ToString());
                 return null;
             }
 
-            public VoidType Orbit(List<Dictionary<string, Orbit>> orbit)
+            public VoidType Orbit(List<Dictionary<string, Orbit>> value)
             {
                 Orbit expectedOrbit = new Orbit(12, 3);
                 List<Dictionary<string, Orbit>> expected = new List<Dictionary<string, Orbit>>
@@ -276,8 +276,8 @@ namespace APIMatic.Core.Test.Utilities
                     }
                 };
 
-                Assert.AreEqual(expected, orbit);
-                Console.WriteLine(orbit);
+                Assert.AreEqual(expected, value);
+                Console.WriteLine(value);
                 return null;
             }
         }
@@ -299,7 +299,7 @@ namespace APIMatic.Core.Test.Utilities
 
         private class TestCustomMapOfArray : MapOfArrayContainer.ICases<VoidType>
         {
-            public VoidType Atom(Dictionary<string, List<Atom>> atoms)
+            public VoidType Atom(Dictionary<string, List<Atom>> value)
             {
                 Atom expectedAtom = new Atom(12, 13);
                 Dictionary<string, List<Atom>> expected = new Dictionary<string, List<Atom>>
@@ -311,12 +311,12 @@ namespace APIMatic.Core.Test.Utilities
                     }
                 };
 
-                Assert.AreEqual(expected, atoms);
-                Console.WriteLine(atoms.ToString());
+                Assert.AreEqual(expected, value);
+                Console.WriteLine(value.ToString());
                 return null;
             }
 
-            public VoidType Orbit(Dictionary<string, List<Orbit>> orbit)
+            public VoidType Orbit(Dictionary<string, List<Orbit>> value)
             {
                 Orbit expectedOrbit = new Orbit(12, 3);
                 Dictionary<string, List<Orbit>> expected = new Dictionary<string, List<Orbit>>
@@ -329,8 +329,8 @@ namespace APIMatic.Core.Test.Utilities
                     }
                 };
 
-                Assert.AreEqual(expected, orbit);
-                Console.WriteLine(orbit);
+                Assert.AreEqual(expected, value);
+                Console.WriteLine(value);
                 return null;
             }
         }

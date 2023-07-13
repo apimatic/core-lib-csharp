@@ -8,75 +8,75 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
     [JsonConverter(typeof(MapOfArrayConverter))]
     public abstract class MapOfArrayContainer
     {
-        public static MapOfArrayContainer FromAtom(Dictionary<string, List<Atom>> atoms)
+        public static MapOfArrayContainer FromAtom(Dictionary<string, List<Atom>> value)
         {
-            return new AtomCase().Set(atoms);
+            return new AtomCase().Set(value);
         }
 
-        public static MapOfArrayContainer Fromorbit(Dictionary<string, List<Orbit>> orbits)
+        public static MapOfArrayContainer Fromorbit(Dictionary<string, List<Orbit>> value)
         {
-            return new OrbitCase().Set(orbits);
+            return new OrbitCase().Set(value);
         }
 
         public abstract T Match<T>(ICases<T> cases);
 
         public interface ICases<out T>
         {
-            T Atom(Dictionary<string, List<Atom>> atoms);
+            T Atom(Dictionary<string, List<Atom>> value);
 
-            T Orbit(Dictionary<string, List<Orbit>> orbits);
+            T Orbit(Dictionary<string, List<Orbit>> value);
         }
 
         [JsonConverter(typeof(CaseConverter<AtomCase, Dictionary<string, List<Atom>>>))]
         private class AtomCase : MapOfArrayContainer, ICaseValue<AtomCase, Dictionary<string, List<Atom>>>
         {
-            private Dictionary<string, List<Atom>> atom;
+            private Dictionary<string, List<Atom>> value;
 
             public AtomCase Set(Dictionary<string, List<Atom>> value)
             {
-                atom = value;
+                this.value = value;
                 return this;
             }
             public Dictionary<string, List<Atom>> Get()
             {
-                return atom;
+                return value;
             }
 
             public override T Match<T>(ICases<T> cases)
             {
-                return cases.Atom(atom);
+                return cases.Atom(value);
             }
 
             public override string ToString()
             {
-                return atom.ToString();
+                return value.ToString();
             }
         }
 
         [JsonConverter(typeof(CaseConverter<OrbitCase, Dictionary<string, List<Orbit>>>))]
         private class OrbitCase : MapOfArrayContainer, ICaseValue<OrbitCase, Dictionary<string, List<Orbit>>>
         {
-            private Dictionary<string, List<Orbit>> orbit;
+            private Dictionary<string, List<Orbit>> value;
 
             public Dictionary<string, List<Orbit>> Get()
             {
-                return orbit;
+                return value;
             }
 
             public OrbitCase Set(Dictionary<string, List<Orbit>> value)
             {
-                orbit = value;
+                this.value = value;
                 return this;
             }
 
             public override T Match<T>(ICases<T> cases)
             {
-                return cases.Orbit(orbit);
+                return cases.Orbit(value);
             }
 
             public override string ToString()
             {
-                return orbit.ToString();
+                return value.ToString();
             }
         }
 

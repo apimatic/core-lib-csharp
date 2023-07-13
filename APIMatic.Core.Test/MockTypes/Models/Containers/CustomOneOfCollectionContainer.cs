@@ -8,75 +8,75 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
     [JsonConverter(typeof(CustomOneOfCollectionConverter))]
     public abstract class CustomOneOfCollectionContainer
     {
-        public static CustomOneOfCollectionContainer FromAtom(Atom[] atoms)
+        public static CustomOneOfCollectionContainer FromAtom(Atom[] value)
         {
-            return new AtomCase().Set(atoms);
+            return new AtomCase().Set(value);
         }
 
-        public static CustomOneOfCollectionContainer Fromorbit(Orbit[] orbits)
+        public static CustomOneOfCollectionContainer Fromorbit(Orbit[] value)
         {
-            return new OrbitCase().Set(orbits);
+            return new OrbitCase().Set(value);
         }
 
         public abstract T Match<T>(ICases<T> cases);
 
         public interface ICases<out T>
         {
-            T Atom(Atom[] atoms);
+            T Atom(Atom[] value);
 
-            T Orbit(Orbit[] orbits);
+            T Orbit(Orbit[] value);
         }
 
         [JsonConverter(typeof(CaseConverter<AtomCase, Atom[]>))]
         private class AtomCase : CustomOneOfCollectionContainer, ICaseValue<AtomCase, Atom[]>
         {
-            private Atom[] atoms;
+            private Atom[] value;
 
             public override T Match<T>(ICases<T> cases)
             {
-                return cases.Atom(atoms);
+                return cases.Atom(value);
             }
 
             public AtomCase Set(Atom[] value)
             {
-                atoms = value;
+                this.value = value;
                 return this;
             }
             public Atom[] Get()
             {
-                return atoms;
+                return value;
             }
 
             public override string ToString()
             {
-                return atoms.ToString();
+                return value.ToString();
             }
         }
 
         [JsonConverter(typeof(CaseConverter<OrbitCase, Orbit[]>))]
         private class OrbitCase : CustomOneOfCollectionContainer, ICaseValue<OrbitCase, Orbit[]>
         {
-            private Orbit[] orbits;
+            private Orbit[] value;
 
             public override T Match<T>(ICases<T> cases)
             {
-                return cases.Orbit(orbits);
+                return cases.Orbit(value);
             }
 
             public Orbit[] Get()
             {
-                return orbits;
+                return value;
             }
 
             public OrbitCase Set(Orbit[] value)
             {
-                orbits = value;
+                this.value = value;
                 return this;
             }
 
             public override string ToString()
             {
-                return orbits.ToString();
+                return value.ToString();
             }
         }
 

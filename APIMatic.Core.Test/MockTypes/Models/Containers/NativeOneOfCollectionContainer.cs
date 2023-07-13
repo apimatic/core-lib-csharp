@@ -9,14 +9,14 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
     [JsonConverter(typeof(NativeOneOfCollectionConverter))]
     public abstract class NativeOneOfCollectionContainer
     {
-        public static NativeOneOfCollectionContainer FromPrecisionArray(double[] precision)
+        public static NativeOneOfCollectionContainer FromPrecisionArray(double[] value)
         {
-            return new PrecisionArrayCase().Set(precision);
+            return new PrecisionArrayCase().Set(value);
         }
 
-        public static NativeOneOfCollectionContainer FromMString(string[] mString)
+        public static NativeOneOfCollectionContainer FromMString(string[] value)
         {
-            return mString == null || mString.Length == 0 ? null : new MStringArrayCase().Set(mString);
+            return value == null || value.Length == 0 ? null : new MStringArrayCase().Set(value);
         }
 
         public static NativeOneOfCollectionContainer FromCutomTypeDictionary(Dictionary<string, Atom> customTypeDictionary)
@@ -28,91 +28,91 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
 
         public interface ICases<out T>
         {
-            T Precision(double[] precision);
+            T Precision(double[] value);
 
-            T MString(string[] mString);
+            T MString(string[] value);
 
-            T CustomTypeDictionary(Dictionary<string, Atom> customTypeDictionary);
+            T CustomTypeDictionary(Dictionary<string, Atom> value);
         }
 
         [JsonConverter(typeof(CaseConverter<PrecisionArrayCase, double[]>), new JTokenType[] { JTokenType.Float })]
         private class PrecisionArrayCase : NativeOneOfCollectionContainer, ICaseValue<PrecisionArrayCase, double[]>
         {
-            private double[] precision;
+            private double[] value;
 
             public override T Match<T>(ICases<T> cases)
             {
-                return cases.Precision(precision);
+                return cases.Precision(value);
             }
 
             public PrecisionArrayCase Set(double[] value)
             {
-                precision = value;
+                this.value = value;
                 return this;
             }
 
             public double[] Get()
             {
-                return precision;
+                return value;
             }
 
             public override string ToString()
             {
-                return precision.ToString();
+                return value.ToString();
             }
         }
 
         [JsonConverter(typeof(CaseConverter<MStringArrayCase, string[]>), new JTokenType[] { JTokenType.String })]
         private class MStringArrayCase : NativeOneOfCollectionContainer, ICaseValue<MStringArrayCase, string[]>
         {
-            private string[] mString;
+            private string[] value;
 
             public override T Match<T>(ICases<T> cases)
             {
-                return cases.MString(mString);
+                return cases.MString(value);
             }
 
             public MStringArrayCase Set(string[] value)
             {
-                mString = value;
+                this.value = value;
                 return this;
             }
 
             public string[] Get()
             {
-                return mString;
+                return value;
             }
 
             public override string ToString()
             {
-                return mString.ToString();
+                return value.ToString();
             }
         }
 
         [JsonConverter(typeof(CaseConverter<CustomTypeDictionaryCase, Dictionary<string, Atom>>))]
         private class CustomTypeDictionaryCase : NativeOneOfCollectionContainer, ICaseValue<CustomTypeDictionaryCase, Dictionary<string, Atom>>
         {
-            private Dictionary<string, Atom> customTypeDict;
+            private Dictionary<string, Atom> value;
 
             public override T Match<T>(ICases<T> cases)
             {
-                return cases.CustomTypeDictionary(customTypeDict);
+                return cases.CustomTypeDictionary(value);
             }
 
             public CustomTypeDictionaryCase Set(Dictionary<string, Atom> value)
             {
-                customTypeDict = value;
+                this.value = value;
                 return this;
             }
 
             public Dictionary<string, Atom> Get()
             {
-                return customTypeDict;
+                return value;
             }
 
             public override string ToString()
             {
-                return customTypeDict.ToString();
+                return value.ToString();
             }
         }
 

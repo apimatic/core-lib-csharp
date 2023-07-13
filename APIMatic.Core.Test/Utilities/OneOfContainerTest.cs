@@ -33,17 +33,17 @@ namespace APIMatic.Core.Test.Utilities
 
         private class TestNative : NativeOneOfContainer.ICases<VoidType>
         {
-            public VoidType MString(string mString)
+            public VoidType MString(string value)
             {
-                Assert.AreEqual("some string", mString);
-                Console.WriteLine(mString);
+                Assert.AreEqual("some string", value);
+                Console.WriteLine(value);
                 return null;
             }
 
-            public VoidType Precision(double precision)
+            public VoidType Precision(double value)
             {
-                Assert.AreEqual(0.987d, precision);
-                Console.WriteLine(precision);
+                Assert.AreEqual(0.987d, value);
+                Console.WriteLine(value);
                 return null;
             }
         }
@@ -89,29 +89,29 @@ namespace APIMatic.Core.Test.Utilities
 
         private class TestCollection : NativeOneOfCollectionContainer.ICases<VoidType>
         {
-            public VoidType MString(string[] mString)
+            public VoidType MString(string[] value)
             {
                 string[] expectedStringArray = { "some string array", "test" };
-                CollectionAssert.AreEqual(expectedStringArray, mString);
-                Console.WriteLine(string.Join(", ", mString));
+                CollectionAssert.AreEqual(expectedStringArray, value);
+                Console.WriteLine(string.Join(", ", value));
                 return null;
             }
 
-            public VoidType Precision(double[] precision)
+            public VoidType Precision(double[] value)
             {
                 double[] expectedPrecision = { 0.987, 0.6987 };
-                CollectionAssert.AreEqual(expectedPrecision, precision);
-                Console.WriteLine(string.Join(", ", precision));
+                CollectionAssert.AreEqual(expectedPrecision, value);
+                Console.WriteLine(string.Join(", ", value));
                 return null;
             }
 
-            public VoidType CustomTypeDictionary(Dictionary<string, Atom> customDictionary)
+            public VoidType CustomTypeDictionary(Dictionary<string, Atom> value)
             {
                 Dictionary<string, Atom> expected = new Dictionary<string, Atom>()
                 {
                     { "key1", new Atom(12, 13) }
                 };
-                CollectionAssert.AreEqual(expected, customDictionary);
+                CollectionAssert.AreEqual(expected, value);
                 Console.WriteLine(expected.ToString());
                 return null;
             }
@@ -173,19 +173,19 @@ namespace APIMatic.Core.Test.Utilities
 
         private class TestCustom : CustomOneOfContainer.ICases<VoidType>
         {
-            public VoidType Atom(Atom atom)
+            public VoidType Atom(Atom value)
             {
                 Atom expected = new Atom(12, 13);
-                Assert.AreEqual(expected, atom);
-                Console.WriteLine(atom);
+                Assert.AreEqual(expected, value);
+                Console.WriteLine(value);
                 return null;
             }
 
-            public VoidType Orbit(Orbit orbit)
+            public VoidType Orbit(Orbit value)
             {
                 Orbit expected = new Orbit(12, 3);
-                Assert.AreEqual(expected, orbit);
-                Console.WriteLine(orbit);
+                Assert.AreEqual(expected, value);
+                Console.WriteLine(value);
                 return null;
             }
         }
@@ -246,21 +246,21 @@ namespace APIMatic.Core.Test.Utilities
 
         private class TestCustomCollection : CustomOneOfCollectionContainer.ICases<VoidType>
         {
-            public VoidType Atom(Atom[] atom)
+            public VoidType Atom(Atom[] value)
             {
                 Atom expectedAtom = new Atom(12, 13);
                 Atom[] expected = { expectedAtom };
-                Assert.AreEqual(expected, atom);
-                Console.WriteLine(atom);
+                Assert.AreEqual(expected, value);
+                Console.WriteLine(value);
                 return null;
             }
 
-            public VoidType Orbit(Orbit[] orbit)
+            public VoidType Orbit(Orbit[] value)
             {
                 Orbit expectedOrbit = new Orbit(12, 3);
                 Orbit[] expected = { expectedOrbit };
-                Assert.AreEqual(expected, orbit);
-                Console.WriteLine(orbit);
+                Assert.AreEqual(expected, value);
+                Console.WriteLine(value);
                 return null;
             }
         }
