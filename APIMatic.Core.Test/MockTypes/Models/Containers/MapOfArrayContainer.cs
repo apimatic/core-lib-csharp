@@ -5,7 +5,19 @@ using Newtonsoft.Json;
 
 namespace APIMatic.Core.Test.MockTypes.Models.Containers
 {
-    [JsonConverter(typeof(MapOfArrayConverter))]
+    [JsonConverter(
+       typeof(UnionTypeConverter<CustomAnyOfContainer>),
+       new Type[] {
+            typeof(AtomCase),
+            typeof(OrbitCase)
+       },
+       new string[] {
+            "discVal1",
+            "discVal2"
+       },
+       "discriminatorField",
+       false
+   )]
     public abstract class MapOfArrayContainer
     {
         public static MapOfArrayContainer FromAtom(Dictionary<string, List<Atom>> value)
@@ -77,25 +89,6 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             public override string ToString()
             {
                 return value.ToString();
-            }
-        }
-
-        private class MapOfArrayConverter : JsonConverter<MapOfArrayContainer>
-        {
-            public override MapOfArrayContainer ReadJson(JsonReader reader, Type objectType, MapOfArrayContainer existingValue, bool hasExistingValue, JsonSerializer serializer)
-            {
-                Dictionary<Type, string> types = new Dictionary<Type, string>
-                {
-                    { typeof(AtomCase), "atom" },
-                    { typeof(OrbitCase), "orbit" }
-                };
-                var deserializedObject = CoreHelper.TryDeserializeOneOfAnyOf(types, reader, serializer, false);
-                return deserializedObject as MapOfArrayContainer;
-            }
-
-            public override void WriteJson(JsonWriter writer, MapOfArrayContainer value, JsonSerializer serializer)
-            {
-                throw new NotImplementedException();
             }
         }
     }

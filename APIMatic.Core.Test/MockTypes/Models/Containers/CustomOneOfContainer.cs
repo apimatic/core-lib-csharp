@@ -1,11 +1,22 @@
 ﻿using APIMatic.Core.Utilities;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 
 namespace APIMatic.Core.Test.MockTypes.Models.Containers
 {
-    [JsonConverter(typeof(CustomOneOfConverter))]
+    [JsonConverter(
+        typeof(UnionTypeConverter<CustomOneOfContainer>),
+        new Type[] {
+            typeof(AtomCase),
+            typeof(OrbitCase)
+        },
+        new string[] {
+            "discVal1",
+            "discVal2"
+        },
+        "discriminatorField",
+        true
+    )]
     public abstract class CustomOneOfContainer
     {
         public static CustomOneOfContainer FromAtom(Atom value)
@@ -78,25 +89,6 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             public override string ToString()
             {
                 return value.ToString();
-            }
-        }
-
-        private class CustomOneOfConverter : JsonConverter<CustomOneOfContainer>
-        {
-            public override CustomOneOfContainer ReadJson(JsonReader reader, Type objectType, CustomOneOfContainer existingValue, bool hasExistingValue, JsonSerializer serializer)
-            {
-                Dictionary<Type, string> types = new Dictionary<Type, string>
-                {
-                    { typeof(AtomCase), "atom" },
-                    { typeof(OrbitCase), "orbit" }
-                };
-                var deserializedObject = CoreHelper.TryDeserializeOneOfAnyOf(types, reader, serializer, true);
-                return deserializedObject as CustomOneOfContainer;
-            }
-
-            public override void WriteJson(JsonWriter writer, CustomOneOfContainer value, JsonSerializer serializer)
-            {
-                throw new NotImplementedException();
             }
         }
     }

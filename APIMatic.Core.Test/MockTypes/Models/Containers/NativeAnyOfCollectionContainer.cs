@@ -1,12 +1,23 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using APIMatic.Core.Utilities;
 using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Test.MockTypes.Models.Containers
 {
-    [JsonConverter(typeof(NativeAnyOfCollectionConverter))]
+    [JsonConverter(
+       typeof(UnionTypeConverter<NativeOneOfContainer>),
+       new Type[] {
+            typeof(PrecisionArrayCase),
+            typeof(MStringArrayCase)
+       },
+       new string[] {
+            "discVal1",
+            "discVal2"
+       },
+       "discriminatorField",
+       false
+   )]
     public abstract class NativeAnyOfCollectionContainer
     {
         public static NativeAnyOfCollectionContainer FromPrecisionArray(double[] value)
@@ -79,25 +90,6 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             public override string ToString()
             {
                 return value.ToString();
-            }
-        }
-
-        private class NativeAnyOfCollectionConverter : JsonConverter<NativeAnyOfCollectionContainer>
-        {
-            public override NativeAnyOfCollectionContainer ReadJson(JsonReader reader, Type objectType, NativeAnyOfCollectionContainer existingValue, bool hasExistingValue, JsonSerializer serializer)
-            {
-                Dictionary<Type, string> types = new Dictionary<Type, string>
-                {
-                    { typeof(PrecisionArrayCase), "precision" },
-                    { typeof(MStringArrayCase), "string" }
-                };
-                var deserializedObject = CoreHelper.TryDeserializeOneOfAnyOf(types, reader, serializer, false);
-                return deserializedObject as NativeAnyOfCollectionContainer;
-            }
-
-            public override void WriteJson(JsonWriter writer, NativeAnyOfCollectionContainer value, JsonSerializer serializer)
-            {
-                throw new NotImplementedException();
             }
         }
     }

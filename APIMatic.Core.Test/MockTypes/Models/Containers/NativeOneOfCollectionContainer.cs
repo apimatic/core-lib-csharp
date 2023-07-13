@@ -6,7 +6,19 @@ using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Test.MockTypes.Models.Containers
 {
-    [JsonConverter(typeof(NativeOneOfCollectionConverter))]
+    [JsonConverter(
+         typeof(UnionTypeConverter<NativeOneOfContainer>),
+         new Type[] {
+            typeof(PrecisionArrayCase),
+            typeof(MStringArrayCase)
+         },
+         new string[] {
+            "discVal1",
+            "discVal2"
+         },
+         "discriminatorField",
+         true
+     )]
     public abstract class NativeOneOfCollectionContainer
     {
         public static NativeOneOfCollectionContainer FromPrecisionArray(double[] value)
@@ -113,29 +125,6 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             public override string ToString()
             {
                 return value.ToString();
-            }
-        }
-
-        private class NativeOneOfCollectionConverter : JsonConverter<NativeOneOfCollectionContainer>
-        {
-            public override bool CanRead => true;
-            public override bool CanWrite => false;
-
-            public override NativeOneOfCollectionContainer ReadJson(JsonReader reader, Type objectType, NativeOneOfCollectionContainer existingValue, bool hasExistingValue, JsonSerializer serializer)
-            {
-                Dictionary<Type, string> types = new Dictionary<Type, string>
-                {
-                    { typeof(PrecisionArrayCase), "precision" },
-                    { typeof(MStringArrayCase), "string" },
-                    { typeof(CustomTypeDictionaryCase), "customDictionary" },
-                };
-                var deserializedObject = CoreHelper.TryDeserializeOneOfAnyOf(types, reader, serializer, true);
-                return deserializedObject as NativeOneOfCollectionContainer;
-            }
-
-            public override void WriteJson(JsonWriter writer, NativeOneOfCollectionContainer value, JsonSerializer serializer)
-            {
-                throw new NotImplementedException();
             }
         }
     }

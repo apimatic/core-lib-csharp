@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using APIMatic.Core.Types.Sdk.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -8,25 +9,43 @@ namespace APIMatic.Core.Utilities
 {
     public class UnionTypeConverter<T> : JsonConverter<T>
     {
-        private readonly IEnumerable<Type> _types;
+        private readonly IEnumerable<UnionType> _types;
         private readonly bool _isOneOf;
+        private readonly string _discriminator;
 
         public UnionTypeConverter(Type[] types, bool isOneOf)
         {
-            _types = types;
+            _types = PopulateUnionType(types, null);
             _isOneOf = isOneOf;
         }
 
         public UnionTypeConverter(Type[] types, string[] discriminatorValues, string discriminator, bool isOneOf)
         {
-            _types = types;
             _isOneOf = isOneOf;
+            _discriminator = discriminator;
+            _types = PopulateUnionType(types, discriminatorValues);
+        }
+
+        private IEnumerable<UnionType> PopulateUnionType(Type[] types, string[] discriminatorValues)
+        {
+            for (int i = 0; i < types.Length; i++)
+            {
+                yield return new UnionType()
+                {
+                    Type = types[i],
+                    DiscriminatorValue = discriminatorValues?[i],
+                };
+            }
         }
 
         public override T ReadJson(JsonReader reader, Type objectType, T existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            //
-            return TryDeserializeOneOfAnyOf(JToken.ReadFrom(reader), serializer);
+            var token = JToken.ReadFrom(reader);
+            if (_discriminator == null)
+            {
+                token = token.SelectToken(_discriminator); // if discriminator exists then we can add
+            }
+            return token != null ? TryDeserializeOneOfAnyOf(token, serializer) : default;
         }
 
         private T TryDeserializeOneOfAnyOf(JToken token, JsonSerializer serializer)
@@ -43,8 +62,8 @@ namespace APIMatic.Core.Utilities
             {
                 try
                 {
-                    deserializedObject = serializer.Deserialize(token.CreateReader(), type);
-                    mappedTypes.Add(nameof(type));
+                    deserializedObject = serializer.Deserialize(token.CreateReader(), type.Type);
+                    mappedTypes.Add(type.Type.GetField("value", BindingFlags.NonPublic | BindingFlags.Instance).FieldType.Name);
                     if (!_isOneOf)
                     {
                         return (T)deserializedObject;
@@ -81,5 +100,12 @@ namespace APIMatic.Core.Utilities
         {
             throw new NotImplementedException();
         }
+    }
+
+    internal class UnionType
+    {
+        public Type Type { get; set; }
+        public string DiscriminatorValue { get; set; }
+
     }
 }
