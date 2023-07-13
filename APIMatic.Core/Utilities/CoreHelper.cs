@@ -96,68 +96,6 @@ namespace APIMatic.Core.Utilities
         }
 
         /// <summary>
-        /// Try to deserialize the json into given type
-        /// </summary>
-        /// <param name="types"></param>
-        /// <param name="token"></param>
-        /// <param name="serializer"></param>
-        /// <param name="isOneOf"></param>
-        /// <returns></returns>
-        /// <exception cref="OneOfValidationException"></exception>
-        /// <exception cref="AnyOfValidationException"></exception>
-        public static object TryDeserializeOneOfAnyOf(Dictionary<Type, string> types, JsonReader jsonReader, JsonSerializer serializer, bool isOneOf)
-        {
-            JToken token = JToken.ReadFrom(jsonReader);
-            if (token.Type == JTokenType.Null)
-            {
-                return default;
-            }
-            List<string> mappedTypes = new List<string>();
-            List<string> unMappedTypes = new List<string>();
-            object deserializedObject = null;
-            var json = token.ToString();
-            foreach (var type in types.Keys)
-            {
-                using (var reader = token.CreateReader())
-                {
-                    try
-                    {
-                        deserializedObject = serializer.Deserialize(reader, type);
-                        mappedTypes.Add(types[type]);
-                        if (!isOneOf)
-                        {
-                            return deserializedObject;
-                        }
-
-                        if (isOneOf && mappedTypes.Count > 1)
-                        {
-                            throw new OneOfValidationException(mappedTypes[0], mappedTypes[1], json);
-                        }
-
-                    }
-                    catch (JsonSerializationException)
-                    {
-                        unMappedTypes.Add(types[type]);
-                    }
-                }
-            }
-
-            if (mappedTypes.Count == 0)
-            {
-                if (!isOneOf)
-                {
-                    throw new AnyOfValidationException(unMappedTypes, json);
-                }
-                else
-                {
-                    throw new OneOfValidationException(unMappedTypes, json);
-                }
-            }
-
-            return deserializedObject;
-        }
-
-        /// <summary>
         /// Appends the given set of parameters to the given query string.
         /// </summary>
         /// <param name="queryBuilder">The queryBuilder to append the parameters.</param>
