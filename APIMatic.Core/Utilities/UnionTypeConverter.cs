@@ -25,12 +25,11 @@ namespace APIMatic.Core.Utilities
 
         public override T ReadJson(JsonReader reader, Type objectType, T existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            return TryDeserializeOneOfAnyOf(reader, serializer);
+            return TryDeserializeOneOfAnyOf(JToken.ReadFrom(reader), serializer);
         }
 
-        private T TryDeserializeOneOfAnyOf(JsonReader jsonReader, JsonSerializer serializer)
+        private T TryDeserializeOneOfAnyOf(JToken token, JsonSerializer serializer)
         {
-            JToken token = JToken.ReadFrom(jsonReader);
             if (token.Type == JTokenType.Null)
             {
                 return default;
