@@ -5,50 +5,57 @@ using System;
 namespace APIMatic.Core.Test.MockTypes.Models.Containers
 {
     [JsonConverter(
-        typeof(UnionTypeConverter<CustomOneOfCollectionContainer>),
+        typeof(UnionTypeConverter<CustomOneOfWithDiscContainer>),
         new Type[] {
             typeof(AtomCase),
-            typeof(OrbitCase)
+            typeof(HeliumCase)
         },
+        new string[]
+        {
+            "12",
+            "3"
+        },
+        "NumberOfElectrons",
         true
     )]
-    public abstract class CustomOneOfCollectionContainer
+    public abstract class CustomOneOfWithDiscContainer
     {
-        public static CustomOneOfCollectionContainer FromAtom(Atom[] value)
+        public static CustomOneOfWithDiscContainer FromAtom(Atom value)
         {
             return new AtomCase().Set(value);
         }
 
-        public static CustomOneOfCollectionContainer Fromorbit(Orbit[] value)
+        public static CustomOneOfWithDiscContainer FromHelium(Helium value)
         {
-            return new OrbitCase().Set(value);
+            return new HeliumCase().Set(value);
         }
 
         public abstract T Match<T>(ICases<T> cases);
 
         public interface ICases<out T>
         {
-            T Atom(Atom[] value);
+            T Atom(Atom value);
 
-            T Orbit(Orbit[] value);
+            T Helium(Helium value);
         }
 
-        [JsonConverter(typeof(UnionTypeCaseConverter<AtomCase, Atom[]>))]
-        private class AtomCase : CustomOneOfCollectionContainer, ICaseValue<AtomCase, Atom[]>
+        [JsonConverter(typeof(UnionTypeCaseConverter<AtomCase, Atom>))]
+        private class AtomCase : CustomOneOfWithDiscContainer, ICaseValue<AtomCase, Atom>
         {
-            private Atom[] value;
+            private Atom value;
 
             public override T Match<T>(ICases<T> cases)
             {
                 return cases.Atom(value);
             }
 
-            public AtomCase Set(Atom[] value)
+            public AtomCase Set(Atom value)
             {
                 this.value = value;
                 return this;
             }
-            public Atom[] Get()
+
+            public Atom Get()
             {
                 return value;
             }
@@ -59,22 +66,22 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             }
         }
 
-        [JsonConverter(typeof(UnionTypeCaseConverter<OrbitCase, Orbit[]>))]
-        private class OrbitCase : CustomOneOfCollectionContainer, ICaseValue<OrbitCase, Orbit[]>
+        [JsonConverter(typeof(UnionTypeCaseConverter<HeliumCase, Helium>))]
+        private class HeliumCase : CustomOneOfWithDiscContainer, ICaseValue<HeliumCase, Helium>
         {
-            private Orbit[] value;
+            private Helium value;
 
             public override T Match<T>(ICases<T> cases)
             {
-                return cases.Orbit(value);
+                return cases.Helium(value);
             }
 
-            public Orbit[] Get()
+            public Helium Get()
             {
                 return value;
             }
 
-            public OrbitCase Set(Orbit[] value)
+            public HeliumCase Set(Helium value)
             {
                 this.value = value;
                 return this;

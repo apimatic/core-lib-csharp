@@ -34,7 +34,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             T MString(string[] value);
         }
 
-        [JsonConverter(typeof(CaseConverter<PrecisionArrayCase, double[]>), JTokenType.Float)]
+        [JsonConverter(typeof(UnionTypeCaseConverter<PrecisionArrayCase, double[]>), JTokenType.Float)]
         private class PrecisionArrayCase : NativeAnyOfCollectionContainer, ICaseValue<PrecisionArrayCase, double[]>
         {
             private double[] value;
@@ -61,7 +61,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             }
         }
 
-        [JsonConverter(typeof(CaseConverter<MStringArrayCase, string[]>), JTokenType.String)]
+        [JsonConverter(typeof(UnionTypeCaseConverter<MStringArrayCase, string[]>), JTokenType.String)]
         private class MStringArrayCase : NativeAnyOfCollectionContainer, ICaseValue<MStringArrayCase, string[]>
         {
             private string[] value;

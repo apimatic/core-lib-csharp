@@ -33,7 +33,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             T Orbit(Orbit value);
         }
 
-        [JsonConverter(typeof(CaseConverter<AtomCase, Atom>))]
+        [JsonConverter(typeof(UnionTypeCaseConverter<AtomCase, Atom>))]
         private class AtomCase : CustomOneOfContainer, ICaseValue<AtomCase, Atom>
         {
             private Atom value;
@@ -60,7 +60,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             }
         }
 
-        [JsonConverter(typeof(CaseConverter<OrbitCase, Orbit>))]
+        [JsonConverter(typeof(UnionTypeCaseConverter<OrbitCase, Orbit>))]
         private class OrbitCase : CustomOneOfContainer, ICaseValue<OrbitCase, Orbit>
         {
             private Orbit value;

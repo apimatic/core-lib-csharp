@@ -31,11 +31,40 @@ namespace APIMatic.Core.Test.Utilities
             formScalar.Match(new TestNative());
         }
 
+        [Test]
+        public void TestNativeNullableType()
+        {
+            // Parameters for the API call
+            NativeNullableOneOfContainer formScalar = CoreHelper.JsonDeserialize<NativeNullableOneOfContainer>("null");
+
+            Assert.IsNotNull(formScalar);
+            formScalar.Match(new TestNativeNullable());
+            formScalar = CoreHelper.JsonDeserialize<NativeNullableOneOfContainer>(CoreHelper.JsonSerialize(formScalar));
+            formScalar.Match(new TestNativeNullable());
+        }
+
         private class TestNative : NativeOneOfContainer.ICases<VoidType>
         {
             public VoidType MString(string value)
             {
                 Assert.AreEqual("some string", value);
+                Console.WriteLine(value);
+                return null;
+            }
+
+            public VoidType Precision(double value)
+            {
+                Assert.AreEqual(0.987d, value);
+                Console.WriteLine(value);
+                return null;
+            }
+        }
+
+        private class TestNativeNullable : NativeNullableOneOfContainer.ICases<VoidType>
+        {
+            public VoidType MString(string? value)
+            {
+                Assert.AreEqual(null, value);
                 Console.WriteLine(value);
                 return null;
             }
@@ -188,6 +217,36 @@ namespace APIMatic.Core.Test.Utilities
                 Console.WriteLine(value);
                 return null;
             }
+        }
+
+        private class TestCustomWithDisc : CustomOneOfWithDiscContainer.ICases<VoidType>
+        {
+            public VoidType Atom(Atom value)
+            {
+                Atom expected = new Atom(12, 13);
+                Assert.AreEqual(expected, value);
+                Console.WriteLine(value);
+                return null;
+            }
+
+            public VoidType Helium(Helium value)
+            {
+                Helium expected = new Helium(3, 3);
+                Assert.AreEqual(expected, value);
+                Console.WriteLine(value);
+                return null;
+            }
+        }
+
+        [Test]
+        public void TestCustomWithDiscriminatorType()
+        {
+            // Parameters for the API call
+            CustomOneOfWithDiscContainer formScalar = CoreHelper.JsonDeserialize<CustomOneOfWithDiscContainer>("{\"NumberOfElectrons\":12,\"NumberOfProtons\":13}");
+            Assert.IsNotNull(formScalar);
+            formScalar.Match(new TestCustomWithDisc());
+            formScalar = CoreHelper.JsonDeserialize<CustomOneOfWithDiscContainer>(CoreHelper.JsonSerialize(formScalar));
+            formScalar.Match(new TestCustomWithDisc());
         }
 
         [Test]

@@ -34,7 +34,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             T Orbit(Dictionary<string, List<Orbit>> value);
         }
 
-        [JsonConverter(typeof(CaseConverter<AtomCase, Dictionary<string, List<Atom>>>))]
+        [JsonConverter(typeof(UnionTypeCaseConverter<AtomCase, Dictionary<string, List<Atom>>>))]
         private class AtomCase : MapOfArrayContainer, ICaseValue<AtomCase, Dictionary<string, List<Atom>>>
         {
             private Dictionary<string, List<Atom>> value;
@@ -60,7 +60,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             }
         }
 
-        [JsonConverter(typeof(CaseConverter<OrbitCase, Dictionary<string, List<Orbit>>>))]
+        [JsonConverter(typeof(UnionTypeCaseConverter<OrbitCase, Dictionary<string, List<Orbit>>>))]
         private class OrbitCase : MapOfArrayContainer, ICaseValue<OrbitCase, Dictionary<string, List<Orbit>>>
         {
             private Dictionary<string, List<Orbit>> value;
