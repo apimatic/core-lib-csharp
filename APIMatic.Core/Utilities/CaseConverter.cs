@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -8,13 +7,13 @@ namespace APIMatic.Core.Utilities
 {
     public class CaseConverter<C, T> : JsonConverter<C> where C : ICaseValue<C, T>, new()
     {
-        private readonly IEnumerable<JTokenType> _typeTokens = null;
+        private readonly JTokenType _typeToken = JTokenType.None;
 
         public CaseConverter() { }
 
-        public CaseConverter(JTokenType[] typeTokens)
+        public CaseConverter(JTokenType typeToken)
         {
-            _typeTokens = typeTokens.Any() ? typeTokens : null;
+            _typeToken = typeToken;
         }
 
         public override C ReadJson(JsonReader reader, Type objectType, C existingValue, bool hasExistingValue, JsonSerializer serializer)
@@ -33,7 +32,8 @@ namespace APIMatic.Core.Utilities
 
         private T Deserialize(JToken token, JsonSerializer serializer)
         {
-            if (_typeTokens == null || VerifyInternalType(token))
+            if (_typeToken == JTokenType.None
+                || VerifyInternalType(token))
             {
                 return serializer.Deserialize<T>(token.CreateReader());
             }
@@ -42,7 +42,7 @@ namespace APIMatic.Core.Utilities
 
         private bool VerifyInternalType(JToken token)
         {
-            if (_typeTokens.Contains(token.Type))
+            if (_typeToken == token.Type)
             {
                 return true;
             }

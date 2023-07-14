@@ -39,7 +39,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             T MString(string value);
         }
 
-        [JsonConverter(typeof(CaseConverter<PrecisionCase, double>), new JTokenType[] { JTokenType.Float })]
+        [JsonConverter(typeof(CaseConverter<PrecisionCase, double>), JTokenType.Float)]
         private class PrecisionCase : NativeOneOfContainer, ICaseValue<PrecisionCase, double>
         {
             private double value;
@@ -65,7 +65,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             }
         }
 
-        [JsonConverter(typeof(CaseConverter<MStringCase, string>), new JTokenType[] { JTokenType.String })]
+        [JsonConverter(typeof(CaseConverter<MStringCase, string>), JTokenType.String)]
         private class MStringCase : NativeOneOfContainer, ICaseValue<MStringCase, string>
         {
             private string value;
