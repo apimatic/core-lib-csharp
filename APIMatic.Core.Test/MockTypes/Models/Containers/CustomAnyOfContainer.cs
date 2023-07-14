@@ -10,11 +10,6 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             typeof(AtomCase),
             typeof(OrbitCase)
         },
-        new string[] {
-            "discVal1",
-            "discVal2"
-        },
-        "discriminatorField",
         false
     )]
     public abstract class CustomAnyOfContainer

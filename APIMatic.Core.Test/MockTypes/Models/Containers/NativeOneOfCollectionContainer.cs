@@ -10,13 +10,9 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
          typeof(UnionTypeConverter<NativeOneOfCollectionContainer>),
          new Type[] {
             typeof(PrecisionArrayCase),
-            typeof(MStringArrayCase)
+            typeof(MStringArrayCase),
+            typeof(CustomTypeDictionaryCase)
          },
-         new string[] {
-            "discVal1",
-            "discVal2"
-         },
-         "discriminatorField",
          true
      )]
     public abstract class NativeOneOfCollectionContainer

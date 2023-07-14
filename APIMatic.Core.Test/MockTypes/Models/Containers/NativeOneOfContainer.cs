@@ -11,11 +11,6 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             typeof(PrecisionCase),
             typeof(MStringCase)
         },
-        new string[] {
-            "discVal1",
-            "discVal2"
-        },
-        "discriminatorField",
         true
     )]
     public abstract class NativeOneOfContainer

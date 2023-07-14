@@ -64,7 +64,7 @@ namespace APIMatic.Core.Test.Utilities
             }
 
             Assert.NotNull(exception);
-            Assert.AreEqual("We could not match any acceptable type from precision, string on: 12", exception.Message);
+            Assert.AreEqual("We could not match any acceptable type from double, string on: 12", exception.Message);
         }
 
         [Test]
@@ -153,7 +153,7 @@ namespace APIMatic.Core.Test.Utilities
             }
 
             Assert.NotNull(exception);
-            Assert.AreEqual("We could not match any acceptable type from precision, string on: 12", exception.Message);
+            Assert.AreEqual("We could not match any acceptable type from double, string on: 12", exception.Message);
         }
 
         [Test]

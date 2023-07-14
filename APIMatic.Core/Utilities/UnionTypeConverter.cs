@@ -41,9 +41,9 @@ namespace APIMatic.Core.Utilities
         public override T ReadJson(JsonReader reader, Type objectType, T existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             var token = JToken.ReadFrom(reader);
-            if (_discriminator == null)
+            if (_discriminator != null)
             {
-                token = token.SelectToken(_discriminator); // if discriminator exists then we can add
+                token = token.SelectToken(_discriminator);
             }
             return token != null ? TryDeserializeOneOfAnyOf(token, serializer) : default;
         }
@@ -60,10 +60,11 @@ namespace APIMatic.Core.Utilities
             var json = token.ToString();
             foreach (var type in _types)
             {
+                var dataType = type.Type.GetField("value", BindingFlags.NonPublic | BindingFlags.Instance).FieldType.Name.ToLower();
                 try
                 {
                     deserializedObject = serializer.Deserialize(token.CreateReader(), type.Type);
-                    mappedTypes.Add(type.Type.GetField("value", BindingFlags.NonPublic | BindingFlags.Instance).FieldType.Name);
+                    mappedTypes.Add(dataType);
                     if (!_isOneOf)
                     {
                         return (T)deserializedObject;
@@ -77,7 +78,7 @@ namespace APIMatic.Core.Utilities
                 }
                 catch (JsonSerializationException)
                 {
-                    unMappedTypes.Add(nameof(type));
+                    unMappedTypes.Add(dataType);
                 }
             }
 
