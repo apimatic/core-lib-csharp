@@ -37,7 +37,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         [JsonConverter(typeof(UnionTypeCaseConverter<PrecisionCase, double>), JTokenType.Float)]
         private class PrecisionCase : NativeOneOfContainer, ICaseValue<PrecisionCase, double>
         {
-            private double value;
+            public double value;
 
             public override T Match<T>(ICases<T> cases)
             {
@@ -49,6 +49,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
                 this.value = value;
                 return this;
             }
+
             public double Get()
             {
                 return value;
@@ -63,7 +64,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         [JsonConverter(typeof(UnionTypeCaseConverter<MStringCase, string>), JTokenType.String)]
         private class MStringCase : NativeOneOfContainer, ICaseValue<MStringCase, string>
         {
-            private string value;
+            public string value;
 
             public override T Match<T>(ICases<T> cases)
             {

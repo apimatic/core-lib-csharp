@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using APIMatic.Core.Types.Sdk.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -60,7 +59,7 @@ namespace APIMatic.Core.Utilities
             var unMappedTypes = new List<string>();
             object deserializedObject = null;
             var json = token.ToString();
-            foreach (var (type, dataType) in _types.Select(type => (type, GetPrivateFieldType(type.Type))))
+            foreach (var (type, dataType) in _types.Select(type => (type, GetFieldType(type.Type))))
             {
                 try
                 {
@@ -98,17 +97,15 @@ namespace APIMatic.Core.Utilities
             return (T)deserializedObject;
         }
 
-
         public override void WriteJson(JsonWriter writer, T value, JsonSerializer serializer)
         {
             throw new NotImplementedException();
         }
 
-        private string GetPrivateFieldType(Type type)
+        private string GetFieldType(Type type)
         {
             return type
-                .GetField("value",
-                BindingFlags.NonPublic | BindingFlags.Instance)
+                .GetField("value")
                 .FieldType.Name.ToLower();
         }
     }

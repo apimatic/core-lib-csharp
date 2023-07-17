@@ -36,7 +36,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         [JsonConverter(typeof(UnionTypeCaseConverter<AtomCase, Atom[]>))]
         private class AtomCase : CustomOneOfCollectionContainer, ICaseValue<AtomCase, Atom[]>
         {
-            private Atom[] value;
+            public Atom[] value;
 
             public override T Match<T>(ICases<T> cases)
             {
@@ -62,7 +62,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         [JsonConverter(typeof(UnionTypeCaseConverter<OrbitCase, Orbit[]>))]
         private class OrbitCase : CustomOneOfCollectionContainer, ICaseValue<OrbitCase, Orbit[]>
         {
-            private Orbit[] value;
+            public Orbit[] value;
 
             public override T Match<T>(ICases<T> cases)
             {

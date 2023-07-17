@@ -19,7 +19,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             return new AtomCase().Set(value);
         }
 
-        public static CustomAnyOfContainer Fromorbit(Orbit value)
+        public static CustomAnyOfContainer FromOrbit(Orbit value)
         {
             return new OrbitCase().Set(value);
         }
@@ -36,7 +36,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         [JsonConverter(typeof(UnionTypeCaseConverter<AtomCase, Atom>))]
         private class AtomCase : CustomAnyOfContainer, ICaseValue<AtomCase, Atom>
         {
-            private Atom value;
+            public Atom value;
 
             public AtomCase Set(Atom value)
             {
@@ -62,7 +62,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         [JsonConverter(typeof(UnionTypeCaseConverter<OrbitCase, Orbit>))]
         private class OrbitCase : CustomAnyOfContainer, ICaseValue<OrbitCase, Orbit>
         {
-            private Orbit value;
+            public Orbit value;
 
             public Orbit Get()
             {

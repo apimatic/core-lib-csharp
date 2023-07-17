@@ -377,5 +377,41 @@ namespace APIMatic.Core.Test.Utilities
                 form.Match(new TestCustom());
             }
         }
+
+        [Test]
+        public void TestMixTypeNested()
+        {
+            // Parameters for the API call
+            CustomNestedOneOfContainer formScalar = CoreHelper.JsonDeserialize<CustomNestedOneOfContainer>("{\"NumberOfElectrons\":12,\"NumberOfProtons\":13}");
+            Assert.IsNotNull(formScalar);
+            formScalar.Match(new TestCustomNested());
+            formScalar = CoreHelper.JsonDeserialize<CustomNestedOneOfContainer>(CoreHelper.JsonSerialize(formScalar));
+            formScalar.Match(new TestCustomNested());
+            formScalar = CoreHelper.JsonDeserialize<CustomNestedOneOfContainer>("\"some string\"");
+            formScalar.Match(new TestCustomNested());
+            formScalar = CoreHelper.JsonDeserialize<CustomNestedOneOfContainer>(CoreHelper.JsonSerialize(formScalar));
+            formScalar.Match(new TestCustomNested());
+            formScalar = CoreHelper.JsonDeserialize<CustomNestedOneOfContainer>("0.987");
+            formScalar.Match(new TestCustomNested());
+            formScalar = CoreHelper.JsonDeserialize<CustomNestedOneOfContainer>(CoreHelper.JsonSerialize(formScalar));
+            formScalar.Match(new TestCustomNested());
+        }
+
+        private class TestCustomNested : CustomNestedOneOfContainer.ICases<VoidType>
+        {
+            public VoidType Atom(Atom value)
+            {
+                Atom expected = new Atom(12, 13);
+                Assert.AreEqual(expected, value);
+                Console.WriteLine(value);
+                return null;
+            }
+
+            public VoidType Orbit(NativeOneOfContainer value)
+            {
+                value.Match(new TestNative());
+                return null;
+            }
+        }
     }
 }

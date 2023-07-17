@@ -5,21 +5,21 @@ using System;
 namespace APIMatic.Core.Test.MockTypes.Models.Containers
 {
     [JsonConverter(
-        typeof(UnionTypeConverter<CustomOneOfContainer>),
+        typeof(UnionTypeConverter<CustomNestedOneOfContainer>),
         new Type[] {
             typeof(AtomCase),
             typeof(OrbitCase)
         },
         true
     )]
-    public abstract class CustomOneOfContainer
+    public abstract class CustomNestedOneOfContainer
     {
-        public static CustomOneOfContainer FromAtom(Atom value)
+        public static CustomNestedOneOfContainer FromAtom(Atom value)
         {
             return new AtomCase().Set(value);
         }
 
-        public static CustomOneOfContainer Fromorbit(Orbit value)
+        public static CustomNestedOneOfContainer Fromorbit(NativeOneOfContainer value)
         {
             return new OrbitCase().Set(value);
         }
@@ -30,11 +30,11 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         {
             T Atom(Atom value);
 
-            T Orbit(Orbit value);
+            T Orbit(NativeOneOfContainer value);
         }
 
         [JsonConverter(typeof(UnionTypeCaseConverter<AtomCase, Atom>))]
-        private class AtomCase : CustomOneOfContainer, ICaseValue<AtomCase, Atom>
+        private class AtomCase : CustomNestedOneOfContainer, ICaseValue<AtomCase, Atom>
         {
             public Atom value;
 
@@ -60,22 +60,22 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             }
         }
 
-        [JsonConverter(typeof(UnionTypeCaseConverter<OrbitCase, Orbit>))]
-        private class OrbitCase : CustomOneOfContainer, ICaseValue<OrbitCase, Orbit>
+        [JsonConverter(typeof(UnionTypeCaseConverter<OrbitCase, NativeOneOfContainer>))]
+        private class OrbitCase : CustomNestedOneOfContainer, ICaseValue<OrbitCase, NativeOneOfContainer>
         {
-            public Orbit value;
+            public NativeOneOfContainer value;
 
             public override T Match<T>(ICases<T> cases)
             {
                 return cases.Orbit(value);
             }
 
-            public Orbit Get()
+            public NativeOneOfContainer Get()
             {
                 return value;
             }
 
-            public OrbitCase Set(Orbit value)
+            public OrbitCase Set(NativeOneOfContainer value)
             {
                 this.value = value;
                 return this;

@@ -46,7 +46,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         [JsonConverter(typeof(UnionTypeCaseConverter<PrecisionArrayCase, double[]>), JTokenType.Float)]
         private class PrecisionArrayCase : NativeOneOfCollectionContainer, ICaseValue<PrecisionArrayCase, double[]>
         {
-            private double[] value;
+            public double[] value;
 
             public override T Match<T>(ICases<T> cases)
             {
@@ -73,7 +73,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         [JsonConverter(typeof(UnionTypeCaseConverter<MStringArrayCase, string[]>), JTokenType.String)]
         private class MStringArrayCase : NativeOneOfCollectionContainer, ICaseValue<MStringArrayCase, string[]>
         {
-            private string[] value;
+            public string[] value;
 
             public override T Match<T>(ICases<T> cases)
             {
@@ -100,7 +100,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         [JsonConverter(typeof(UnionTypeCaseConverter<CustomTypeDictionaryCase, Dictionary<string, Atom>>))]
         private class CustomTypeDictionaryCase : NativeOneOfCollectionContainer, ICaseValue<CustomTypeDictionaryCase, Dictionary<string, Atom>>
         {
-            private Dictionary<string, Atom> value;
+            public Dictionary<string, Atom> value;
 
             public override T Match<T>(ICases<T> cases)
             {

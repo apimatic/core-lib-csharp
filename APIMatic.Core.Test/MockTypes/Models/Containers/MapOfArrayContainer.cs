@@ -37,7 +37,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         [JsonConverter(typeof(UnionTypeCaseConverter<AtomCase, Dictionary<string, List<Atom>>>))]
         private class AtomCase : MapOfArrayContainer, ICaseValue<AtomCase, Dictionary<string, List<Atom>>>
         {
-            private Dictionary<string, List<Atom>> value;
+            public Dictionary<string, List<Atom>> value;
 
             public AtomCase Set(Dictionary<string, List<Atom>> value)
             {
@@ -63,7 +63,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         [JsonConverter(typeof(UnionTypeCaseConverter<OrbitCase, Dictionary<string, List<Orbit>>>))]
         private class OrbitCase : MapOfArrayContainer, ICaseValue<OrbitCase, Dictionary<string, List<Orbit>>>
         {
-            private Dictionary<string, List<Orbit>> value;
+            public Dictionary<string, List<Orbit>> value;
 
             public Dictionary<string, List<Orbit>> Get()
             {
