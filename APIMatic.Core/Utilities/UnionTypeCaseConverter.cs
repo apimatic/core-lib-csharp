@@ -28,8 +28,13 @@ namespace APIMatic.Core.Utilities
             JToken token = JToken.ReadFrom(reader);
             try
             {
+                var typeObject = new C();
+                if (typeof(C).GetInterfaces().Contains(typeof(ICaseDateTimeValue)))
+                {
+                    serializer.Converters.Add(((ICaseDateTimeValue)typeObject).GetJsonConverter());
+                }
                 T value = Deserialize(token, serializer);
-                return new C().Set(value);
+                return typeObject.Set(value);
             }
             catch (Exception)
             {
@@ -39,8 +44,7 @@ namespace APIMatic.Core.Utilities
 
         private T Deserialize(JToken token, JsonSerializer serializer)
         {
-            if (_typeToken == JTokenType.None
-                || VerifyInternalType(token))
+            if (_typeToken == JTokenType.None || VerifyInternalType(token))
             {
                 return serializer.Deserialize<T>(token.CreateReader());
             }
@@ -73,5 +77,10 @@ namespace APIMatic.Core.Utilities
         T Get();
 
         C Set(T value);
+    }
+
+    public interface ICaseDateTimeValue
+    {
+        JsonConverter GetJsonConverter();
     }
 }

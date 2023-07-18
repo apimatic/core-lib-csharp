@@ -6,7 +6,6 @@ using APIMatic.Core.Utilities;
 using APIMatic.Core.Test.MockTypes.Models.Containers;
 using APIMatic.Core.Test.MockTypes.Models;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace APIMatic.Core.Test.Utilities
 {
@@ -410,6 +409,37 @@ namespace APIMatic.Core.Test.Utilities
             public VoidType Orbit(NativeOneOfContainer value)
             {
                 value.Match(new TestNative());
+                return null;
+            }
+        }
+
+        [Test]
+        public void TestNativeDateTimeType()
+        {
+            // Parameters for the API call
+            NativeDateTimeOneOfContainer formScalar = CoreHelper.JsonDeserialize<NativeDateTimeOneOfContainer>("\"1994-02-13T14:01:54.9571247Z\"");
+
+            Assert.IsNotNull(formScalar);
+            formScalar.Match(new TestDateTimeNative());
+            formScalar = CoreHelper.JsonDeserialize<NativeDateTimeOneOfContainer>(CoreHelper.JsonSerialize(formScalar));
+            formScalar.Match(new TestDateTimeNative());
+            formScalar = CoreHelper.JsonDeserialize<NativeDateTimeOneOfContainer>("2023-07-18T12:34:56Z");
+            formScalar.Match(new TestDateTimeNative());
+            formScalar = CoreHelper.JsonDeserialize<NativeDateTimeOneOfContainer>(CoreHelper.JsonSerialize(formScalar));
+            formScalar.Match(new TestDateTimeNative());
+        }
+
+        private class TestDateTimeNative : NativeDateTimeOneOfContainer.ICases<VoidType>
+        {
+            public VoidType DateTime(DateTime? value)
+            {
+                Console.WriteLine(value);
+                return null;
+            }
+
+            public VoidType DateTime2(DateTime? value)
+            {
+                Console.WriteLine(value);
                 return null;
             }
         }
