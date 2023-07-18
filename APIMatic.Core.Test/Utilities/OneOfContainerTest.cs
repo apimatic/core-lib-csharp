@@ -6,6 +6,7 @@ using APIMatic.Core.Utilities;
 using APIMatic.Core.Test.MockTypes.Models.Containers;
 using APIMatic.Core.Test.MockTypes.Models;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace APIMatic.Core.Test.Utilities
 {
@@ -36,7 +37,6 @@ namespace APIMatic.Core.Test.Utilities
         {
             // Parameters for the API call
             NativeNullableOneOfContainer formScalar = CoreHelper.JsonDeserialize<NativeNullableOneOfContainer>("null");
-
             Assert.IsNotNull(formScalar);
             formScalar.Match(new TestNativeNullable());
             formScalar = CoreHelper.JsonDeserialize<NativeNullableOneOfContainer>(CoreHelper.JsonSerialize(formScalar));
