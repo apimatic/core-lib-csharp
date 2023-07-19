@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using APIMatic.Core.Request.Parameters;
@@ -26,7 +25,7 @@ namespace APIMatic.Core.Test
                 .Template(p => p.Setup("template", "someTemplate"))
                 .Apply(requestBuilder);
             Assert.False(requestBuilder.queryParameters.ContainsKey("query"));
-            Assert.False(requestBuilder.formParameters.Any(kv => kv.Key == "form"));
+            Assert.False(requestBuilder.formParameters.Exists(kv => kv.Key == "form"));
             Assert.False(requestBuilder.headers.ContainsKey("header"));
             Assert.True(requestBuilder.QueryUrl.ToString().Contains("{template}"));
 
@@ -36,7 +35,7 @@ namespace APIMatic.Core.Test
                 .AdditionalForms(p => p.Setup("form", "some form value"))
                 .Apply(requestBuilder);
             Assert.True(requestBuilder.body == null);
-            Assert.False(requestBuilder.formParameters.Any(kv => kv.Key == "form"));
+            Assert.False(requestBuilder.formParameters.Exists(kv => kv.Key == "form"));
         }
 
         [Test]

@@ -8,7 +8,7 @@ using System;
 namespace APIMatic.Core.Test.MockTypes.Models.Containers
 {
     [JsonConverter(
-        typeof(OneOfConverter<NativeDateTimeOneOfContainer>),
+        typeof(UnionTypeConverter<NativeDateTimeOneOfContainer>),
         new object[] {
             typeof(DateTimeCase),
             typeof(DateTimeCase2)
