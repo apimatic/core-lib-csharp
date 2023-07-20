@@ -29,9 +29,10 @@ namespace APIMatic.Core.Utilities
             try
             {
                 var typeObject = new C();
-                if (typeof(C).GetInterfaces().Contains(typeof(ICaseDateTimeValue)))
+                if (typeof(C).GetInterfaces().Contains(typeof(ICustomConverter)))
                 {
-                    serializer.Converters.Add(((ICaseDateTimeValue)typeObject).GetJsonConverter());
+                    serializer.Converters.Clear();
+                    serializer.Converters.Add(((ICustomConverter)typeObject).GetJsonConverter());
                 }
                 T value = Deserialize(token, serializer);
                 return typeObject.Set(value);
@@ -79,7 +80,7 @@ namespace APIMatic.Core.Utilities
         C Set(T value);
     }
 
-    public interface ICaseDateTimeValue
+    public interface ICustomConverter
     {
         JsonConverter GetJsonConverter();
     }
