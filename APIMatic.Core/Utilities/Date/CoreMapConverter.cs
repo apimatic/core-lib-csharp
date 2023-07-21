@@ -12,34 +12,34 @@ namespace APIMatic.Core.Utilities.Date
     /// <summary>
     /// Extends from JsonConverter, allows the use of a custom converter.
     /// </summary>
-    public class CoreMapDateTimeConverter : JsonConverter
+    public class CoreMapConverter : JsonConverter
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="CoreMapDateTimeConverter"/>
+        /// Initializes a new instance of the <see cref="CoreMapConverter"/>
         /// class.
         /// </summary>
-        public CoreMapDateTimeConverter()
+        public CoreMapConverter()
         {
             Converter = new IsoDateTimeConverter();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CoreMapDateTimeConverter"/>
+        /// Initializes a new instance of the <see cref="CoreMapConverter"/>
         /// class.
         /// </summary>
         /// <param name="converter">converter.</param>
-        public CoreMapDateTimeConverter(Type converter)
+        public CoreMapConverter(Type converter)
         {
             Converter = (JsonConverter)Activator.CreateInstance(converter);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CoreMapDateTimeConverter"/>
+        /// Initializes a new instance of the <see cref="CoreMapConverter"/>
         /// class.
         /// </summary>
         /// <param name="converter">converter.</param>
         /// <param name="format">format.</param>
-        public CoreMapDateTimeConverter(Type converter, string format)
+        public CoreMapConverter(Type converter, string format)
         {
             Converter = (JsonConverter)Activator.CreateInstance(converter, format);
         }

@@ -12,34 +12,34 @@ namespace APIMatic.Core.Utilities.Date
     /// <summary>
     /// Extends from JsonConverter, allows the use of a custom converter.
     /// </summary>
-    public class CoreListDateTimeConverter : JsonConverter
+    public class CoreListConverter : JsonConverter
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="CoreListDateTimeConverter"/>
+        /// Initializes a new instance of the <see cref="CoreListConverter"/>
         /// class.
         /// </summary>
-        public CoreListDateTimeConverter()
+        public CoreListConverter()
         {
             Converter = new IsoDateTimeConverter();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CoreListDateTimeConverter"/>
+        /// Initializes a new instance of the <see cref="CoreListConverter"/>
         /// class.
         /// </summary>
         /// <param name="converter">converter.</param>
-        public CoreListDateTimeConverter(Type converter)
+        public CoreListConverter(Type converter)
         {
             Converter = (JsonConverter)Activator.CreateInstance(converter);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CoreListDateTimeConverter"/>
+        /// Initializes a new instance of the <see cref="CoreListConverter"/>
         /// class.
         /// </summary>
         /// <param name="converter">converter.</param>
         /// <param name="format">format.</param>
-        public CoreListDateTimeConverter(Type converter, string format)
+        public CoreListConverter(Type converter, string format)
         {
             Converter = (JsonConverter)Activator.CreateInstance(converter, format);
         }

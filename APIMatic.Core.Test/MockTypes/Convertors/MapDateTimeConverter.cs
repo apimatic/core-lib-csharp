@@ -6,7 +6,7 @@ namespace APIMatic.Core.Test.MockTypes.Convertors
     /// <summary>
     /// Extends from JsonConverter, allows the use of a custom converter.
     /// </summary>
-    public class MapDateTimeConverter : CoreMapDateTimeConverter
+    public class MapDateTimeConverter : CoreMapConverter
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MapDateTimeConverter"/>
