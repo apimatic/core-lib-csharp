@@ -334,5 +334,69 @@ namespace APIMatic.Core.Test.Utilities
                 return null;
             }
         }
+
+        [Test]
+        public void TestNativeDateTimeType()
+        {
+            NativeDateTimeAnyOfContainer formScalar = CoreHelper.JsonDeserialize<NativeDateTimeAnyOfContainer>("\"1994-02-13T14:01:54.9571247Z\"");
+
+            Assert.IsNotNull(formScalar);
+            var dateTime = formScalar.Match(new TestDateTimeNative());
+            Assert.IsNotNull(dateTime);
+            formScalar = CoreHelper.JsonDeserialize<NativeDateTimeAnyOfContainer>(CoreHelper.JsonSerialize(formScalar));
+            dateTime = formScalar.Match(new TestDateTimeNative());
+            Assert.IsNotNull(dateTime);
+            formScalar = CoreHelper.JsonDeserialize<NativeDateTimeAnyOfContainer>("\"2023-07-20T14:30:00Z\"");
+            dateTime = formScalar.Match(new TestDateTimeNative());
+            Assert.IsNotNull(dateTime);
+            formScalar = CoreHelper.JsonDeserialize<NativeDateTimeAnyOfContainer>(CoreHelper.JsonSerialize(formScalar));
+            dateTime = formScalar.Match(new TestDateTimeNative());
+            Assert.IsNotNull(dateTime);
+        }
+
+        private class TestDateTimeNative : NativeDateTimeAnyOfContainer.ICases<DateTime?>
+        {
+            public DateTime? DateTime(DateTime? value)
+            {
+                Console.WriteLine(value);
+                return value;
+            }
+
+            public DateTime? DateTime2(DateTime? value)
+            {
+                Console.WriteLine(value);
+                return value;
+            }
+        }
+
+        [Test]
+        public void TestEnumType()
+        {
+            EnumAnyOfContainer formScalar = CoreHelper.JsonDeserialize<EnumAnyOfContainer>("\"Monday\"");
+
+            Assert.IsNotNull(formScalar);
+            formScalar.Match(new TestEnumNative());
+            formScalar = CoreHelper.JsonDeserialize<EnumAnyOfContainer>(CoreHelper.JsonSerialize(formScalar));
+            formScalar.Match(new TestEnumNative());
+            formScalar = CoreHelper.JsonDeserialize<EnumAnyOfContainer>("\"Sunday\"");
+            formScalar.Match(new TestEnumNative());
+            formScalar = CoreHelper.JsonDeserialize<EnumAnyOfContainer>(CoreHelper.JsonSerialize(formScalar));
+            formScalar.Match(new TestEnumNative());
+        }
+
+        private class TestEnumNative : EnumAnyOfContainer.ICases<VoidType>
+        {
+            public VoidType WorkingDays(WorkingDays value)
+            {
+                Console.WriteLine(value);
+                return null;
+            }
+
+            public VoidType Days(Days value)
+            {
+                Console.WriteLine(value);
+                return null;
+            }
+        }
     }
 }

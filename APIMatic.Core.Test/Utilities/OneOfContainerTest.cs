@@ -18,7 +18,6 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestNativeType()
         {
-            // Parameters for the API call
             NativeOneOfContainer formScalar = CoreHelper.JsonDeserialize<NativeOneOfContainer>("\"some string\"");
 
             Assert.IsNotNull(formScalar);
@@ -34,7 +33,6 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestNativeNullableType()
         {
-            // Parameters for the API call
             NativeNullableOneOfContainer formScalar = CoreHelper.JsonDeserialize<NativeNullableOneOfContainer>("null");
             Assert.IsNotNull(formScalar);
             formScalar.Match(new TestNativeNullable());
@@ -98,7 +96,6 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestNativeCollectionType()
         {
-            // Parameters for the API call
             NativeOneOfCollectionContainer formScalar = CoreHelper.JsonDeserialize<NativeOneOfCollectionContainer>("[\"some string array\", \"test\"]");
             Assert.IsNotNull(formScalar);
             formScalar.Match(new TestCollection());
@@ -148,7 +145,6 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestNativeOuterListContainer()
         {
-            // Parameters for the API call
             NativeOneOfContainer[] formScalar = CoreHelper.JsonDeserialize<NativeOneOfContainer[]>("[\"some string\", 0.987]");
             Assert.IsNotNull(formScalar);
             foreach (var item in formScalar)
@@ -187,7 +183,6 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestCustomType()
         {
-            // Parameters for the API call
             CustomOneOfContainer formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer>("{\"NumberOfElectrons\":12,\"NumberOfProtons\":13}");
             Assert.IsNotNull(formScalar);
             formScalar.Match(new TestCustom());
@@ -240,7 +235,6 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestCustomWithDiscriminatorType()
         {
-            // Parameters for the API call
             CustomOneOfWithDiscContainer formScalar = CoreHelper.JsonDeserialize<CustomOneOfWithDiscContainer>("{\"NumberOfElectrons\":12,\"NumberOfProtons\":13}");
             Assert.IsNotNull(formScalar);
             formScalar.Match(new TestCustomWithDisc());
@@ -290,7 +284,6 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestCustomTypeCollection()
         {
-            // Parameters for the API call
             CustomOneOfCollectionContainer formScalar = CoreHelper.JsonDeserialize<CustomOneOfCollectionContainer>("[{\"NumberOfElectrons\":12,\"NumberOfProtons\":13}]");
             Assert.IsNotNull(formScalar);
             formScalar.Match(new TestCustomCollection());
@@ -326,7 +319,6 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestCustomTypeOuter()
         {
-            // Parameters for the API call
             CustomOneOfContainer[] formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>("[{\"NumberOfElectrons\":12,\"NumberOfProtons\":13}, {\"NumberOfElectrons\":12,\"NumberOfShells\":3} ]");
             Assert.IsNotNull(formScalar);
             foreach (var form in formScalar)
@@ -353,7 +345,6 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestCustomTypeInner()
         {
-            // Parameters for the API call
             CustomOneOfContainer[] formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>("[ {\"NumberOfElectrons\":12,\"NumberOfProtons\":13} ]");
             Assert.IsNotNull(formScalar);
             foreach (var form in formScalar)
@@ -380,7 +371,6 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestMixTypeNested()
         {
-            // Parameters for the API call
             CustomNestedOneOfContainer formScalar = CoreHelper.JsonDeserialize<CustomNestedOneOfContainer>("{\"NumberOfElectrons\":12,\"NumberOfProtons\":13}");
             Assert.IsNotNull(formScalar);
             formScalar.Match(new TestCustomNested());
@@ -414,34 +404,22 @@ namespace APIMatic.Core.Test.Utilities
         }
 
         [Test]
-        public void TestNativeDateTimeType()
+        public void TestUnionTypeConverter()
         {
-            // Parameters for the API call
-            NativeDateTimeOneOfContainer formScalar = CoreHelper.JsonDeserialize<NativeDateTimeOneOfContainer>("\"1994-02-13T14:01:54.9571247Z\"");
+            NotImplementedException exception = null;
 
-            Assert.IsNotNull(formScalar);
-            formScalar.Match(new TestDateTimeNative());
-            formScalar = CoreHelper.JsonDeserialize<NativeDateTimeOneOfContainer>(CoreHelper.JsonSerialize(formScalar));
-            formScalar.Match(new TestDateTimeNative());
-            formScalar = CoreHelper.JsonDeserialize<NativeDateTimeOneOfContainer>("2023-07-18T12:34:56Z");
-            formScalar.Match(new TestDateTimeNative());
-            formScalar = CoreHelper.JsonDeserialize<NativeDateTimeOneOfContainer>(CoreHelper.JsonSerialize(formScalar));
-            formScalar.Match(new TestDateTimeNative());
-        }
-
-        private class TestDateTimeNative : NativeDateTimeOneOfContainer.ICases<VoidType>
-        {
-            public VoidType DateTime(DateTime? value)
+            try
             {
+                var value = CoreHelper.JsonSerialize(TestContainer.FromMString("some string"));
                 Console.WriteLine(value);
-                return null;
+            }
+            catch (NotImplementedException ex)
+            {
+                exception = ex;
             }
 
-            public VoidType DateTime2(DateTime? value)
-            {
-                Console.WriteLine(value);
-                return null;
-            }
+            Assert.NotNull(exception);
+            Assert.AreEqual("The method or operation is not implemented.", exception.Message);
         }
     }
 }
