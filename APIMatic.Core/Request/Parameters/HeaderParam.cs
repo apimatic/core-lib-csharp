@@ -16,7 +16,12 @@ namespace APIMatic.Core.Request.Parameters
             {
                 return;
             }
-            requestBuilder.headers[key] = value?.ToString();
+            var headerValue = value?.ToString();
+            if (headerValue == null)
+            {
+                return;
+            }
+            requestBuilder.headers[key] = headerValue;
         }
     }
 }

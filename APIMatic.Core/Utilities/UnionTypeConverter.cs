@@ -102,12 +102,7 @@ namespace APIMatic.Core.Utilities
             throw new NotImplementedException();
         }
 
-        private string GetFieldType(Type type)
-        {
-            return type
-                .GetField("value")
-                .FieldType.Name.ToLower();
-        }
+        private string GetFieldType(Type type) => type.GetFields()[0].FieldType.Name.ToLower();
     }
 
     internal class UnionType

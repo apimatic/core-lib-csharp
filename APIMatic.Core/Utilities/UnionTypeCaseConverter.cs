@@ -38,7 +38,7 @@ namespace APIMatic.Core.Utilities
             }
             catch (Exception)
             {
-                throw new JsonSerializationException($"Invalid {typeof(T)}");
+                throw new JsonSerializationException($"Invalid {typeof(T)} on value: {reader.Value}");
             }
         }
 

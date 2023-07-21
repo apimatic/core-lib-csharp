@@ -2,6 +2,7 @@
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
+using APIMatic.Core.Utilities;
 
 namespace APIMatic.Core.Request.Parameters
 {
@@ -16,7 +17,8 @@ namespace APIMatic.Core.Request.Parameters
         public Parameter Setup(object value)
         {
             Setup("", value);
-            valueType = value?.GetType();
+            CoreHelper.TryGetInnerValueForContainer(value, out dynamic innerType);
+            valueType = innerType?.GetType() ?? value?.GetType();
             return this;
         }
 
