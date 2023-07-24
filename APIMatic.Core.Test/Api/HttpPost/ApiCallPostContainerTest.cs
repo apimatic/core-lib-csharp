@@ -25,14 +25,14 @@ namespace APIMatic.Core.Test.Api.HttpPost
                 Passed = true,
             };
             var url = "/apicall/post-container/200";
-            var contentType = "application/octet-stream";
+            var contentType = "application/json";
 
             var content = JsonContent.Create(expected);
             handlerMock.When(GetCompleteUrl(url))
             .With(req =>
             {
-                //Assert.AreEqual("application/json", req.Headers.Accept.ToString());
-                //Assert.AreEqual(contentType, req.Content.Headers.ContentType.ToString());
+                Assert.AreEqual("application/json", req.Headers.Accept.ToString());
+                Assert.AreEqual(contentType, req.Content.Headers.ContentType.ToString());
                 return true;
             })
                 .Respond(HttpStatusCode.OK, content);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -59,12 +60,16 @@ namespace APIMatic.Core.Utilities
                 return true;
             }
 
-            if (token.Type != JTokenType.Array && token.Type != JTokenType.Object)
+            var containerTypes = new List<JTokenType> {
+                JTokenType.Array, JTokenType.Object, JTokenType.Property
+            };
+
+            if (containerTypes.Contains(token.Type))
             {
-                return false;
+                return token.All(tkn => VerifyInternalType(tkn));
             }
 
-            return token.All(tkn => VerifyInternalType(tkn));
+            return false;
         }
 
         public override void WriteJson(JsonWriter writer, C value, JsonSerializer serializer)
