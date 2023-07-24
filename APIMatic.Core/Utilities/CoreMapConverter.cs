@@ -1,4 +1,4 @@
-﻿// <copyright file="CoreListDateTimeConverter.cs" company="APIMatic">
+﻿// <copyright file="CoreMapDateTimeConverter.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
@@ -6,40 +6,40 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace APIMatic.Core.Utilities.Date
+namespace APIMatic.Core.Utilities
 {
 
     /// <summary>
     /// Extends from JsonConverter, allows the use of a custom converter.
     /// </summary>
-    public class CoreListConverter : JsonConverter
+    public class CoreMapConverter : JsonConverter
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="CoreListConverter"/>
+        /// Initializes a new instance of the <see cref="CoreMapConverter"/>
         /// class.
         /// </summary>
-        public CoreListConverter()
+        public CoreMapConverter()
         {
             Converter = new IsoDateTimeConverter();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CoreListConverter"/>
+        /// Initializes a new instance of the <see cref="CoreMapConverter"/>
         /// class.
         /// </summary>
         /// <param name="converter">converter.</param>
-        public CoreListConverter(Type converter)
+        public CoreMapConverter(Type converter)
         {
             Converter = (JsonConverter)Activator.CreateInstance(converter);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CoreListConverter"/>
+        /// Initializes a new instance of the <see cref="CoreMapConverter"/>
         /// class.
         /// </summary>
         /// <param name="converter">converter.</param>
         /// <param name="format">format.</param>
-        public CoreListConverter(Type converter, string format)
+        public CoreMapConverter(Type converter, string format)
         {
             Converter = (JsonConverter)Activator.CreateInstance(converter, format);
         }
@@ -68,7 +68,7 @@ namespace APIMatic.Core.Utilities.Date
         /// <inheritdoc/>
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(List<DateTime>) || objectType == typeof(DateTime) || objectType == typeof(List<DateTimeOffset>) || objectType == typeof(DateTimeOffset);
+            return objectType == typeof(Dictionary<string, DateTime>) || objectType == typeof(Dictionary<string, DateTimeOffset>) || objectType == typeof(DateTime) || objectType == typeof(DateTimeOffset);
         }
     }
 }

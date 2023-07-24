@@ -1,5 +1,5 @@
 ﻿using System;
-using APIMatic.Core.Utilities.Date;
+using APIMatic.Core.Utilities;
 
 namespace APIMatic.Core.Test.MockTypes.Convertors
 {
