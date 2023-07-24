@@ -42,9 +42,9 @@ namespace APIMatic.Core.Utilities
         {
             var token = JToken.Load(reader);
             List<UnionType> types = _types;
-            if (_discriminator != null)
+            if (_discriminator != null && token.Type == JTokenType.Object)
             {
-                var discriminatorValue = token.SelectToken(_discriminator)?.Value<string>();
+                var discriminatorValue = token[_discriminator]?.Value<string>();
                 if (discriminatorValue != null)
                 {
                     types = _types.Where(type => type.DiscriminatorValue == discriminatorValue).ToList();
