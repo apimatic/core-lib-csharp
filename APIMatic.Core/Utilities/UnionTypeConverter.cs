@@ -17,6 +17,7 @@ namespace APIMatic.Core.Utilities
         {
             _types = PopulateUnionTypes(types, null);
             _isOneOf = isOneOf;
+            _discriminator = null;
         }
 
         public UnionTypeConverter(Type[] types, string[] discriminatorValues, string discriminator, bool isOneOf)
@@ -40,26 +41,26 @@ namespace APIMatic.Core.Utilities
         public override T ReadJson(JsonReader reader, Type objectType, T existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             var token = JToken.Load(reader);
-
+            List<UnionType> types = _types;
             if (_discriminator != null)
             {
                 var discriminatorValue = token.SelectToken(_discriminator)?.Value<string>();
                 if (discriminatorValue != null)
                 {
-                    _types.RemoveAll(type => type.DiscriminatorValue != discriminatorValue);
+                    types = _types.Where(type => type.DiscriminatorValue == discriminatorValue).ToList();
                 }
             }
 
-            return DeserializeOneOfAnyOf(token, serializer);
+            return DeserializeOneOfAnyOf(token, serializer, types);
         }
 
-        private T DeserializeOneOfAnyOf(JToken token, JsonSerializer serializer)
+        private T DeserializeOneOfAnyOf(JToken token, JsonSerializer serializer, List<UnionType> types)
         {
             var mappedTypes = new List<string>();
             var unMappedTypes = new List<string>();
             object deserializedObject = null;
             var json = token.ToString();
-            foreach (var (type, dataType) in _types.Select(type => (type, GetFieldType(type.Type))))
+            foreach (var (type, dataType) in types.Select(type => (type, GetFieldType(type.Type))))
             {
                 try
                 {

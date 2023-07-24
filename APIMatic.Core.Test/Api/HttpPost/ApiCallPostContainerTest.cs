@@ -25,7 +25,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
                 Passed = true,
             };
             var url = "/apicall/post-container/200";
-            var contentType = "application/json";
+            var contentType = "application/json; charset=utf-8";
 
             var content = JsonContent.Create(expected);
             handlerMock.When(GetCompleteUrl(url))
