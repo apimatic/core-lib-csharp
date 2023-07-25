@@ -473,8 +473,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
                 .With(req =>
                 {
                     Assert.AreEqual(text, req.Content.ReadAsStringAsync().Result);
-                    Assert.IsTrue(req.Headers.Contains(headerKey));
-                    Assert.AreEqual(string.Empty, req.Headers.GetValues(headerKey).FirstOrDefault());
+                    Assert.False(req.Headers.Contains(headerKey));
                     return true;
                 })
                 .Respond(HttpStatusCode.OK, content);
