@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
-using APIMatic.Core.Utilities;
 using Newtonsoft.Json.Linq;
+using APIMatic.Core.Utilities.Converters;
 
 namespace APIMatic.Core.Test.MockTypes.Models.Containers
 {

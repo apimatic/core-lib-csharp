@@ -5,7 +5,7 @@ using APIMatic.Core.Types.Sdk.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace APIMatic.Core.Utilities
+namespace APIMatic.Core.Utilities.Converters
 {
     public class UnionTypeConverter<T> : JsonConverter<T>
     {
@@ -41,7 +41,7 @@ namespace APIMatic.Core.Utilities
         public override T ReadJson(JsonReader reader, Type objectType, T existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             var token = JToken.Load(reader);
-            List<UnionType> types = _types;
+            var types = _types;
             if (_discriminator != null && token.Type == JTokenType.Object)
             {
                 var discriminatorValue = token[_discriminator]?.Value<string>();

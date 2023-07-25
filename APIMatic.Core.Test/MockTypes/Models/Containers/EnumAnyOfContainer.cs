@@ -1,6 +1,6 @@
-﻿using APIMatic.Core.Utilities;
-using System;
+﻿using System;
 using Newtonsoft.Json;
+using APIMatic.Core.Utilities.Converters;
 
 namespace APIMatic.Core.Test.MockTypes.Models.Containers
 {
@@ -35,7 +35,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         }
 
         [JsonConverter(typeof(UnionTypeCaseConverter<WorkingDaysCase, WorkingDays>))]
-        private class WorkingDaysCase : EnumAnyOfContainer, ICaseValue<WorkingDaysCase, WorkingDays>, ICustomConverter
+        private class WorkingDaysCase : EnumAnyOfContainer, ICaseValue<WorkingDaysCase, WorkingDays>
         {
             public WorkingDays value;
 
@@ -59,15 +59,10 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             {
                 return value.ToString();
             }
-
-            public JsonConverter GetJsonConverter()
-            {
-                return new EnumCaseConverter<WorkingDays>();
-            }
         }
 
         [JsonConverter(typeof(UnionTypeCaseConverter<DaysCase, Days>))]
-        private class DaysCase : EnumAnyOfContainer, ICaseValue<DaysCase, Days>, ICustomConverter
+        private class DaysCase : EnumAnyOfContainer, ICaseValue<DaysCase, Days>
         {
             public Days value;
 
@@ -90,11 +85,6 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             public override string ToString()
             {
                 return value.ToString();
-            }
-
-            public JsonConverter GetJsonConverter()
-            {
-                return new EnumCaseConverter<Days>();
             }
         }
     }

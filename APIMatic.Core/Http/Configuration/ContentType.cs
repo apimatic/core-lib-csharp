@@ -12,7 +12,7 @@ namespace APIMatic.Core.Http.Configuration
     /// This enumeration has ContentType Values.
     /// </summary>
     /// 
-    [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
     internal enum ContentType
     {
         [EnumMember(Value = "application/json")]

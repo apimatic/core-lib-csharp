@@ -4,7 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace APIMatic.Core.Utilities
+namespace APIMatic.Core.Utilities.Converters
 {
     public class UnionTypeCaseConverter<C, T> : JsonConverter<C> where C : ICaseValue<C, T>, new()
     {
@@ -26,7 +26,7 @@ namespace APIMatic.Core.Utilities
 
         public override C ReadJson(JsonReader reader, Type objectType, C existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            JToken token = JToken.ReadFrom(reader);
+            var token = JToken.ReadFrom(reader);
             try
             {
                 var typeObject = new C();
@@ -35,7 +35,7 @@ namespace APIMatic.Core.Utilities
                     serializer.Converters.Clear();
                     serializer.Converters.Add(((ICustomConverter)typeObject).GetJsonConverter());
                 }
-                T value = Deserialize(token, serializer);
+                var value = Deserialize(token, serializer);
                 return typeObject.Set(value);
             }
             catch (Exception)

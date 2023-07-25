@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace APIMatic.Core.Utilities
+namespace APIMatic.Core.Utilities.Converters
 {
 
     /// <summary>

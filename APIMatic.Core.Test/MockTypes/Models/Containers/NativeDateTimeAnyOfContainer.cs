@@ -1,4 +1,4 @@
-﻿using APIMatic.Core.Utilities;
+﻿using APIMatic.Core.Utilities.Converters;
 using APIMatic.Core.Utilities.Date;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

@@ -1,4 +1,4 @@
-﻿using APIMatic.Core.Utilities;
+﻿using APIMatic.Core.Utilities.Converters;
 using Newtonsoft.Json;
 using System;
 

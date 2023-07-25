@@ -1,5 +1,5 @@
 ﻿using System;
-using APIMatic.Core.Utilities;
+using APIMatic.Core.Utilities.Converters;
 
 namespace APIMatic.Core.Test.MockTypes.Convertors
 {
