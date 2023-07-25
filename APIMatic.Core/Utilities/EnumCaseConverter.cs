@@ -14,13 +14,6 @@ namespace APIMatic.Core.Utilities
                 return Enum.Parse(typeof(T), value, true);
             }
 
-            if (reader.TokenType == JsonToken.Integer)
-            {
-                int value = Convert.ToInt32(reader.Value);
-                return Enum.ToObject(typeof(T), value);
-            }
-
-
             throw new JsonSerializationException($"Invalid {typeof(T)}.");
         }
 
