@@ -330,7 +330,7 @@ namespace APIMatic.Core.Utilities
         /// <param name="left">Left items set.</param>
         /// <param name="checkSize">Should the size of left and right be equal as well.</param>
         /// <returns>True if the right has all items of left in the same order.</returns>
-        private static bool IsOrderedSupersetOf(this JArray right, JArray left, bool checkSize)
+        public static bool IsOrderedSupersetOf<T>(this IEnumerable<T> right, IEnumerable<T> left, bool checkSize)
         {
             var rightItr = right.GetEnumerator();
             var leftItr = left.GetEnumerator();
@@ -372,7 +372,7 @@ namespace APIMatic.Core.Utilities
         /// <param name="right">Right items set.</param>
         /// <param name="left">Left items set.</param>
         /// <returns>True if the right has all items of left.</returns>
-        private static bool IsSuperSetOf(this JArray right, JArray left, bool checkSize)
+        public static bool IsSuperSetOf<T>(this IEnumerable<T> right, IEnumerable<T> left, bool checkSize)
         {
             if (IsDifferentSizeListNotAllowed(right, left, checkSize))
             {
@@ -382,7 +382,7 @@ namespace APIMatic.Core.Utilities
             return rightHashSet.IsSupersetOf(left.Select(i => i.ToString()));
         }
 
-        private static bool IsDifferentSizeListNotAllowed(IEnumerable<dynamic> leftList, IEnumerable<dynamic> rightList, bool checkSize)
+        private static bool IsDifferentSizeListNotAllowed<T>(IEnumerable<T> leftList, IEnumerable<T> rightList, bool checkSize)
         {
             return checkSize && (rightList.Count() != leftList.Count());
         }
