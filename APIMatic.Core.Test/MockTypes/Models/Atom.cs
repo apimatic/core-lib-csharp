@@ -2,6 +2,7 @@
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System.Collections.Generic;
+using APIMatic.Core.Utilities.Converters;
 using Newtonsoft.Json;
 
 namespace APIMatic.Core.Test.MockTypes.Models
@@ -25,10 +26,12 @@ namespace APIMatic.Core.Test.MockTypes.Models
         /// <param name="numberOfProtons">NumberOfProtons.</param>
         public Atom(
             int numberOfElectrons,
-            int? numberOfProtons = null)
+            int numberOfProtons,
+            string name = null)
         {
             NumberOfElectrons = numberOfElectrons;
             NumberOfProtons = numberOfProtons;
+            Name = name;
         }
 
         /// <summary>
@@ -41,9 +44,16 @@ namespace APIMatic.Core.Test.MockTypes.Models
         /// <summary>
         /// Gets or sets NumberOfProtons.
         /// </summary>
-        [JsonProperty("NumberOfProtons", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("NumberOfProtons")]
         [JsonRequired]
-        public int? NumberOfProtons { get; set; }
+        public int NumberOfProtons { get; set; }
+
+        /// <summary>
+        /// Gets or sets Name.
+        /// </summary>
+        [JsonConverter(typeof(JsonStringConverter))]
+        [JsonProperty("Name", NullValueHandling = NullValueHandling.Ignore)]
+        public string Name { get; set; }
 
         /// <inheritdoc/>
         public override string ToString()
@@ -68,7 +78,8 @@ namespace APIMatic.Core.Test.MockTypes.Models
                 return true;
             }
             return obj is Atom other && NumberOfElectrons.Equals(other.NumberOfElectrons) &&
-                ((NumberOfProtons == null && other.NumberOfProtons == null) || (NumberOfProtons?.Equals(other.NumberOfProtons) == true));
+                NumberOfProtons.Equals(other.NumberOfProtons) &&
+                ((Name == null && other.Name == null) || (Name?.Equals(other.Name) == true));
         }
 
         /// <summary>
@@ -78,7 +89,8 @@ namespace APIMatic.Core.Test.MockTypes.Models
         protected void ToString(List<string> toStringOutput)
         {
             toStringOutput.Add($"this.NumberOfElectrons = {NumberOfElectrons}");
-            toStringOutput.Add($"this.NumberOfProtons = {(NumberOfProtons == null ? "null" : NumberOfProtons.ToString())}");
+            toStringOutput.Add($"this.NumberOfProtons = {NumberOfProtons}");
+            toStringOutput.Add($"this.Name = {Name ?? "null"}");
         }
     }
 }

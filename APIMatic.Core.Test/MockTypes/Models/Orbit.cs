@@ -1,13 +1,9 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using APIMatic.Core.Utilities.Converters;
+using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Text;
 
 namespace APIMatic.Core.Test.MockTypes.Models
 {
-    using System.Collections.Generic;
-    using Newtonsoft.Json;
-
     /// <summary>
     /// Orbit.
     /// </summary>
@@ -27,10 +23,10 @@ namespace APIMatic.Core.Test.MockTypes.Models
         /// <param name="numberOfShells">NumberOfShells.</param>
         public Orbit(
             int numberOfElectrons,
-            int? numberOfShells = null)
+            string numberOfShells = null)
         {
-            this.NumberOfElectrons = numberOfElectrons;
-            this.NumberOfShells = numberOfShells;
+            NumberOfElectrons = numberOfElectrons;
+            NumberOfShells = numberOfShells;
         }
 
         /// <summary>
@@ -43,16 +39,17 @@ namespace APIMatic.Core.Test.MockTypes.Models
         /// <summary>
         /// Gets or sets NumberOfShells.
         /// </summary>
-        [JsonProperty("NumberOfShells", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(JsonStringConverter), true)]
+        [JsonProperty("NumberOfShells")]
         [JsonRequired]
-        public int? NumberOfShells { get; set; }
+        public string NumberOfShells { get; set; }
 
         /// <inheritdoc/>
         public override string ToString()
         {
             var toStringOutput = new List<string>();
 
-            this.ToString(toStringOutput);
+            ToString(toStringOutput);
 
             return $"Orbit : ({string.Join(", ", toStringOutput)})";
         }
@@ -69,8 +66,8 @@ namespace APIMatic.Core.Test.MockTypes.Models
             {
                 return true;
             }
-            return obj is Orbit other && this.NumberOfElectrons.Equals(other.NumberOfElectrons) &&
-                ((this.NumberOfShells == null && other.NumberOfShells == null) || (this.NumberOfShells?.Equals(other.NumberOfShells) == true));
+            return obj is Orbit other && NumberOfElectrons.Equals(other.NumberOfElectrons) &&
+                ((NumberOfShells == null && other.NumberOfShells == null) || (NumberOfShells?.Equals(other.NumberOfShells) == true));
         }
 
         /// <summary>
@@ -79,8 +76,8 @@ namespace APIMatic.Core.Test.MockTypes.Models
         /// <param name="toStringOutput">List of strings.</param>
         protected void ToString(List<string> toStringOutput)
         {
-            toStringOutput.Add($"this.NumberOfElectrons = {this.NumberOfElectrons}");
-            toStringOutput.Add($"this.NumberOfShells = {(this.NumberOfShells == null ? "null" : this.NumberOfShells.ToString())}");
+            toStringOutput.Add($"this.NumberOfElectrons = {NumberOfElectrons}");
+            toStringOutput.Add($"this.NumberOfShells = {NumberOfShells ?? "null"}");
         }
     }
 }

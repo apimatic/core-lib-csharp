@@ -188,7 +188,7 @@ namespace APIMatic.Core.Test.Utilities
             formScalar.Match(new TestCustom());
             formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer>(CoreHelper.JsonSerialize(formScalar));
             formScalar.Match(new TestCustom());
-            formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer>("{\"NumberOfElectrons\":12,\"NumberOfShells\":3}");
+            formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer>("{\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"}");
             formScalar.Match(new TestCustom());
             formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer>(CoreHelper.JsonSerialize(formScalar));
             formScalar.Match(new TestCustom());
@@ -206,7 +206,7 @@ namespace APIMatic.Core.Test.Utilities
 
             public VoidType Orbit(Orbit value)
             {
-                Orbit expected = new Orbit(12, 3);
+                Orbit expected = new Orbit(12, "3");
                 Assert.AreEqual(expected, value);
                 Console.WriteLine(value);
                 return null;
@@ -249,7 +249,7 @@ namespace APIMatic.Core.Test.Utilities
 
             try
             {
-                var formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer>("{\"NumberOfShells\":12,\"NumberOfProtons\":13}");
+                var formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer>("{\"Name\":2,\"NumberOfShells\":12,\"NumberOfProtons\":13}");
                 formScalar.Match(new TestCustom());
             }
             catch (OneOfValidationException ex)
@@ -258,7 +258,7 @@ namespace APIMatic.Core.Test.Utilities
             }
 
             Assert.NotNull(exception);
-            Assert.AreEqual("We could not match any acceptable type from atom, orbit on: {\n  \"NumberOfShells\": 12,\n  \"NumberOfProtons\": 13\n}", exception.Message.Replace("\r", ""));
+            Assert.AreEqual("We could not match any acceptable type from atom, orbit on: {\n  \"Name\": 2,\n  \"NumberOfShells\": 12,\n  \"NumberOfProtons\": 13\n}", exception.Message.Replace("\r", ""));
         }
 
         [Test]
@@ -268,7 +268,7 @@ namespace APIMatic.Core.Test.Utilities
 
             try
             {
-                var formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer>("{\"NumberOfElectrons\":12,\"NumberOfProtons\":13, \"NumberOfElectrons\":12,\"NumberOfShells\":3}");
+                var formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer>("{\"NumberOfElectrons\":12,\"NumberOfProtons\":13, \"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"}");
                 formScalar.Match(new TestCustom());
             }
             catch (OneOfValidationException ex)
@@ -277,7 +277,7 @@ namespace APIMatic.Core.Test.Utilities
             }
 
             Assert.NotNull(exception);
-            string expectedMessage = "There are more than one matching types i.e. atom and orbit on: {\n  \"NumberOfElectrons\": 12,\n  \"NumberOfProtons\": 13,\n  \"NumberOfShells\": 3\n}";
+            string expectedMessage = "There are more than one matching types i.e. atom and orbit on: {\n  \"NumberOfElectrons\": 12,\n  \"NumberOfProtons\": 13,\n  \"NumberOfShells\": \"3\"\n}";
             Assert.AreEqual(expectedMessage, exception.Message.Replace("\r", ""));
         }
 
@@ -289,7 +289,7 @@ namespace APIMatic.Core.Test.Utilities
             formScalar.Match(new TestCustomCollection());
             formScalar = CoreHelper.JsonDeserialize<CustomOneOfCollectionContainer>(CoreHelper.JsonSerialize(formScalar));
             formScalar.Match(new TestCustomCollection());
-            formScalar = CoreHelper.JsonDeserialize<CustomOneOfCollectionContainer>("[{\"NumberOfElectrons\":12,\"NumberOfShells\":3}]");
+            formScalar = CoreHelper.JsonDeserialize<CustomOneOfCollectionContainer>("[{\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"}]");
             formScalar.Match(new TestCustomCollection());
             formScalar = CoreHelper.JsonDeserialize<CustomOneOfCollectionContainer>(CoreHelper.JsonSerialize(formScalar));
             formScalar.Match(new TestCustomCollection());
@@ -308,7 +308,7 @@ namespace APIMatic.Core.Test.Utilities
 
             public VoidType Orbit(Orbit[] value)
             {
-                Orbit expectedOrbit = new Orbit(12, 3);
+                Orbit expectedOrbit = new Orbit(12, "3");
                 Orbit[] expected = { expectedOrbit };
                 Assert.AreEqual(expected, value);
                 Console.WriteLine(value);
@@ -319,7 +319,7 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestCustomTypeOuter()
         {
-            CustomOneOfContainer[] formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>("[{\"NumberOfElectrons\":12,\"NumberOfProtons\":13}, {\"NumberOfElectrons\":12,\"NumberOfShells\":3} ]");
+            CustomOneOfContainer[] formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>("[{\"NumberOfElectrons\":12,\"NumberOfProtons\":13}, {\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"} ]");
             Assert.IsNotNull(formScalar);
             foreach (var form in formScalar)
             {
@@ -330,7 +330,7 @@ namespace APIMatic.Core.Test.Utilities
             {
                 form.Match(new TestCustom());
             }
-            formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>("[{\"NumberOfElectrons\":12,\"NumberOfShells\":3}, {\"NumberOfElectrons\":12,\"NumberOfProtons\":13}]");
+            formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>("[{\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"}, {\"NumberOfElectrons\":12,\"NumberOfProtons\":13}]");
             foreach (var form in formScalar)
             {
                 form.Match(new TestCustom());
@@ -356,7 +356,7 @@ namespace APIMatic.Core.Test.Utilities
             {
                 form.Match(new TestCustom());
             }
-            formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>("[ {\"NumberOfElectrons\":12,\"NumberOfShells\":3} ]");
+            formScalar = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>("[ {\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"} ]");
             foreach (var form in formScalar)
             {
                 form.Match(new TestCustom());

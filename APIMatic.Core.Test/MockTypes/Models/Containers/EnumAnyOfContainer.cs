@@ -8,7 +8,8 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
        typeof(UnionTypeConverter<EnumAnyOfContainer>),
        new Type[] {
             typeof(WorkingDaysCase),
-            typeof(DaysCase)
+            typeof(DaysCase),
+            typeof(MonthNumberCase)
        },
        false
    )]
@@ -24,6 +25,11 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             return new DaysCase().Set(value);
         }
 
+        public static EnumAnyOfContainer FromMonthNumber(MonthNumber value)
+        {
+            return new MonthNumberCase().Set(value);
+        }
+
 
         public abstract T Match<T>(ICases<T> cases);
 
@@ -32,6 +38,8 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             T WorkingDays(WorkingDays value);
 
             T Days(Days value);
+
+            T MonthNumber(MonthNumber value);
         }
 
         [JsonConverter(typeof(UnionTypeCaseConverter<WorkingDaysCase, WorkingDays>))]
@@ -78,6 +86,33 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             }
 
             public Days Get()
+            {
+                return value;
+            }
+
+            public override string ToString()
+            {
+                return value.ToString();
+            }
+        }
+
+        [JsonConverter(typeof(UnionTypeCaseConverter<MonthNumberCase, MonthNumber>))]
+        private class MonthNumberCase : EnumAnyOfContainer, ICaseValue<MonthNumberCase, MonthNumber>
+        {
+            public MonthNumber value;
+
+            public override T Match<T>(ICases<T> cases)
+            {
+                return cases.MonthNumber(value);
+            }
+
+            public MonthNumberCase Set(MonthNumber value)
+            {
+                this.value = value;
+                return this;
+            }
+
+            public MonthNumber Get()
             {
                 return value;
             }

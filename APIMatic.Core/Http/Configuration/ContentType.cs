@@ -3,8 +3,8 @@
 // </copyright>
 using System.Runtime.Serialization;
 using APIMatic.Core.Utilities;
+using APIMatic.Core.Utilities.Converters;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace APIMatic.Core.Http.Configuration
 {
@@ -12,7 +12,7 @@ namespace APIMatic.Core.Http.Configuration
     /// This enumeration has ContentType Values.
     /// </summary>
     /// 
-    [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
     internal enum ContentType
     {
         [EnumMember(Value = "application/json")]

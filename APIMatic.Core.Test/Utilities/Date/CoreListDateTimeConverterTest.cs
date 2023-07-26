@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using APIMatic.Core.Test.MockTypes.Convertors;
 using APIMatic.Core.Test.MockTypes.Models;
 using APIMatic.Core.Utilities;
-using Newtonsoft.Json.Converters;
+using APIMatic.Core.Utilities.Converters;
 using NUnit.Framework;
 
 namespace APIMatic.Core.Test.Utilities.Date
@@ -44,7 +44,7 @@ namespace APIMatic.Core.Test.Utilities.Date
                 DateTimes = new List<DateTime> { new DateTime(2017, 1, 18, 6, 3, 1) }
             };
             string listOfDateTime = "{\"DateTimes\":[\"2017-01-18T06:03:01\"],\"DateTimeOffsets\":null}";
-            TestModelListOfDateTime actual = CoreHelper.JsonDeserialize<TestModelListOfDateTime>(listOfDateTime, new ListDateTimeConverter());
+            TestModelListOfDateTime actual = CoreHelper.JsonDeserialize<TestModelListOfDateTime>(listOfDateTime);
             Assert.AreEqual(expected.DateTimes, actual.DateTimes);
         }
 
@@ -56,7 +56,7 @@ namespace APIMatic.Core.Test.Utilities.Date
                 DateTimes = new List<DateTime> { new DateTime(2017, 1, 18, 6, 3, 1) }
             };
             string listOfDateTime = "{\"DateTimes\":[\"2017-01-18T06:03:01\"],\"DateTimeOffsets\":null}";
-            TestModelListOfDateTime actual = CoreHelper.JsonDeserialize<TestModelListOfDateTime>(listOfDateTime, new ListDateTimeConverter(typeof(IsoDateTimeConverter)));
+            TestModelListOfDateTime actual = CoreHelper.JsonDeserialize<TestModelListOfDateTime>(listOfDateTime, new CoreListConverter());
             Assert.AreEqual(expected.DateTimes, actual.DateTimes);
         }
 
@@ -68,7 +68,7 @@ namespace APIMatic.Core.Test.Utilities.Date
                 DateTimes = new List<DateTime> { new DateTime(2017, 1, 18, 6, 3, 1) }
             };
             string listOfDateTime = "{\"DateTimes\":[\"2017-01-18T06:03:01\"],\"DateTimeOffsets\":null}";
-            TestModelListOfDateTime actual = CoreHelper.JsonDeserialize<TestModelListOfDateTime>(listOfDateTime, new ListDateTimeConverter(typeof(CustomDateTimeConverter), "yyyy'-'MM'-'dd"));
+            TestModelListOfDateTime actual = CoreHelper.JsonDeserialize<TestModelListOfDateTime>(listOfDateTime, new CoreListConverter(typeof(CustomDateTimeConverter), "yyyy'-'MM'-'dd"));
             Assert.AreEqual(expected.DateTimes, actual.DateTimes);
         }
 
@@ -80,7 +80,7 @@ namespace APIMatic.Core.Test.Utilities.Date
                 DateTimeOffsets = new List<DateTimeOffset> { new DateTimeOffset(new DateTime(2017, 1, 18, 6, 3, 1)) }
             };
             string listOfDateTime = "{\"DateTimes\":null,\"DateTimeOffsets\":[\"2017-01-18T06:03:01\"]}";
-            TestModelListOfDateTime actual = CoreHelper.JsonDeserialize<TestModelListOfDateTime>(listOfDateTime, new ListDateTimeConverter());
+            TestModelListOfDateTime actual = CoreHelper.JsonDeserialize<TestModelListOfDateTime>(listOfDateTime);
             Assert.AreEqual(expected.DateTimeOffsets, actual.DateTimeOffsets);
             Assert.IsNotNull(actual.DateTimeOffsets);
             Assert.IsNull(actual.DateTimes);
