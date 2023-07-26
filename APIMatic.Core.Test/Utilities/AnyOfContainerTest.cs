@@ -21,16 +21,15 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestNativeType()
         {
-            // Parameters for the API call
-            NativeAnyOfContainer formScalar = CoreHelper.JsonDeserialize<NativeAnyOfContainer>("\"some string\"");
-            Assert.IsNotNull(formScalar);
-            formScalar.Match(new TestNative());
-            formScalar = CoreHelper.JsonDeserialize<NativeAnyOfContainer>(CoreHelper.JsonSerialize(formScalar));
-            formScalar.Match(new TestNative());
-            formScalar = CoreHelper.JsonDeserialize<NativeAnyOfContainer>("0.987");
-            formScalar.Match(new TestNative());
-            formScalar = CoreHelper.JsonDeserialize<NativeAnyOfContainer>(CoreHelper.JsonSerialize(formScalar));
-            formScalar.Match(new TestNative());
+            NativeAnyOfContainer container = CoreHelper.JsonDeserialize<NativeAnyOfContainer>("\"some string\"");
+            Assert.IsNotNull(container);
+            container.Match(new TestNative());
+            container = CoreHelper.JsonDeserialize<NativeAnyOfContainer>(CoreHelper.JsonSerialize(container));
+            container.Match(new TestNative());
+            container = CoreHelper.JsonDeserialize<NativeAnyOfContainer>("0.987");
+            container.Match(new TestNative());
+            container = CoreHelper.JsonDeserialize<NativeAnyOfContainer>(CoreHelper.JsonSerialize(container));
+            container.Match(new TestNative());
         }
 
         private class TestNative : NativeAnyOfContainer.ICases<VoidType>
@@ -57,8 +56,8 @@ namespace APIMatic.Core.Test.Utilities
 
             try
             {
-                var formScalar = CoreHelper.JsonDeserialize<NativeAnyOfContainer>("12");
-                formScalar.Match(new TestNative());
+                var container = CoreHelper.JsonDeserialize<NativeAnyOfContainer>("12");
+                container.Match(new TestNative());
             }
             catch (AnyOfValidationException ex)
             {
@@ -73,16 +72,15 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestNativeCollectionType()
         {
-            // Parameters for the API call
-            NativeAnyOfCollectionContainer formScalar = CoreHelper.JsonDeserialize<NativeAnyOfCollectionContainer>("[\"some string array\"]");
-            Assert.IsNotNull(formScalar);
-            formScalar.Match(new TestNativeCollection());
-            formScalar = CoreHelper.JsonDeserialize<NativeAnyOfCollectionContainer>(CoreHelper.JsonSerialize(formScalar));
-            formScalar.Match(new TestNativeCollection());
-            formScalar = CoreHelper.JsonDeserialize<NativeAnyOfCollectionContainer>("[0.987]");
-            formScalar.Match(new TestNativeCollection());
-            formScalar = CoreHelper.JsonDeserialize<NativeAnyOfCollectionContainer>(CoreHelper.JsonSerialize(formScalar));
-            formScalar.Match(new TestNativeCollection());
+            NativeAnyOfCollectionContainer container = CoreHelper.JsonDeserialize<NativeAnyOfCollectionContainer>("[\"some string array\"]");
+            Assert.IsNotNull(container);
+            container.Match(new TestNativeCollection());
+            container = CoreHelper.JsonDeserialize<NativeAnyOfCollectionContainer>(CoreHelper.JsonSerialize(container));
+            container.Match(new TestNativeCollection());
+            container = CoreHelper.JsonDeserialize<NativeAnyOfCollectionContainer>("[0.987]");
+            container.Match(new TestNativeCollection());
+            container = CoreHelper.JsonDeserialize<NativeAnyOfCollectionContainer>(CoreHelper.JsonSerialize(container));
+            container.Match(new TestNativeCollection());
         }
 
         private class TestNativeCollection : NativeAnyOfCollectionContainer.ICases<VoidType>
@@ -107,15 +105,14 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestNativeOuterListContainer()
         {
-            // Parameters for the API call
-            NativeAnyOfContainer[] formScalar = CoreHelper.JsonDeserialize<NativeAnyOfContainer[]>("[\"some string\", 0.987]");
-            Assert.IsNotNull(formScalar);
-            foreach (var item in formScalar)
+            NativeAnyOfContainer[] container = CoreHelper.JsonDeserialize<NativeAnyOfContainer[]>("[\"some string\", 0.987]");
+            Assert.IsNotNull(container);
+            foreach (var item in container)
             {
                 item.Match(new TestNative());
             }
-            formScalar = CoreHelper.JsonDeserialize<NativeAnyOfContainer[]>(CoreHelper.JsonSerialize(formScalar));
-            foreach (var item in formScalar)
+            container = CoreHelper.JsonDeserialize<NativeAnyOfContainer[]>(CoreHelper.JsonSerialize(container));
+            foreach (var item in container)
             {
                 item.Match(new TestNative());
             }
@@ -128,8 +125,8 @@ namespace APIMatic.Core.Test.Utilities
 
             try
             {
-                var formScalar = CoreHelper.JsonDeserialize<NativeAnyOfContainer[]>("[\"some string\", 0.987, 12]");
-                foreach (var item in formScalar)
+                var container = CoreHelper.JsonDeserialize<NativeAnyOfContainer[]>("[\"some string\", 0.987, 12]");
+                foreach (var item in container)
                 {
                     item.Match(new TestNative());
                 }
@@ -146,16 +143,15 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestCustomType()
         {
-            // Parameters for the API call
-            CustomAnyOfContainer formScalar = CoreHelper.JsonDeserialize<CustomAnyOfContainer>("{\"NumberOfElectrons\":12,\"NumberOfProtons\":13,\"Name\":\"Hydrogen\"}");
-            Assert.IsNotNull(formScalar);
-            formScalar.Match(new TestCustom());
-            formScalar = CoreHelper.JsonDeserialize<CustomAnyOfContainer>(CoreHelper.JsonSerialize(formScalar));
-            formScalar.Match(new TestCustom());
-            formScalar = CoreHelper.JsonDeserialize<CustomAnyOfContainer>("{\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"}");
-            formScalar.Match(new TestCustom());
-            formScalar = CoreHelper.JsonDeserialize<CustomAnyOfContainer>(CoreHelper.JsonSerialize(formScalar));
-            formScalar.Match(new TestCustom());
+            CustomAnyOfContainer container = CoreHelper.JsonDeserialize<CustomAnyOfContainer>("{\"NumberOfElectrons\":12,\"NumberOfProtons\":13,\"Name\":\"Hydrogen\"}");
+            Assert.IsNotNull(container);
+            container.Match(new TestCustom());
+            container = CoreHelper.JsonDeserialize<CustomAnyOfContainer>(CoreHelper.JsonSerialize(container));
+            container.Match(new TestCustom());
+            container = CoreHelper.JsonDeserialize<CustomAnyOfContainer>("{\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"}");
+            container.Match(new TestCustom());
+            container = CoreHelper.JsonDeserialize<CustomAnyOfContainer>(CoreHelper.JsonSerialize(container));
+            container.Match(new TestCustom());
         }
 
         private class TestCustom : CustomAnyOfContainer.ICases<VoidType>
@@ -185,8 +181,8 @@ namespace APIMatic.Core.Test.Utilities
 
             try
             {
-                var formScalar = CoreHelper.JsonDeserialize<CustomAnyOfContainer>("{\"NumberOfShells\":\"12\",\"NumberOfProtons\":13}");
-                formScalar.Match(new TestCustom());
+                var container = CoreHelper.JsonDeserialize<CustomAnyOfContainer>("{\"NumberOfShells\":\"12\",\"NumberOfProtons\":13}");
+                container.Match(new TestCustom());
             }
             catch (AnyOfValidationException ex)
             {
@@ -200,33 +196,32 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestCustomTwoValidType()
         {
-            var formScalar = CoreHelper.JsonDeserialize<CustomAnyOfContainer>("{ \"NumberOfElectrons\":12,\"NumberOfProtons\":13, \"NumberOfElectrons\":12,\"NumberOfShells\":\"3\",\"Name\":\"Hydrogen\" }");
-            Assert.IsNotNull(formScalar);
-            formScalar.Match(new TestCustom());
+            var container = CoreHelper.JsonDeserialize<CustomAnyOfContainer>("{ \"NumberOfElectrons\":12,\"NumberOfProtons\":13, \"NumberOfElectrons\":12,\"NumberOfShells\":\"3\",\"Name\":\"Hydrogen\" }");
+            Assert.IsNotNull(container);
+            container.Match(new TestCustom());
         }
 
         [Test]
         public void TestCustomTypeOuter()
         {
-            // Parameters for the API call
-            CustomAnyOfContainer[] formScalar = CoreHelper.JsonDeserialize<CustomAnyOfContainer[]>("[{\"NumberOfElectrons\":12,\"NumberOfProtons\":13,\"Name\":\"Hydrogen\"}, {\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\",\"Name\":\"Hydrogen\"} ]");
-            Assert.IsNotNull(formScalar);
-            foreach (var form in formScalar)
+            CustomAnyOfContainer[] container = CoreHelper.JsonDeserialize<CustomAnyOfContainer[]>("[{\"NumberOfElectrons\":12,\"NumberOfProtons\":13,\"Name\":\"Hydrogen\"}, {\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\",\"Name\":\"Hydrogen\"} ]");
+            Assert.IsNotNull(container);
+            foreach (var form in container)
             {
                 form.Match(new TestCustom());
             }
-            formScalar = CoreHelper.JsonDeserialize<CustomAnyOfContainer[]>(CoreHelper.JsonSerialize(formScalar));
-            foreach (var form in formScalar)
+            container = CoreHelper.JsonDeserialize<CustomAnyOfContainer[]>(CoreHelper.JsonSerialize(container));
+            foreach (var form in container)
             {
                 form.Match(new TestCustom());
             }
-            formScalar = CoreHelper.JsonDeserialize<CustomAnyOfContainer[]>("[{\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"}, {\"NumberOfElectrons\":12,\"NumberOfProtons\":13,\"Name\":\"Hydrogen\"}]");
-            foreach (var form in formScalar)
+            container = CoreHelper.JsonDeserialize<CustomAnyOfContainer[]>("[{\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"}, {\"NumberOfElectrons\":12,\"NumberOfProtons\":13,\"Name\":\"Hydrogen\"}]");
+            foreach (var form in container)
             {
                 form.Match(new TestCustom());
             }
-            formScalar = CoreHelper.JsonDeserialize<CustomAnyOfContainer[]>(CoreHelper.JsonSerialize(formScalar));
-            foreach (var form in formScalar)
+            container = CoreHelper.JsonDeserialize<CustomAnyOfContainer[]>(CoreHelper.JsonSerialize(container));
+            foreach (var form in container)
             {
                 form.Match(new TestCustom());
             }
@@ -235,16 +230,15 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestCustomTypeArrayOfMap()
         {
-            // Parameters for the API call
-            ArrayOfMapContainer formScalar = CoreHelper.JsonDeserialize<ArrayOfMapContainer>("[ { \"key1\" : {\"NumberOfElectrons\":12,\"NumberOfProtons\":13 } } ]");
-            Assert.IsNotNull(formScalar);
-            formScalar.Match(new TestCustomArrayOfMap());
-            formScalar = CoreHelper.JsonDeserialize<ArrayOfMapContainer>(CoreHelper.JsonSerialize(formScalar));
-            formScalar.Match(new TestCustomArrayOfMap());
-            formScalar = CoreHelper.JsonDeserialize<ArrayOfMapContainer>("[{ \"key1\" : {\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\" } } ]");
-            formScalar.Match(new TestCustomArrayOfMap());
-            formScalar = CoreHelper.JsonDeserialize<ArrayOfMapContainer>(CoreHelper.JsonSerialize(formScalar));
-            formScalar.Match(new TestCustomArrayOfMap());
+            ArrayOfMapContainer container = CoreHelper.JsonDeserialize<ArrayOfMapContainer>("[ { \"key1\" : {\"NumberOfElectrons\":12,\"NumberOfProtons\":13 } } ]");
+            Assert.IsNotNull(container);
+            container.Match(new TestCustomArrayOfMap());
+            container = CoreHelper.JsonDeserialize<ArrayOfMapContainer>(CoreHelper.JsonSerialize(container));
+            container.Match(new TestCustomArrayOfMap());
+            container = CoreHelper.JsonDeserialize<ArrayOfMapContainer>("[{ \"key1\" : {\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\" } } ]");
+            container.Match(new TestCustomArrayOfMap());
+            container = CoreHelper.JsonDeserialize<ArrayOfMapContainer>(CoreHelper.JsonSerialize(container));
+            container.Match(new TestCustomArrayOfMap());
         }
 
         private class TestCustomArrayOfMap : ArrayOfMapContainer.ICases<VoidType>
@@ -285,16 +279,15 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestCustomTypeMapOfArray()
         {
-            // Parameters for the API call
-            MapOfArrayContainer formScalar = CoreHelper.JsonDeserialize<MapOfArrayContainer>("{ \"key1\" : [{\"NumberOfElectrons\":12,\"NumberOfProtons\":13 } ]} ");
-            Assert.IsNotNull(formScalar);
-            formScalar.Match(new TestCustomMapOfArray());
-            formScalar = CoreHelper.JsonDeserialize<MapOfArrayContainer>(CoreHelper.JsonSerialize(formScalar));
-            formScalar.Match(new TestCustomMapOfArray());
-            formScalar = CoreHelper.JsonDeserialize<MapOfArrayContainer>("{ \"key1\" : [{\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\" } ] } ");
-            formScalar.Match(new TestCustomMapOfArray());
-            formScalar = CoreHelper.JsonDeserialize<MapOfArrayContainer>(CoreHelper.JsonSerialize(formScalar));
-            formScalar.Match(new TestCustomMapOfArray());
+            MapOfArrayContainer container = CoreHelper.JsonDeserialize<MapOfArrayContainer>("{ \"key1\" : [{\"NumberOfElectrons\":12,\"NumberOfProtons\":13 } ]} ");
+            Assert.IsNotNull(container);
+            container.Match(new TestCustomMapOfArray());
+            container = CoreHelper.JsonDeserialize<MapOfArrayContainer>(CoreHelper.JsonSerialize(container));
+            container.Match(new TestCustomMapOfArray());
+            container = CoreHelper.JsonDeserialize<MapOfArrayContainer>("{ \"key1\" : [{\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\" } ] } ");
+            container.Match(new TestCustomMapOfArray());
+            container = CoreHelper.JsonDeserialize<MapOfArrayContainer>(CoreHelper.JsonSerialize(container));
+            container.Match(new TestCustomMapOfArray());
         }
 
         private class TestCustomMapOfArray : MapOfArrayContainer.ICases<VoidType>
@@ -338,19 +331,19 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestNativeDateTimeType()
         {
-            NativeDateTimeAnyOfContainer formScalar = CoreHelper.JsonDeserialize<NativeDateTimeAnyOfContainer>("\"1994-02-13T14:01:54.9571247Z\"");
+            NativeDateTimeAnyOfContainer container = CoreHelper.JsonDeserialize<NativeDateTimeAnyOfContainer>("\"1994-02-13T14:01:54.9571247Z\"");
 
-            Assert.IsNotNull(formScalar);
-            var dateTime = formScalar.Match(new TestDateTimeNative());
+            Assert.IsNotNull(container);
+            var dateTime = container.Match(new TestDateTimeNative());
             Assert.IsNotNull(dateTime);
-            formScalar = CoreHelper.JsonDeserialize<NativeDateTimeAnyOfContainer>(CoreHelper.JsonSerialize(formScalar));
-            dateTime = formScalar.Match(new TestDateTimeNative());
+            container = CoreHelper.JsonDeserialize<NativeDateTimeAnyOfContainer>(CoreHelper.JsonSerialize(container));
+            dateTime = container.Match(new TestDateTimeNative());
             Assert.IsNotNull(dateTime);
-            formScalar = CoreHelper.JsonDeserialize<NativeDateTimeAnyOfContainer>("\"2023-07-20T14:30:00Z\"");
-            dateTime = formScalar.Match(new TestDateTimeNative());
+            container = CoreHelper.JsonDeserialize<NativeDateTimeAnyOfContainer>("\"2023-07-20T14:30:00Z\"");
+            dateTime = container.Match(new TestDateTimeNative());
             Assert.IsNotNull(dateTime);
-            formScalar = CoreHelper.JsonDeserialize<NativeDateTimeAnyOfContainer>(CoreHelper.JsonSerialize(formScalar));
-            dateTime = formScalar.Match(new TestDateTimeNative());
+            container = CoreHelper.JsonDeserialize<NativeDateTimeAnyOfContainer>(CoreHelper.JsonSerialize(container));
+            dateTime = container.Match(new TestDateTimeNative());
             Assert.IsNotNull(dateTime);
         }
 
@@ -372,19 +365,19 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestEnumType()
         {
-            EnumAnyOfContainer formScalar = CoreHelper.JsonDeserialize<EnumAnyOfContainer>("\"Monday\"");
-            Assert.AreEqual("WorkingDays: Monday", formScalar.Match(new TestEnumNative()));
+            EnumAnyOfContainer container = CoreHelper.JsonDeserialize<EnumAnyOfContainer>("\"Monday\"");
+            Assert.AreEqual("WorkingDays: Monday", container.Match(new TestEnumNative()));
 
-            formScalar = CoreHelper.JsonDeserialize<EnumAnyOfContainer>(CoreHelper.JsonSerialize(formScalar));
-            Assert.AreEqual("WorkingDays: Monday", formScalar.Match(new TestEnumNative()));
+            container = CoreHelper.JsonDeserialize<EnumAnyOfContainer>(CoreHelper.JsonSerialize(container));
+            Assert.AreEqual("WorkingDays: Monday", container.Match(new TestEnumNative()));
 
-            formScalar = CoreHelper.JsonDeserialize<EnumAnyOfContainer>("\"Sunday\"");
-            Assert.AreEqual("Days: Sunday", formScalar.Match(new TestEnumNative()));
+            container = CoreHelper.JsonDeserialize<EnumAnyOfContainer>("\"Sunday\"");
+            Assert.AreEqual("Days: Sunday", container.Match(new TestEnumNative()));
 
-            formScalar = CoreHelper.JsonDeserialize<EnumAnyOfContainer>("2");
-            Assert.AreEqual("MonthNumber: February", formScalar.Match(new TestEnumNative()));
+            container = CoreHelper.JsonDeserialize<EnumAnyOfContainer>("2");
+            Assert.AreEqual("MonthNumber: February", container.Match(new TestEnumNative()));
 
-            Assert.AreEqual("2", CoreHelper.JsonSerialize(formScalar));
+            Assert.AreEqual("2", CoreHelper.JsonSerialize(container));
         }
 
         private class TestEnumNative : EnumAnyOfContainer.ICases<string>
