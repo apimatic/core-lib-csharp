@@ -207,12 +207,10 @@ namespace APIMatic.Core.Utilities
             else if (value is Stream || value is JToken || value is Enum)
             {
                 keys.Add(new KeyValuePair<string, object>(name, GetProcessedValue(value)));
-                return keys;
             }
             else if (value is IDictionary dictionary)
             {
                 PrepareFormFieldsForDictionary(name, dictionary, arraySerializationFormat, keys, propInfo);
-                return keys;
             }
             else if (value is CoreJsonObject || value is CoreJsonValue)
             {

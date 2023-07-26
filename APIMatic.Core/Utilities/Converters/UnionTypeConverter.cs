@@ -56,46 +56,48 @@ namespace APIMatic.Core.Utilities.Converters
 
         private T DeserializeOneOfAnyOf(JToken token, JsonSerializer serializer, List<UnionType> types)
         {
-            var mappedTypes = new List<string>();
+            var mappedValues = new List<(string dataType, T value)>();
             var unMappedTypes = new List<string>();
-            object deserializedObject = null;
-            var json = token.ToString();
+
             foreach (var (type, dataType) in types.Select(type => (type, GetFieldType(type.Type))))
             {
-                try
+                TryDeserializer(() => serializer.Deserialize(token.CreateReader(), type.Type), dataType, mappedValues, unMappedTypes);
+
+                if (!_isOneOf && mappedValues.Any())
                 {
-                    deserializedObject = serializer.Deserialize(token.CreateReader(), type.Type);
-                    mappedTypes.Add(dataType);
-
-                    if (!_isOneOf)
-                    {
-                        return (T)deserializedObject;
-                    }
-
-                    if (mappedTypes.Count > 1)
-                    {
-                        throw new OneOfValidationException(mappedTypes[0], mappedTypes[1], json);
-                    }
+                    return mappedValues[0].value;
                 }
-                catch (JsonSerializationException)
+
+                if (mappedValues.Count > 1)
                 {
-                    unMappedTypes.Add(dataType);
+                    throw new OneOfValidationException(mappedValues[0].dataType, mappedValues[1].dataType, token.ToString());
                 }
             }
 
-            if (mappedTypes.Count == 0)
+            if (mappedValues.Any())
             {
-                if (!_isOneOf)
-                {
-                    throw new AnyOfValidationException(unMappedTypes, json);
-                }
-                else
-                {
-                    throw new OneOfValidationException(unMappedTypes, json);
-                }
+                return mappedValues[0].value;
             }
 
-            return (T)deserializedObject;
+            if (_isOneOf)
+            {
+                throw new OneOfValidationException(unMappedTypes, token.ToString());
+            }
+            throw new AnyOfValidationException(unMappedTypes, token.ToString());
+
+        }
+
+        private void TryDeserializer(Func<object> deserializer, string dataType, List<(string dataType, T value)> mappedTypes, List<string> unMappedTypes)
+        {
+            try
+            {
+                object deserializedObject = deserializer();
+                mappedTypes.Add((dataType, (T)deserializedObject));
+            }
+            catch (JsonSerializationException)
+            {
+                unMappedTypes.Add(dataType);
+            }
         }
 
         public override void WriteJson(JsonWriter writer, T value, JsonSerializer serializer)
