@@ -9,7 +9,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         typeof(UnionTypeConverter<NativeAnyOfContainer>),
         new Type[] {
             typeof(PrecisionCase),
-            typeof(MStringCase)
+            typeof(StringCase)
         },
         false
     )]
@@ -20,28 +20,21 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             return new PrecisionCase().Set(value);
         }
 
-        public static NativeAnyOfContainer FromMString(string value)
+        public static NativeAnyOfContainer FromString(string value)
         {
-            return string.IsNullOrEmpty(value) ? null : new MStringCase().Set(value);
+            return string.IsNullOrEmpty(value) ? null : new StringCase().Set(value);
         }
 
-        public abstract T Match<T>(ICases<T> cases);
-
-        public interface ICases<out T>
-        {
-            T Precision(double value);
-
-            T MString(string value);
-        }
+        public abstract T Match<T>(Func<double, T> precision, Func<string, T> mString);
 
         [JsonConverter(typeof(UnionTypeCaseConverter<PrecisionCase, double>), JTokenType.Float)]
         private class PrecisionCase : NativeAnyOfContainer, ICaseValue<PrecisionCase, double>
         {
             public double value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<double, T> precision, Func<string, T> mString)
             {
-                return cases.Precision(value);
+                return precision(value);
             }
 
             public PrecisionCase Set(double value)
@@ -60,17 +53,17 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             }
         }
 
-        [JsonConverter(typeof(UnionTypeCaseConverter<MStringCase, string>), JTokenType.String)]
-        private class MStringCase : NativeAnyOfContainer, ICaseValue<MStringCase, string>
+        [JsonConverter(typeof(UnionTypeCaseConverter<StringCase, string>), JTokenType.String)]
+        private class StringCase : NativeAnyOfContainer, ICaseValue<StringCase, string>
         {
             public string value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<double, T> precision, Func<string, T> mString)
             {
-                return cases.MString(value);
+                return mString(value);
             }
 
-            public MStringCase Set(string value)
+            public StringCase Set(string value)
             {
                 this.value = value;
                 return this;

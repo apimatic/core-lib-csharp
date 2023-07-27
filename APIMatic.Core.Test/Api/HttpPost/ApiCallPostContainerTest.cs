@@ -58,7 +58,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
         [Test]
         public void ApiCall_PostStringAsContainerData_OKResponse()
         {
-            var anyOfStringDouble = NativeAnyOfContainer.FromMString("some string as request body");
+            var anyOfStringDouble = NativeAnyOfContainer.FromString("some string as request body");
             var expected = new ServerResponse()
             {
                 Passed = true,

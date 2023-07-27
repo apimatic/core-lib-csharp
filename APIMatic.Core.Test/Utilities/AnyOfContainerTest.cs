@@ -23,18 +23,18 @@ namespace APIMatic.Core.Test.Utilities
         {
             NativeAnyOfContainer container = CoreHelper.JsonDeserialize<NativeAnyOfContainer>("\"some string\"");
             Assert.IsNotNull(container);
-            container.Match(new TestNative());
+            container.Match(new TestNative().Precision, new TestNative().String);
             container = CoreHelper.JsonDeserialize<NativeAnyOfContainer>(CoreHelper.JsonSerialize(container));
-            container.Match(new TestNative());
+            container.Match(new TestNative().Precision, new TestNative().String);
             container = CoreHelper.JsonDeserialize<NativeAnyOfContainer>("0.987");
-            container.Match(new TestNative());
+            container.Match(new TestNative().Precision, new TestNative().String);
             container = CoreHelper.JsonDeserialize<NativeAnyOfContainer>(CoreHelper.JsonSerialize(container));
-            container.Match(new TestNative());
+            container.Match(new TestNative().Precision, new TestNative().String);
         }
 
-        private class TestNative : NativeAnyOfContainer.ICases<VoidType>
+        private class TestNative
         {
-            public VoidType MString(string value)
+            public VoidType String(string value)
             {
                 Assert.AreEqual("some string", value);
                 Console.WriteLine(value);
@@ -57,7 +57,7 @@ namespace APIMatic.Core.Test.Utilities
             try
             {
                 var container = CoreHelper.JsonDeserialize<NativeAnyOfContainer>("12");
-                container.Match(new TestNative());
+                container.Match(new TestNative().Precision, new TestNative().String);
             }
             catch (AnyOfValidationException ex)
             {
@@ -109,12 +109,12 @@ namespace APIMatic.Core.Test.Utilities
             Assert.IsNotNull(container);
             foreach (var item in container)
             {
-                item.Match(new TestNative());
+                item.Match(new TestNative().Precision, new TestNative().String);
             }
             container = CoreHelper.JsonDeserialize<NativeAnyOfContainer[]>(CoreHelper.JsonSerialize(container));
             foreach (var item in container)
             {
-                item.Match(new TestNative());
+                item.Match(new TestNative().Precision, new TestNative().String);
             }
         }
 
@@ -128,7 +128,7 @@ namespace APIMatic.Core.Test.Utilities
                 var container = CoreHelper.JsonDeserialize<NativeAnyOfContainer[]>("[\"some string\", 0.987, 12]");
                 foreach (var item in container)
                 {
-                    item.Match(new TestNative());
+                    item.Match(new TestNative().Precision, new TestNative().String);
                 }
             }
             catch (AnyOfValidationException ex)
