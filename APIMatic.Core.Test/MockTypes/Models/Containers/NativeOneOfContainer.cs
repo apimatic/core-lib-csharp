@@ -25,23 +25,16 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             return string.IsNullOrEmpty(value) ? null : new MStringCase().Set(value);
         }
 
-        public abstract T Match<T>(ICases<T> cases);
-
-        public interface ICases<out T>
-        {
-            T Precision(double value);
-
-            T MString(string value);
-        }
+        public abstract T Match<T>(Func<double, T> precision, Func<string, T> mString);
 
         [JsonConverter(typeof(UnionTypeCaseConverter<PrecisionCase, double>), JTokenType.Float)]
         private class PrecisionCase : NativeOneOfContainer, ICaseValue<PrecisionCase, double>
         {
             public double value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<double, T> precision, Func<string, T> mString)
             {
-                return cases.Precision(value);
+                return precision(value);
             }
 
             public PrecisionCase Set(double value)
@@ -66,9 +59,9 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         {
             public string value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<double, T> precision, Func<string, T> mString)
             {
-                return cases.MString(value);
+                return mString(value);
             }
 
             public MStringCase Set(string value)

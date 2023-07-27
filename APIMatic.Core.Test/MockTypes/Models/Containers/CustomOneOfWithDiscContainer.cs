@@ -30,23 +30,16 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             return new HeliumCase().Set(value);
         }
 
-        public abstract T Match<T>(ICases<T> cases);
-
-        public interface ICases<out T>
-        {
-            T Atom(Atom value);
-
-            T Helium(Helium value);
-        }
+        public abstract T Match<T>(Func<Atom, T> atom, Func<Helium, T> helium);
 
         [JsonConverter(typeof(UnionTypeCaseConverter<AtomCase, Atom>))]
         private class AtomCase : CustomOneOfWithDiscContainer, ICaseValue<AtomCase, Atom>
         {
             public Atom value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<Atom, T> atom, Func<Helium, T> helium)
             {
-                return cases.Atom(value);
+                return atom(value);
             }
 
             public AtomCase Set(Atom value)
@@ -71,9 +64,9 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         {
             public Helium value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<Atom, T> atom, Func<Helium, T> helium)
             {
-                return cases.Helium(value);
+                return helium(value);
             }
 
             public Helium Get()

@@ -30,26 +30,16 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             return new MonthNumberCase().Set(value);
         }
 
-
-        public abstract T Match<T>(ICases<T> cases);
-
-        public interface ICases<out T>
-        {
-            T WorkingDays(WorkingDays value);
-
-            T Days(Days value);
-
-            T MonthNumber(MonthNumber value);
-        }
+        public abstract T Match<T>(Func<WorkingDays, T> workingDays, Func<Days, T> days, Func<MonthNumber, T> monthNumber);
 
         [JsonConverter(typeof(UnionTypeCaseConverter<WorkingDaysCase, WorkingDays>))]
         private class WorkingDaysCase : EnumAnyOfContainer, ICaseValue<WorkingDaysCase, WorkingDays>
         {
             public WorkingDays value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<WorkingDays, T> workingDays, Func<Days, T> days, Func<MonthNumber, T> monthNumber)
             {
-                return cases.WorkingDays(value);
+                return workingDays(value);
             }
 
             public WorkingDaysCase Set(WorkingDays value)
@@ -74,9 +64,9 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         {
             public Days value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<WorkingDays, T> workingDays, Func<Days, T> days, Func<MonthNumber, T> monthNumber)
             {
-                return cases.Days(value);
+                return days(value);
             }
 
             public DaysCase Set(Days value)
@@ -101,9 +91,9 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         {
             public MonthNumber value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<WorkingDays, T> workingDays, Func<Days, T> days, Func<MonthNumber, T> monthNumber)
             {
-                return cases.MonthNumber(value);
+                return monthNumber(value);
             }
 
             public MonthNumberCase Set(MonthNumber value)

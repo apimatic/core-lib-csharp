@@ -21,13 +21,61 @@ namespace APIMatic.Core.Test.Utilities
             NativeOneOfContainer container = CoreHelper.JsonDeserialize<NativeOneOfContainer>("\"some string\"");
 
             Assert.IsNotNull(container);
-            container.Match(new TestNative());
+            container.Match<VoidType>(
+                    precision: value =>
+                    {
+                        Assert.AreEqual(0.987d, value);
+                        Console.WriteLine(value);
+                        return null;
+                    },
+                    mString: value =>
+                    {
+                        Assert.AreEqual("some string", value);
+                        Console.WriteLine(value);
+                        return null;
+                    });
             container = CoreHelper.JsonDeserialize<NativeOneOfContainer>(CoreHelper.JsonSerialize(container));
-            container.Match(new TestNative());
+            container.Match<VoidType>(
+                    precision: value =>
+                    {
+                        Assert.AreEqual(0.987d, value);
+                        Console.WriteLine(value);
+                        return null;
+                    },
+                    mString: value =>
+                    {
+                        Assert.AreEqual("some string", value);
+                        Console.WriteLine(value);
+                        return null;
+                    });
             container = CoreHelper.JsonDeserialize<NativeOneOfContainer>("0.987");
-            container.Match(new TestNative());
+            container.Match<VoidType>(
+                    precision: value =>
+                    {
+                        Assert.AreEqual(0.987d, value);
+                        Console.WriteLine(value);
+                        return null;
+                    },
+                    mString: value =>
+                    {
+                        Assert.AreEqual("some string", value);
+                        Console.WriteLine(value);
+                        return null;
+                    });
             container = CoreHelper.JsonDeserialize<NativeOneOfContainer>(CoreHelper.JsonSerialize(container));
-            container.Match(new TestNative());
+            container.Match<VoidType>(
+                    precision: value =>
+                    {
+                        Assert.AreEqual(0.987d, value);
+                        Console.WriteLine(value);
+                        return null;
+                    },
+                    mString: value =>
+                    {
+                        Assert.AreEqual("some string", value);
+                        Console.WriteLine(value);
+                        return null;
+                    });
         }
 
         [Test]
@@ -35,43 +83,33 @@ namespace APIMatic.Core.Test.Utilities
         {
             NativeNullableOneOfContainer container = CoreHelper.JsonDeserialize<NativeNullableOneOfContainer>("null");
             Assert.IsNotNull(container);
-            container.Match(new TestNativeNullable());
+            container.Match<VoidType>(
+                    precision: value =>
+                    {
+                        Assert.AreEqual(null, value);
+                        Console.WriteLine(value);
+                        return null;
+                    },
+                    mString: value =>
+                    {
+                        Assert.AreEqual("some string", value);
+                        Console.WriteLine(value);
+                        return null;
+                    });
             container = CoreHelper.JsonDeserialize<NativeNullableOneOfContainer>(CoreHelper.JsonSerialize(container));
-            container.Match(new TestNativeNullable());
-        }
-
-        private class TestNative : NativeOneOfContainer.ICases<VoidType>
-        {
-            public VoidType MString(string value)
-            {
-                Assert.AreEqual("some string", value);
-                Console.WriteLine(value);
-                return null;
-            }
-
-            public VoidType Precision(double value)
-            {
-                Assert.AreEqual(0.987d, value);
-                Console.WriteLine(value);
-                return null;
-            }
-        }
-
-        private class TestNativeNullable : NativeNullableOneOfContainer.ICases<VoidType>
-        {
-            public VoidType MString(string? value)
-            {
-                Assert.AreEqual(null, value);
-                Console.WriteLine(value);
-                return null;
-            }
-
-            public VoidType Precision(double value)
-            {
-                Assert.AreEqual(0.987d, value);
-                Console.WriteLine(value);
-                return null;
-            }
+            container.Match<VoidType>(
+                   precision: value =>
+                   {
+                       Assert.AreEqual(null, value);
+                       Console.WriteLine(value);
+                       return null;
+                   },
+                   mString: value =>
+                   {
+                       Assert.AreEqual("some string", value);
+                       Console.WriteLine(value);
+                       return null;
+                   });
         }
 
         [Test]
@@ -82,7 +120,19 @@ namespace APIMatic.Core.Test.Utilities
             try
             {
                 var container = CoreHelper.JsonDeserialize<NativeOneOfContainer>("12");
-                container.Match(new TestNative());
+                container.Match<VoidType>(
+                   precision: value =>
+                   {
+                       Assert.AreEqual(0.987d, value);
+                       Console.WriteLine(value);
+                       return null;
+                   },
+                   mString: value =>
+                   {
+                       Assert.AreEqual("some string", value);
+                       Console.WriteLine(value);
+                       return null;
+                   });
             }
             catch (OneOfValidationException ex)
             {
@@ -98,48 +148,162 @@ namespace APIMatic.Core.Test.Utilities
         {
             NativeOneOfCollectionContainer container = CoreHelper.JsonDeserialize<NativeOneOfCollectionContainer>("[\"some string array\", \"test\"]");
             Assert.IsNotNull(container);
-            container.Match(new TestCollection());
+            container.Match<VoidType>(
+                precision: value =>
+                {
+                    double[] expectedPrecision = { 0.987, 0.6987 };
+                    CollectionAssert.AreEqual(expectedPrecision, value);
+                    Console.WriteLine(string.Join(", ", value));
+                    return null;
+                },
+                mString: value =>
+                {
+                    string[] expectedStringArray = { "some string array", "test" };
+                    CollectionAssert.AreEqual(expectedStringArray, value);
+                    Console.WriteLine(string.Join(", ", value));
+                    return null;
+                },
+                customTypeDictionay: value =>
+                {
+                    Dictionary<string, Atom> expected = new Dictionary<string, Atom>()
+                    {
+                        { "key1", new Atom(12, 13) }
+                    };
+                    CollectionAssert.AreEqual(expected, value);
+                    Console.WriteLine(expected.ToString());
+                    return null;
+                });
             container = CoreHelper.JsonDeserialize<NativeOneOfCollectionContainer>(CoreHelper.JsonSerialize(container));
-            container.Match(new TestCollection());
+            container.Match<VoidType>(
+                precision: value =>
+                {
+                    double[] expectedPrecision = { 0.987, 0.6987 };
+                    CollectionAssert.AreEqual(expectedPrecision, value);
+                    Console.WriteLine(string.Join(", ", value));
+                    return null;
+                },
+                mString: value =>
+                {
+                    string[] expectedStringArray = { "some string array", "test" };
+                    CollectionAssert.AreEqual(expectedStringArray, value);
+                    Console.WriteLine(string.Join(", ", value));
+                    return null;
+                },
+                customTypeDictionay: value =>
+                {
+                    Dictionary<string, Atom> expected = new Dictionary<string, Atom>()
+                    {
+                        { "key1", new Atom(12, 13) }
+                    };
+                    CollectionAssert.AreEqual(expected, value);
+                    Console.WriteLine(expected.ToString());
+                    return null;
+                });
             container = CoreHelper.JsonDeserialize<NativeOneOfCollectionContainer>("[0.987, 0.6987]");
-            container.Match(new TestCollection());
+            container.Match<VoidType>(
+                precision: value =>
+                {
+                    double[] expectedPrecision = { 0.987, 0.6987 };
+                    CollectionAssert.AreEqual(expectedPrecision, value);
+                    Console.WriteLine(string.Join(", ", value));
+                    return null;
+                },
+                mString: value =>
+                {
+                    string[] expectedStringArray = { "some string array", "test" };
+                    CollectionAssert.AreEqual(expectedStringArray, value);
+                    Console.WriteLine(string.Join(", ", value));
+                    return null;
+                },
+                customTypeDictionay: value =>
+                {
+                    Dictionary<string, Atom> expected = new Dictionary<string, Atom>()
+                    {
+                        { "key1", new Atom(12, 13) }
+                    };
+                    CollectionAssert.AreEqual(expected, value);
+                    Console.WriteLine(expected.ToString());
+                    return null;
+                });
             container = CoreHelper.JsonDeserialize<NativeOneOfCollectionContainer>(CoreHelper.JsonSerialize(container));
-            container.Match(new TestCollection());
+            container.Match<VoidType>(
+                precision: value =>
+                {
+                    double[] expectedPrecision = { 0.987, 0.6987 };
+                    CollectionAssert.AreEqual(expectedPrecision, value);
+                    Console.WriteLine(string.Join(", ", value));
+                    return null;
+                },
+                mString: value =>
+                {
+                    string[] expectedStringArray = { "some string array", "test" };
+                    CollectionAssert.AreEqual(expectedStringArray, value);
+                    Console.WriteLine(string.Join(", ", value));
+                    return null;
+                },
+                customTypeDictionay: value =>
+                {
+                    Dictionary<string, Atom> expected = new Dictionary<string, Atom>()
+                    {
+                        { "key1", new Atom(12, 13) }
+                    };
+                    CollectionAssert.AreEqual(expected, value);
+                    Console.WriteLine(expected.ToString());
+                    return null;
+                });
 
             container = CoreHelper.JsonDeserialize<NativeOneOfCollectionContainer>("{\"key1\" : {\"NumberOfElectrons\":12,\"NumberOfProtons\":13} }");
-            container.Match(new TestCollection());
-            container = CoreHelper.JsonDeserialize<NativeOneOfCollectionContainer>(CoreHelper.JsonSerialize(container));
-            container.Match(new TestCollection());
-        }
-
-        private class TestCollection : NativeOneOfCollectionContainer.ICases<VoidType>
-        {
-            public VoidType MString(string[] value)
-            {
-                string[] expectedStringArray = { "some string array", "test" };
-                CollectionAssert.AreEqual(expectedStringArray, value);
-                Console.WriteLine(string.Join(", ", value));
-                return null;
-            }
-
-            public VoidType Precision(double[] value)
-            {
-                double[] expectedPrecision = { 0.987, 0.6987 };
-                CollectionAssert.AreEqual(expectedPrecision, value);
-                Console.WriteLine(string.Join(", ", value));
-                return null;
-            }
-
-            public VoidType CustomTypeDictionary(Dictionary<string, Atom> value)
-            {
-                Dictionary<string, Atom> expected = new Dictionary<string, Atom>()
+            container.Match<VoidType>(
+                precision: value =>
                 {
-                    { "key1", new Atom(12, 13) }
-                };
-                CollectionAssert.AreEqual(expected, value);
-                Console.WriteLine(expected.ToString());
-                return null;
-            }
+                    double[] expectedPrecision = { 0.987, 0.6987 };
+                    CollectionAssert.AreEqual(expectedPrecision, value);
+                    Console.WriteLine(string.Join(", ", value));
+                    return null;
+                },
+                mString: value =>
+                {
+                    string[] expectedStringArray = { "some string array", "test" };
+                    CollectionAssert.AreEqual(expectedStringArray, value);
+                    Console.WriteLine(string.Join(", ", value));
+                    return null;
+                },
+                customTypeDictionay: value =>
+                {
+                    Dictionary<string, Atom> expected = new Dictionary<string, Atom>()
+                    {
+                        { "key1", new Atom(12, 13) }
+                    };
+                    CollectionAssert.AreEqual(expected, value);
+                    Console.WriteLine(expected.ToString());
+                    return null;
+                });
+            container = CoreHelper.JsonDeserialize<NativeOneOfCollectionContainer>(CoreHelper.JsonSerialize(container));
+            container.Match<VoidType>(
+                precision: value =>
+                {
+                    double[] expectedPrecision = { 0.987, 0.6987 };
+                    CollectionAssert.AreEqual(expectedPrecision, value);
+                    Console.WriteLine(string.Join(", ", value));
+                    return null;
+                },
+                mString: value =>
+                {
+                    string[] expectedStringArray = { "some string array", "test" };
+                    CollectionAssert.AreEqual(expectedStringArray, value);
+                    Console.WriteLine(string.Join(", ", value));
+                    return null;
+                },
+                customTypeDictionay: value =>
+                {
+                    Dictionary<string, Atom> expected = new Dictionary<string, Atom>()
+                    {
+                        { "key1", new Atom(12, 13) }
+                    };
+                    CollectionAssert.AreEqual(expected, value);
+                    Console.WriteLine(expected.ToString());
+                    return null;
+                });
         }
 
         [Test]
@@ -149,12 +313,36 @@ namespace APIMatic.Core.Test.Utilities
             Assert.IsNotNull(container);
             foreach (var item in container)
             {
-                item.Match(new TestNative());
+                item.Match<VoidType>(
+                    precision: value =>
+                    {
+                        Assert.AreEqual(0.987d, value);
+                        Console.WriteLine(value);
+                        return null;
+                    },
+                    mString: value =>
+                    {
+                        Assert.AreEqual("some string", value);
+                        Console.WriteLine(value);
+                        return null;
+                    });
             }
             container = CoreHelper.JsonDeserialize<NativeOneOfContainer[]>(CoreHelper.JsonSerialize(container));
             foreach (var item in container)
             {
-                item.Match(new TestNative());
+                item.Match<VoidType>(
+                    precision: value =>
+                    {
+                        Assert.AreEqual(0.987d, value);
+                        Console.WriteLine(value);
+                        return null;
+                    },
+                    mString: value =>
+                    {
+                        Assert.AreEqual("some string", value);
+                        Console.WriteLine(value);
+                        return null;
+                    });
             }
         }
 
@@ -168,7 +356,19 @@ namespace APIMatic.Core.Test.Utilities
                 var container = CoreHelper.JsonDeserialize<NativeOneOfContainer[]>("[\"some string\", 0.987, 12]");
                 foreach (var item in container)
                 {
-                    item.Match(new TestNative());
+                    item.Match<VoidType>(
+                    precision: value =>
+                    {
+                        Assert.AreEqual(0.987d, value);
+                        Console.WriteLine(value);
+                        return null;
+                    },
+                    mString: value =>
+                    {
+                        Assert.AreEqual("some string", value);
+                        Console.WriteLine(value);
+                        return null;
+                    });
                 }
             }
             catch (OneOfValidationException ex)
@@ -183,63 +383,109 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void TestCustomType()
         {
-            CustomOneOfContainer container = CoreHelper.JsonDeserialize<CustomOneOfContainer>("{\"NumberOfElectrons\":12,\"NumberOfProtons\":13}");
+            CustomOneOfContainer container = CoreHelper.JsonDeserialize<CustomOneOfContainer>("{\"NumberOfElectrons\":12,\"NumberOfProtons\":13,\"Name\":\"Hydrogen\"}");
             Assert.IsNotNull(container);
-            container.Match(new TestCustom());
+            container.Match<VoidType>(
+               atom: value =>
+               {
+                   Atom expected = new Atom(12, 13, "Hydrogen");
+                   Assert.AreEqual(expected, value);
+                   Console.WriteLine(value);
+                   return null;
+               },
+               orbit: value =>
+               {
+                   Orbit expected = new Orbit(12, "3");
+                   Assert.AreEqual(expected, value);
+                   Console.WriteLine(value);
+                   return null;
+               });
             container = CoreHelper.JsonDeserialize<CustomOneOfContainer>(CoreHelper.JsonSerialize(container));
-            container.Match(new TestCustom());
+            container.Match<VoidType>(
+                atom: value =>
+                {
+                    Atom expected = new Atom(12, 13, "Hydrogen");
+                    Assert.AreEqual(expected, value);
+                    Console.WriteLine(value);
+                    return null;
+                },
+                orbit: value =>
+                {
+                    Orbit expected = new Orbit(12, "3");
+                    Assert.AreEqual(expected, value);
+                    Console.WriteLine(value);
+                    return null;
+                });
             container = CoreHelper.JsonDeserialize<CustomOneOfContainer>("{\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"}");
-            container.Match(new TestCustom());
+            container.Match<VoidType>(
+               atom: value =>
+               {
+                   Atom expected = new Atom(12, 13, "Hydrogen");
+                   Assert.AreEqual(expected, value);
+                   Console.WriteLine(value);
+                   return null;
+               },
+               orbit: value =>
+               {
+                   Orbit expected = new Orbit(12, "3");
+                   Assert.AreEqual(expected, value);
+                   Console.WriteLine(value);
+                   return null;
+               });
             container = CoreHelper.JsonDeserialize<CustomOneOfContainer>(CoreHelper.JsonSerialize(container));
-            container.Match(new TestCustom());
-        }
-
-        private class TestCustom : CustomOneOfContainer.ICases<VoidType>
-        {
-            public VoidType Atom(Atom value)
-            {
-                Atom expected = new Atom(12, 13);
-                Assert.AreEqual(expected, value);
-                Console.WriteLine(value);
-                return null;
-            }
-
-            public VoidType Orbit(Orbit value)
-            {
-                Orbit expected = new Orbit(12, "3");
-                Assert.AreEqual(expected, value);
-                Console.WriteLine(value);
-                return null;
-            }
-        }
-
-        private class TestCustomWithDisc : CustomOneOfWithDiscContainer.ICases<VoidType>
-        {
-            public VoidType Atom(Atom value)
-            {
-                Atom expected = new Atom(12, 13);
-                Assert.AreEqual(expected, value);
-                Console.WriteLine(value);
-                return null;
-            }
-
-            public VoidType Helium(Helium value)
-            {
-                Helium expected = new Helium(3, 3);
-                Assert.AreEqual(expected, value);
-                Console.WriteLine(value);
-                return null;
-            }
+            container.Match<VoidType>(
+               atom: value =>
+               {
+                   Atom expected = new Atom(12, 13, "Hydrogen");
+                   Assert.AreEqual(expected, value);
+                   Console.WriteLine(value);
+                   return null;
+               },
+               orbit: value =>
+               {
+                   Orbit expected = new Orbit(12, "3");
+                   Assert.AreEqual(expected, value);
+                   Console.WriteLine(value);
+                   return null;
+               });
         }
 
         [Test]
         public void TestCustomWithDiscriminatorType()
         {
-            CustomOneOfWithDiscContainer container = CoreHelper.JsonDeserialize<CustomOneOfWithDiscContainer>("{\"NumberOfElectrons\":12,\"NumberOfProtons\":13}");
+            CustomOneOfWithDiscContainer container = CoreHelper.JsonDeserialize<CustomOneOfWithDiscContainer>("{\"NumberOfElectrons\":12,\"NumberOfProtons\":13, \"Name\": \"Hydrogen\"}");
             Assert.IsNotNull(container);
-            container.Match(new TestCustomWithDisc());
+            container.Match<VoidType>(
+                   atom: value =>
+                   {
+                       Atom expected = new Atom(12, 13, "Hydrogen");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   },
+                   helium: value =>
+                   {
+                       Helium expected = new Helium(12, 3);
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   });
             container = CoreHelper.JsonDeserialize<CustomOneOfWithDiscContainer>(CoreHelper.JsonSerialize(container));
-            container.Match(new TestCustomWithDisc());
+            container.Match<VoidType>(
+                   atom: value =>
+                   {
+                       Atom expected = new Atom(12, 13, "Hydrogen");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   },
+                   helium: value =>
+                   {
+                       Helium expected = new Helium(12, 3);
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   });
         }
 
         [Test]
@@ -250,7 +496,21 @@ namespace APIMatic.Core.Test.Utilities
             try
             {
                 var container = CoreHelper.JsonDeserialize<CustomOneOfContainer>("{\"Name\":2,\"NumberOfShells\":12,\"NumberOfProtons\":13}");
-                container.Match(new TestCustom());
+                container.Match<VoidType>(
+                   atom: value =>
+                   {
+                       Atom expected = new Atom(12, 13, "Hydrogen");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   },
+                   orbit: value =>
+                   {
+                       Orbit expected = new Orbit(12, "3");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   });
             }
             catch (OneOfValidationException ex)
             {
@@ -269,7 +529,21 @@ namespace APIMatic.Core.Test.Utilities
             try
             {
                 var container = CoreHelper.JsonDeserialize<CustomOneOfContainer>("{\"NumberOfElectrons\":12,\"NumberOfProtons\":13, \"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"}");
-                container.Match(new TestCustom());
+                container.Match<VoidType>(
+                   atom: value =>
+                   {
+                       Atom expected = new Atom(12, 13, "Hydrogen");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   },
+                   orbit: value =>
+                   {
+                       Orbit expected = new Orbit(12, "3");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   });
             }
             catch (OneOfValidationException ex)
             {
@@ -286,85 +560,240 @@ namespace APIMatic.Core.Test.Utilities
         {
             CustomOneOfCollectionContainer container = CoreHelper.JsonDeserialize<CustomOneOfCollectionContainer>("[{\"NumberOfElectrons\":12,\"NumberOfProtons\":13}]");
             Assert.IsNotNull(container);
-            container.Match(new TestCustomCollection());
+            container.Match<VoidType>(
+                atom: value =>
+                {
+                    Atom expectedAtom = new Atom(12, 13);
+                    Atom[] expected = { expectedAtom };
+                    Assert.AreEqual(expected, value);
+                    Console.WriteLine(value);
+                    return null;
+                },
+                orbit: value =>
+                {
+                    Orbit expectedOrbit = new Orbit(12, "3");
+                    Orbit[] expected = { expectedOrbit };
+                    Assert.AreEqual(expected, value);
+                    Console.WriteLine(value);
+                    return null;
+                });
             container = CoreHelper.JsonDeserialize<CustomOneOfCollectionContainer>(CoreHelper.JsonSerialize(container));
-            container.Match(new TestCustomCollection());
+            container.Match<VoidType>(
+                atom: value =>
+                {
+                    Atom expectedAtom = new Atom(12, 13);
+                    Atom[] expected = { expectedAtom };
+                    Assert.AreEqual(expected, value);
+                    Console.WriteLine(value);
+                    return null;
+                },
+                orbit: value =>
+                {
+                    Orbit expectedOrbit = new Orbit(12, "3");
+                    Orbit[] expected = { expectedOrbit };
+                    Assert.AreEqual(expected, value);
+                    Console.WriteLine(value);
+                    return null;
+                });
             container = CoreHelper.JsonDeserialize<CustomOneOfCollectionContainer>("[{\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"}]");
-            container.Match(new TestCustomCollection());
+            container.Match<VoidType>(
+                atom: value =>
+                {
+                    Atom expectedAtom = new Atom(12, 13);
+                    Atom[] expected = { expectedAtom };
+                    Assert.AreEqual(expected, value);
+                    Console.WriteLine(value);
+                    return null;
+                },
+                orbit: value =>
+                {
+                    Orbit expectedOrbit = new Orbit(12, "3");
+                    Orbit[] expected = { expectedOrbit };
+                    Assert.AreEqual(expected, value);
+                    Console.WriteLine(value);
+                    return null;
+                });
             container = CoreHelper.JsonDeserialize<CustomOneOfCollectionContainer>(CoreHelper.JsonSerialize(container));
-            container.Match(new TestCustomCollection());
-        }
-
-        private class TestCustomCollection : CustomOneOfCollectionContainer.ICases<VoidType>
-        {
-            public VoidType Atom(Atom[] value)
-            {
-                Atom expectedAtom = new Atom(12, 13);
-                Atom[] expected = { expectedAtom };
-                Assert.AreEqual(expected, value);
-                Console.WriteLine(value);
-                return null;
-            }
-
-            public VoidType Orbit(Orbit[] value)
-            {
-                Orbit expectedOrbit = new Orbit(12, "3");
-                Orbit[] expected = { expectedOrbit };
-                Assert.AreEqual(expected, value);
-                Console.WriteLine(value);
-                return null;
-            }
+            container.Match<VoidType>(
+                atom: value =>
+                {
+                    Atom expectedAtom = new Atom(12, 13);
+                    Atom[] expected = { expectedAtom };
+                    Assert.AreEqual(expected, value);
+                    Console.WriteLine(value);
+                    return null;
+                },
+                orbit: value =>
+                {
+                    Orbit expectedOrbit = new Orbit(12, "3");
+                    Orbit[] expected = { expectedOrbit };
+                    Assert.AreEqual(expected, value);
+                    Console.WriteLine(value);
+                    return null;
+                });
         }
 
         [Test]
         public void TestCustomTypeOuter()
         {
-            CustomOneOfContainer[] container = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>("[{\"NumberOfElectrons\":12,\"NumberOfProtons\":13}, {\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"} ]");
+            CustomOneOfContainer[] container = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>("[{\"NumberOfElectrons\":12,\"NumberOfProtons\":13, \"Name\": \"Hydrogen\"}, {\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"} ]");
             Assert.IsNotNull(container);
             foreach (var form in container)
             {
-                form.Match(new TestCustom());
+                form.Match<VoidType>(
+                   atom: value =>
+                   {
+                       Atom expected = new Atom(12, 13, "Hydrogen");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   },
+                   orbit: value =>
+                   {
+                       Orbit expected = new Orbit(12, "3");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   });
             }
             container = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>(CoreHelper.JsonSerialize(container));
             foreach (var form in container)
             {
-                form.Match(new TestCustom());
+                form.Match<VoidType>(
+                   atom: value =>
+                   {
+                       Atom expected = new Atom(12, 13, "Hydrogen");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   },
+                   orbit: value =>
+                   {
+                       Orbit expected = new Orbit(12, "3");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   });
             }
             container = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>("[{\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"}, {\"NumberOfElectrons\":12,\"NumberOfProtons\":13}]");
             foreach (var form in container)
             {
-                form.Match(new TestCustom());
+                form.Match<VoidType>(
+                   atom: value =>
+                   {
+                       Atom expected = new Atom(12, 13);
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   },
+                   orbit: value =>
+                   {
+                       Orbit expected = new Orbit(12, "3");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   });
             }
             container = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>(CoreHelper.JsonSerialize(container));
             foreach (var form in container)
             {
-                form.Match(new TestCustom());
+                form.Match<VoidType>(
+                   atom: value =>
+                   {
+                       Atom expected = new Atom(12, 13);
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   },
+                   orbit: value =>
+                   {
+                       Orbit expected = new Orbit(12, "3");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   });
             }
         }
 
         [Test]
         public void TestCustomTypeInner()
         {
-            CustomOneOfContainer[] container = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>("[ {\"NumberOfElectrons\":12,\"NumberOfProtons\":13} ]");
+            CustomOneOfContainer[] container = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>("[ {\"NumberOfElectrons\":12,\"NumberOfProtons\":13, \"Name\": \"Hydrogen\"} ]");
             Assert.IsNotNull(container);
             foreach (var form in container)
             {
-                form.Match(new TestCustom());
+                form.Match<VoidType>(
+                   atom: value =>
+                   {
+                       Atom expected = new Atom(12, 13, "Hydrogen");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   },
+                   orbit: value =>
+                   {
+                       Orbit expected = new Orbit(12, "3");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   });
             }
             container = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>(CoreHelper.JsonSerialize(container));
             foreach (var form in container)
             {
-                form.Match(new TestCustom());
+                form.Match<VoidType>(
+                    atom: value =>
+                    {
+                        Atom expected = new Atom(12, 13, "Hydrogen");
+                        Assert.AreEqual(expected, value);
+                        Console.WriteLine(value);
+                        return null;
+                    },
+                    orbit: value =>
+                    {
+                        Orbit expected = new Orbit(12, "3");
+                        Assert.AreEqual(expected, value);
+                        Console.WriteLine(value);
+                        return null;
+                    });
             }
             container = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>("[ {\"NumberOfElectrons\":12,\"NumberOfShells\":\"3\"} ]");
             foreach (var form in container)
             {
-                form.Match(new TestCustom());
+                form.Match<VoidType>(
+                   atom: value =>
+                   {
+                       Atom expected = new Atom(12, 13, "Hydrogen");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   },
+                   orbit: value =>
+                   {
+                       Orbit expected = new Orbit(12, "3");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   });
             }
             container = CoreHelper.JsonDeserialize<CustomOneOfContainer[]>(CoreHelper.JsonSerialize(container));
             foreach (var form in container)
             {
-                form.Match(new TestCustom());
+                form.Match<VoidType>(
+                   atom: value =>
+                   {
+                       Atom expected = new Atom(12, 13, "Hydrogen");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   },
+                   orbit: value =>
+                   {
+                       Orbit expected = new Orbit(12, "3");
+                       Assert.AreEqual(expected, value);
+                       Console.WriteLine(value);
+                       return null;
+                   });
             }
         }
 
@@ -373,34 +802,161 @@ namespace APIMatic.Core.Test.Utilities
         {
             CustomNestedOneOfContainer container = CoreHelper.JsonDeserialize<CustomNestedOneOfContainer>("{\"NumberOfElectrons\":12,\"NumberOfProtons\":13}");
             Assert.IsNotNull(container);
-            container.Match(new TestCustomNested());
+            container.Match<VoidType>(
+                atom: value =>
+                {
+                    Atom expected = new Atom(12, 13);
+                    Assert.AreEqual(expected, value);
+                    Console.WriteLine(value);
+                    return null;
+                },
+                nestedOneOf: value =>
+                {
+                    value.Match<VoidType>(
+                    precision: value =>
+                    {
+                        Assert.AreEqual(0.987d, value);
+                        Console.WriteLine(value);
+                        return null;
+                    },
+                    mString: value =>
+                    {
+                        Assert.AreEqual("some string", value);
+                        Console.WriteLine(value);
+                        return null;
+                    });
+                    return null;
+                });
             container = CoreHelper.JsonDeserialize<CustomNestedOneOfContainer>(CoreHelper.JsonSerialize(container));
-            container.Match(new TestCustomNested());
+            container.Match<VoidType>(
+                atom: value =>
+                {
+                    Atom expected = new Atom(12, 13);
+                    Assert.AreEqual(expected, value);
+                    Console.WriteLine(value);
+                    return null;
+                },
+                nestedOneOf: value =>
+                {
+                    value.Match<VoidType>(
+                    precision: value =>
+                    {
+                        Assert.AreEqual(0.987d, value);
+                        Console.WriteLine(value);
+                        return null;
+                    },
+                    mString: value =>
+                    {
+                        Assert.AreEqual("some string", value);
+                        Console.WriteLine(value);
+                        return null;
+                    });
+                    return null;
+                });
             container = CoreHelper.JsonDeserialize<CustomNestedOneOfContainer>("\"some string\"");
-            container.Match(new TestCustomNested());
+            container.Match<VoidType>(
+                 atom: value =>
+                 {
+                     Atom expected = new Atom(12, 13);
+                     Assert.AreEqual(expected, value);
+                     Console.WriteLine(value);
+                     return null;
+                 },
+                 nestedOneOf: value =>
+                 {
+                     value.Match<VoidType>(
+                     precision: value =>
+                     {
+                         Assert.AreEqual(0.987d, value);
+                         Console.WriteLine(value);
+                         return null;
+                     },
+                     mString: value =>
+                     {
+                         Assert.AreEqual("some string", value);
+                         Console.WriteLine(value);
+                         return null;
+                     });
+                     return null;
+                 });
             container = CoreHelper.JsonDeserialize<CustomNestedOneOfContainer>(CoreHelper.JsonSerialize(container));
-            container.Match(new TestCustomNested());
+            container.Match<VoidType>(
+                 atom: value =>
+                 {
+                     Atom expected = new Atom(12, 13);
+                     Assert.AreEqual(expected, value);
+                     Console.WriteLine(value);
+                     return null;
+                 },
+                 nestedOneOf: value =>
+                 {
+                     value.Match<VoidType>(
+                     precision: value =>
+                     {
+                         Assert.AreEqual(0.987d, value);
+                         Console.WriteLine(value);
+                         return null;
+                     },
+                     mString: value =>
+                     {
+                         Assert.AreEqual("some string", value);
+                         Console.WriteLine(value);
+                         return null;
+                     });
+                     return null;
+                 });
             container = CoreHelper.JsonDeserialize<CustomNestedOneOfContainer>("0.987");
-            container.Match(new TestCustomNested());
+            container.Match<VoidType>(
+                atom: value =>
+                {
+                    Atom expected = new Atom(12, 13);
+                    Assert.AreEqual(expected, value);
+                    Console.WriteLine(value);
+                    return null;
+                },
+                nestedOneOf: value =>
+                {
+                    value.Match<VoidType>(
+                    precision: value =>
+                    {
+                        Assert.AreEqual(0.987d, value);
+                        Console.WriteLine(value);
+                        return null;
+                    },
+                    mString: value =>
+                    {
+                        Assert.AreEqual("some string", value);
+                        Console.WriteLine(value);
+                        return null;
+                    });
+                    return null;
+                });
             container = CoreHelper.JsonDeserialize<CustomNestedOneOfContainer>(CoreHelper.JsonSerialize(container));
-            container.Match(new TestCustomNested());
-        }
-
-        private class TestCustomNested : CustomNestedOneOfContainer.ICases<VoidType>
-        {
-            public VoidType Atom(Atom value)
-            {
-                Atom expected = new Atom(12, 13);
-                Assert.AreEqual(expected, value);
-                Console.WriteLine(value);
-                return null;
-            }
-
-            public VoidType Orbit(NativeOneOfContainer value)
-            {
-                value.Match(new TestNative());
-                return null;
-            }
+            container.Match<VoidType>(
+                atom: value =>
+                {
+                    Atom expected = new Atom(12, 13);
+                    Assert.AreEqual(expected, value);
+                    Console.WriteLine(value);
+                    return null;
+                },
+                nestedOneOf: value =>
+                {
+                    value.Match<VoidType>(
+                    precision: value =>
+                    {
+                        Assert.AreEqual(0.987d, value);
+                        Console.WriteLine(value);
+                        return null;
+                    },
+                    mString: value =>
+                    {
+                        Assert.AreEqual("some string", value);
+                        Console.WriteLine(value);
+                        return null;
+                    });
+                    return null;
+                });
         }
 
         [Test]

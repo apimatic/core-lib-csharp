@@ -25,23 +25,16 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             return value == null || value.Length == 0 ? null : new MStringArrayCase().Set(value);
         }
 
-        public abstract T Match<T>(ICases<T> cases);
-
-        public interface ICases<T>
-        {
-            T Precision(double[] value);
-
-            T MString(string[] value);
-        }
+        public abstract T Match<T>(Func<double[], T> precisionArray, Func<string[], T> mStringArray);
 
         [JsonConverter(typeof(UnionTypeCaseConverter<PrecisionArrayCase, double[]>), JTokenType.Float)]
         private class PrecisionArrayCase : NativeAnyOfCollectionContainer, ICaseValue<PrecisionArrayCase, double[]>
         {
             public double[] value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<double[], T> precisionArray, Func<string[], T> mStringArray)
             {
-                return cases.Precision(value);
+                return precisionArray(value);
             }
 
             public PrecisionArrayCase Set(double[] value)
@@ -66,9 +59,9 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         {
             public string[] value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<double[], T> precisionArray, Func<string[], T> mStringArray)
             {
-                return cases.MString(value);
+                return mStringArray(value);
             }
 
             public MStringArrayCase Set(string[] value)

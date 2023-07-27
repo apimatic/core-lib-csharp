@@ -32,25 +32,16 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             return new CustomTypeDictionaryCase().Set(customTypeDictionary);
         }
 
-        public abstract T Match<T>(ICases<T> cases);
-
-        public interface ICases<out T>
-        {
-            T Precision(double[] value);
-
-            T MString(string[] value);
-
-            T CustomTypeDictionary(Dictionary<string, Atom> value);
-        }
+        public abstract T Match<T>(Func<double[], T> precision, Func<string[], T> mString, Func<Dictionary<string, Atom>, T> customTypeDictionay);
 
         [JsonConverter(typeof(UnionTypeCaseConverter<PrecisionArrayCase, double[]>), JTokenType.Float)]
         private class PrecisionArrayCase : NativeOneOfCollectionContainer, ICaseValue<PrecisionArrayCase, double[]>
         {
             public double[] value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<double[], T> precision, Func<string[], T> mString, Func<Dictionary<string, Atom>, T> customTypeDictionay)
             {
-                return cases.Precision(value);
+                return precision(value);
             }
 
             public PrecisionArrayCase Set(double[] value)
@@ -75,9 +66,9 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         {
             public string[] value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<double[], T> precision, Func<string[], T> mString, Func<Dictionary<string, Atom>, T> customTypeDictionay)
             {
-                return cases.MString(value);
+                return mString(value);
             }
 
             public MStringArrayCase Set(string[] value)
@@ -102,9 +93,9 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         {
             public Dictionary<string, Atom> value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<double[], T> precision, Func<string[], T> mString, Func<Dictionary<string, Atom>, T> customTypeDictionay)
             {
-                return cases.CustomTypeDictionary(value);
+                return customTypeDictionay(value);
             }
 
             public CustomTypeDictionaryCase Set(Dictionary<string, Atom> value)

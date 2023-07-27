@@ -25,13 +25,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             return new OrbitCase().Set(value);
         }
 
-        public abstract T Match<T>(ICases<T> cases);
-
-        public interface ICases<out T>
-        {
-            T Atom(List<Dictionary<string, Atom>> value);
-            T Orbit(List<Dictionary<string, Orbit>> value);
-        }
+        public abstract T Match<T>(Func<List<Dictionary<string, Atom>>, T> atom, Func<List<Dictionary<string, Orbit>>, T> orbit);
 
         [JsonConverter(typeof(UnionTypeCaseConverter<AtomCase, List<Dictionary<string, Atom>>>))]
         private class AtomCase : ArrayOfMapContainer, ICaseValue<AtomCase, List<Dictionary<string, Atom>>>
@@ -48,9 +42,9 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
                 return value;
             }
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<List<Dictionary<string, Atom>>, T> atom, Func<List<Dictionary<string, Orbit>>, T> orbit)
             {
-                return cases.Atom(value);
+                return atom(value);
             }
 
             public override string ToString()
@@ -75,9 +69,9 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
                 return this;
             }
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<List<Dictionary<string, Atom>>, T> atom, Func<List<Dictionary<string, Orbit>>, T> orbit)
             {
-                return cases.Orbit(value);
+                return orbit(value);
             }
 
             public override string ToString()

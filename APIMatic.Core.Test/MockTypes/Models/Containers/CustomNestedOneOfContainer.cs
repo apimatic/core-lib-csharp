@@ -24,23 +24,16 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             return new OrbitCase().Set(value);
         }
 
-        public abstract T Match<T>(ICases<T> cases);
-
-        public interface ICases<out T>
-        {
-            T Atom(Atom value);
-
-            T Orbit(NativeOneOfContainer value);
-        }
+        public abstract T Match<T>(Func<Atom, T> atom, Func<NativeOneOfContainer, T> nestedOneOf);
 
         [JsonConverter(typeof(UnionTypeCaseConverter<AtomCase, Atom>))]
         private class AtomCase : CustomNestedOneOfContainer, ICaseValue<AtomCase, Atom>
         {
             public Atom value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<Atom, T> atom, Func<NativeOneOfContainer, T> nestedOneOf)
             {
-                return cases.Atom(value);
+                return atom(value);
             }
 
             public AtomCase Set(Atom value)
@@ -65,9 +58,9 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         {
             public NativeOneOfContainer value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<Atom, T> atom, Func<NativeOneOfContainer, T> nestedOneOf)
             {
-                return cases.Orbit(value);
+                return nestedOneOf(value);
             }
 
             public NativeOneOfContainer Get()

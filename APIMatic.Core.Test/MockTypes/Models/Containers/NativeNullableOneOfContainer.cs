@@ -25,7 +25,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             return string.IsNullOrEmpty(value) ? null : new MStringCase().Set(value);
         }
 
-        public abstract T Match<T>(ICases<T> cases);
+        public abstract T Match<T>(Func<double?, T> precision, Func<string, T> mString);
 
         public interface ICases<out T>
         {
@@ -34,22 +34,22 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             T MString(string? value);
         }
 
-        [JsonConverter(typeof(UnionTypeCaseConverter<PrecisionCase, double>), JTokenType.Float)]
-        private class PrecisionCase : NativeNullableOneOfContainer, ICaseValue<PrecisionCase, double>
+        [JsonConverter(typeof(UnionTypeCaseConverter<PrecisionCase, double?>), JTokenType.Float, JTokenType.Null)]
+        private class PrecisionCase : NativeNullableOneOfContainer, ICaseValue<PrecisionCase, double?>
         {
-            public double value;
+            public double? value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<double?, T> precision, Func<string, T> mString)
             {
-                return cases.Precision(value);
+                return precision(value);
             }
 
-            public PrecisionCase Set(double value)
+            public PrecisionCase Set(double? value)
             {
                 this.value = value;
                 return this;
             }
-            public double Get()
+            public double? Get()
             {
                 return value;
             }
@@ -60,23 +60,23 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             }
         }
 
-        [JsonConverter(typeof(UnionTypeCaseConverter<MStringCase, string?>), JTokenType.String, JTokenType.Null)]
-        private class MStringCase : NativeNullableOneOfContainer, ICaseValue<MStringCase, string?>
+        [JsonConverter(typeof(UnionTypeCaseConverter<MStringCase, string>), JTokenType.String)]
+        private class MStringCase : NativeNullableOneOfContainer, ICaseValue<MStringCase, string>
         {
-            public string? value;
+            public string value;
 
-            public override T Match<T>(ICases<T> cases)
+            public override T Match<T>(Func<double?, T> precision, Func<string, T> mString)
             {
-                return cases.MString(value);
+                return mString(value);
             }
 
-            public MStringCase Set(string? value)
+            public MStringCase Set(string value)
             {
                 this.value = value;
                 return this;
             }
 
-            public string? Get()
+            public string Get()
             {
                 return value;
             }
