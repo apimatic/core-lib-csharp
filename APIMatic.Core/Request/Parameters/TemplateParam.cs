@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using APIMatic.Core.Utilities;
 
 namespace APIMatic.Core.Request.Parameters
@@ -36,15 +37,8 @@ namespace APIMatic.Core.Request.Parameters
             {
                 return GetReplacerValueForCollection(collection);
             }
-            if (value is DateTime dateTime)
-            {
-                return dateTime.ToString(CoreHelper.DateTimeFormat);
-            }
-            if (value is DateTimeOffset dateTimeOffset)
-            {
-                return dateTimeOffset.ToString(CoreHelper.DateTimeFormat);
-            }
-            return value.ToString();
+
+            return CoreHelper.JsonSerialize(value).Replace("\"", "");
         }
 
         internal override void Apply(RequestBuilder requestBuilder)
@@ -53,7 +47,8 @@ namespace APIMatic.Core.Request.Parameters
             {
                 return;
             }
-            string replacerValue = Uri.EscapeUriString(GetReplacerValue(value));
+            CoreHelper.TryGetInnerValueForContainer(value, out var innerValue);
+            string replacerValue = Uri.EscapeUriString(GetReplacerValue(innerValue ?? value));
             requestBuilder.QueryUrl.Replace(string.Format("{{{0}}}", key), replacerValue);
         }
     }
