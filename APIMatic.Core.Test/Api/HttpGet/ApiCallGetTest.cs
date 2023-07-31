@@ -51,7 +51,7 @@ namespace APIMatic.Core.Test.Api.HttpGet
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(actual.Data, expected);
         }
@@ -136,7 +136,7 @@ namespace APIMatic.Core.Test.Api.HttpGet
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(actual.Data.Message, expected.Message);
         }
@@ -175,7 +175,7 @@ namespace APIMatic.Core.Test.Api.HttpGet
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
         }
 
         [Test]

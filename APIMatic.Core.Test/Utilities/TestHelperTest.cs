@@ -15,6 +15,8 @@ namespace APIMatic.Core.Test.Utilities
 
         internal const string NEW_OBJECT_DIFFERENT_VALUES = "{\"personType\":\"not Empl\",\"hiredAt\":\"Sun, 06 Nov 1994 08:49:37 GMT\"}";
 
+        internal const string MIXED_TYPE_LIST = "[{\"personType\":\"boss\"},true,\"some string\"]";
+
         [Test]
         public void IsArrayOfJsonObjectsProperSubsetOf_SameLeftRightObject()
         {
@@ -22,7 +24,7 @@ namespace APIMatic.Core.Test.Utilities
 
             string rightObject = OBJECT_STRING;
 
-            Assert.IsTrue(TestHelper.IsArrayOfJsonObjectsProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsTrue(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
         [Test]
@@ -32,7 +34,7 @@ namespace APIMatic.Core.Test.Utilities
 
             string rightObject = OBJECT_STRING;
 
-            Assert.IsTrue(TestHelper.IsArrayOfJsonObjectsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: true));
+            Assert.IsTrue(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: true));
         }
 
         [Test]
@@ -42,7 +44,7 @@ namespace APIMatic.Core.Test.Utilities
 
             string rightObject = NEW_OBJECT_DIFFERENT_VALUES;
 
-            Assert.IsTrue(TestHelper.IsJsonObjectProperSubsetOf(leftObject, rightObject, checkValues: false, allowExtra: true, isOrdered: true));
+            Assert.IsTrue(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: false, allowExtra: true, isOrdered: true));
         }
 
         [Test]
@@ -52,17 +54,67 @@ namespace APIMatic.Core.Test.Utilities
 
             string rightObject = "[{\"person\" : \"Employee\"}]";
 
-            Assert.IsFalse(TestHelper.IsArrayOfJsonObjectsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: false, isOrdered: true));
+            Assert.IsFalse(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: false, isOrdered: true));
         }
 
         [Test]
-        public void IsArrayOfJsonObjectsProperSubsetOf_DIfferentLeftRightObject()
+        public void IsArrayOfJsonObjectsProperSubsetOf_DifferentLeftRightObject()
         {
             string leftObject = OBJECT_STRING;
 
             string rightObject = "[{\"name\":\"Future Wife\",\"age\":5147483649,\"address\":\"H # 531, S # 20\",\"uid\":\"123412\",\"birthday\":\"1994-02-13\",\"birthtime\":\"1994-02-13T14:01:54.9571247Z\"}";
 
-            Assert.IsFalse(TestHelper.IsArrayOfJsonObjectsProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsFalse(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+        }
+
+        [Test]
+        public void IsArrayOfMixedProperSubsetOf_ExtraInRightObject()
+        {
+            string leftObject = MIXED_TYPE_LIST;
+
+            string rightObject = "[{\"personType\":\"boss\"},true,\"some string\",\"extra string\"]";
+
+            Assert.IsTrue(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: true));
+        }
+
+        [Test]
+        public void IsArrayOfMixedProperSubsetOf_ExtraAndDifferentOrderInRightObject()
+        {
+            string leftObject = MIXED_TYPE_LIST;
+
+            string rightObject = "[\"some string\",\"extra string\",{\"personType\":\"boss\"},true]";
+
+            Assert.IsTrue(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+        }
+
+        [Test]
+        public void IsArrayOfMixedProperSubsetOf_ExtraInRightObject_False()
+        {
+            string leftObject = MIXED_TYPE_LIST;
+
+            string rightObject = "[{\"personType\":\"boss\"},true,\"some string\",\"extra string\"]";
+
+            Assert.IsFalse(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: false, isOrdered: true));
+        }
+
+        [Test]
+        public void IsArrayOfMixedProperSubsetOf_DifferentOrderInRightObject_False()
+        {
+            string leftObject = MIXED_TYPE_LIST;
+
+            string rightObject = "[true,\"some string\",{\"personType\":\"boss\"}]";
+
+            Assert.IsFalse(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: false, isOrdered: true));
+        }
+
+        [Test]
+        public void IsArrayOfMixedProperSubsetOf_DifferentOrderInRightObject()
+        {
+            string leftObject = MIXED_TYPE_LIST;
+
+            string rightObject = "[true,\"some string\",{\"personType\":\"boss\"}]";
+
+            Assert.IsTrue(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: false, isOrdered: false));
         }
 
         [Test]
@@ -173,7 +225,7 @@ namespace APIMatic.Core.Test.Utilities
             string leftObject = "{\"passed\":true}";
             string rightObject = "{\"passed\":true,\"message\":\"OK\",\"input\":{\"path\":\"/body/additionalModelProperties\",\"query\":{},\"headers\":{\"host\":\"localhost:3000\",\"accept\":\"application/json\",\"content-type\":\"application/json\",\"content-length\":\"100\"},\"method\":\"POST\",\"body\":{\"name\":\"farhan\",\"field\":\"QA\",\"address\":\"Ghori Town\",\"Job\":{\"company\":\"APIMATIC\",\"location\":\"NUST\"}},\"uploadCount\":0}}";
 
-            Assert.IsTrue(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsTrue(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
 
@@ -183,7 +235,7 @@ namespace APIMatic.Core.Test.Utilities
             string leftObject = "{\"name\": {\"Role\" : \"Developer\"},\"age\": 5147483649,\"address\": [\"H # 531, S #20\"],   \"uid\": \"123412\"}";
             string rightObject = "{\"name\": {\"Role\" : \"Developer2\"},\"age\": 5147483649,\"address\": [\"H # 531, S #20\"],   \"uid\": \"123412\"}";
 
-            Assert.IsFalse(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsFalse(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
         [Test]
@@ -192,7 +244,7 @@ namespace APIMatic.Core.Test.Utilities
             string leftObject = "{\"name\": {\"Role\" : \"Developer\"}}";
             string rightObject = "{\"name\": \"hamza\"}";
 
-            Assert.IsFalse(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsFalse(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
         [Test]
@@ -201,7 +253,7 @@ namespace APIMatic.Core.Test.Utilities
             string leftObject = "{\"address\": [\"H # 531, S #20\"]}";
             string rightObject = "{\"address\": \"H # 531 S #20\"}";
 
-            Assert.IsFalse(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsFalse(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
 
@@ -211,7 +263,7 @@ namespace APIMatic.Core.Test.Utilities
             string leftObject = "{\"address\": [{\"street\" : \"H # 531, S #20\"}]}";
             string rightObject = "{\"address\": [{\"street\" : \"H # 531, S #20\"}]}";
 
-            Assert.IsTrue(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsTrue(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
         [Test]
@@ -220,7 +272,7 @@ namespace APIMatic.Core.Test.Utilities
             string leftObject = "{\"address\": [{\"street\" : \"H # 531\"}]}";
             string rightObject = "{\"address\": [{\"street\" : \"H # 531, S #20\"}]}";
 
-            Assert.IsFalse(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsFalse(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
         [Test]
@@ -229,7 +281,7 @@ namespace APIMatic.Core.Test.Utilities
             string leftObject = "{\"address\": [{\"street\" : \"H # 531, S #20\"}]}";
             string rightObject = "{\"address\": [\"H # 531 S #20\"]}";
 
-            Assert.IsFalse(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsFalse(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
         [Test]
@@ -238,7 +290,7 @@ namespace APIMatic.Core.Test.Utilities
             string leftObject = "{\"address\": [{\"street\" : \"H # 531, S #20\"}, \"25\"]}";
             string rightObject = "{\"address\": [{\"street\" : \"H # 531, S #20\"}, \"98\"]}";
 
-            Assert.IsFalse(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsFalse(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
         [Test]
@@ -247,7 +299,7 @@ namespace APIMatic.Core.Test.Utilities
             string leftObject = "{\"address\": [\"Test\", \"25\"]}";
             string rightObject = "{\"address\": [\"Test\", \"98\"]}";
 
-            Assert.IsFalse(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsFalse(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
 
@@ -257,7 +309,7 @@ namespace APIMatic.Core.Test.Utilities
             string leftObject = "{\"address\": [{\"street\" : \"H # 531, S #20\"}, \"25\"]}";
             string rightObject = "{\"address\": [{\"street\" : \"H # 531,\"}, \"98\"]}";
 
-            Assert.IsFalse(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsFalse(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
         [Test]
@@ -266,7 +318,7 @@ namespace APIMatic.Core.Test.Utilities
             string leftObject = "{\"address\": [{\"street\" : \"H # 531, S #20\"}, \"25\"]}";
             string rightObject = "{\"address\": [{\"street\" : \"H # 531, S #20\"}, \"25\"]}";
 
-            Assert.IsTrue(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsTrue(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
         [Test]
@@ -275,7 +327,7 @@ namespace APIMatic.Core.Test.Utilities
             string leftObject = "{\"address\": null}";
             string rightObject = "{\"address\": [{\"street\" : \"H # 531,\"}, \"98\"]}";
 
-            Assert.IsFalse(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsFalse(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
         [Test]
@@ -284,7 +336,7 @@ namespace APIMatic.Core.Test.Utilities
             string leftObject = "{\"address\": null}";
             string rightObject = "{\"address\": null}";
 
-            Assert.IsTrue(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsTrue(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
         [Test]
@@ -293,7 +345,7 @@ namespace APIMatic.Core.Test.Utilities
             string leftObject = "{\"address\": null}";
             string rightObject = "{\"address\": {\"street\" : 123}}";
 
-            Assert.IsFalse(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsFalse(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
         [Test]
@@ -302,7 +354,7 @@ namespace APIMatic.Core.Test.Utilities
             string leftObject = "{\"passed\":true}";
             string rightObject = "{\"message\":\"OK\",\"input\":{\"path\":\"/body/additionalModelProperties\",\"query\":{},\"headers\":{\"host\":\"localhost:3000\",\"accept\":\"application/json\",\"content-type\":\"application/json\",\"content-length\":\"100\"},\"method\":\"POST\",\"body\":{\"name\":\"farhan\",\"field\":\"QA\",\"address\":\"Ghori Town\",\"Job\":{\"company\":\"APIMATIC\",\"location\":\"NUST\"}},\"uploadCount\":0}}";
 
-            Assert.IsFalse(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsFalse(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
         [Test]
@@ -312,7 +364,7 @@ namespace APIMatic.Core.Test.Utilities
 
             string rightObject = "{\"personType\":\"Empl\",\"name\":\"Shahid Khaliq\",\"age\":5147483645,\"address\":\"H # 531, S # 20\",\"uid\":\"123321\",\"birthday\":\"1994-02-13\",\"birthtime\":\"1994-02-13T14:01:54.9571247Z\",\"salary\":20000,\"department\":\"Software Development\",\"joiningDay\":\"Saturday\",\"workingDays\":[\"Monday\",\"Tuesday\",\"Friday\"],\"boss\":{\"personType\":\"Boss\",\"name\":\"Zeeshan Ejaz\",\"age\":5147483645,\"address\":\"H # 531, S # 20\",\"uid\":\"123321\",\"birthday\":\"1994-02-13\",\"birthtime\":\"1994-02-13T14:01:54.9571247Z\",\"salary\":20000,\"department\":\"Software Development\",\"joiningDay\":\"Saturday\",\"workingDays\":[\"Monday\",\"Tuesday\",\"Friday\"],\"dependents\":[{\"name\":\"Future Wife\",\"age\":5147483649,\"address\":\"H # 531, S # 20\",\"uid\":\"123412\",\"birthday\":\"1994-02-13\",\"birthtime\":\"1994-02-13T14:01:54.9571247Z\"},{\"name\":\"Future Kid\",\"age\":5147483648,\"address\":\"H # 531, S # 20\",\"uid\":\"312341\",\"birthday\":\"1994-02-13\",\"birthtime\":\"1994-02-13T14:01:54.9571247Z\"}],\"hiredAt\":\"Sun, 06 Nov 1994 08:49:37 GMT\",\"promotedAt\":1484719381},\"dependents\":[{\"name\":\"Future Wife\",\"age\":5147483649,\"address\":\"H # 531, S # 20\",\"uid\":\"123412\",\"birthday\":\"1994-02-13\",\"birthtime\":\"1994-02-13T14:01:54.9571247Z\"},{\"name\":\"Future Kid\",\"age\":5147483648,\"address\":\"H # 531, S # 20\",\"uid\":\"312341\",\"birthday\":\"1994-02-13\",\"birthtime\":\"1994-02-13T14:01:54.9571247Z\"}],\"hiredAt\":\"Sun, 06 Nov 1994 08:49:37 GMT\"}";
 
-            Assert.IsTrue(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsTrue(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
         }
 
         [Test]
@@ -322,7 +374,61 @@ namespace APIMatic.Core.Test.Utilities
 
             string rightObject = "{}";
 
-            Assert.IsTrue(TestHelper.IsJsonObjectProperSubsetOf(leftObject: leftObject, rightObject: rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+            Assert.IsTrue(TestHelper.IsProperSubsetOf(leftObject, rightObject, checkValues: true, allowExtra: true, isOrdered: false));
+        }
+
+        [Test]
+        public void IsListProperSubsetOf_ExtraItems()
+        {
+            string leftList = "[\"beta\", \"alpha\"]";
+            string rightList = "[\"alpha\", \"beta\", \"gamma\"]";
+
+            Assert.False(TestHelper.IsProperSubsetOf(leftList, rightList, true, false, false));
+        }
+
+        [Test]
+        public void IsListProperSubsetOf_AllowedUnorderedExtraItems()
+        {
+            string leftList = "[\"beta\", \"alpha\"]";
+            string rightList = "[\"alpha\", \"beta\", \"gamma\"]";
+
+            Assert.True(TestHelper.IsProperSubsetOf(leftList, rightList, true, true, false));
+        }
+
+        [Test]
+        public void IsListProperSubsetOf_EqualList()
+        {
+            string leftList = "[\"alpha\", \"beta\", \"gamma\"]";
+            string rightList = "[\"alpha\", \"beta\", \"gamma\"]";
+
+            Assert.True(TestHelper.IsProperSubsetOf(leftList, rightList, true, false, true));
+        }
+
+        [Test]
+        public void IsListProperSubsetOf_UnEqualLeftList()
+        {
+            string leftList = "[\"alpha\", \"beta\"]";
+            string rightList = "[\"alpha\", \"beta\", \"gamma\"]";
+
+            Assert.False(TestHelper.IsProperSubsetOf(leftList, rightList, true, false, true));
+        }
+
+        [Test]
+        public void IsListProperSubsetOf_UnEqualRightList()
+        {
+            string leftList = "[\"alpha\", \"beta\", \"gamma\"]";
+            string rightList = "[\"alpha\", \"beta\"]";
+
+            Assert.False(TestHelper.IsProperSubsetOf(leftList, rightList, true, true, true));
+        }
+
+        [Test]
+        public void IsProperSubsetOf_ObjectVsList()
+        {
+            string left = "{\"x-rays\": \"alpha\"}";
+            string right = "[\"alpha\", \"beta\"]";
+
+            Assert.False(TestHelper.IsProperSubsetOf(left, right, true, true, true));
         }
 
         [Test]
@@ -383,78 +489,6 @@ namespace APIMatic.Core.Test.Utilities
             Stream memoryStream = new MemoryStream(buffer);
             string actualString = TestHelper.ConvertStreamToString(memoryStream);
             Assert.AreEqual(expectedString, actualString);
-        }
-
-        [Test]
-        public void IsSuperSetOf()
-        {
-            Assert.IsTrue(TestHelper.IsSuperSetOf(GetEnumerable("TestCase", "TryItYourSelf"), GetEnumerable("TestCase")));
-        }
-
-        [Test]
-        public void IsOrderedSubsetOf_SameSizeOfEnumerable()
-        {
-            Assert.IsTrue(TestHelper.IsOrderedSupersetOf(GetEnumerable("TestCase", "TryItYourSelf"), GetEnumerable("TestCase", "TryItYourSelf"), true));
-        }
-
-        [Test]
-        public void IsOrderedSubsetOf_DifferentSizeOfEnumerable()
-        {
-            Assert.False(TestHelper.IsOrderedSupersetOf(GetEnumerable("TestCase", "TryItYourSelf"), GetEnumerable("TestCase"), true));
-        }
-
-        [Test]
-        public void IsOrderedSubsetOf_DifferentSizeOfEnumerable_WithoutCheckSize()
-        {
-            Assert.False(TestHelper.IsOrderedSupersetOf(GetEnumerable("TryItYourSelf", "TestCase"), GetEnumerable("TestCase")));
-        }
-
-
-        [Test]
-        public void IsOrderedSubsetOf_DifferentSizeOfEnumerable_WithCheckSize()
-        {
-            Assert.False(TestHelper.IsOrderedSupersetOf(GetEnumerable("TestCase"), GetEnumerable("TestCase", "TryItYourSelf"), true));
-        }
-
-        [Test]
-        public void IsListProperSubsetOf_EqualList()
-        {
-            string leftList = "[\"alpha\", \"beta\", \"gamma\"]";
-            string rightList = "[\"alpha\", \"beta\", \"gamma\"]";
-
-            bool actual = TestHelper.IsListProperSubsetOf(CoreHelper.JsonDeserialize<dynamic>(leftList), CoreHelper.JsonDeserialize<dynamic>(rightList), false, true);
-            bool expected = true;
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void IsListProperSubsetOf_UnEqualLeftList()
-        {
-            string leftList = "[\"alpha\", \"beta\"]";
-            string rightList = "[\"alpha\", \"beta\", \"gamma\"]";
-
-            bool actual = TestHelper.IsListProperSubsetOf(leftList, rightList, false, true);
-            bool expected = false;
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void IsListProperSubsetOf_UnEqualRightList()
-        {
-            string leftList = "[\"alpha\", \"beta\", \"gamma\"]";
-            string rightList = "[\"alpha\", \"beta\"]";
-
-            bool actual = TestHelper.IsListProperSubsetOf(leftList, rightList, true, true);
-            bool expected = false;
-            Assert.AreEqual(expected, actual);
-        }
-
-        private IEnumerable<object> GetEnumerable(params object[] parameters)
-        {
-            foreach (object parameter in parameters)
-            {
-                yield return parameter;
-            }
         }
     }
 }

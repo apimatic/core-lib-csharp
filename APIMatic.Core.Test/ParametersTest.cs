@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using APIMatic.Core.Request.Parameters;
+using APIMatic.Core.Test.MockTypes.Models.Containers;
 using APIMatic.Core.Types;
 using APIMatic.Core.Types.Sdk;
 using NUnit.Framework;
@@ -26,7 +26,7 @@ namespace APIMatic.Core.Test
                 .Template(p => p.Setup("template", "someTemplate"))
                 .Apply(requestBuilder);
             Assert.False(requestBuilder.queryParameters.ContainsKey("query"));
-            Assert.False(requestBuilder.formParameters.Any(kv => kv.Key == "form"));
+            Assert.False(requestBuilder.formParameters.Exists(kv => kv.Key == "form"));
             Assert.False(requestBuilder.headers.ContainsKey("header"));
             Assert.True(requestBuilder.QueryUrl.ToString().Contains("{template}"));
 
@@ -36,7 +36,35 @@ namespace APIMatic.Core.Test
                 .AdditionalForms(p => p.Setup("form", "some form value"))
                 .Apply(requestBuilder);
             Assert.True(requestBuilder.body == null);
-            Assert.False(requestBuilder.formParameters.Any(kv => kv.Key == "form"));
+            Assert.False(requestBuilder.formParameters.Exists(kv => kv.Key == "form"));
+        }
+
+        [Test]
+        public void Parameters_Apply_Container()
+        {
+            var requestBuilder = LazyGlobalConfiguration.Value.GlobalRequestBuilder().Setup(HttpMethod.Get, "/path/{template}");
+
+            var model = CustomOneOfContainer.FromAtom(new MockTypes.Models.Atom()
+            {
+                NumberOfElectrons = 1,
+                NumberOfProtons = 1,
+            });
+
+            new Parameter.Builder()
+                .Query(p => p.Setup("query", "some query value"))
+                .Form(p => p.Setup("form", "some form value"))
+                .Form(p => p.Setup("form1", model))
+                .Header(p => p.Setup("header", "some header"))
+                .Template(p => p.Setup("template", "someTemplate"))
+                .Validate()
+                .Apply(requestBuilder);
+            new Parameter.Builder()
+                .Body(p => p.Setup("some body"))
+                .Validate()
+                .AdditionalForms(p => p.Setup("form", "some form value"))
+                .Apply(requestBuilder);
+            Assert.True(requestBuilder.body == "some body");
+            Assert.True(requestBuilder.formParameters.Exists(kv => kv.Key == "form"));
         }
 
         [Test]

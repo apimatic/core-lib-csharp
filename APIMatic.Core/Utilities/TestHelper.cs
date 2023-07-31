@@ -18,154 +18,6 @@ namespace APIMatic.Core.Utilities
     public static class TestHelper
     {
         /// <summary>
-        /// Check if left array of objects is a subset of right array.
-        /// </summary>
-        /// <param name="leftObject">Left array as a JSON string.</param>
-        /// <param name="rightObject">Right array as a JSON string.</param>
-        /// <param name="checkValues">Check primitive values for equality?.</param>
-        /// <param name="allowExtra">Are extra elements allowed in right array?.</param>
-        /// <param name="isOrdered">Should elements in right be compared in order to left?.</param>
-        /// <returns>True if it is a subset.</returns>
-        public static bool IsArrayOfJsonObjectsProperSubsetOf(
-            string leftObject,
-            string rightObject,
-            bool checkValues,
-            bool allowExtra,
-            bool isOrdered)
-        {
-            // Deserialize left and right objects from their respective strings
-            JArray left = CoreHelper.JsonDeserialize<dynamic>(leftObject);
-            JArray right = CoreHelper.JsonDeserialize<dynamic>(rightObject);
-
-            return IsArrayOfJsonObjectsProperSubsetOf(left, right, checkValues, allowExtra, isOrdered);
-        }
-
-        /// <summary>
-        /// Check if left array of objects is a subset of right array.
-        /// </summary>
-        /// <param name="leftList">Left array.</param>
-        /// <param name="rightList">Right array.</param>
-        /// <param name="checkValues">Check primitive values for equality?.</param>
-        /// <param name="allowExtra">Are extra elements allowed in right array?.</param>
-        /// <param name="isOrdered">Should elements in right be compared in order to left?.</param>
-        /// <returns>True if it is a subset.</returns>
-        public static bool IsArrayOfJsonObjectsProperSubsetOf(
-                JArray leftList,
-                JArray rightList,
-                bool checkValues,
-                bool allowExtra,
-                bool isOrdered)
-        {
-            // Return false if size different and checking was strict
-            if (IsDifferentSizeListAllowed(leftList, rightList, allowExtra))
-            {
-                return false;
-            }
-
-            // Create list iterators
-            var leftIter = leftList.GetEnumerator();
-            var rightIter = rightList.GetEnumerator();
-
-            // Iterate left list and check if each value is present in the right list
-            while (leftIter.MoveNext())
-            {
-                var leftTree = leftIter.Current;
-                bool found = false;
-
-                // restart right iterator if ordered comparision is not required
-                if (!isOrdered)
-                {
-                    rightIter = rightList.GetEnumerator();
-                }
-
-                while (rightIter.MoveNext())
-                {
-                    if (IsProperSubsetOf((JObject)leftTree, (JObject)rightIter.Current, checkValues, allowExtra, isOrdered))
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private static bool IsDifferentSizeListAllowed(JArray leftList, JArray rightList, bool allowExtra)
-        {
-            return (!allowExtra) && (rightList.Count != leftList.Count);
-        }
-
-        /// <summary>
-        /// Check whether the a list (as JSON string) is a subset of another list (as JSON string).
-        /// </summary>
-        /// <param name="leftListJson">Expected List.</param>
-        /// <param name="rightListJson">List to check.</param>
-        /// <param name="allowExtra">Are extras allowed in the list to check?.</param>
-        /// <param name="isOrdered">Should checking be in order?.</param>
-        /// <returns>True if it is a subset.</returns>
-        public static bool IsListProperSubsetOf(
-                string leftListJson,
-                string rightListJson,
-                bool allowExtra,
-                bool isOrdered)
-        {
-            // Deserialize left and right lists from their respective strings
-            JArray left = CoreHelper.JsonDeserialize<dynamic>(leftListJson);
-            JArray right = CoreHelper.JsonDeserialize<dynamic>(rightListJson);
-
-            return IsListProperSubsetOf(left, right, allowExtra, isOrdered);
-        }
-
-        /// <summary>
-        /// Check whether the a list is a subset of another list.
-        /// </summary>
-        /// <param name="leftList">Expected List.</param>
-        /// <param name="rightList">List to check.</param>
-        /// <param name="allowExtra">Are extras allowed in the list to check?.</param>
-        /// <param name="isOrdered">Should checking be in order?.</param>
-        /// <returns>True if it is a subset.</returns>
-        public static bool IsListProperSubsetOf(
-                JArray leftList,
-                JArray rightList,
-                bool allowExtra,
-                bool isOrdered)
-        {
-            if (IsDifferentSizeListAllowed(leftList, rightList, allowExtra))
-            {
-                return false;
-            }
-
-            if (isOrdered)
-            {
-                if (rightList.Count < leftList.Count)
-                {
-                    return false;
-                }
-
-                int rIndex = 0, lIndex = 0;
-                while (rIndex < rightList.Count)
-                {
-                    if (rightList[rIndex].ToString() == leftList[lIndex].ToString())
-                    {
-                        lIndex++;
-                    }
-
-                    rIndex++;
-                }
-
-                return lIndex == leftList.Count;
-            }
-
-            return IsSuperSetOf(left: rightList, right: leftList);
-        }
-
-        /// <summary>
         /// Recursively check whether the left headers map is a proper subset of the right headers map.
         /// </summary>
         /// <param name="leftDict">Left headers map.</param>
@@ -296,83 +148,6 @@ namespace APIMatic.Core.Utilities
         }
 
         /// <summary>
-        /// Checks if the left items set is the superset of right items set.
-        /// </summary>
-        /// <typeparam name="T">Type of items.</typeparam>
-        /// <param name="left">Left items set.</param>
-        /// <param name="right">Right items set.</param>
-        /// <returns>True if the left has all items of right.</returns>
-        public static bool IsSuperSetOf<T>(this IEnumerable<T> left, IEnumerable<T> right)
-        {
-            HashSet<T> lHashSet = new HashSet<T>(left);
-            return lHashSet.IsSupersetOf(right);
-        }
-
-        /// <summary>
-        /// Checks if the left items ordered set is the ordered superset of right items ordered set.
-        /// </summary>
-        /// <typeparam name="T">Type of items.</typeparam>
-        /// <param name="left">Left items set.</param>
-        /// <param name="right">Right items set.</param>
-        /// <param name="checkSize">Should the size of left and right be equal as well.</param>
-        /// <returns>True if the left has all items of right in the same order.</returns>
-        public static bool IsOrderedSupersetOf<T>(this IEnumerable<T> left, IEnumerable<T> right, bool checkSize = false)
-        {
-            var lItr = left.GetEnumerator();
-            var rItr = right.GetEnumerator();
-
-            while (lItr.MoveNext())
-            {
-                T lCurrent = lItr.Current;
-
-                // right list ended prematurely
-                if (!rItr.MoveNext())
-                {
-                    return false;
-                }
-
-                T rCurrent = rItr.Current;
-
-                if (!lCurrent.Equals(rCurrent))
-                {
-                    return false;
-                }
-            }
-
-            // if checking for size, right items should have been exhaustively read
-            if (checkSize && rItr.MoveNext())
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Recursively check whether the left JSON object is a proper subset of the right JSON object.
-        /// </summary>
-        /// <param name="leftObject">Left JSON object as string.</param>
-        /// <param name="rightObject">rightObject Right JSON object as string.</param>
-        /// <param name="checkValues">Check primitive values for equality?.</param>
-        /// <param name="allowExtra">Are extra elements allowed in right array?.</param>
-        /// <param name="isOrdered">Should elements in right be compared in order to left?.</param>
-        /// <returns>True, if the given object is a proper subset of other other.</returns>
-        public static bool IsJsonObjectProperSubsetOf(
-                string leftObject,
-                string rightObject,
-                bool checkValues,
-                bool allowExtra,
-                bool isOrdered)
-        {
-            return IsProperSubsetOf(
-                CoreHelper.JsonDeserialize<dynamic>(leftObject),
-                CoreHelper.JsonDeserialize<dynamic>(rightObject),
-                checkValues,
-                allowExtra,
-                isOrdered);
-        }
-
-        /// <summary>
         /// Convert an InputStream to a string (utility function).
         /// </summary>
         /// <param name="inStream">The input stream to read.</param>
@@ -384,6 +159,41 @@ namespace APIMatic.Core.Utilities
                 var str = reader.ReadToEnd();
                 return str;
             }
+        }
+
+        /// <summary>
+        /// Recursively check whether the leftTree is a proper subset of the right tree.
+        /// </summary>
+        /// <param name="left">Left tree/array as string.</param>
+        /// <param name="right">Right tree/array as string.</param>
+        /// <param name="checkValues">Check primitive values for equality?.</param>
+        /// <param name="allowExtra">Are extra elements allowed in right array?.</param>
+        /// <param name="isOrdered">Should elements in right be compared in order to left?.</param>
+        /// <returns>Boolean.</returns>
+        public static bool IsProperSubsetOf(
+            string left,
+            string right,
+            bool checkValues,
+            bool allowExtra,
+            bool isOrdered)
+        {
+            // Deserialize left and right lists from their respective strings
+            var leftVal = CoreHelper.JsonDeserialize<dynamic>(left);
+            var rightVal = CoreHelper.JsonDeserialize<dynamic>(right);
+
+            if (leftVal is JObject leftJObject && rightVal is JObject rightJObject)
+            {
+                return IsProperSubsetOf(leftJObject, rightJObject, checkValues, allowExtra, isOrdered);
+            }
+            if (leftVal is JArray leftJArray && rightVal is JArray rightJArray)
+            {
+                if (IsArrayOfJObject(leftJArray) && IsArrayOfJObject(rightJArray))
+                {
+                    return IsArrayOfJsonObjectsProperSubsetOf(leftJArray, rightJArray, checkValues, allowExtra, isOrdered);
+                }
+                return IsListProperSubsetOf(leftJArray, rightJArray, allowExtra, isOrdered);
+            }
+            return false;
         }
 
         /// <summary>
@@ -427,17 +237,154 @@ namespace APIMatic.Core.Utilities
 
         private static bool IsProperSubsetOfJObject(bool checkValues, bool allowExtra, bool isOrdered, object rightVal, JObject leftSideValue)
         {
-            bool isProperSubset = true;
             // If left value is tree, right value should be be tree too
             if (!(rightVal is JObject rightSideValue))
             {
                 return false;
             }
-            if (!IsProperSubsetOf(leftSideValue, rightSideValue, checkValues, allowExtra, isOrdered))
+            return IsProperSubsetOf(leftSideValue, rightSideValue, checkValues, allowExtra, isOrdered);
+        }
+
+        /// <summary>
+        /// Check if left array of objects is a subset of right array.
+        /// </summary>
+        /// <param name="leftList">Left array.</param>
+        /// <param name="rightList">Right array.</param>
+        /// <param name="checkValues">Check primitive values for equality?.</param>
+        /// <param name="allowExtra">Are extra elements allowed in right array?.</param>
+        /// <param name="isOrdered">Should elements in right be compared in order to left?.</param>
+        /// <returns>True if it is a subset.</returns>
+        private static bool IsArrayOfJsonObjectsProperSubsetOf(
+                JArray leftList,
+                JArray rightList,
+                bool checkValues,
+                bool allowExtra,
+                bool isOrdered)
+        {
+            // Return false if size different and checking was strict
+            if (IsDifferentSizeListNotAllowed(leftList, rightList, !allowExtra))
             {
-                isProperSubset = false;
+                return false;
             }
-            return isProperSubset;
+
+            // Create list iterators
+            var leftIter = leftList.GetEnumerator();
+            var rightIter = rightList.GetEnumerator();
+
+            // Iterate left list and check if each value is present in the right list
+            while (leftIter.MoveNext())
+            {
+                var leftTree = leftIter.Current;
+                bool found = false;
+
+                // restart right iterator if ordered comparision is not required
+                if (!isOrdered)
+                {
+                    rightIter = rightList.GetEnumerator();
+                }
+
+                while (rightIter.MoveNext())
+                {
+                    if (IsProperSubsetOf((JObject)leftTree, (JObject)rightIter.Current, checkValues, allowExtra, isOrdered))
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Check whether the a list is a subset of another list.
+        /// </summary>
+        /// <param name="leftList">Expected List.</param>
+        /// <param name="rightList">List to check.</param>
+        /// <param name="allowExtra">Are extras allowed in the list to check?.</param>
+        /// <param name="isOrdered">Should checking be in order?.</param>
+        /// <returns>True if it is a subset.</returns>
+        private static bool IsListProperSubsetOf(
+                JArray leftList,
+                JArray rightList,
+                bool allowExtra,
+                bool isOrdered)
+        {
+            if (isOrdered)
+            {
+                return rightList.IsOrderedSupersetOf(leftList, !allowExtra);
+            }
+
+            return rightList.IsSuperSetOf(leftList, !allowExtra);
+        }
+
+        /// <summary>
+        /// Checks if the right items ordered set is the ordered superset of left items ordered set.
+        /// </summary>
+        /// <param name="right">Right items set.</param>
+        /// <param name="left">Left items set.</param>
+        /// <param name="checkSize">Should the size of left and right be equal as well.</param>
+        /// <returns>True if the right has all items of left in the same order.</returns>
+        public static bool IsOrderedSupersetOf<T>(this IEnumerable<T> right, IEnumerable<T> left, bool checkSize)
+        {
+            var rightItr = right.GetEnumerator();
+            var leftItr = left.GetEnumerator();
+
+            bool isLeftListSmaller = false;
+
+            while (rightItr.MoveNext())
+            {
+                var rightCurrent = rightItr.Current;
+
+                // left list ended prematurely
+                if (!leftItr.MoveNext())
+                {
+                    isLeftListSmaller = true;
+                    break;
+                }
+
+                var leftCurrent = leftItr.Current;
+
+                if (!rightCurrent.ToString().Equals(leftCurrent.ToString()))
+                {
+                    return false;
+                }
+            }
+
+            if (leftItr.MoveNext() || (checkSize && isLeftListSmaller))
+            {
+                // left list must be fully traversed OR
+                // if checking for size, left and right list must be of same size
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Checks if the right items set is the superset of left items set.
+        /// </summary>
+        /// <param name="right">Right items set.</param>
+        /// <param name="left">Left items set.</param>
+        /// <returns>True if the right has all items of left.</returns>
+        public static bool IsSuperSetOf<T>(this IEnumerable<T> right, IEnumerable<T> left, bool checkSize)
+        {
+            if (IsDifferentSizeListNotAllowed(right, left, checkSize))
+            {
+                return false;
+            }
+            HashSet<string> rightHashSet = new HashSet<string>(right.Select(i => i.ToString()));
+            return rightHashSet.IsSupersetOf(left.Select(i => i.ToString()));
+        }
+
+        private static bool IsDifferentSizeListNotAllowed<T>(IEnumerable<T> leftList, IEnumerable<T> rightList, bool checkSize)
+        {
+            return checkSize && (rightList.Count() != leftList.Count());
         }
 
         private static bool CheckValuesAreSameOnBothSides(bool allowExtra, bool isOrdered, object leftVal, object rightVal)

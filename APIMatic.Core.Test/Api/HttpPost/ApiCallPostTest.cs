@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -52,7 +51,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(actual.Data.Message, expected.Message);
         }
@@ -101,7 +100,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(actual.Data.Message, expected.Message);
         }
@@ -143,7 +142,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(expected.Message, actual.Data.Message);
         }
@@ -188,7 +187,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(expected.Message, actual.Data.Message);
         }
@@ -231,7 +230,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(actual.Data.Message, expected.Message);
         }
@@ -273,7 +272,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
         }
 
@@ -401,7 +400,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(actual.Data.Message, expected.Message);
         }
@@ -449,7 +448,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(actual.Data.Message, expected.Message);
         }
@@ -473,8 +472,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
                 .With(req =>
                 {
                     Assert.AreEqual(text, req.Content.ReadAsStringAsync().Result);
-                    Assert.IsTrue(req.Headers.Contains(headerKey));
-                    Assert.AreEqual(string.Empty, req.Headers.GetValues(headerKey).FirstOrDefault());
+                    Assert.False(req.Headers.Contains(headerKey));
                     return true;
                 })
                 .Respond(HttpStatusCode.OK, content);
@@ -492,7 +490,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
 
             // Assert
             Assert.NotNull(actual);
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.NotNull(actual.Data);
             Assert.AreEqual(actual.Data.Message, expected.Message);
         }

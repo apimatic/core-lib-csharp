@@ -1,9 +1,8 @@
-﻿using System.IO;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using APIMatic.Core.Test.MockTypes.Models;
+using APIMatic.Core.Test.MockTypes.Models.Containers;
 using APIMatic.Core.Utilities;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
@@ -11,30 +10,30 @@ using RichardSzalay.MockHttp;
 namespace APIMatic.Core.Test.Api.HttpPost
 {
     [TestFixture]
-    internal class ApiCallPostStreamTest : ApiCallTest
+    internal class ApiCallPostContainerTest : ApiCallTest
     {
         [Test]
-        public void ApiCall_PostBodyStream_OKResponse()
+        public void ApiCall_PostModelAsContainerData_OKResponse()
         {
-            var memStream = new MemoryStream(Encoding.UTF8.GetBytes("Test memory stream data."));
-            //Arrange
-            var url = "/apicall/post-stream-body/200";
-            var contentType = "application/octet-stream";
-
+            var oneOfAtomOrbit = CustomOneOfContainer.FromAtom(new Atom()
+            {
+                Name = "Hydrogen",
+                NumberOfProtons = 1,
+                NumberOfElectrons = 1,
+            });
             var expected = new ServerResponse()
             {
                 Passed = true,
             };
-
-            var reader = new StreamReader(memStream);
-            var text = reader.ReadToEnd();
+            var url = "/apicall/post-container-model/200";
+            var contentType = "application/json; charset=utf-8";
 
             var content = JsonContent.Create(expected);
             handlerMock.When(GetCompleteUrl(url))
                 .With(req =>
                 {
-                    Assert.AreEqual(text, req.Content.ReadAsStringAsync().Result);
-                    Assert.AreEqual(contentType, req.Content.Headers.ContentType.MediaType);
+                    Assert.AreEqual(CoreHelper.JsonSerialize(oneOfAtomOrbit), req.Content.ReadAsStringAsync().Result);
+                    Assert.AreEqual(contentType, req.Content.Headers.ContentType.ToString());
                     Assert.AreEqual("application/json", req.Headers.Accept.ToString());
                     return true;
                 })
@@ -44,7 +43,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
                 .RequestBuilder(requestBuilderAction => requestBuilderAction
                     .Setup(HttpMethod.Post, url)
                     .Parameters(p => p
-                        .Body(b => b.Setup(memStream))))
+                        .Body(b => b.Setup(oneOfAtomOrbit))))
                 .ExecuteAsync();
 
             // Act
@@ -53,29 +52,26 @@ namespace APIMatic.Core.Test.Api.HttpPost
             // Assert
             Assert.NotNull(actual);
             Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
-            Assert.NotNull(actual.Data);
+            Assert.AreEqual(expected, actual.Data);
         }
 
         [Test]
-        public void ApiCall_PostBodyStreamWithWrongContentType_OKResponse()
+        public void ApiCall_PostStringAsContainerData_OKResponse()
         {
-            var memStream = new MemoryStream(Encoding.UTF8.GetBytes("Test memory stream data."));
-            //Arrange
-            var url = "/apicall/post-stream-body-wrong-content/200";
-
+            var anyOfStringDouble = NativeAnyOfContainer.FromString("some string as request body");
             var expected = new ServerResponse()
             {
                 Passed = true,
             };
-
-            var reader = new StreamReader(memStream);
-            var text = reader.ReadToEnd();
+            var url = "/apicall/post-container-string/200";
+            var contentType = "text/plain; charset=utf-8";
 
             var content = JsonContent.Create(expected);
             handlerMock.When(GetCompleteUrl(url))
                 .With(req =>
                 {
-                    Assert.AreEqual(text, req.Content.ReadAsStringAsync().Result);
+                    Assert.AreEqual(anyOfStringDouble.ToString(), req.Content.ReadAsStringAsync().Result);
+                    Assert.AreEqual(contentType, req.Content.Headers.ContentType.ToString());
                     Assert.AreEqual("application/json", req.Headers.Accept.ToString());
                     return true;
                 })
@@ -85,8 +81,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
                 .RequestBuilder(requestBuilderAction => requestBuilderAction
                     .Setup(HttpMethod.Post, url)
                     .Parameters(p => p
-                        .Header(h => h.Setup("content-type", "application/"))
-                        .Body(b => b.Setup(memStream))))
+                        .Body(b => b.Setup(anyOfStringDouble))))
                 .ExecuteAsync();
 
             // Act
@@ -95,7 +90,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
             // Assert
             Assert.NotNull(actual);
             Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
-            Assert.NotNull(actual.Data);
+            Assert.AreEqual(expected, actual.Data);
         }
     }
 }

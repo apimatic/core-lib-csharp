@@ -3,8 +3,8 @@
 // </copyright>
 using System.Runtime.Serialization;
 using APIMatic.Core.Utilities;
+using APIMatic.Core.Utilities.Converters;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace APIMatic.Core.Http.Configuration
 {

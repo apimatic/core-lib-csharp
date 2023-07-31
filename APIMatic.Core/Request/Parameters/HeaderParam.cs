@@ -1,6 +1,8 @@
 ﻿// <copyright file="HeaderParam.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
+using APIMatic.Core.Utilities;
+
 namespace APIMatic.Core.Request.Parameters
 {
     /// <summary>
@@ -16,7 +18,12 @@ namespace APIMatic.Core.Request.Parameters
             {
                 return;
             }
-            requestBuilder.headers[key] = value?.ToString();
+            var headerValue = CoreHelper.JsonSerialize(value)?.TrimStart('"').TrimEnd('"');
+            if (headerValue == null)
+            {
+                return;
+            }
+            requestBuilder.headers[key] = headerValue;
         }
     }
 }

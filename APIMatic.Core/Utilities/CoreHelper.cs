@@ -190,7 +190,13 @@ namespace APIMatic.Core.Utilities
             {
                 return keys;
             }
-            else if (value is JObject)
+
+            if (TryGetInnerValueForContainer(value, out dynamic innerValue))
+            {
+                return PrepareFormFieldsFromObject(name, innerValue, arraySerializationFormat, keys, propInfo);
+            }
+
+            if (value is JObject)
             {
                 PrepareFormFieldsForJObject(name, value, arraySerializationFormat, keys, propInfo);
             }
@@ -201,12 +207,10 @@ namespace APIMatic.Core.Utilities
             else if (value is Stream || value is JToken || value is Enum)
             {
                 keys.Add(new KeyValuePair<string, object>(name, GetProcessedValue(value)));
-                return keys;
             }
             else if (value is IDictionary dictionary)
             {
                 PrepareFormFieldsForDictionary(name, dictionary, arraySerializationFormat, keys, propInfo);
-                return keys;
             }
             else if (value is CoreJsonObject || value is CoreJsonValue)
             {
@@ -221,6 +225,18 @@ namespace APIMatic.Core.Utilities
                 keys.Add(new KeyValuePair<string, object>(name, GetProcessedValue(value, propInfo)));
             }
             return keys;
+        }
+
+        internal static bool TryGetInnerValueForContainer(object value, out dynamic innerValue)
+        {
+            var valueType = value?.GetType();
+            if (valueType?.Namespace?.EndsWith(".Containers") == true)
+            {
+                innerValue = valueType.GetFields()[0].GetValue(value);
+                return true;
+            }
+            innerValue = null;
+            return false;
         }
 
         private static void PrepareFormFieldsForJObject(string name, object value, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys, PropertyInfo propInfo)

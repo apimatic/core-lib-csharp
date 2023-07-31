@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using APIMatic.Core.Test.MockTypes.Convertors;
 using APIMatic.Core.Test.MockTypes.Models;
 using APIMatic.Core.Utilities;
-using Newtonsoft.Json.Converters;
+using APIMatic.Core.Utilities.Converters;
 using NUnit.Framework;
 
 namespace APIMatic.Core.Test.Utilities.Date
@@ -34,7 +34,7 @@ namespace APIMatic.Core.Test.Utilities.Date
 
             string mapOfDateTimeString = "{\"DateTimePairs\":{\"date1\":\"2017-01-18T06:03:01\"}}";
 
-            TestModelForMapOfDateTime actual = CoreHelper.JsonDeserialize<TestModelForMapOfDateTime>(mapOfDateTimeString, new MapDateTimeConverter());
+            TestModelForMapOfDateTime actual = CoreHelper.JsonDeserialize<TestModelForMapOfDateTime>(mapOfDateTimeString);
             Assert.AreEqual(expected.DateTimePairs, actual.DateTimePairs);
         }
 
@@ -48,7 +48,7 @@ namespace APIMatic.Core.Test.Utilities.Date
 
             string mapOfDateTimeString = "{\"DateTimePairs\":{\"date1\":\"2017-01-18T06:03:01\"}}";
 
-            TestModelForMapOfDateTime actual = CoreHelper.JsonDeserialize<TestModelForMapOfDateTime>(mapOfDateTimeString, new MapDateTimeConverter(typeof(IsoDateTimeConverter)));
+            TestModelForMapOfDateTime actual = CoreHelper.JsonDeserialize<TestModelForMapOfDateTime>(mapOfDateTimeString, new CoreMapConverter());
             Assert.AreEqual(expected.DateTimePairs, actual.DateTimePairs);
         }
 
@@ -62,7 +62,7 @@ namespace APIMatic.Core.Test.Utilities.Date
 
             string mapOfDateTimeString = "{\"DateTimePairs\":{\"date1\":\"2017-01-18T06:03:01\"}}";
 
-            TestModelForMapOfDateTime actual = CoreHelper.JsonDeserialize<TestModelForMapOfDateTime>(mapOfDateTimeString, new MapDateTimeConverter(typeof(CustomDateTimeConverter), "yyyy'-'MM'-'dd"));
+            TestModelForMapOfDateTime actual = CoreHelper.JsonDeserialize<TestModelForMapOfDateTime>(mapOfDateTimeString, new CoreMapConverter(typeof(CustomDateTimeConverter), "yyyy'-'MM'-'dd"));
             Assert.AreEqual(expected.DateTimePairs, actual.DateTimePairs);
         }
     }

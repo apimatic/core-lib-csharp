@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using APIMatic.Core.Test.MockTypes.Convertors;
+using APIMatic.Core.Utilities.Converters;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace APIMatic.Core.Test.MockTypes.Models
 {
     internal class TestModelForMapOfDateTime
     {
-        [JsonConverter(typeof(MapDateTimeConverter))]
+        [JsonConverter(typeof(CoreMapConverter), typeof(IsoDateTimeConverter))]
         public Dictionary<string, DateTime> DateTimePairs { get; set; }
     }
 }

@@ -36,15 +36,8 @@ namespace APIMatic.Core.Request.Parameters
             {
                 return GetReplacerValueForCollection(collection);
             }
-            if (value is DateTime dateTime)
-            {
-                return dateTime.ToString(CoreHelper.DateTimeFormat);
-            }
-            if (value is DateTimeOffset dateTimeOffset)
-            {
-                return dateTimeOffset.ToString(CoreHelper.DateTimeFormat);
-            }
-            return value.ToString();
+
+            return CoreHelper.JsonSerialize(value).TrimStart('"').TrimEnd('"');
         }
 
         internal override void Apply(RequestBuilder requestBuilder)
@@ -53,7 +46,8 @@ namespace APIMatic.Core.Request.Parameters
             {
                 return;
             }
-            string replacerValue = Uri.EscapeUriString(GetReplacerValue(value));
+            CoreHelper.TryGetInnerValueForContainer(value, out var innerValue);
+            string replacerValue = Uri.EscapeUriString(GetReplacerValue(innerValue ?? value));
             requestBuilder.QueryUrl.Replace(string.Format("{{{0}}}", key), replacerValue);
         }
     }

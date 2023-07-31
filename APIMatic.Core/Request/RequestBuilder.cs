@@ -202,6 +202,10 @@ namespace APIMatic.Core.Request
             {
                 return value;
             }
+            if (CoreHelper.TryGetInnerValueForContainer(value, out dynamic innerValue) && innerValue is string)
+            {
+                return innerValue;
+            }
             return CoreHelper.JsonSerialize(value);
         }
     }
