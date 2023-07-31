@@ -48,11 +48,6 @@ namespace APIMatic.Core.Utilities
                 return null;
             }
 
-            if (obj is string)
-            {
-                return obj.ToString();
-            }
-
             var settings = new JsonSerializerSettings()
             {
                 MaxDepth = 128
@@ -71,7 +66,6 @@ namespace APIMatic.Core.Utilities
             {
                 settings.Converters.Add(converter);
             }
-            settings.StringEscapeHandling = StringEscapeHandling.Default;
 
             return JsonConvert.SerializeObject(obj, Formatting.None, settings);
         }

@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using APIMatic.Core.Utilities;
 
 namespace APIMatic.Core.Request.Parameters
@@ -38,7 +37,7 @@ namespace APIMatic.Core.Request.Parameters
                 return GetReplacerValueForCollection(collection);
             }
 
-            return CoreHelper.JsonSerialize(value).Replace("\"", "");
+            return CoreHelper.JsonSerialize(value).TrimStart('"').TrimEnd('"');
         }
 
         internal override void Apply(RequestBuilder requestBuilder)

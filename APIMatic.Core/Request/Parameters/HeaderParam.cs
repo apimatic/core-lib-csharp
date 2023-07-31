@@ -18,7 +18,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 return;
             }
-            var headerValue = CoreHelper.JsonSerialize(value)?.Replace("\"", "");
+            var headerValue = CoreHelper.JsonSerialize(value)?.TrimStart('"').TrimEnd('"');
             if (headerValue == null)
             {
                 return;
