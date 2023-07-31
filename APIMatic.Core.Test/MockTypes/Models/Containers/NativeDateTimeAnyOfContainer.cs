@@ -26,7 +26,6 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             return new DateTimeCase2().Set(value);
         }
 
-
         public abstract T Match<T>(Func<DateTime?, T> rfc1123DateTime, Func<DateTime?, T> rfc3339DateTime);
 
         [JsonConverter(typeof(UnionTypeCaseConverter<DateTimeCase, DateTime?>), JTokenType.Date)]

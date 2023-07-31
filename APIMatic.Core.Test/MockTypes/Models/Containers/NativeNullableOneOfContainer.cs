@@ -20,19 +20,12 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
             return new PrecisionCase().Set(value);
         }
 
-        public static NativeNullableOneOfContainer FromMString(string? value)
+        public static NativeNullableOneOfContainer FromMString(string value)
         {
             return string.IsNullOrEmpty(value) ? null : new MStringCase().Set(value);
         }
 
         public abstract T Match<T>(Func<double?, T> precision, Func<string, T> mString);
-
-        public interface ICases<out T>
-        {
-            T Precision(double value);
-
-            T MString(string? value);
-        }
 
         [JsonConverter(typeof(UnionTypeCaseConverter<PrecisionCase, double?>), JTokenType.Float, JTokenType.Null)]
         private class PrecisionCase : NativeNullableOneOfContainer, ICaseValue<PrecisionCase, double?>
