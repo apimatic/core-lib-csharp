@@ -13,6 +13,7 @@ namespace APIMatic.Core.Test
         [Test]
         public void Multiple_Authentication_Success()
         {
+            var basicAuthManager = new BasicAuthManager("username", "password");
             var globalConfiguration = new GlobalConfiguration.Builder()
                 .ServerUrls(new Dictionary<Enum, string>
                 {
@@ -20,7 +21,7 @@ namespace APIMatic.Core.Test
                 }, MockServer.Server1)
                 .AuthManagers(new Dictionary<string, AuthManager>()
                 {
-                    {"basic", new BasicAuthManager("username", null)},
+                    {"basic", basicAuthManager},
                     {"header", new HeaderAuthManager("my api key", "test token")},
                     {"query", new QueryAuthManager("my api key", "test token")}
                 })
@@ -36,6 +37,7 @@ namespace APIMatic.Core.Test
                         .Add("query")))
                 .Build();
 
+            Assert.AreEqual(basicAuthManager.GetBasicAuthHeader(), request.Headers["Authorization"]);
             Assert.AreEqual("my api key", request.Headers["API-KEY"]);
             Assert.AreEqual("test token", request.Headers["TOKEN"]);
             Assert.AreEqual("my api key", request.QueryParameters["API-KEY"]);

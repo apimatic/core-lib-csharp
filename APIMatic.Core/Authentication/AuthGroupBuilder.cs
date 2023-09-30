@@ -56,10 +56,6 @@ namespace APIMatic.Core.Authentication
         /// <param name="requestBuilder">The RequestBuilder object on which authentication will be applied.</param>
         internal override void Apply(RequestBuilder requestBuilder)
         {
-            if (!authManagers.Any())
-            {
-                return;
-            }
             var errors = new List<string>();
             foreach (var authManager in authManagers)
             {
@@ -78,7 +74,7 @@ namespace APIMatic.Core.Authentication
                 }
             }
 
-            if (errors.Count == authManagers.Count)
+            if (errors.Any() && errors.Count == authManagers.Count)
             {
                 // throw exception if unable to apply all authentications in OR group
                 throw new ArgumentNullException("Authentication", $"Missing required auth credentials:\n-> {string.Join("\n-> ", errors)}");
