@@ -22,23 +22,21 @@ namespace APIMatic.Core.Test
             AutoFlush = true
         };
 
-        private static readonly ICoreHttpClientConfiguration _clientConfiguration = new CoreHttpClientConfiguration.Builder()
+        protected static readonly ICoreHttpClientConfiguration _clientConfiguration = new CoreHttpClientConfiguration.Builder()
             .HttpClientInstance(new HttpClient(handlerMock))
             .NumberOfRetries(numberOfRetries)
             .Build();
-
-        private static readonly BasicAuthManager _basicAuthManager = new(_basicAuthUserName, _basicAuthPassword);
 
         private static GlobalConfiguration globalConfiguration;
 
         protected static Lazy<GlobalConfiguration> LazyGlobalConfiguration => new(() => globalConfiguration ??= new GlobalConfiguration.Builder()
             .ServerUrls(new Dictionary<Enum, string>
             {
-                { MockServer.Server1, "http://my/path:3000/{one}"},
-                { MockServer.Server2, "https://my/path/{two}"}
+                {MockServer.Server1, "http://my/path:3000/{one}"},
+                {MockServer.Server2, "https://my/path/{two}"}
             }, MockServer.Server1)
             .AuthManagers(new Dictionary<string, AuthManager> {
-                        {"global", _basicAuthManager}
+                {"basic", new BasicAuthManager(_basicAuthUserName, _basicAuthPassword)}
             })
             .HttpConfiguration(_clientConfiguration)
             .Parameters(p => p

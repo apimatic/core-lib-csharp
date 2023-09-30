@@ -50,11 +50,11 @@ namespace APIMatic.Core.Request.Parameters
             }
             if (key == null)
             {
-                throw new ArgumentNullException($"Missing required `key` for type: {typeName}");
+                throw new ArgumentNullException("key", $"Missing required `key` for type: {typeName}");
             }
             if (requiredValueMissing)
             {
-                throw new ArgumentNullException($"Missing required {typeName} field: {GetName()}");
+                throw new ArgumentNullException(GetName(), $"Missing required {typeName} field: {GetName()}");
             }
             try
             {

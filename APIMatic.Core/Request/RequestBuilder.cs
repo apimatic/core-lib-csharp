@@ -21,8 +21,8 @@ namespace APIMatic.Core.Request
     public class RequestBuilder
     {
         private readonly GlobalConfiguration configuration;
+        private readonly AuthGroupBuilder authGroup;
         private RetryOption retryOption = RetryOption.Default;
-        private string authName = "";
         private HttpMethod httpMethod;
         private readonly Parameter.Builder parameters = new Parameter.Builder();
         private bool contentTypeAllowed = true;
@@ -36,7 +36,12 @@ namespace APIMatic.Core.Request
         internal readonly List<KeyValuePair<string, object>> formParameters = new List<KeyValuePair<string, object>>();
         internal readonly Dictionary<string, object> queryParameters = new Dictionary<string, object>();
 
-        internal RequestBuilder(GlobalConfiguration configuration) => this.configuration = configuration;
+        internal RequestBuilder(GlobalConfiguration configuration)
+        {
+            this.configuration = configuration;
+            authGroup = new AuthGroupBuilder(configuration.AuthManagers);
+        }
+
         internal StringBuilder QueryUrl { get; } = new StringBuilder();
 
         internal ContentType AcceptHeader { get; set; } = ContentType.SCALAR;
@@ -88,7 +93,28 @@ namespace APIMatic.Core.Request
         /// <returns></returns>
         public RequestBuilder WithAuth(string authName)
         {
-            this.authName = authName;
+            return WithAndAuth(auth => auth.Add(authName));
+        }
+
+        /// <summary>
+        /// This takes in a action to be apply on the OR authentication group
+        /// </summary>
+        /// <param name="authName"></param>
+        /// <returns></returns>
+        public RequestBuilder WithOrAuth(Action<AuthGroupBuilder> applyAuth)
+        {
+            applyAuth(authGroup);
+            return this;
+        }
+
+        /// <summary>
+        /// This takes in a action to be apply on the AND authentication group
+        /// </summary>
+        /// <param name="authName"></param>
+        /// <returns></returns>
+        public RequestBuilder WithAndAuth(Action<AuthGroupBuilder> applyAuth)
+        {
+            applyAuth(authGroup.SetAsAndGroup());
             return this;
         }
 
@@ -123,10 +149,7 @@ namespace APIMatic.Core.Request
         {
             parameters.Validate().Apply(this);
             configuration.RuntimeParameters.Validate().Apply(this);
-            if (configuration.AuthManagers.TryGetValue(authName, out AuthManager authManager))
-            {
-                authManager.Apply(this);
-            }
+            authGroup.Apply(this);
             CoreHelper.AppendUrlWithQueryParameters(QueryUrl, queryParameters, ArraySerialization);
             body = bodyParameters.Any() ? bodyParameters : body;
             AppendContentTypeHeader();
