@@ -19,12 +19,11 @@ namespace APIMatic.Core.Authentication
             authManagersMap = authManagers ?? new Dictionary<string, AuthManager>();
         }
 
-        internal AuthGroupBuilder SetAsAndGroup()
-        {
-            isAndGroup = true;
-            return this;
-        }
-
+        /// <summary>
+        /// Add an authorization scheme to this group, using its name.
+        /// </summary>
+        /// <param name="authName"></param>
+        /// <returns></returns>
         public AuthGroupBuilder Add(string authName)
         {
             if (authManagersMap.TryGetValue(authName, out AuthManager authManager))
@@ -34,19 +33,41 @@ namespace APIMatic.Core.Authentication
             return this;
         }
 
+        /// <summary>
+        /// Adds a nested AuthGroup of type `AND`, using an Action<AuthGroupBuilder>
+        /// </summary>
+        /// <param name="applyAuth"></param>
+        /// <returns></returns>
         public AuthGroupBuilder AddAndGroup(Action<AuthGroupBuilder> applyAuth)
         {
             var authGroup = new AuthGroupBuilder(authManagersMap);
             applyAuth(authGroup);
-            authManagers.Add(authGroup.SetAsAndGroup());
+            authManagers.Add(authGroup.ToAndGroup());
             return this;
         }
 
+        /// <summary>
+        /// Adds a nested AuthGroup of type `OR`, using an Action<AuthGroupBuilder>
+        /// </summary>
+        /// <param name="applyAuth"></param>
+        /// <returns></returns>
         public AuthGroupBuilder AddOrGroup(Action<AuthGroupBuilder> applyAuth)
         {
             var authGroup = new AuthGroupBuilder(authManagersMap);
             applyAuth(authGroup);
-            authManagers.Add(authGroup);
+            authManagers.Add(authGroup.ToOrGroup());
+            return this;
+        }
+
+        internal AuthGroupBuilder ToAndGroup()
+        {
+            isAndGroup = true;
+            return this;
+        }
+
+        internal AuthGroupBuilder ToOrGroup()
+        {
+            isAndGroup = false;
             return this;
         }
 

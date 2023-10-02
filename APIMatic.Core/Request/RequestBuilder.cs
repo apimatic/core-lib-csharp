@@ -103,7 +103,7 @@ namespace APIMatic.Core.Request
         /// <returns></returns>
         public RequestBuilder WithOrAuth(Action<AuthGroupBuilder> applyAuth)
         {
-            applyAuth(authGroup);
+            applyAuth(authGroup.ToOrGroup());
             return this;
         }
 
@@ -114,7 +114,7 @@ namespace APIMatic.Core.Request
         /// <returns></returns>
         public RequestBuilder WithAndAuth(Action<AuthGroupBuilder> applyAuth)
         {
-            applyAuth(authGroup.SetAsAndGroup());
+            applyAuth(authGroup.ToAndGroup());
             return this;
         }
 
