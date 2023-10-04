@@ -86,19 +86,16 @@ namespace APIMatic.Core.Authentication
                 }
                 catch (ArgumentNullException ex)
                 {
-                    if (isAndGroup)
-                    {
-                        // throw exception if unable to apply any authentication in AND group
-                        throw;
-                    }
                     errors.Add(ex.Message);
                 }
             }
 
-            if (errors.Any() && errors.Count == authManagers.Count)
+            if (errors.Any() && (errors.Count == authManagers.Count || isAndGroup))
             {
-                // throw exception if unable to apply all authentications in OR group
-                throw new ArgumentNullException("Authentication", $"Missing required auth credentials:\n-> {string.Join("\n-> ", errors)}");
+                // throw exception if unable to apply All authentications in OR group
+                // OR if unable to apply Any Single authentication in AND group
+                var messagePrefix = $"Following authentication credentials are required:\n-> ";
+                throw new ArgumentNullException(null, messagePrefix + string.Join("\n-> ", errors.Select(e => e.TrimStart(messagePrefix.ToCharArray()))));
             }
         }
     }

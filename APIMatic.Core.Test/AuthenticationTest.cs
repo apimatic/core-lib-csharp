@@ -70,9 +70,9 @@ namespace APIMatic.Core.Test
                         .Add("query")))
                 .Build());
 
-            Assert.AreEqual("Missing required auth credentials:\n" +
-                "-> Missing required header field: Authorization (Parameter 'Authorization')\n" +
-                "-> Missing required header field: TOKEN (Parameter 'TOKEN') (Parameter 'Authentication')", exp.Message);
+            Assert.AreEqual("Following authentication credentials are required:\n" +
+                "-> Missing required header field: Authorization\n" +
+                "-> Missing required header field: TOKEN", exp.Message);
         }
 
         [Test]
@@ -99,7 +99,8 @@ namespace APIMatic.Core.Test
                     .Add("header"))
                 .Build());
 
-            Assert.AreEqual("Missing required header field: TOKEN (Parameter 'TOKEN')", exp.Message);
+            Assert.AreEqual("Following authentication credentials are required:\n" +
+                "-> Missing required header field: TOKEN", exp.Message);
         }
 
         [Test]
@@ -128,9 +129,9 @@ namespace APIMatic.Core.Test
                         .Add("header")))
                 .Build());
 
-            Assert.AreEqual("Missing required auth credentials:\n" +
-                "-> Missing required header field: Authorization (Parameter 'Authorization')\n" +
-                "-> Missing required header field: TOKEN (Parameter 'TOKEN') (Parameter 'Authentication')", exp.Message);
+            Assert.AreEqual("Following authentication credentials are required:\n" +
+                "-> Missing required header field: Authorization\n" +
+                "-> Missing required header field: TOKEN", exp.Message);
         }
     }
 }
