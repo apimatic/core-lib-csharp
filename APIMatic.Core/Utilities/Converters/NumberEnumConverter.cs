@@ -10,15 +10,31 @@ namespace APIMatic.Core.Utilities.Converters
             return objectType.BaseType.FullName == "System.Enum";
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        private Type GetInnerType(Type type)
         {
-            if (CanConvert(objectType) && reader.TokenType == JsonToken.Integer)
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
-                var value = Convert.ToInt32(reader.Value);
-                return value;
+                return type.GenericTypeArguments[0];
             }
 
-            throw new JsonSerializationException($"Invalid type for number enum.");
+            return type;
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null)
+            {
+                return null;
+            }
+
+            var innerType = GetInnerType(objectType);
+            if (CanConvert(innerType) && reader.TokenType == JsonToken.Integer)
+            {
+                var enumValue = Enum.ToObject(innerType, Convert.ToInt32(reader.Value));
+                return enumValue;
+            }
+
+            throw new JsonSerializationException($"Invalid type for number enum {innerType.FullName}.");
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
