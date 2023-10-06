@@ -3,6 +3,7 @@
 // </copyright>
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace APIMatic.Core.Request.Parameters
 {
@@ -190,7 +191,22 @@ namespace APIMatic.Core.Request.Parameters
             /// <returns></returns>
             internal Builder Validate()
             {
-                parameters.ForEach(p => p.Validate());
+                var missingArgErrors = new List<string>();
+                parameters.ForEach(p =>
+                {
+                    try
+                    {
+                        p.Validate();
+                    }
+                    catch (ArgumentNullException exp)
+                    {
+                        missingArgErrors.Add(exp.Message);
+                    }
+                });
+                if (missingArgErrors.Any())
+                {
+                    throw new ArgumentNullException(null, string.Join("\n-> ", missingArgErrors));
+                }
                 return this;
             }
 

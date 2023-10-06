@@ -104,6 +104,36 @@ namespace APIMatic.Core.Test
         }
 
         [Test]
+        public void Multiple_Authentication_AND_All_Missing_Validation_Failure()
+        {
+            var globalConfiguration = new GlobalConfiguration.Builder()
+                .ServerUrls(new Dictionary<Enum, string>
+                {
+                    {MockServer.Server1, "http://my/path:3000/{one}"},
+                }, MockServer.Server1)
+                .AuthManagers(new Dictionary<string, AuthManager>()
+                {
+                    {"header", new HeaderAuthManager(null, null)},
+                    {"query", new QueryAuthManager(null, null)}
+                })
+                .HttpConfiguration(_clientConfiguration)
+                .Build();
+
+            var exp = Assert.Throws<ArgumentNullException>(() => globalConfiguration.GlobalRequestBuilder()
+                .Setup(HttpMethod.Get, "/auth")
+                .WithAndAuth(auth => auth
+                    .Add("query")
+                    .Add("header"))
+                .Build());
+
+            Assert.AreEqual("Following authentication credentials are required:\n" +
+                "-> Missing required query field: API-KEY\n" +
+                "-> Missing required query field: TOKEN\n" +
+                "-> Missing required header field: API-KEY\n" +
+                "-> Missing required header field: TOKEN", exp.Message);
+        }
+
+        [Test]
         public void Multiple_Authentication_AND_with_nested_OR_Validation_Failure()
         {
             var globalConfiguration = new GlobalConfiguration.Builder()
