@@ -151,6 +151,40 @@ namespace APIMatic.Core.Test.Utilities
             Assert.AreEqual(expected, actual);
         }
 
+        [Test]
+        public void JsonDeserialize_EnumString()
+        {
+            var actualNullable = CoreHelper.JsonDeserialize<WorkingDays?>("\"Monday\"");
+            Assert.AreEqual(WorkingDays.Monday, actualNullable);
+
+            var actual = CoreHelper.JsonDeserialize<WorkingDays>("\"Monday\"");
+            Assert.AreEqual(WorkingDays.Monday, actual);
+        }
+
+        [Test]
+        public void JsonDeserialize_EnumStringNullable()
+        {
+            var actual = CoreHelper.JsonDeserialize<WorkingDays?>("null");
+            Assert.AreEqual(null, actual);
+        }
+
+        [Test]
+        public void JsonDeserialize_EnumNumber()
+        {
+            var actualNullable = CoreHelper.JsonDeserialize<MonthNumber?>("3");
+            Assert.AreEqual(MonthNumber.March, actualNullable);
+
+            var actual = CoreHelper.JsonDeserialize<MonthNumber>("3");
+            Assert.AreEqual(MonthNumber.March, actual);
+        }
+
+        [Test]
+        public void JsonDeserialize_EnumNumberNullable()
+        {
+            var actual = CoreHelper.JsonDeserialize<MonthNumber?>("null");
+            Assert.AreEqual(null, actual);
+        }
+
         #endregion
 
         #region AppendQueryParameters
