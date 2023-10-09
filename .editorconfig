@@ -52,10 +52,17 @@ dotnet_naming_style.pascal_case_style.capitalization             = pascal_case
 # Use PascalCase for constant fields  
 dotnet_naming_rule.constant_fields_should_be_pascal_case.severity = suggestion
 dotnet_naming_rule.constant_fields_should_be_pascal_case.symbols  = constant_fields
-dotnet_naming_rule.constant_fields_should_be_pascal_case.style    = pascal_case_style
+dotnet_naming_rule.constant_fields_should_be_pascal_case.style = pascal_case_style
 dotnet_naming_symbols.constant_fields.applicable_kinds            = field
 dotnet_naming_symbols.constant_fields.applicable_accessibilities  = *
 dotnet_naming_symbols.constant_fields.required_modifiers          = const
+dotnet_style_operator_placement_when_wrapping = beginning_of_line
+tab_width = 4
+end_of_line = crlf
+dotnet_style_prefer_simplified_boolean_expressions = true:suggestion
+dotnet_style_prefer_compound_assignment = true:suggestion
+dotnet_style_prefer_simplified_interpolation = true:suggestion
+dotnet_style_namespace_match_folder = true:suggestion
 ###############################
 # C# Coding Conventions       #
 ###############################
@@ -156,6 +163,12 @@ dotnet_diagnostic.S112.severity = none
 dotnet_diagnostic.S1699.severity = none
 # S1168: Empty arrays and collections should be returned instead of null
 dotnet_diagnostic.S1168.severity = none
+# S4830: Server certificates should be verified during SSL/TLS connection
+dotnet_diagnostic.S4830.severity = none
+# S3928: Parameter names used into ArgumentException constructors should match an existing one 
+dotnet_diagnostic.S3928.severity = none
+# S3358: Ternary operators should not be nested
+dotnet_diagnostic.S3358.severity = none
 
 # CA1707: Identifiers should not contain underscores
 dotnet_diagnostic.CA1707.severity = none
@@ -167,8 +180,6 @@ dotnet_diagnostic.CA1507.severity = none
 dotnet_diagnostic.CA1305.severity = none
 # CA1309: Use ordinal string comparison
 dotnet_diagnostic.CA1309.severity = none
-# S3358: Ternary operators should not be nested
-dotnet_diagnostic.S3358.severity = none
 # CS0659: Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
 dotnet_diagnostic.CS0659.severity = none
 # CA2201: Do not raise reserved exception types
@@ -179,8 +190,11 @@ dotnet_diagnostic.CA1310.severity = none
 # JSON002: Probable JSON string detected
 dotnet_diagnostic.JSON002.severity = none
 
-# S4830: Server certificates should be verified during SSL/TLS connection
-dotnet_diagnostic.S4830.severity = none
+csharp_using_directive_placement = outside_namespace:silent
+csharp_prefer_simple_using_statement = true:suggestion
+csharp_style_namespace_declarations = block_scoped:silent
+csharp_style_expression_bodied_lambdas = true:silent
+csharp_style_expression_bodied_local_functions = false:silent
 
 [*.vb]
 ###############################

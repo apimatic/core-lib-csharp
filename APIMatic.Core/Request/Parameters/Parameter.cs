@@ -3,6 +3,7 @@
 // </copyright>
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace APIMatic.Core.Request.Parameters
 {
@@ -50,11 +51,11 @@ namespace APIMatic.Core.Request.Parameters
             }
             if (key == null)
             {
-                throw new ArgumentNullException($"Missing required `key` for type: {typeName}");
+                throw new ArgumentNullException(null, $"Missing required `key` for type: {typeName}");
             }
             if (requiredValueMissing)
             {
-                throw new ArgumentNullException($"Missing required {typeName} field: {GetName()}");
+                throw new ArgumentNullException(null, $"Missing required {typeName} field: {GetName()}");
             }
             try
             {
@@ -190,7 +191,22 @@ namespace APIMatic.Core.Request.Parameters
             /// <returns></returns>
             internal Builder Validate()
             {
-                parameters.ForEach(p => p.Validate());
+                var missingArgErrors = new List<string>();
+                parameters.ForEach(p =>
+                {
+                    try
+                    {
+                        p.Validate();
+                    }
+                    catch (ArgumentNullException exp)
+                    {
+                        missingArgErrors.Add(exp.Message);
+                    }
+                });
+                if (missingArgErrors.Any())
+                {
+                    throw new ArgumentNullException(null, string.Join("\n-> ", missingArgErrors));
+                }
                 return this;
             }
 

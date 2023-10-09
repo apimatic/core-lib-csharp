@@ -167,7 +167,7 @@ namespace APIMatic.Core.Test.Api.HttpGet
             var apiCall = CreateApiCall<ServerResponse>()
               .RequestBuilder(requestBuilderAction => requestBuilderAction
                   .Setup(HttpMethod.Get, url)
-              .WithAuth("global"))
+              .WithAuth("basic"))
               .ExecuteAsync();
 
             // Act

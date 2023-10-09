@@ -37,8 +37,7 @@ namespace APIMatic.Core.Authentication
         /// Add authentication information to the HTTP Request.
         /// </summary>
         /// <param name="requestBuilder">The http request object on which authentication will be applied.</param>
-        /// <returns>HttpRequest.</returns>
-        internal void Apply(RequestBuilder requestBuilder)
+        internal virtual void Apply(RequestBuilder requestBuilder)
         {
             Validate();
             parameters.Apply(requestBuilder);
