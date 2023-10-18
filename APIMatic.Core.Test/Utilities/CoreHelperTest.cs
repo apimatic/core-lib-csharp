@@ -457,7 +457,7 @@ namespace APIMatic.Core.Test.Utilities
                 "serverResponse"
             };
 
-            string expected = $"{SERVER_URL}?serverResponse%5Bpassed%5D=True";
+            string expected = $"{SERVER_URL}?serverResponse%5Bpassed%5D=true";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, serverResponse));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -626,7 +626,7 @@ namespace APIMatic.Core.Test.Utilities
                 "serverResponse"
             };
 
-            string expected = $"{SERVER_URL}?serverResponse%5B0%5D%5Bpassed%5D=True";
+            string expected = $"{SERVER_URL}?serverResponse%5B0%5D%5Bpassed%5D=true";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
