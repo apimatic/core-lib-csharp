@@ -519,20 +519,21 @@ namespace APIMatic.Core.Utilities
 
         private static string GetElementValue(object element, bool urlEncode)
         {
-            string elemValue;
             if (element is DateTime time)
             {
-                elemValue = time.ToString(DateTimeFormat);
-                return elemValue;
+                return time.ToString(DateTimeFormat);
             }
-            else if (element is DateTimeOffset offset)
+
+            if (element is DateTimeOffset offset)
             {
-                elemValue = offset.ToString(DateTimeFormat);
-                return elemValue;
+                return offset.ToString(DateTimeFormat);
             }
-            else
+
+            string elemValue = element.ToString();
+
+            if (element is bool)
             {
-                elemValue = element.ToString();
+                elemValue = elemValue.ToLower();
             }
 
             if (urlEncode)
