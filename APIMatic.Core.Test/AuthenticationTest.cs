@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using APIMatic.Core.Authentication;
 using APIMatic.Core.Test.MockTypes.Authentication;
+using APIMatic.Core.Types.Sdk.Exceptions;
 using NUnit.Framework;
 
 namespace APIMatic.Core.Test
@@ -94,7 +95,7 @@ namespace APIMatic.Core.Test
                 .HttpConfiguration(_clientConfiguration)
                 .Build();
 
-            var exp = Assert.Throws<ArgumentNullException>(() => globalConfiguration.GlobalRequestBuilder()
+            var exp = Assert.Throws<AuthValidationException>(() => globalConfiguration.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/auth")
                 .WithOrAuth(auth => auth
                     .Add("basic")
@@ -125,7 +126,7 @@ namespace APIMatic.Core.Test
                 .HttpConfiguration(_clientConfiguration)
                 .Build();
 
-            var exp = Assert.Throws<ArgumentNullException>(() => globalConfiguration.GlobalRequestBuilder()
+            var exp = Assert.Throws<AuthValidationException>(() => globalConfiguration.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/auth")
                 .WithAndAuth(auth => auth
                     .Add("query")
@@ -152,7 +153,7 @@ namespace APIMatic.Core.Test
                 .HttpConfiguration(_clientConfiguration)
                 .Build();
 
-            var exp = Assert.Throws<ArgumentNullException>(() => globalConfiguration.GlobalRequestBuilder()
+            var exp = Assert.Throws<AuthValidationException>(() => globalConfiguration.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/auth")
                 .WithAndAuth(auth => auth
                     .Add("query")
@@ -183,7 +184,7 @@ namespace APIMatic.Core.Test
                 .HttpConfiguration(_clientConfiguration)
                 .Build();
 
-            var exp = Assert.Throws<ArgumentNullException>(() => globalConfiguration.GlobalRequestBuilder()
+            var exp = Assert.Throws<AuthValidationException>(() => globalConfiguration.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/auth")
                 .WithAndAuth(auth => auth
                     .Add("query")

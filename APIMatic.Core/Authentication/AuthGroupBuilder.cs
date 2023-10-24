@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using APIMatic.Core.Request;
+using APIMatic.Core.Types.Sdk.Exceptions;
 
 namespace APIMatic.Core.Authentication
 {
@@ -98,8 +99,8 @@ namespace APIMatic.Core.Authentication
             if (errors.Any())
             {
                 // throw exception if unable to apply Any Single authentication in AND group
-                var messagePrefix = $"Following authentication credentials are required:\n-> ";
-                throw new ArgumentNullException(null, messagePrefix + string.Join("\n-> ", errors.Select(e => e.TrimStart(messagePrefix.ToCharArray()))));
+                // OR if unable to apply All authentication in OR group
+                throw new AuthValidationException(errors);
             }
         }
     }
