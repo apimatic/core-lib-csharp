@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using APIMatic.Core.Authentication;
 using APIMatic.Core.Test.MockTypes.Authentication;
+using APIMatic.Core.Types.Sdk.Exceptions;
 using NUnit.Framework;
 
 namespace APIMatic.Core.Test
@@ -11,7 +12,40 @@ namespace APIMatic.Core.Test
     public class AuthenticationTest : TestBase
     {
         [Test]
-        public void Multiple_Authentication_Success()
+        public void Multiple_Authentication_Success_WithFirstAuth()
+        {
+            var globalConfiguration = new GlobalConfiguration.Builder()
+                .ServerUrls(new Dictionary<Enum, string>
+                {
+                    {MockServer.Server1, "http://my/path:3000/{one}"},
+                }, MockServer.Server1)
+                .AuthManagers(new Dictionary<string, AuthManager>()
+                {
+                    {"basic", new BasicAuthManager("username", "password")},
+                    {"header", new HeaderAuthManager("my api key", "test token")},
+                    {"query", new QueryAuthManager("my api key", "test token")}
+                })
+                .HttpConfiguration(_clientConfiguration)
+                .Build();
+
+            var request = globalConfiguration.GlobalRequestBuilder()
+                .Setup(HttpMethod.Get, "/auth")
+                .WithOrAuth(auth => auth
+                    .AddAndGroup(innerGroup => innerGroup
+                        .Add("header")
+                        .Add("query"))
+                    .Add("basic"))
+                .Build();
+
+            Assert.False(request.Headers.ContainsKey("Authorization"));
+            Assert.AreEqual("my api key", request.Headers["API-KEY"]);
+            Assert.AreEqual("test token", request.Headers["TOKEN"]);
+            Assert.AreEqual("my api key", request.QueryParameters["API-KEY"]);
+            Assert.AreEqual("test token", request.QueryParameters["TOKEN"]);
+        }
+
+        [Test]
+        public void Multiple_Authentication_Success_WithSecondAuth()
         {
             var basicAuthManager = new BasicAuthManager("username", "password");
             var globalConfiguration = new GlobalConfiguration.Builder()
@@ -22,7 +56,7 @@ namespace APIMatic.Core.Test
                 .AuthManagers(new Dictionary<string, AuthManager>()
                 {
                     {"basic", basicAuthManager},
-                    {"header", new HeaderAuthManager("my api key", "test token")},
+                    {"header", new HeaderAuthManager(null, null)},
                     {"query", new QueryAuthManager("my api key", "test token")}
                 })
                 .HttpConfiguration(_clientConfiguration)
@@ -31,17 +65,17 @@ namespace APIMatic.Core.Test
             var request = globalConfiguration.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/auth")
                 .WithOrAuth(auth => auth
-                    .Add("basic")
                     .AddAndGroup(innerGroup => innerGroup
                         .Add("header")
-                        .Add("query")))
+                        .Add("query"))
+                    .Add("basic"))
                 .Build();
 
             Assert.AreEqual(basicAuthManager.GetBasicAuthHeader(), request.Headers["Authorization"]);
-            Assert.AreEqual("my api key", request.Headers["API-KEY"]);
-            Assert.AreEqual("test token", request.Headers["TOKEN"]);
-            Assert.AreEqual("my api key", request.QueryParameters["API-KEY"]);
-            Assert.AreEqual("test token", request.QueryParameters["TOKEN"]);
+            Assert.False(request.Headers.ContainsKey("API-KEY"));
+            Assert.False(request.Headers.ContainsKey("TOKEN"));
+            Assert.False(request.QueryParameters.ContainsKey("API-KEY"));
+            Assert.False(request.QueryParameters.ContainsKey("TOKEN"));
         }
 
         [Test]
@@ -61,7 +95,7 @@ namespace APIMatic.Core.Test
                 .HttpConfiguration(_clientConfiguration)
                 .Build();
 
-            var exp = Assert.Throws<ArgumentNullException>(() => globalConfiguration.GlobalRequestBuilder()
+            var exp = Assert.Throws<AuthValidationException>(() => globalConfiguration.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/auth")
                 .WithOrAuth(auth => auth
                     .Add("basic")
@@ -92,7 +126,7 @@ namespace APIMatic.Core.Test
                 .HttpConfiguration(_clientConfiguration)
                 .Build();
 
-            var exp = Assert.Throws<ArgumentNullException>(() => globalConfiguration.GlobalRequestBuilder()
+            var exp = Assert.Throws<AuthValidationException>(() => globalConfiguration.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/auth")
                 .WithAndAuth(auth => auth
                     .Add("query")
@@ -119,7 +153,7 @@ namespace APIMatic.Core.Test
                 .HttpConfiguration(_clientConfiguration)
                 .Build();
 
-            var exp = Assert.Throws<ArgumentNullException>(() => globalConfiguration.GlobalRequestBuilder()
+            var exp = Assert.Throws<AuthValidationException>(() => globalConfiguration.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/auth")
                 .WithAndAuth(auth => auth
                     .Add("query")
@@ -150,7 +184,7 @@ namespace APIMatic.Core.Test
                 .HttpConfiguration(_clientConfiguration)
                 .Build();
 
-            var exp = Assert.Throws<ArgumentNullException>(() => globalConfiguration.GlobalRequestBuilder()
+            var exp = Assert.Throws<AuthValidationException>(() => globalConfiguration.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/auth")
                 .WithAndAuth(auth => auth
                     .Add("query")
