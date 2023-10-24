@@ -74,8 +74,8 @@ namespace APIMatic.Core.Test
             Assert.AreEqual(basicAuthManager.GetBasicAuthHeader(), request.Headers["Authorization"]);
             Assert.False(request.Headers.ContainsKey("API-KEY"));
             Assert.False(request.Headers.ContainsKey("TOKEN"));
-            Assert.False(request.Headers.ContainsKey("API-KEY"));
-            Assert.False(request.Headers.ContainsKey("TOKEN"));
+            Assert.False(request.QueryParameters.ContainsKey("API-KEY"));
+            Assert.False(request.QueryParameters.ContainsKey("TOKEN"));
         }
 
         [Test]
