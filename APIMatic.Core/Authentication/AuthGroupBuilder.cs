@@ -13,6 +13,7 @@ namespace APIMatic.Core.Authentication
     {
         private readonly Dictionary<string, AuthManager> authManagersMap;
         private readonly List<AuthManager> authManagers = new List<AuthManager>();
+        private readonly List<AuthManager> validatedAuthManagers = new List<AuthManager>();
         private bool isAndGroup = false;
 
         internal AuthGroupBuilder(Dictionary<string, AuthManager> authManagers)
@@ -73,17 +74,21 @@ namespace APIMatic.Core.Authentication
         }
 
         /// <summary>
-        /// Add authentication group information to the RequestBuilder.
+        /// Validates the selected authentication managers for the HTTP Request.
         /// </summary>
-        /// <param name="requestBuilder">The RequestBuilder object on which authentication will be applied.</param>
-        internal override void Apply(RequestBuilder requestBuilder)
+        public override void Validate()
         {
+            if (validatedAuthManagers.Any())
+            {
+                return;
+            }
             var errors = new List<string>();
             foreach (var authManager in authManagers)
             {
                 try
                 {
-                    authManager.Apply(requestBuilder);
+                    authManager.Validate();
+                    validatedAuthManagers.Add(authManager);
                     if (!isAndGroup)
                     {
                         // return early if any authentication in OR group gets applied
@@ -95,13 +100,22 @@ namespace APIMatic.Core.Authentication
                     errors.Add(ex.Message);
                 }
             }
-
             if (errors.Any())
             {
                 // throw exception if unable to apply Any Single authentication in AND group
                 // OR if unable to apply All authentication in OR group
                 throw new AuthValidationException(errors);
             }
+        }
+
+        /// <summary>
+        /// Add authentication group information to the RequestBuilder.
+        /// </summary>
+        /// <param name="requestBuilder">The RequestBuilder object on which authentication will be applied.</param>
+        internal override void Apply(RequestBuilder requestBuilder)
+        {
+            Validate();
+            validatedAuthManagers.ForEach(authManager => authManager.Apply(requestBuilder));
         }
     }
 }
