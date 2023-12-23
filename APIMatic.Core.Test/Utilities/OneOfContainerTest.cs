@@ -79,6 +79,14 @@ namespace APIMatic.Core.Test.Utilities
         }
 
         [Test]
+        public void TestNativeTypeWithNullValue()
+        {
+            NativeOneOfContainer container = CoreHelper.JsonDeserialize<NativeOneOfContainer>("null");
+
+            Assert.IsNull(container);
+        }
+
+        [Test]
         public void TestNativeNullableType()
         {
             NativeNullableOneOfContainer container = CoreHelper.JsonDeserialize<NativeNullableOneOfContainer>("null");

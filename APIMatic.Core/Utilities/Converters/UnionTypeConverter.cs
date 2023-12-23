@@ -79,6 +79,12 @@ namespace APIMatic.Core.Utilities.Converters
                 return mappedValues[0].value;
             }
 
+            if (token.Type == JTokenType.Null)
+            {
+                // allow null values to pass as the OAF containers are nullable by default
+                return default;
+            }
+
             if (_isOneOf)
             {
                 throw new OneOfValidationException(unMappedTypes, token.ToString());
