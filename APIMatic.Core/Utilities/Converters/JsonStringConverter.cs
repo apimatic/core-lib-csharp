@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Utilities.Converters
 {
@@ -32,8 +33,17 @@ namespace APIMatic.Core.Utilities.Converters
             return null;
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) =>
-            serializer.Serialize(writer, value);
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) 
+        {
+            JToken token = JToken.FromObject(value);
+
+            if (token.Type == JTokenType.String)
+            {
+                JValue val = (JValue)token;
+
+                val.WriteTo(writer);
+            }
+        }
     }
 
 }
