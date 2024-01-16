@@ -7,6 +7,7 @@ using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Test.MockTypes.Models;
 using APIMatic.Core.Test.MockTypes.Utilities;
 using APIMatic.Core.Utilities;
+using APIMatic.Core.Utilities.Converters;
 using APIMatic.Core.Utilities.Date;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
@@ -105,6 +106,15 @@ namespace APIMatic.Core.Test.Utilities
             string expected = "[\"Thu, 12 Apr 2018 00:00:00 GMT\"]";
             string actual = CoreHelper.JsonSerialize(list, new CoreCustomDateTimeConverter("r"));
             Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void JsonSerialize_JsonString()
+        {
+            string str = "a";
+            string expected = "\"a\"";
+            var actual = CoreHelper.JsonSerialize(str, new JsonStringConverter());
+            Assert.That(actual, Is.EquivalentTo(expected));
         }
 
         #endregion
