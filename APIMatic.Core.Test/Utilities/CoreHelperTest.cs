@@ -117,6 +117,15 @@ namespace APIMatic.Core.Test.Utilities
             Assert.That(actual, Is.EquivalentTo(expected));
         }
 
+        [Test]
+        public void JsonSerialize_JsonString_NotAString()
+        {
+            int number = 24;
+            string expected = "24";
+            var actual = CoreHelper.JsonSerialize(number, new JsonStringConverter());
+            Assert.That(actual, Is.EquivalentTo(expected));
+        }
+
         #endregion
 
         #region Deserialize
