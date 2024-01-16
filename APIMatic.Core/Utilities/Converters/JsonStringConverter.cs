@@ -33,7 +33,7 @@ namespace APIMatic.Core.Utilities.Converters
             return null;
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) 
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             JToken token = JToken.FromObject(value);
 
