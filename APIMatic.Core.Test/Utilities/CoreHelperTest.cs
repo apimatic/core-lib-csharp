@@ -9,6 +9,7 @@ using APIMatic.Core.Test.MockTypes.Utilities;
 using APIMatic.Core.Utilities;
 using APIMatic.Core.Utilities.Converters;
 using APIMatic.Core.Utilities.Date;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
@@ -126,6 +127,18 @@ namespace APIMatic.Core.Test.Utilities
             Assert.That(actual, Is.EquivalentTo(expected));
         }
 
+        [Test]
+        public void JsonSerialize_EnumStringAllowUnknownEnumValues()
+        {
+            Assert.Throws<JsonSerializationException>(() => CoreHelper.JsonSerialize(WorkingDaysAllowAdditionalValues._Unknown));
+        }
+
+        [Test]
+        public void JsonSerialize_EnumNumberAllowUnknownEnumValues()
+        {
+            Assert.Throws<JsonSerializationException>(() => CoreHelper.JsonSerialize(MonthNumberAllowAdditionalValues._Unknown));
+        }
+
         #endregion
 
         #region Deserialize
@@ -188,6 +201,13 @@ namespace APIMatic.Core.Test.Utilities
         }
 
         [Test]
+        public void JsonDeserialize_EnumStringAllowUnknownEnumValues()
+        {
+            var actual = CoreHelper.JsonDeserialize<WorkingDaysAllowAdditionalValues>("\"InvalidString\"");
+            Assert.AreEqual(WorkingDaysAllowAdditionalValues._Unknown, actual);
+        }
+
+        [Test]
         public void JsonDeserialize_EnumNumber()
         {
             var actualNullable = CoreHelper.JsonDeserialize<MonthNumber?>("3");
@@ -202,6 +222,13 @@ namespace APIMatic.Core.Test.Utilities
         {
             var actual = CoreHelper.JsonDeserialize<MonthNumber?>("null");
             Assert.AreEqual(null, actual);
+        }
+
+        [Test]
+        public void JsonDeserialize_EnumNumberAllowUnknownEnumValues()
+        {
+            var actual = CoreHelper.JsonDeserialize<MonthNumberAllowAdditionalValues>("\"-1\"");
+            Assert.AreEqual(MonthNumberAllowAdditionalValues._Unknown, actual);
         }
 
         #endregion
