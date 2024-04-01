@@ -5,13 +5,11 @@ namespace APIMatic.Core.Utilities.Converters
 {
     public class UnknownEnumConverter<T> : JsonConverter where T : JsonConverter, new()
     {
-        private readonly Type _type;
         private readonly string _unknownValue;
         private readonly T _innerJsonConverter;
 
-        public UnknownEnumConverter(Type type, string unknownValue)
+        public UnknownEnumConverter(string unknownValue)
         {
-            _type = type;
             _unknownValue = unknownValue;
             _innerJsonConverter = new T();
         }
@@ -34,7 +32,7 @@ namespace APIMatic.Core.Utilities.Converters
                 value = Convert.ToInt32(value);
             }
 
-            if (!Enum.IsDefined(objectType, value) && Enum.IsDefined(objectType, _unknownValue))
+            if (!Enum.IsDefined(objectType, value))
             {
                 return Enum.Parse(objectType, _unknownValue);
             }
@@ -44,9 +42,11 @@ namespace APIMatic.Core.Utilities.Converters
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            if (value.ToString() == _unknownValue)
+            var enumType = value.GetType();
+
+            if (Enum.GetName(enumType, value) == _unknownValue)
             {
-                throw new JsonSerializationException($"{_type}.{value} is not a valid enum value for serialization!");
+                throw new JsonSerializationException($"{enumType.FullName}.{value} is not a valid enum value for serialization!");
             }
 
             _innerJsonConverter.WriteJson(writer, value, serializer);
