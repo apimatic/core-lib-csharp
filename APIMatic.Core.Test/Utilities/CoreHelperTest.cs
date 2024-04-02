@@ -217,6 +217,13 @@ namespace APIMatic.Core.Test.Utilities
         }
 
         [Test]
+        public void JsonDeserialize_EnumStringAllowUnknownEnumValuesResponseContainsUnknown()
+        {
+            var actual = CoreHelper.JsonDeserialize<WorkingDaysAllowAdditionalValues>("\"_Unknown\"");
+            Assert.AreEqual(WorkingDaysAllowAdditionalValues._Unknown, actual);
+        }
+
+        [Test]
         public void JsonDeserialize_EnumNumber()
         {
             var actual = CoreHelper.JsonDeserialize<MonthNumber>("3");
@@ -955,6 +962,24 @@ namespace APIMatic.Core.Test.Utilities
             ServerResponse actual = CoreHelper.DeepCloneObject(expected);
             Assert.AreEqual(expected, actual);
         }
+        #endregion
+
+        #region Converters
+
+        [Test]
+        public void UnknownEnumConverter_CannotConvertEnumWithoutUnknownValue()
+        {
+            var converter = new UnknownEnumConverter<StringEnumConverter>("_Unknown");
+            Assert.That(converter.CanConvert(typeof(WorkingDays)), Is.False);
+        }
+
+        [Test]
+        public void UnknownEnumConverter_CanConvertEnumWithUnknownValue()
+        {
+            var converter = new UnknownEnumConverter<StringEnumConverter>("_Unknown");
+            Assert.That(converter.CanConvert(typeof(WorkingDaysAllowAdditionalValues)), Is.True);
+        }
+
         #endregion
     }
 }

@@ -10,11 +10,14 @@ namespace APIMatic.Core.Utilities.Converters
 
         public UnknownEnumConverter(string unknownValue)
         {
-            _unknownValue = unknownValue;
+            _unknownValue = unknownValue ?? throw new ArgumentNullException(nameof(unknownValue));
             _innerJsonConverter = new T();
         }
 
-        public override bool CanConvert(Type objectType) => _innerJsonConverter.CanConvert(objectType);
+        public override bool CanConvert(Type objectType)
+        {
+            return Enum.IsDefined(objectType, _unknownValue) && _innerJsonConverter.CanConvert(objectType);
+        }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
