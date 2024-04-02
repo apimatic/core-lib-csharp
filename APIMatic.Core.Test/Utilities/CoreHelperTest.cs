@@ -75,7 +75,6 @@ namespace APIMatic.Core.Test.Utilities
             Assert.AreEqual(expected, actual);
         }
 
-
         [Test]
         public void JsonSerialize_CustomAttributeClass()
         {
@@ -137,6 +136,16 @@ namespace APIMatic.Core.Test.Utilities
         public void JsonSerialize_EnumNumberAllowUnknownEnumValues()
         {
             Assert.Throws<JsonSerializationException>(() => CoreHelper.JsonSerialize(MonthNumberAllowAdditionalValues._Unknown));
+        }
+
+        [Test]
+        public void JsonSerialize_EnumNumber()
+        {
+            var testEnum = MonthNumber.January;
+            Assert.That(CoreHelper.JsonSerialize(testEnum), Is.EqualTo("1"));
+
+            var testEnumRelaxed = MonthNumberAllowAdditionalValues.January;
+            Assert.That(CoreHelper.JsonSerialize(testEnumRelaxed), Is.EqualTo("1"));
         }
 
         #endregion
@@ -210,11 +219,14 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void JsonDeserialize_EnumNumber()
         {
+            var actual = CoreHelper.JsonDeserialize<MonthNumber>("3");
+            Assert.AreEqual(MonthNumber.March, actual);
+
             var actualNullable = CoreHelper.JsonDeserialize<MonthNumber?>("3");
             Assert.AreEqual(MonthNumber.March, actualNullable);
 
-            var actual = CoreHelper.JsonDeserialize<MonthNumber>("3");
-            Assert.AreEqual(MonthNumber.March, actual);
+            var actualAdditional = CoreHelper.JsonDeserialize<MonthNumberAllowAdditionalValues>("3");
+            Assert.AreEqual(MonthNumberAllowAdditionalValues.March, actualAdditional);
         }
 
         [Test]
@@ -229,6 +241,13 @@ namespace APIMatic.Core.Test.Utilities
         {
             var actual = CoreHelper.JsonDeserialize<MonthNumberAllowAdditionalValues>("\"-1\"");
             Assert.AreEqual(MonthNumberAllowAdditionalValues._Unknown, actual);
+        }
+
+        [Test]
+        public void JsonDeserialize_EnumNumberAllowUnknownEnumValuesNullable()
+        {
+            var actual = CoreHelper.JsonDeserialize<MonthNumberAllowAdditionalValues?>("null");
+            Assert.AreEqual(null, actual);
         }
 
         #endregion

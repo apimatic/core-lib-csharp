@@ -14,10 +14,7 @@ namespace APIMatic.Core.Utilities.Converters
             _innerJsonConverter = new T();
         }
 
-        public override bool CanConvert(Type objectType)
-        {
-            return _innerJsonConverter.CanConvert(objectType);
-        }
+        public override bool CanConvert(Type objectType) => _innerJsonConverter.CanConvert(objectType);
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
