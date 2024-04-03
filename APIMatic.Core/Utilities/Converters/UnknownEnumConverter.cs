@@ -1,9 +1,10 @@
 ﻿using System;
+using APIMatic.Core.Utilities.Converters.Interfaces;
 using Newtonsoft.Json;
 
 namespace APIMatic.Core.Utilities.Converters
 {
-    public class UnknownEnumConverter<T> : JsonConverter where T : JsonConverter, new()
+    public class UnknownEnumConverter<T> : JsonConverter where T : IEnumConverter, new()
     {
         private readonly string _unknownValue;
         private readonly T _innerJsonConverter;

@@ -1,9 +1,10 @@
 ﻿using System;
+using APIMatic.Core.Utilities.Converters.Interfaces;
 using Newtonsoft.Json;
 
 namespace APIMatic.Core.Utilities.Converters
 {
-    public class NumberEnumConverter : JsonConverter
+    public class NumberEnumConverter : JsonConverter, IEnumConverter
     {
         public override bool CanConvert(Type objectType)
         {
