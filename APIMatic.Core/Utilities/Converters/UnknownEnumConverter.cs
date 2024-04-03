@@ -16,7 +16,8 @@ namespace APIMatic.Core.Utilities.Converters
 
         public override bool CanConvert(Type objectType)
         {
-            return Enum.IsDefined(objectType, _unknownValue) && _innerJsonConverter.CanConvert(objectType);
+            var enumType = Nullable.GetUnderlyingType(objectType) ?? objectType;
+            return enumType.IsEnum && Enum.IsDefined(enumType, _unknownValue) && _innerJsonConverter.CanConvert(objectType);
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
@@ -32,9 +33,10 @@ namespace APIMatic.Core.Utilities.Converters
                 value = Convert.ToInt32(value);
             }
 
-            if (!Enum.IsDefined(objectType, value))
+            var enumType = Nullable.GetUnderlyingType(objectType) ?? objectType;
+            if (!Enum.IsDefined(enumType, value))
             {
-                return Enum.Parse(objectType, _unknownValue);
+                return Enum.Parse(enumType, _unknownValue);
             }
 
             return _innerJsonConverter.ReadJson(reader, objectType, existingValue, serializer);
@@ -42,7 +44,8 @@ namespace APIMatic.Core.Utilities.Converters
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var enumType = value.GetType();
+            var objectType = value.GetType();
+            var enumType = Nullable.GetUnderlyingType(objectType) ?? objectType;
 
             if (Enum.GetName(enumType, value) == _unknownValue)
             {
