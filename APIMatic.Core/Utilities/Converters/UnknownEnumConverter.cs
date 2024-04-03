@@ -1,9 +1,10 @@
 ﻿using System;
+using APIMatic.Core.Utilities.Converters.Interfaces;
 using Newtonsoft.Json;
 
 namespace APIMatic.Core.Utilities.Converters
 {
-    public class UnknownEnumConverter<T> : JsonConverter where T : JsonConverter, new()
+    public class UnknownEnumConverter<T> : JsonConverter where T : IEnumConverter, new()
     {
         private readonly string _unknownValue;
         private readonly T _innerJsonConverter;
@@ -16,33 +17,27 @@ namespace APIMatic.Core.Utilities.Converters
 
         public override bool CanConvert(Type objectType)
         {
-            return Enum.IsDefined(objectType, _unknownValue) && _innerJsonConverter.CanConvert(objectType);
+            var enumType = Nullable.GetUnderlyingType(objectType) ?? objectType;
+            return enumType.IsEnum && Enum.IsDefined(enumType, _unknownValue) && _innerJsonConverter.CanConvert(objectType);
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            if (reader.TokenType == JsonToken.Null)
+            try
             {
-                return null;
+                return _innerJsonConverter.ReadJson(reader, objectType, existingValue, serializer);
             }
-
-            object value = reader.Value;
-            if (reader.TokenType == JsonToken.Integer)
+            catch (JsonSerializationException)
             {
-                value = Convert.ToInt32(value);
+                var enumType = Nullable.GetUnderlyingType(objectType) ?? objectType;
+                return Enum.Parse(enumType, _unknownValue);
             }
-
-            if (!Enum.IsDefined(objectType, value))
-            {
-                return Enum.Parse(objectType, _unknownValue);
-            }
-
-            return _innerJsonConverter.ReadJson(reader, objectType, existingValue, serializer);
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var enumType = value.GetType();
+            var objectType = value.GetType();
+            var enumType = Nullable.GetUnderlyingType(objectType) ?? objectType;
 
             if (Enum.GetName(enumType, value) == _unknownValue)
             {

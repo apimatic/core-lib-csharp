@@ -217,10 +217,10 @@ namespace APIMatic.Core.Test.Utilities
         }
 
         [Test]
-        public void JsonDeserialize_EnumStringAllowUnknownEnumValuesResponseContainsUnknown()
+        public void JsonDeserialize_EnumStringAllowUnknownEnumValuesWithNormalValue()
         {
-            var actual = CoreHelper.JsonDeserialize<WorkingDaysAllowAdditionalValues>("\"_Unknown\"");
-            Assert.AreEqual(WorkingDaysAllowAdditionalValues._Unknown, actual);
+            var actualAdditional = CoreHelper.JsonDeserialize<WorkingDaysAllowAdditionalValues>("\"Mon\"");
+            Assert.AreEqual(WorkingDaysAllowAdditionalValues.Monday, actualAdditional);
         }
 
         [Test]
@@ -228,19 +228,20 @@ namespace APIMatic.Core.Test.Utilities
         {
             var actual = CoreHelper.JsonDeserialize<MonthNumber>("3");
             Assert.AreEqual(MonthNumber.March, actual);
-
-            var actualNullable = CoreHelper.JsonDeserialize<MonthNumber?>("3");
-            Assert.AreEqual(MonthNumber.March, actualNullable);
-
-            var actualAdditional = CoreHelper.JsonDeserialize<MonthNumberAllowAdditionalValues>("3");
-            Assert.AreEqual(MonthNumberAllowAdditionalValues.March, actualAdditional);
         }
 
         [Test]
-        public void JsonDeserialize_EnumNumberNullable()
+        public void JsonDeserialize_EnumNumberNullableWithNullValue()
         {
             var actual = CoreHelper.JsonDeserialize<MonthNumber?>("null");
             Assert.AreEqual(null, actual);
+        }
+
+        [Test]
+        public void JsonDeserialize_EnumNumberNullableWithNormalValue()
+        {
+            var actualNullable = CoreHelper.JsonDeserialize<MonthNumber?>("3");
+            Assert.AreEqual(MonthNumber.March, actualNullable);
         }
 
         [Test]
@@ -251,10 +252,17 @@ namespace APIMatic.Core.Test.Utilities
         }
 
         [Test]
-        public void JsonDeserialize_EnumNumberAllowUnknownEnumValuesNullable()
+        public void JsonDeserialize_EnumNumberAllowUnknownEnumValuesNullableWithNullValue()
         {
             var actual = CoreHelper.JsonDeserialize<MonthNumberAllowAdditionalValues?>("null");
             Assert.AreEqual(null, actual);
+        }
+
+        [Test]
+        public void JsonDeserialize_EnumNumberAllowUnknownEnumValuesNullableWithNormalValue()
+        {
+            var actualAdditional = CoreHelper.JsonDeserialize<MonthNumberAllowAdditionalValues?>("3");
+            Assert.AreEqual(MonthNumberAllowAdditionalValues.March, actualAdditional);
         }
 
         #endregion
