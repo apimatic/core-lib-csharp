@@ -8,17 +8,7 @@ namespace APIMatic.Core.Utilities.Converters
     {
         public override bool CanConvert(Type objectType)
         {
-            return objectType.BaseType.FullName == "System.Enum";
-        }
-
-        private Type GetInnerType(Type type)
-        {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                return type.GenericTypeArguments[0];
-            }
-
-            return type;
+            return objectType.IsEnum;
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
@@ -28,7 +18,7 @@ namespace APIMatic.Core.Utilities.Converters
                 return null;
             }
 
-            var innerType = GetInnerType(objectType);
+            var innerType = Nullable.GetUnderlyingType(objectType) ?? objectType;
             if (CanConvert(innerType) && reader.TokenType == JsonToken.Integer)
             {
                 var enumValue = Enum.ToObject(innerType, Convert.ToInt32(reader.Value));
