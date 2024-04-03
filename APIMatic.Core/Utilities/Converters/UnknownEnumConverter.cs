@@ -28,19 +28,15 @@ namespace APIMatic.Core.Utilities.Converters
                 return null;
             }
 
-            object value = reader.Value;
-            if (reader.TokenType == JsonToken.Integer)
+            try
             {
-                value = Convert.ToInt32(value);
+                return _innerJsonConverter.ReadJson(reader, objectType, existingValue, serializer);
             }
-
-            var enumType = Nullable.GetUnderlyingType(objectType) ?? objectType;
-            if (!Enum.IsDefined(enumType, value))
+            catch (JsonSerializationException)
             {
+                var enumType = Nullable.GetUnderlyingType(objectType) ?? objectType;
                 return Enum.Parse(enumType, _unknownValue);
             }
-
-            return _innerJsonConverter.ReadJson(reader, objectType, existingValue, serializer);
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)

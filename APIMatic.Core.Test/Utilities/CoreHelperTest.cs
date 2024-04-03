@@ -217,6 +217,13 @@ namespace APIMatic.Core.Test.Utilities
         }
 
         [Test]
+        public void JsonDeserialize_EnumStringAllowUnknownEnumValuesWithNormalValue()
+        {
+            var actualAdditional = CoreHelper.JsonDeserialize<WorkingDaysAllowAdditionalValues>("\"Mon\"");
+            Assert.AreEqual(WorkingDaysAllowAdditionalValues.Monday, actualAdditional);
+        }
+
+        [Test]
         public void JsonDeserialize_EnumNumber()
         {
             var actual = CoreHelper.JsonDeserialize<MonthNumber>("3");

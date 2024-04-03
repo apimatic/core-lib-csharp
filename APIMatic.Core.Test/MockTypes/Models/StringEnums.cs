@@ -42,11 +42,26 @@ namespace APIMatic.Core.Test.MockTypes.Models
     [JsonConverter(typeof(UnknownEnumConverter<StringEnumConverter>), nameof(_Unknown))]
     public enum WorkingDaysAllowAdditionalValues
     {
+        [EnumMember(Value = "Mon")]
         Monday,
+
+        [EnumMember(Value = "Tue")]
         Tuesday,
+
+        [EnumMember(Value = "Wed")]
         Wednesday,
+
+        [EnumMember(Value = "Thu")]
         Thursday,
+
+        [EnumMember(Value = "Fri")]
         Friday,
+
+        [EnumMember(Value = "Sat")]
+        Saturday,
+
+        [EnumMember(Value = "Sun")]
+        Sunday,
         _Unknown
     }
 }
