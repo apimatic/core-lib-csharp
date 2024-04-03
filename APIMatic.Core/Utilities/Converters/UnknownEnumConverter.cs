@@ -23,11 +23,6 @@ namespace APIMatic.Core.Utilities.Converters
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            if (reader.TokenType == JsonToken.Null)
-            {
-                return null;
-            }
-
             try
             {
                 return _innerJsonConverter.ReadJson(reader, objectType, existingValue, serializer);
