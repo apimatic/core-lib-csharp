@@ -217,10 +217,10 @@ namespace APIMatic.Core.Test.Utilities
         }
 
         [Test]
-        public void JsonDeserialize_EnumStringAllowUnknownEnumValuesResponseContainsUnknown()
+        public void JsonDeserialize_EnumStringUnknownEnumValueNameConflict()
         {
-            var actual = CoreHelper.JsonDeserialize<WorkingDaysAllowAdditionalValues>("\"_Unknown\"");
-            Assert.AreEqual(WorkingDaysAllowAdditionalValues._Unknown, actual);
+            var actual = CoreHelper.JsonDeserialize<UnknownEnumValueNameConflict>("\"_Unknown\"");
+            Assert.AreEqual(UnknownEnumValueNameConflict.Unknown, actual);
         }
 
         [Test]
