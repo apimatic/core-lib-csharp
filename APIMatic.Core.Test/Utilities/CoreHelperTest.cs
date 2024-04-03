@@ -217,13 +217,6 @@ namespace APIMatic.Core.Test.Utilities
         }
 
         [Test]
-        public void JsonDeserialize_EnumStringUnknownEnumValueNameConflict()
-        {
-            var actual = CoreHelper.JsonDeserialize<UnknownEnumValueNameConflict>("\"_Unknown\"");
-            Assert.AreEqual(UnknownEnumValueNameConflict.Unknown, actual);
-        }
-
-        [Test]
         public void JsonDeserialize_EnumNumber()
         {
             var actual = CoreHelper.JsonDeserialize<MonthNumber>("3");

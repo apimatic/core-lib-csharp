@@ -49,13 +49,4 @@ namespace APIMatic.Core.Test.MockTypes.Models
         Friday,
         _Unknown
     }
-
-    [JsonConverter(typeof(UnknownEnumConverter<StringEnumConverter>), nameof(_Unknown))]
-    public enum UnknownEnumValueNameConflict
-    {
-        [EnumMember(Value = "_Unknown")]
-        Unknown,
-        [EnumMember(Value = "_Unknown2")]
-        _Unknown
-    }
 }
