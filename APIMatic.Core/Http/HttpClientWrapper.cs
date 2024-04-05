@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Types.Sdk;
+using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
 using Polly.Timeout;
@@ -40,6 +41,7 @@ namespace APIMatic.Core.Http
         /// Initializes a new instance of the <see cref="HttpClientWrapper"/> class.
         /// </summary>
         /// <param name="httpClientConfig"> HttpClientConfiguration object.</param>
+        /// <param name="logger"></param>
         public HttpClientWrapper(ICoreHttpClientConfiguration httpClientConfig)
         {
             _client = httpClientConfig.HttpClientInstance;
@@ -272,10 +274,15 @@ namespace APIMatic.Core.Http
                 .Or<TaskCanceledException>()
                 .Or<HttpRequestException>()
                 .WaitAndRetryAsync(
-                retryCount: _numberOfRetries,
-                sleepDurationProvider: (retryAttempt, result, context) =>
-                TimeSpan.FromMilliseconds(Math.Max(GetExponentialWaitTime(retryAttempt), GetServerWaitDuration(result).TotalMilliseconds)),
-                onRetryAsync: async (result, timespan, retryAttempt, context) => await Task.CompletedTask);
+                    retryCount: _numberOfRetries,
+                    sleepDurationProvider: (retryAttempt, result, context) =>
+                        TimeSpan.FromMilliseconds(Math.Max(GetExponentialWaitTime(retryAttempt),
+                            GetServerWaitDuration(result).TotalMilliseconds)),
+                    onRetryAsync: async (result, timespan, retryAttempt, context) =>
+                    {
+                        
+                        await Task.CompletedTask;
+                    });
 
         private AsyncTimeoutPolicy GetTimeoutPolicy()
         {

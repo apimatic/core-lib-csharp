@@ -11,6 +11,7 @@ using APIMatic.Core.Request;
 using APIMatic.Core.Response;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace APIMatic.Core
 {
@@ -44,6 +45,7 @@ namespace APIMatic.Core
         /// <param name="errors"></param>
         /// <param name="serialization"></param>
         /// <param name="returnTypeCreator"></param>
+        /// <param name="logHelper"></param>
         public ApiCall(GlobalConfiguration configuration, ICompatibilityFactory<Request, Response, Context, ApiException> compatibility,
             Dictionary<string, ErrorCase<Request, Response, Context, ApiException>> globalErrors = null, ArraySerialization serialization = ArraySerialization.Indexed,
             Func<Response, ResponseType, ReturnType> returnTypeCreator = null)
@@ -101,10 +103,15 @@ namespace APIMatic.Core
             requestBuilder.AcceptHeader = responseHandler.AcceptHeader;
             CoreRequest request = requestBuilder.Build();
             globalConfiguration.ApiCallback?.OnBeforeHttpRequestEventHandler(request);
-            CoreResponse response = await globalConfiguration.HttpClient.ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
-            globalConfiguration.ApiCallback?.OnAfterHttpResponseEventHandler(response);
-            var context = new CoreContext<CoreRequest, CoreResponse>(request, response);
-            return responseHandler.Result(context, returnTypeCreator);
+            using (globalConfiguration.Logger.Scope())
+            { 
+                globalConfiguration.Logger.LogRequest(request);
+                CoreResponse response = await globalConfiguration.HttpClient.ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
+                globalConfiguration.ApiCallback?.OnAfterHttpResponseEventHandler(response);
+                globalConfiguration.Logger.LogResponse(response);
+                var context = new CoreContext<CoreRequest, CoreResponse>(request, response);
+                return responseHandler.Result(context, returnTypeCreator);
+            }
         }
     }
 }
