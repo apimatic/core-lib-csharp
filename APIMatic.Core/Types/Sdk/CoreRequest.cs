@@ -79,7 +79,7 @@ namespace APIMatic.Core.Types.Sdk
         /// <summary>
         /// Represents an optional binary response field for the request.
         /// </summary>
-        internal bool HasBinaryResponse { get; set; } = false;
+        internal bool HasBinaryResponse { get; set; }
 
         /// <summary>
         /// Concatenate values from a Dictionary to this object.

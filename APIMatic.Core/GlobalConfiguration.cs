@@ -11,8 +11,7 @@ using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Request;
 using APIMatic.Core.Request.Parameters;
 using APIMatic.Core.Types;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+using APIMatic.Core.Utilities.Logger;
 
 namespace APIMatic.Core
 {
@@ -25,22 +24,23 @@ namespace APIMatic.Core
         private readonly Enum _defaultServer;
         private readonly Parameter.Builder _parameters;
         
-        internal LogHelper Logger { get; private set; }
+        internal SdkLoggingOptions SdkLoggingOptions { get; private set; }
 
         internal Dictionary<string, AuthManager> AuthManagers { get; private set; }
         internal Parameter.Builder RuntimeParameters { get; private set; }
         internal HttpCallBack ApiCallback { get; private set; }
         internal HttpClientWrapper HttpClient { get; private set; }
+        
 
         private GlobalConfiguration(ICoreHttpClientConfiguration httpConfiguration, Dictionary<string, AuthManager> authManagers,
             Dictionary<Enum, string> serverUrls, Enum defaultServer, Parameter.Builder parameters,
-            Parameter.Builder runtimeParameters, HttpCallBack apiCallback, LogHelper logger)
+            Parameter.Builder runtimeParameters, HttpCallBack apiCallback, SdkLoggingOptions sdkLoggingOptions)
         {
             _serverUrls = serverUrls;
             _defaultServer = defaultServer;
             _parameters = parameters;
             ApiCallback = apiCallback;
-            Logger = logger;
+            SdkLoggingOptions = sdkLoggingOptions;
             AuthManagers = authManagers;
             RuntimeParameters = runtimeParameters;
             HttpClient = new HttpClientWrapper(httpConfiguration);
@@ -78,8 +78,8 @@ namespace APIMatic.Core
             private readonly Parameter.Builder parameters = new Parameter.Builder();
             private readonly Parameter.Builder runtimeParameters = new Parameter.Builder();
             private HttpCallBack apiCallback;
-            private LogHelper logHelper = new LogHelper(NullLogger.Instance);
-
+            private SdkLoggingOptions sdkLoggingOptions;
+            
             /// <summary>
             /// Required: Configures the http configurations
             /// </summary>
@@ -148,14 +148,12 @@ namespace APIMatic.Core
                 return this;
             }
             
-            public Builder Logger(LogHelper logHelper)
+            public Builder Logger(SdkLoggingOptions sdkLoggingOptions)
             {
-                this.logHelper = logHelper;
+                this.sdkLoggingOptions = sdkLoggingOptions;
                 return this;
             }
-
-       
-
+            
             /// <summary>
             /// Sets the user-agent header and configure values and place holders in it
             /// </summary>
@@ -177,12 +175,13 @@ namespace APIMatic.Core
                 return this;
             }
 
+
             /// <summary>
             /// This applies all the configuration and build an instance of GlobalConfiguration
             /// </summary>
             /// <returns></returns>
             public GlobalConfiguration Build() => new GlobalConfiguration(httpConfiguration, authManagers, serverUrls, defaultServer,
-                    parameters, runtimeParameters, apiCallback, logHelper);
+                    parameters, runtimeParameters, apiCallback, sdkLoggingOptions);
 
         }
     }
