@@ -32,29 +32,70 @@ namespace APIMatic.Core.Utilities.Logger
             Func<TState, Exception, string> formatter)
         {
             if (!IsEnabled(logLevel)) return;
-
-
-            var tStringWriter = new StringWriter();
+            
             LogEntry<TState> logEntry = new LogEntry<TState>(logLevel, "Console", eventId, state, exception, formatter);
-            SimpleConsoleFormatter.Write(in logEntry, tStringWriter);
+            var logString = WriteLogString(logEntry);
+            Console.WriteLine(logString);
+        }
 
-            var sb = tStringWriter.GetStringBuilder();
-            if (sb.Length == 0)
+        private static string WriteLogString<TState>(LogEntry<TState> logEntry)
+        {
+            var stringWriter = new StringWriter();
+            var message = logEntry.Formatter(logEntry.State, logEntry.Exception);
+            if (logEntry.Exception == null && message == null) return string.Empty;
+
+            var logLevelString = GetLogLevelString(logEntry.LogLevel);
+            if (logLevelString != null)
             {
-                return;
+                stringWriter.Write(logLevelString);
+                stringWriter.Write(':');
+            }
+            stringWriter.Write(' ');
+            stringWriter.Write(logEntry.Category);
+            stringWriter.Write('[');
+            stringWriter.Write(logEntry.EventId.Id.ToString());
+            stringWriter.Write(']');
+
+            // scope information
+            if (!string.IsNullOrEmpty(message))
+            {
+                stringWriter.Write(' ');
+                stringWriter.Write(message);
+            }
+            if (logEntry.Exception == null)
+            {
+                return stringWriter.ToString();
             }
 
-            string computedAnsiString = sb.ToString();
-            sb.Clear();
-            if (sb.Capacity > 1024)
-            {
-                sb.Capacity = 1024;
-            }
-
-            Console.WriteLine(computedAnsiString);
+            var exceptionMessage = logEntry.Exception.ToString();
+            stringWriter.Write(' ');
+            stringWriter.Write(exceptionMessage);
+            return stringWriter.ToString();
         }
 
         /// <inheritdoc />
         public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
+
+        private static string GetLogLevelString(LogLevel logLevel)
+        {
+            switch (logLevel)
+            {
+                case LogLevel.Trace:
+                    return "trce";
+                case LogLevel.Debug:
+                    return "dbug";
+                case LogLevel.Information:
+                    return "info";
+                case LogLevel.Warning:
+                    return "warn";
+                case LogLevel.Error:
+                    return "fail";
+                case LogLevel.Critical:
+                    return "crit";
+                case LogLevel.None:
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(logLevel));
+            }
+        }
     }
 }
