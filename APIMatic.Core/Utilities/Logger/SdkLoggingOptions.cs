@@ -7,19 +7,20 @@ namespace APIMatic.Core.Utilities.Logger
 {
     public class SdkLoggingOptions
     {
-        internal static readonly SdkLoggingOptions Default = new SdkLoggingOptions(NullLogger.Instance);
 
         public SdkLoggingOptions(ILogger logger)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
         internal ILogger Logger { get; }
-        
+
         public LogLevel? LogLevel { get; set; }
 
         public RequestOptions Request { get; } = new RequestOptions();
 
         public ResponseOptions Response { get; } = new ResponseOptions();
+        
+        public bool IsConfigured => Logger != NullLogger.Instance;
 
         public abstract class LogBaseOptions
         {

@@ -17,12 +17,11 @@ namespace APIMatic.Core.Utilities.Logger
 
         public SdkLogger(SdkLoggingOptions options)
         {
-            var localOptions = options ?? SdkLoggingOptions.Default;
-            _logger = localOptions.Logger;
-            _logLevel = localOptions.LogLevel;
-            _requestOptions = localOptions.Request;
-            _responseOptions = localOptions.Response;
-            _isConfigured = localOptions.Logger != NullLogger.Instance;
+            _logger = options.Logger;
+            _logLevel = options.LogLevel;
+            _requestOptions = options.Request;
+            _responseOptions = options.Response;
+            _isConfigured = options.IsConfigured;
         }
 
         public void LogRequest(CoreRequest request)
