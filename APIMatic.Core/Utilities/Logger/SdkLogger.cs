@@ -46,11 +46,10 @@ namespace APIMatic.Core.Utilities.Logger
 
             if (_requestOptions.LogBody)
             {
-                _logger.Log(localLogLevel, "Request Body {Body}", request.Body ?? request.FormParameters);
+                var body = request.Body ?? request.FormParameters;
+                _logger.Log(localLogLevel, "Request Body {Body}", body);
             }
         }
-
-        
 
         public void LogResponse(CoreResponse response)
         {

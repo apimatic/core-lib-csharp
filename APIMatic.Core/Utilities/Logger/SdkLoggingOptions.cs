@@ -13,10 +13,9 @@ namespace APIMatic.Core.Utilities.Logger
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
-
-        public LogLevel? LogLevel { get; set; }
-
         internal ILogger Logger { get; }
+        
+        public LogLevel? LogLevel { get; set; }
 
         public RequestOptions Request { get; } = new RequestOptions();
 
