@@ -16,6 +16,8 @@ namespace APIMatic.Core.Utilities.Logger
 
         public LogLevel? LogLevel { get; set; }
 
+        public bool MaskSensitiveHeaders { get; set; } = true;
+
         public RequestOptions Request { get; } = new RequestOptions();
 
         public ResponseOptions Response { get; } = new ResponseOptions();
@@ -40,7 +42,6 @@ namespace APIMatic.Core.Utilities.Logger
 
         public class RequestOptions: LogBaseOptions
         {
-            public RequestOptions() => ExcludeHeaders("Authorization");
             public bool IncludeQueryInPath { get; set; }
         }
 
