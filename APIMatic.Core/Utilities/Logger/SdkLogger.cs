@@ -66,7 +66,7 @@ namespace APIMatic.Core.Utilities.Logger
 
             if (_responseOptions.LogBody)
             {
-                _logger.Log(localLogLevel, "Request Body {Body}", response.Body);
+                _logger.Log(localLogLevel, "Response Body {Body}", response.Body);
             }
         }
 

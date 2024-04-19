@@ -22,7 +22,7 @@ namespace APIMatic.Core.Utilities.Logger
         public RequestOptions Request { get; } = new RequestOptions();
 
         public ResponseOptions Response { get; } = new ResponseOptions();
-        
+
         public bool IsConfigured => Logger != NullLogger.Instance;
 
         public abstract class LogBaseOptions
@@ -33,7 +33,7 @@ namespace APIMatic.Core.Utilities.Logger
                 "Accept-Charset",
                 "Accept-Encoding",
                 "Accept-Language",
-                //"Access-Control-Allow-Origin",
+                "Access-Control-Allow-Origin",
                 "Cache-Control",
                 "Connection",
                 "Content-Encoding",
@@ -74,7 +74,7 @@ namespace APIMatic.Core.Utilities.Logger
                 "X-Requested-With",
                 "X-Powered-By"
             };
-            
+
             public bool LogBody { get; set; }
 
             public bool LogHeaders { get; set; }
@@ -85,12 +85,11 @@ namespace APIMatic.Core.Utilities.Logger
 
             private IReadOnlyCollection<string> HeadersToExclude { get; set; } = new List<string>();
 
-            public void WhiteListHeaders(params string[] whitelistHeaders) => HeadersToWhiteList = whitelistHeaders;
-            
+            public void UnmaskedHeaders(params string[] whitelistHeaders) => HeadersToWhiteList = whitelistHeaders;
+
             public void ExcludeHeaders(params string[] excludeHeaders) => HeadersToExclude = excludeHeaders;
 
             public void IncludeHeaders(params string[] includeHeaders) => HeadersToInclude = includeHeaders;
-
 
             public IEnumerable<KeyValuePair<string, string>> ExtractHeadersToLog(IDictionary<string, string> headers,
                 bool maskSensitiveHeaders)
@@ -120,7 +119,6 @@ namespace APIMatic.Core.Utilities.Logger
                     ? value
                     : "**Redacted**";
         }
-
 
         public class RequestOptions: LogBaseOptions
         {
