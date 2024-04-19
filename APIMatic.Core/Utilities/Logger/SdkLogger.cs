@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using APIMatic.Core.Types.Sdk;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace APIMatic.Core.Utilities.Logger
 {
@@ -39,9 +36,7 @@ namespace APIMatic.Core.Utilities.Logger
 
             if (_requestOptions.LogHeaders)
             {
-                var headersToLog = ExtractHeadersToLog(request.Headers, _requestOptions.HeadersToInclude,
-                    _requestOptions.HeadersToExclude).FilterSensitiveHeaders(_maskSensitiveHeaders);
-
+                var headersToLog = _requestOptions.ExtractHeadersToLog(request.Headers, _maskSensitiveHeaders);
                 _logger.Log(localLogLevel, "Request Headers {Headers}", headersToLog);
             }
 
@@ -65,9 +60,7 @@ namespace APIMatic.Core.Utilities.Logger
 
             if (_responseOptions.LogHeaders)
             {
-                var headersToLog = ExtractHeadersToLog(response.Headers, _responseOptions.HeadersToInclude,
-                    _responseOptions.HeadersToExclude).FilterSensitiveHeaders(_maskSensitiveHeaders);
-
+                var headersToLog = _responseOptions.ExtractHeadersToLog(response.Headers, _maskSensitiveHeaders);
                 _logger.Log(localLogLevel, "Response Headers {Headers}", headersToLog);
             }
 
@@ -83,38 +76,10 @@ namespace APIMatic.Core.Utilities.Logger
             int queryStringIndex = url.IndexOf('?');
             return queryStringIndex != -1 ? url.Substring(0, queryStringIndex) : url;
         }
-
-
-        private static IEnumerable<KeyValuePair<string, string>> ExtractHeadersToLog(IDictionary<string, string> headers,
-            IReadOnlyCollection<string> headersToInclude,
-            IReadOnlyCollection<string> headersToExclude)
-        {
-            if (headersToInclude.Any())
-                return headers.Where(h => headersToInclude.Contains(h.Key));
-
-            if (headersToExclude.Any())
-                return headers.Where(h => !headersToExclude.Contains(h.Key));
-
-            return headers;
-        }
     }
 
     internal static class HeadersExtensions
     {
-        private static readonly IReadOnlyCollection<string> SensitiveHeaders =
-            new[] { "Authorization", "WWW-Authenticate", "Proxy-Authorization", "Set-Cookie" };
-
-        public static IDictionary<string, string> FilterSensitiveHeaders(
-            this IEnumerable<KeyValuePair<string, string>> requestHeaders, bool maskSensitiveHeaders)
-        {
-            if (!maskSensitiveHeaders) return requestHeaders.ToDictionary(h => h.Key, h => h.Value);
-            return requestHeaders.Select(h =>
-                    SensitiveHeaders.Contains(h.Key, StringComparer.OrdinalIgnoreCase)
-                        ? new KeyValuePair<string, string>(h.Key, "**Redacted**")
-                        : h)
-                .ToDictionary(h => h.Key, h => h.Value);
-        }
-
         public static string GetContentType(this IDictionary<string, string> requestHeaders) =>
             requestHeaders.GetHeader("content-type") ?? requestHeaders.GetHeader("Content-Type");
 
