@@ -13,6 +13,7 @@ namespace APIMatic.Core.Utilities.Logger
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
         internal ILogger Logger { get; }
 
         public LogLevel? LogLevel { get; set; }
@@ -85,7 +86,7 @@ namespace APIMatic.Core.Utilities.Logger
 
             private IReadOnlyCollection<string> HeadersToExclude { get; set; } = new List<string>();
 
-            public void UnmaskedHeaders(params string[] whitelistHeaders) => HeadersToWhiteList = whitelistHeaders;
+            public void UnmaskHeaders(params string[] whitelistHeaders) => HeadersToWhiteList = whitelistHeaders;
 
             public void ExcludeHeaders(params string[] excludeHeaders) => HeadersToExclude = excludeHeaders;
 
@@ -103,10 +104,12 @@ namespace APIMatic.Core.Utilities.Logger
                     headersToLog = headers.Where(h => !HeadersToExclude.Contains(h.Key));
                 else
                     headersToLog = headers;
+
                 return MaskSensitiveHeaders(headersToLog, maskSensitiveHeaders);
             }
 
-            private IDictionary<string, string> MaskSensitiveHeaders(IEnumerable<KeyValuePair<string, string>> headers, bool maskSensitiveHeaders)
+            private IDictionary<string, string> MaskSensitiveHeaders(IEnumerable<KeyValuePair<string, string>> headers,
+                bool maskSensitiveHeaders)
             {
                 if (!maskSensitiveHeaders) return headers.ToDictionary(h => h.Key, h => h.Value);
                 return headers.Select(h => new { h.Key, Value = MaskIfHeaderIsSensitive(h.Key, h.Value) })
@@ -120,20 +123,19 @@ namespace APIMatic.Core.Utilities.Logger
                     : "**Redacted**";
         }
 
-        public class RequestOptions: LogBaseOptions
+        public class RequestOptions : LogBaseOptions
         {
             public bool IncludeQueryInPath { get; set; }
         }
 
-        public class ResponseOptions: LogBaseOptions
-        {
-        }
+        public class ResponseOptions : LogBaseOptions { }
 
         public void LogBody(bool requestBody = true, bool responseBody = true)
         {
             Request.LogBody = requestBody;
             Response.LogBody = responseBody;
         }
+
         public void LogHeaders(bool requestHeaders = true, bool responseHeaders = true)
         {
             Request.LogHeaders = requestHeaders;

@@ -53,7 +53,7 @@ namespace APIMatic.Core.Utilities.Logger
             var localLogLevel = _logLevel.GetValueOrDefault(LogLevel.Information);
             var contentTypeHeader = response.Headers.GetContentType();
             var contentLengthHeader = response.Headers.GetContentLength();
-            _logger.Log(localLogLevel, "Response {HttpStatusCode} {ContentType} ContentLength: {ContentLength}",
+            _logger.Log(localLogLevel, "Response {HttpStatusCode} {ContentType} {ContentLength}",
                 response.StatusCode,
                 contentLengthHeader,
                 contentTypeHeader);
