@@ -12,6 +12,7 @@ using APIMatic.Core.Request;
 using APIMatic.Core.Request.Parameters;
 using APIMatic.Core.Types;
 using APIMatic.Core.Utilities.Logger;
+using APIMatic.Core.Utilities.Logger.Configuration;
 
 namespace APIMatic.Core
 {
@@ -24,7 +25,7 @@ namespace APIMatic.Core
         private readonly Enum _defaultServer;
         private readonly Parameter.Builder _parameters;
         
-        internal SdkLoggingOptions SdkLoggingOptions { get; private set; }
+        internal ISdkLoggingConfiguration SdkLoggingConfiguration { get; private set; }
 
         internal Dictionary<string, AuthManager> AuthManagers { get; private set; }
         internal Parameter.Builder RuntimeParameters { get; private set; }
@@ -34,13 +35,13 @@ namespace APIMatic.Core
 
         private GlobalConfiguration(ICoreHttpClientConfiguration httpConfiguration, Dictionary<string, AuthManager> authManagers,
             Dictionary<Enum, string> serverUrls, Enum defaultServer, Parameter.Builder parameters,
-            Parameter.Builder runtimeParameters, HttpCallBack apiCallback, SdkLoggingOptions sdkLoggingOptions)
+            Parameter.Builder runtimeParameters, HttpCallBack apiCallback, ISdkLoggingConfiguration sdkLoggingOptionsConfiguration)
         {
             _serverUrls = serverUrls;
             _defaultServer = defaultServer;
             _parameters = parameters;
             ApiCallback = apiCallback;
-            SdkLoggingOptions = sdkLoggingOptions;
+            SdkLoggingConfiguration = sdkLoggingOptionsConfiguration;
             AuthManagers = authManagers;
             RuntimeParameters = runtimeParameters;
             HttpClient = new HttpClientWrapper(httpConfiguration);
@@ -78,7 +79,7 @@ namespace APIMatic.Core
             private readonly Parameter.Builder parameters = new Parameter.Builder();
             private readonly Parameter.Builder runtimeParameters = new Parameter.Builder();
             private HttpCallBack apiCallback;
-            private SdkLoggingOptions sdkLoggingOptions;
+            private ISdkLoggingConfiguration sdkLoggingConfiguration;
             
             /// <summary>
             /// Required: Configures the http configurations
@@ -148,9 +149,14 @@ namespace APIMatic.Core
                 return this;
             }
             
-            public Builder Logger(SdkLoggingOptions sdkLoggingOptions)
+            /// <summary>
+            /// Sets the logging configuration for the SDK.
+            /// </summary>
+            /// <param name="sdkLoggingConfiguration">The logging configuration to be set for the SDK.</param>
+            /// <returns>A reference to the current builder instance.</returns>
+            public Builder loggingConfig(ISdkLoggingConfiguration sdkLoggingConfiguration)
             {
-                this.sdkLoggingOptions = sdkLoggingOptions;
+                this.sdkLoggingConfiguration = sdkLoggingConfiguration;
                 return this;
             }
             
@@ -181,7 +187,7 @@ namespace APIMatic.Core
             /// </summary>
             /// <returns></returns>
             public GlobalConfiguration Build() => new GlobalConfiguration(httpConfiguration, authManagers, serverUrls, defaultServer,
-                    parameters, runtimeParameters, apiCallback, sdkLoggingOptions);
+                    parameters, runtimeParameters, apiCallback, sdkLoggingConfiguration);
 
         }
     }

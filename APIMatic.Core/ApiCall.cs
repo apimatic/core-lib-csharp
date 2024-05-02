@@ -56,7 +56,7 @@ namespace APIMatic.Core
             arraySerialization = serialization;
             this.returnTypeCreator = returnTypeCreator;
             responseHandler = new ResponseHandler<Request, Response, Context, ApiException, ResponseType>(compatibility, globalErrors);
-            _sdkLogger = new SdkLogger(configuration.SdkLoggingOptions);
+            _sdkLogger = new SdkLogger(configuration.SdkLoggingConfiguration);
         }
 
         /// <summary>
@@ -107,7 +107,6 @@ namespace APIMatic.Core
             CoreRequest request = requestBuilder.Build();
             globalConfiguration.ApiCallback?.OnBeforeHttpRequestEventHandler(request);
             _sdkLogger.LogRequest(request);
-            // ContentLength
             CoreResponse response = await globalConfiguration.HttpClient.ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
             globalConfiguration.ApiCallback?.OnAfterHttpResponseEventHandler(response);
             _sdkLogger.LogResponse(response);

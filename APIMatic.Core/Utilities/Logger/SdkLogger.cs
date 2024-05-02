@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using APIMatic.Core.Types.Sdk;
+using APIMatic.Core.Utilities.Logger.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace APIMatic.Core.Utilities.Logger
@@ -8,19 +9,19 @@ namespace APIMatic.Core.Utilities.Logger
     {
         private readonly ILogger _logger;
         private readonly LogLevel? _logLevel;
-        private readonly SdkLoggingOptions.RequestOptions _requestOptions;
-        private readonly SdkLoggingOptions.ResponseOptions _responseOptions;
+        private readonly RequestLoggingConfiguration _requestConfiguration;
+        private readonly ResponseLoggingConfiguration _responseConfiguration;
         private readonly bool _isConfigured;
         private readonly bool _maskSensitiveHeaders;
 
-        public SdkLogger(SdkLoggingOptions options)
+        public SdkLogger(ISdkLoggingConfiguration loggingConfiguration)
         {
-            _logger = options.Logger;
-            _logLevel = options.LogLevel;
-            _requestOptions = options.Request;
-            _responseOptions = options.Response;
-            _isConfigured = options.IsConfigured;
-            _maskSensitiveHeaders = options.MaskSensitiveHeaders;
+            _logger = loggingConfiguration.Logger;
+            _logLevel = loggingConfiguration.LogLevel;
+            _requestConfiguration = (RequestLoggingConfiguration)loggingConfiguration.RequestLoggingConfiguration;
+            _responseConfiguration = (ResponseLoggingConfiguration)loggingConfiguration.ResponseLoggingConfiguration;
+            _isConfigured = loggingConfiguration.IsConfigured;
+            _maskSensitiveHeaders = loggingConfiguration.MaskSensitiveHeaders;
         }
 
         public void LogRequest(CoreRequest request)
@@ -28,19 +29,19 @@ namespace APIMatic.Core.Utilities.Logger
             if (!_isConfigured) return;
             var localLogLevel = _logLevel.GetValueOrDefault(LogLevel.Information);
             var contentTypeHeader = request.Headers.GetContentType();
-            var url = _requestOptions.IncludeQueryInPath ? request.QueryUrl : ParseQueryPath(request.QueryUrl);
+            var url = _requestConfiguration.IncludeQueryInPath ? request.QueryUrl : ParseQueryPath(request.QueryUrl);
             _logger.Log(localLogLevel, "Request {HttpMethod} {Url} {ContentType}",
                 request.HttpMethod,
                 url,
                 contentTypeHeader);
 
-            if (_requestOptions.LogHeaders)
+            if (_requestConfiguration.Headers)
             {
-                var headersToLog = _requestOptions.ExtractHeadersToLog(request.Headers, _maskSensitiveHeaders);
+                var headersToLog = _requestConfiguration.ExtractHeadersToLog(request.Headers, _maskSensitiveHeaders);
                 _logger.Log(localLogLevel, "Request Headers {Headers}", headersToLog);
             }
 
-            if (_requestOptions.LogBody)
+            if (_requestConfiguration.Body)
             {
                 var body = request.Body ?? request.FormParameters;
                 _logger.Log(localLogLevel, "Request Body {Body}", body);
@@ -58,13 +59,13 @@ namespace APIMatic.Core.Utilities.Logger
                 contentLengthHeader,
                 contentTypeHeader);
 
-            if (_responseOptions.LogHeaders)
+            if (_responseConfiguration.Headers)
             {
-                var headersToLog = _responseOptions.ExtractHeadersToLog(response.Headers, _maskSensitiveHeaders);
+                var headersToLog = _responseConfiguration.ExtractHeadersToLog(response.Headers, _maskSensitiveHeaders);
                 _logger.Log(localLogLevel, "Response Headers {Headers}", headersToLog);
             }
 
-            if (_responseOptions.LogBody)
+            if (_responseConfiguration.Body)
             {
                 _logger.Log(localLogLevel, "Response Body {Body}", response.Body);
             }
