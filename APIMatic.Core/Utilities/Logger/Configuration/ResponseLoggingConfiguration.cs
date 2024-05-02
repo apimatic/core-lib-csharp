@@ -34,48 +34,14 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
             return builder;
         }
 
-        public class Builder
+        public class Builder : LoggingConfigurationBuilder<ResponseLoggingConfiguration, Builder>
         {
-            private bool _body;
-            private bool _headers;
-            private IReadOnlyList<string> _headersToInclude = new List<string>();
-            private IReadOnlyList<string> _headersToExclude = new List<string>();
-            private IReadOnlyList<string> _headersToUnmask = new List<string>();
-
-            public Builder Body(bool includeBody)
+            protected override Builder Self => this;
+            
+            public override ResponseLoggingConfiguration Build()
             {
-                _body = includeBody;
-                return this;
-            }
-
-            public Builder Headers(bool includeHeaders)
-            {
-                _headers = includeHeaders;
-                return this;
-            }
-
-            public Builder IncludeHeaders(params string[] headersToInclude)
-            {
-                _headersToInclude = headersToInclude.ToArray();
-                return this;
-            }
-
-            public Builder ExcludeHeaders(params string[] headersToExclude)
-            {
-                _headersToExclude = headersToExclude.ToArray();
-                return this;
-            }
-
-            public Builder UnmaskHeaders(params string[] headersToUnmask)
-            {
-                _headersToUnmask = headersToUnmask.ToArray();
-                return this;
-            }
-
-            public ResponseLoggingConfiguration Build()
-            {
-                return new ResponseLoggingConfiguration(_body, _headers, _headersToInclude,
-                    _headersToExclude, _headersToUnmask);
+                return new ResponseLoggingConfiguration(_body, _headers, _headersToInclude, _headersToExclude,
+                    _headersToUnmask);
             }
         }
     }

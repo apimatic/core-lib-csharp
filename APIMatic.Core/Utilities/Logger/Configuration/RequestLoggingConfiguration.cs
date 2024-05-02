@@ -40,52 +40,19 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
             return builder;
         }
 
-        public class Builder
+        public class Builder : LoggingConfigurationBuilder<RequestLoggingConfiguration, Builder>
         {
-            private bool _body;
-            private bool _headers;
-            private bool _includeQueryInPath;
-            private IReadOnlyList<string> _headersToInclude = new List<string>();
-            private IReadOnlyList<string> _headersToExclude = new List<string>();
-            private IReadOnlyList<string> _headersToUnmask = new List<string>();
-
-            public Builder Body(bool includeBody)
-            {
-                _body = includeBody;
-                return this;
-            }
-
-            public Builder Headers(bool includeHeaders)
-            {
-                _headers = includeHeaders;
-                return this;
-            }
+            private bool _includeQueryInPath = false;
 
             public Builder IncludeQueryInPath(bool includeQueryInPath)
             {
                 _includeQueryInPath = includeQueryInPath;
                 return this;
             }
+            
+            protected override Builder Self => this;
 
-            public Builder IncludeHeaders(params string[] headersToInclude)
-            {
-                _headersToInclude = headersToInclude.ToArray();
-                return this;
-            }
-
-            public Builder ExcludeHeaders(params string[] headersToExclude)
-            {
-                _headersToExclude = headersToExclude.ToArray();
-                return this;
-            }
-
-            public Builder UnmaskHeaders(params string[] headersToUnmask)
-            {
-                _headersToUnmask = headersToUnmask.ToArray();
-                return this;
-            }
-
-            public RequestLoggingConfiguration Build()
+            public override RequestLoggingConfiguration Build()
             {
                 return new RequestLoggingConfiguration(_body, _headers, _includeQueryInPath, _headersToInclude,
                     _headersToExclude, _headersToUnmask);

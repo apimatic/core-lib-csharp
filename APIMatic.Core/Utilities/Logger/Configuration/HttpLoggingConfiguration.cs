@@ -51,7 +51,7 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
             "Warning",
             "X-Forwarded-For",
             "X-Requested-With",
-            //"X-Powered-By"
+            "X-Powered-By"
         };
 
         public bool Body { get; protected set; }
