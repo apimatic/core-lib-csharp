@@ -5,6 +5,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace APIMatic.Core.Utilities.Logger
 {
+    /// <summary>
+    /// Represents a logger implementation that writes log messages to the console.
+    /// </summary>
     public class ConsoleLogger : ILogger
     {
         /// <summary>
@@ -20,6 +23,7 @@ namespace APIMatic.Core.Utilities.Logger
         {
         }
 
+        /// <inheritdoc />
         public IDisposable BeginScope<TState>(TState state) => 
             NullLogger.Instance.BeginScope(state);
 
@@ -38,6 +42,12 @@ namespace APIMatic.Core.Utilities.Logger
             Console.WriteLine(logString);
         }
 
+        /// <summary>
+        /// Writes the log message to a string.
+        /// </summary>
+        /// <typeparam name="TState">The type of the log state.</typeparam>
+        /// <param name="logEntry">The log entry.</param>
+        /// <returns>The log message as a string.</returns>
         private static string WriteLogString<TState>(LogEntry<TState> logEntry)
         {
             var stringWriter = new StringWriter();
@@ -76,6 +86,11 @@ namespace APIMatic.Core.Utilities.Logger
         /// <inheritdoc />
         public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
 
+        /// <summary>
+        /// Retrieves the log level string representation.
+        /// </summary>
+        /// <param name="logLevel">The log level.</param>
+        /// <returns>The string representation of the log level.</returns>
         private static string GetLogLevelString(LogLevel logLevel)
         {
             switch (logLevel)

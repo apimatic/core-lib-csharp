@@ -5,6 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace APIMatic.Core.Utilities.Logger
 {
+    /// <summary>
+    /// Provides logging functionality for SDK operations.
+    /// </summary>
     internal class SdkLogger
     {
         private readonly ILogger _logger;
@@ -14,6 +17,10 @@ namespace APIMatic.Core.Utilities.Logger
         private readonly bool _isConfigured;
         private readonly bool _maskSensitiveHeaders;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SdkLogger"/> class.
+        /// </summary>
+        /// <param name="loggingConfiguration">The SDK logging configuration.</param>
         public SdkLogger(ISdkLoggingConfiguration loggingConfiguration)
         {
             _logger = loggingConfiguration.Logger;
@@ -24,6 +31,10 @@ namespace APIMatic.Core.Utilities.Logger
             _maskSensitiveHeaders = loggingConfiguration.MaskSensitiveHeaders;
         }
 
+        /// <summary>
+        /// Logs the details of a request.
+        /// </summary>
+        /// <param name="request">The request to be logged.</param>
         public void LogRequest(CoreRequest request)
         {
             if (!_isConfigured) return;
@@ -48,6 +59,10 @@ namespace APIMatic.Core.Utilities.Logger
             }
         }
 
+        /// <summary>
+        /// Logs the details of a response.
+        /// </summary>
+        /// <param name="response">The response to be logged.</param>
         public void LogResponse(CoreResponse response)
         {
             if (!_isConfigured) return;
@@ -71,6 +86,11 @@ namespace APIMatic.Core.Utilities.Logger
             }
         }
 
+        /// <summary>
+        /// Parses the query path from the URL.
+        /// </summary>
+        /// <param name="url">The URL to parse.</param>
+        /// <returns>The parsed query path.</returns>
         private static string ParseQueryPath(string url)
         {
             if (string.IsNullOrEmpty(url)) return url;
@@ -79,14 +99,33 @@ namespace APIMatic.Core.Utilities.Logger
         }
     }
 
+    /// <summary>
+    /// Provides extension methods for handling headers.
+    /// </summary>
     internal static class HeadersExtensions
     {
+        /// <summary>
+        /// Gets the content type from the headers.
+        /// </summary>
+        /// <param name="requestHeaders">The request headers.</param>
+        /// <returns>The content type.</returns>
         public static string GetContentType(this IDictionary<string, string> requestHeaders) =>
             requestHeaders.GetHeader("content-type") ?? requestHeaders.GetHeader("Content-Type");
 
+        /// <summary>
+        /// Gets the content length from the headers.
+        /// </summary>
+        /// <param name="requestHeaders">The request headers.</param>
+        /// <returns>The content length.</returns>
         public static string GetContentLength(this IDictionary<string, string> requestHeaders) =>
             requestHeaders.GetHeader("content-length") ?? requestHeaders.GetHeader("Content-Length");
 
+        /// <summary>
+        /// Gets a specific header value from the headers.
+        /// </summary>
+        /// <param name="requestHeaders">The request headers.</param>
+        /// <param name="headerName">The name of the header to retrieve.</param>
+        /// <returns>The value of the specified header.</returns>
         private static string GetHeader(this IDictionary<string, string> requestHeaders, string headerName) =>
             requestHeaders.TryGetValue(headerName, out var value) ? value : null;
     }
