@@ -7,7 +7,7 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
     /// <summary>
     /// Represents the configuration settings for SDK logging.
     /// </summary>
-    public class SdkLoggingConfiguration : ISdkLoggingConfiguration
+    public class SdkLoggingConfiguration
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SdkLoggingConfiguration"/> class.
@@ -19,8 +19,8 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
         /// <param name="requestLoggingConfiguration">The configuration settings for logging HTTP requests.</param>
         /// <param name="responseLoggingConfiguration">The configuration settings for logging HTTP responses.</param>
         private SdkLoggingConfiguration(ILogger logger, LogLevel? logLevel, bool maskSensitiveHeaders,
-            IRequestLoggingConfiguration requestLoggingConfiguration,
-            IResponseLoggingConfiguration responseLoggingConfiguration)
+            RequestLoggingConfiguration requestLoggingConfiguration,
+            ResponseLoggingConfiguration responseLoggingConfiguration)
         {
             Logger = logger;
             LogLevel = logLevel;
@@ -39,10 +39,10 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
         public bool MaskSensitiveHeaders { get; }
 
         /// <inheritdoc/>
-        public IRequestLoggingConfiguration RequestLoggingConfiguration { get; }
+        public RequestLoggingConfiguration RequestLoggingConfiguration { get; }
 
         /// <inheritdoc/>
-        public IResponseLoggingConfiguration ResponseLoggingConfiguration { get; }
+        public ResponseLoggingConfiguration ResponseLoggingConfiguration { get; }
 
         /// <inheritdoc/>
         public bool IsConfigured => Logger != NullLogger.Instance;
@@ -69,8 +69,8 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
                 .Logger(Logger)
                 .LogLevel(LogLevel)
                 .MaskSensitiveHeaders(MaskSensitiveHeaders)
-                .RequestLoggingConfiguration(((RequestLoggingConfiguration)RequestLoggingConfiguration).ToBuilder())
-                .ResponseLoggingConfiguration(((ResponseLoggingConfiguration)ResponseLoggingConfiguration).ToBuilder());
+                .RequestLoggingConfiguration(RequestLoggingConfiguration.ToBuilder())
+                .ResponseLoggingConfiguration(ResponseLoggingConfiguration.ToBuilder());
 
             return builder;
         }

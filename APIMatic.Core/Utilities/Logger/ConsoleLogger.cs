@@ -24,7 +24,7 @@ namespace APIMatic.Core.Utilities.Logger
         }
 
         /// <inheritdoc />
-        public IDisposable BeginScope<TState>(TState state) => 
+        public IDisposable BeginScope<TState>(TState state) =>
             NullLogger.Instance.BeginScope(state);
 
         /// <inheritdoc />
@@ -36,7 +36,7 @@ namespace APIMatic.Core.Utilities.Logger
             Func<TState, Exception, string> formatter)
         {
             if (!IsEnabled(logLevel)) return;
-            
+
             LogEntry<TState> logEntry = new LogEntry<TState>(logLevel, "Console", eventId, state, exception, formatter);
             var logString = WriteLogString(logEntry);
             Console.WriteLine(logString);
@@ -55,11 +55,9 @@ namespace APIMatic.Core.Utilities.Logger
             if (logEntry.Exception == null && message == null) return string.Empty;
 
             var logLevelString = GetLogLevelString(logEntry.LogLevel);
-            if (logLevelString != null)
-            {
-                stringWriter.Write(logLevelString);
-                stringWriter.Write(':');
-            }
+            stringWriter.Write(logLevelString);
+            stringWriter.Write(':');
+
             stringWriter.Write(' ');
             stringWriter.Write(logEntry.Category);
             stringWriter.Write('[');
@@ -72,6 +70,7 @@ namespace APIMatic.Core.Utilities.Logger
                 stringWriter.Write(' ');
                 stringWriter.Write(message);
             }
+
             if (logEntry.Exception == null)
             {
                 return stringWriter.ToString();

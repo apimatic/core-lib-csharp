@@ -21,12 +21,12 @@ namespace APIMatic.Core.Utilities.Logger
         /// Initializes a new instance of the <see cref="SdkLogger"/> class.
         /// </summary>
         /// <param name="loggingConfiguration">The SDK logging configuration.</param>
-        public SdkLogger(ISdkLoggingConfiguration loggingConfiguration)
+        public SdkLogger(SdkLoggingConfiguration loggingConfiguration)
         {
             _logger = loggingConfiguration.Logger;
             _logLevel = loggingConfiguration.LogLevel;
-            _requestConfiguration = (RequestLoggingConfiguration)loggingConfiguration.RequestLoggingConfiguration;
-            _responseConfiguration = (ResponseLoggingConfiguration)loggingConfiguration.ResponseLoggingConfiguration;
+            _requestConfiguration = loggingConfiguration.RequestLoggingConfiguration;
+            _responseConfiguration = loggingConfiguration.ResponseLoggingConfiguration;
             _isConfigured = loggingConfiguration.IsConfigured;
             _maskSensitiveHeaders = loggingConfiguration.MaskSensitiveHeaders;
         }

@@ -25,7 +25,7 @@ namespace APIMatic.Core
         private readonly Enum _defaultServer;
         private readonly Parameter.Builder _parameters;
         
-        internal ISdkLoggingConfiguration SdkLoggingConfiguration { get; private set; }
+        internal SdkLoggingConfiguration SdkLoggingConfiguration { get; private set; }
 
         internal Dictionary<string, AuthManager> AuthManagers { get; private set; }
         internal Parameter.Builder RuntimeParameters { get; private set; }
@@ -35,7 +35,7 @@ namespace APIMatic.Core
 
         private GlobalConfiguration(ICoreHttpClientConfiguration httpConfiguration, Dictionary<string, AuthManager> authManagers,
             Dictionary<Enum, string> serverUrls, Enum defaultServer, Parameter.Builder parameters,
-            Parameter.Builder runtimeParameters, HttpCallBack apiCallback, ISdkLoggingConfiguration sdkLoggingOptionsConfiguration)
+            Parameter.Builder runtimeParameters, HttpCallBack apiCallback, SdkLoggingConfiguration sdkLoggingOptionsConfiguration)
         {
             _serverUrls = serverUrls;
             _defaultServer = defaultServer;
@@ -79,7 +79,7 @@ namespace APIMatic.Core
             private readonly Parameter.Builder parameters = new Parameter.Builder();
             private readonly Parameter.Builder runtimeParameters = new Parameter.Builder();
             private HttpCallBack apiCallback;
-            private ISdkLoggingConfiguration sdkLoggingConfiguration;
+            private SdkLoggingConfiguration sdkLoggingConfiguration;
             
             /// <summary>
             /// Required: Configures the http configurations
@@ -154,7 +154,7 @@ namespace APIMatic.Core
             /// </summary>
             /// <param name="sdkLoggingConfiguration">The logging configuration to be set for the SDK.</param>
             /// <returns>A reference to the current builder instance.</returns>
-            public Builder loggingConfig(ISdkLoggingConfiguration sdkLoggingConfiguration)
+            public Builder loggingConfig(SdkLoggingConfiguration sdkLoggingConfiguration)
             {
                 this.sdkLoggingConfiguration = sdkLoggingConfiguration;
                 return this;

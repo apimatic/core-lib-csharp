@@ -6,7 +6,7 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
     /// <summary>
     /// Represents the configuration settings for logging HTTP requests.
     /// </summary>
-    public class RequestLoggingConfiguration : HttpLoggingConfiguration, IRequestLoggingConfiguration
+    public class RequestLoggingConfiguration : HttpLoggingConfiguration
     {
         /// <summary>
         /// Gets a value indicating whether to include the query string in the logged path of HTTP requests.

@@ -11,7 +11,7 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
     /// <remarks>
     /// This class provides methods to configure HTTP logging settings such as body, headers, and header manipulation.
     /// </remarks>
-    public abstract class LoggingConfigurationBuilder<T, TB> where T : IHttpLoggingConfiguration
+    public abstract class LoggingConfigurationBuilder<T, TB> where T : HttpLoggingConfiguration
         where TB : LoggingConfigurationBuilder<T, TB>
     {
         protected bool LogBody;
@@ -49,7 +49,7 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
         /// <returns>The current instance of the builder.</returns>
         public TB IncludeHeaders(params string[] headersToInclude)
         {
-            HeadersToInclude = headersToInclude.ToArray();
+            HeadersToInclude = headersToInclude;
             return Self;
         }
 
@@ -60,7 +60,7 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
         /// <returns>The current instance of the builder.</returns>
         public TB ExcludeHeaders(params string[] headersToExclude)
         {
-            HeadersToExclude = headersToExclude.ToArray();
+            HeadersToExclude = headersToExclude;
             return Self;
         }
 
@@ -71,7 +71,7 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
         /// <returns>The current instance of the builder.</returns>
         public TB UnmaskHeaders(params string[] headersToUnmask)
         {
-            HeadersToUnmask = headersToUnmask.ToArray();
+            HeadersToUnmask = headersToUnmask;
             return Self;
         }
 

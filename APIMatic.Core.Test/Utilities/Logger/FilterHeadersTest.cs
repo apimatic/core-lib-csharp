@@ -15,7 +15,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new Mock<ILogger>();
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration.Builder().Headers(true).Build();
+            var responseLoggingConfiguration = new ResponseLoggingConfiguration.Builder().Headers(true);
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfiguration(logger.Object, responseLoggingConfiguration);
             var sdkLogger = new Core.Utilities.Logger.SdkLogger(loggingConfiguration);
@@ -29,8 +29,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
             sdkLogger.LogResponse(response);
 
             //Assert
-            LoggerHelper.AssertLogs(logger, LogLevel.Information, "Response 200 (null) application/json",
-                1);
+            LoggerHelper.AssertLogs(logger, LogLevel.Information, "Response 200 (null) application/json", 1);
             LoggerHelper.AssertLogs(logger, LogLevel.Information,
                 "Response Headers [Content-Type, application/json], [Authorization, **Redacted**]", 1);
         }
@@ -41,7 +40,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
             // Arrange
             var logger = new Mock<ILogger>();
             var responseLoggingConfiguration = new ResponseLoggingConfiguration.Builder().Headers(true)
-                .IncludeHeaders("content-type").Build();
+                .IncludeHeaders("content-type");
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfiguration(logger.Object, responseLoggingConfiguration);
             var sdkLogger = new Core.Utilities.Logger.SdkLogger(loggingConfiguration);
@@ -60,14 +59,14 @@ namespace APIMatic.Core.Test.Utilities.Logger
             LoggerHelper.AssertLogs(logger, LogLevel.Information,
                 "Response Headers [Content-Type, application/json]", 1);
         }
-        
+
         [Test]
         public void LogResponse_Configured_LogsResponseWithExcludeHeaders()
         {
             // Arrange
             var logger = new Mock<ILogger>();
             var responseLoggingConfiguration = new ResponseLoggingConfiguration.Builder().Headers(true)
-                .ExcludeHeaders("authorization").Build();
+                .ExcludeHeaders("authorization");
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfiguration(logger.Object, responseLoggingConfiguration);
             var sdkLogger = new Core.Utilities.Logger.SdkLogger(loggingConfiguration);
@@ -86,14 +85,14 @@ namespace APIMatic.Core.Test.Utilities.Logger
             LoggerHelper.AssertLogs(logger, LogLevel.Information,
                 "Response Headers [Content-Type, application/json]", 1);
         }
-        
+
         [Test]
         public void LogResponse_Configured_LogsResponseWithUnmask()
         {
             // Arrange
             var logger = new Mock<ILogger>();
             var responseLoggingConfiguration = new ResponseLoggingConfiguration.Builder().Headers(true)
-                .UnmaskHeaders("authorization").IncludeHeaders("authorization").Build();
+                .UnmaskHeaders("authorization").IncludeHeaders("authorization");
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfiguration(logger.Object, responseLoggingConfiguration);
             var sdkLogger = new Core.Utilities.Logger.SdkLogger(loggingConfiguration);
@@ -112,13 +111,13 @@ namespace APIMatic.Core.Test.Utilities.Logger
             LoggerHelper.AssertLogs(logger, LogLevel.Information,
                 "Response Headers [Authorization, 8491ea71-a6e9-499e-84e2-a00946b1995e]", 1);
         }
-        
+
         [Test]
         public void LogResponse_Configured_LogsResponseWithGlobalUnmask()
         {
             // Arrange
             var logger = new Mock<ILogger>();
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration.Builder().Headers(true).Build();
+            var responseLoggingConfiguration = new ResponseLoggingConfiguration.Builder().Headers(true);
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfigurationWithoutMask(logger.Object, responseLoggingConfiguration);
             var sdkLogger = new Core.Utilities.Logger.SdkLogger(loggingConfiguration);
@@ -135,7 +134,8 @@ namespace APIMatic.Core.Test.Utilities.Logger
             LoggerHelper.AssertLogs(logger, LogLevel.Information, "Response 200 (null) application/json",
                 1);
             LoggerHelper.AssertLogs(logger, LogLevel.Information,
-                "Response Headers [Content-Type, application/json], [Authorization, 8491ea71-a6e9-499e-84e2-a00946b1995e]", 1);
+                "Response Headers [Content-Type, application/json], [Authorization, 8491ea71-a6e9-499e-84e2-a00946b1995e]",
+                1);
         }
     }
 }

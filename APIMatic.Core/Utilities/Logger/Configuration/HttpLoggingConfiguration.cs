@@ -7,7 +7,7 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
     /// <summary>
     /// Abstract class representing configuration settings for HTTP request/response logging.
     /// </summary>
-    public abstract class HttpLoggingConfiguration : IHttpLoggingConfiguration
+    public abstract class HttpLoggingConfiguration
     {
         /// <summary>
         /// List of non-sensitive headers for unmasking.
@@ -140,9 +140,9 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
         {
             return $"{Body} , " +
                    $"{Headers} , " +
-                   $"{HeadersToInclude} , " +
-                   $"{HeadersToExclude} , " +
-                   $"{HeadersToUnmask} ";
+                   $"{string.Join(" , ", HeadersToInclude)} , " +
+                   $"{string.Join(" , ", HeadersToExclude)} , " +
+                   $"{string.Join(" , ", HeadersToUnmask)}";
         }
     }
 }

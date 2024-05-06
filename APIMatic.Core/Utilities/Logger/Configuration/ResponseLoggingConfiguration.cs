@@ -6,7 +6,7 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
     /// <summary>
     /// Represents the configuration settings for logging HTTP responses.
     /// </summary>
-    public class ResponseLoggingConfiguration : HttpLoggingConfiguration, IResponseLoggingConfiguration
+    public class ResponseLoggingConfiguration : HttpLoggingConfiguration
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ResponseLoggingConfiguration"/> class with the specified
