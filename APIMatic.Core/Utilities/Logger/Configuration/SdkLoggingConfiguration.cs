@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -6,7 +7,7 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
     /// <summary>
     /// Represents the configuration settings for SDK logging.
     /// </summary>
-    public class SdkLoggingConfiguration
+    public class SdkLoggingConfiguration : ICloneable
     {
         /// <summary>
         /// Gets or sets the logger instance used for logging SDK messages.
@@ -39,5 +40,17 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
         /// Gets a value indicating whether the logging configuration is fully set up.
         /// </summary>
         public bool IsConfigured => Logger != NullLogger.Instance;
+
+        public object Clone()
+        {
+            return new SdkLoggingConfiguration
+            {
+                Logger = this.Logger,
+                LogLevel = this.LogLevel,
+                MaskSensitiveHeaders = this.MaskSensitiveHeaders,
+                RequestLoggingConfiguration = (RequestLoggingConfiguration)this.RequestLoggingConfiguration.Clone(),
+                ResponseLoggingConfiguration = (ResponseLoggingConfiguration)this.ResponseLoggingConfiguration.Clone()
+            };
+        }
     }
 }

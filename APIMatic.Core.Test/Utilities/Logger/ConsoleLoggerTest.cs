@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 using System.IO;
+using System.Reflection;
 using APIMatic.Core.Utilities.Logger;
 using Microsoft.Extensions.Logging;
 
@@ -84,7 +85,22 @@ namespace APIMatic.Core.Test.Utilities.Logger
                 Console.SetOut(originalOut);
             }
         }
-        
+
+        [Test]
+        public void GetLogLevelString_InvalidLogLevel_ThrowsArgumentOutOfRangeException()
+        {
+            var getLogLevelString =
+                typeof(ConsoleLogger).GetMethod("GetLogLevelString", BindingFlags.NonPublic | BindingFlags.Static);
+            object[] parameters = { LogLevel.None };
+
+            // Act
+            var ex = Assert.Throws<TargetInvocationException>(
+                () => getLogLevelString?.Invoke(ConsoleLogger.Instance, parameters));
+            
+            // Assert
+            Assert.That(ex?.InnerException, Is.TypeOf<ArgumentOutOfRangeException>());
+        }
+
         [Test]
         public void IsEnabled_ReturnsFalseForDisabledLevel()
         {
