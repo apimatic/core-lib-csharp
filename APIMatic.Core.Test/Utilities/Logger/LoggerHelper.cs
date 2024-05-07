@@ -1,7 +1,6 @@
 ﻿using System;
 using APIMatic.Core.Utilities.Logger.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace APIMatic.Core.Test.Utilities.Logger
@@ -9,49 +8,57 @@ namespace APIMatic.Core.Test.Utilities.Logger
     internal static class LoggerHelper
     {
         public static SdkLoggingConfiguration GetLoggingConfiguration(ILogger logger,
-            RequestLoggingConfiguration.Builder requestLoggingConfiguration)
+            RequestLoggingConfiguration requestLoggingConfiguration)
         {
-            var loggingConfiguration = new SdkLoggingConfiguration.Builder()
-                .Logger(logger)
-                .MaskSensitiveHeaders(true)
-                .RequestLoggingConfiguration(requestLoggingConfiguration).Build();
+            var loggingConfiguration = new SdkLoggingConfiguration
+            {
+                Logger = logger,
+                MaskSensitiveHeaders = true,
+                RequestLoggingConfiguration = requestLoggingConfiguration
+            };
             return loggingConfiguration;
         }
 
         public static SdkLoggingConfiguration GetLoggingConfiguration(ILogger logger,
-            ResponseLoggingConfiguration.Builder responseLoggingConfiguration)
+            ResponseLoggingConfiguration responseLoggingConfiguration)
         {
-            var loggingConfiguration = new SdkLoggingConfiguration.Builder()
-                .Logger(logger)
-                .ResponseLoggingConfiguration(responseLoggingConfiguration).Build();
+            var loggingConfiguration = new SdkLoggingConfiguration
+            {
+                Logger = logger, ResponseLoggingConfiguration = responseLoggingConfiguration
+            };
             return loggingConfiguration;
         }
-        
+
         public static SdkLoggingConfiguration GetLoggingConfigurationWithError(ILogger logger,
-            RequestLoggingConfiguration.Builder requestLoggingConfiguration)
+            RequestLoggingConfiguration requestLoggingConfiguration)
         {
-            var loggingConfiguration = new SdkLoggingConfiguration.Builder()
-                .Logger(logger)
-                .LogLevel(LogLevel.Error)
-                .RequestLoggingConfiguration(requestLoggingConfiguration).Build();
+            var loggingConfiguration = new SdkLoggingConfiguration
+            {
+                Logger = logger,
+                LogLevel = LogLevel.Error,
+                RequestLoggingConfiguration = requestLoggingConfiguration
+            };
             return loggingConfiguration;
         }
 
         public static SdkLoggingConfiguration GetLoggingConfigurationWithoutMask(ILogger logger,
-            ResponseLoggingConfiguration.Builder responseLoggingConfiguration)
+            ResponseLoggingConfiguration responseLoggingConfiguration)
         {
-            var loggingConfiguration = new SdkLoggingConfiguration.Builder()
-                .Logger(logger)
-                .MaskSensitiveHeaders(false)
-                .ResponseLoggingConfiguration(responseLoggingConfiguration).Build();
+            var loggingConfiguration = new SdkLoggingConfiguration
+            {
+                Logger = logger,
+                MaskSensitiveHeaders = false,
+                ResponseLoggingConfiguration = responseLoggingConfiguration
+            };
             return loggingConfiguration;
         }
-        
+
         public static SdkLoggingConfiguration GetLoggingConfigurationWithNoneLogger()
         {
-            var loggingConfiguration = new SdkLoggingConfiguration.Builder()
-                .Logger(NullLogger.Instance)
-                .MaskSensitiveHeaders(false).Build();
+            var loggingConfiguration = new SdkLoggingConfiguration
+            {
+                MaskSensitiveHeaders = false
+            };
             return loggingConfiguration;
         }
 

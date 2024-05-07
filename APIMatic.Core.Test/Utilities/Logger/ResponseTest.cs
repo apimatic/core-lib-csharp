@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net.Http;
+﻿using System.Collections.Generic;
 using APIMatic.Core.Types.Sdk;
+using APIMatic.Core.Utilities.Logger;
 using APIMatic.Core.Utilities.Logger.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -20,13 +18,13 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             _logger = new Mock<ILogger>();
         }
-        
+
         [Test]
         public void LogResponse_NotConfigured_NoLogSent()
         {
             // Arrange
             var loggingConfiguration = LoggerHelper.GetLoggingConfigurationWithNoneLogger();
-            var sdkLogger = new Core.Utilities.Logger.SdkLogger(loggingConfiguration);
+            var sdkLogger = new SdkLogger(loggingConfiguration);
             var response = new CoreResponse(200, new Dictionary<string, string>(), null, "{\"message\":\"Success\"}");
 
             // Act
@@ -40,10 +38,10 @@ namespace APIMatic.Core.Test.Utilities.Logger
         public void LogResponse_Configured_LogsResponse()
         {
             // Arrange
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration.Builder();
+            var responseLoggingConfiguration = new ResponseLoggingConfiguration();
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfiguration(_logger.Object, responseLoggingConfiguration);
-            var sdkLogger = new Core.Utilities.Logger.SdkLogger(loggingConfiguration);
+            var sdkLogger = new SdkLogger(loggingConfiguration);
             var response = new CoreResponse(200, new Dictionary<string, string>(), null, null);
 
             // Act
@@ -58,10 +56,10 @@ namespace APIMatic.Core.Test.Utilities.Logger
         public void LogResponse_Configured_LogsResponseWithBody()
         {
             // Arrange
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration.Builder().Body(true);
+            var responseLoggingConfiguration = new ResponseLoggingConfiguration { Body = true };
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfiguration(_logger.Object, responseLoggingConfiguration);
-            var sdkLogger = new Core.Utilities.Logger.SdkLogger(loggingConfiguration);
+            var sdkLogger = new SdkLogger(loggingConfiguration);
             var response = new CoreResponse(200, new Dictionary<string, string>(), null, "{\"message\":\"Success\"}");
 
             // Act
@@ -76,10 +74,10 @@ namespace APIMatic.Core.Test.Utilities.Logger
         public void LogResponse_Configured_LogsResponseWithHeaders()
         {
             // Arrange
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration.Builder().Headers(true);
+            var responseLoggingConfiguration = new ResponseLoggingConfiguration { Headers = true };
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfiguration(_logger.Object, responseLoggingConfiguration);
-            var sdkLogger = new Core.Utilities.Logger.SdkLogger(loggingConfiguration);
+            var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string> { { "Content-Type", "application/json" } };
             var response = new CoreResponse(200, headers, null, null);
 

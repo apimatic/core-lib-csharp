@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net.Http;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities.Logger;
@@ -20,7 +19,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             _logger = new Mock<ILogger>();
         }
-        
+
         [Test]
         public void LogRequest_NotConfigured_NoLogSent()
         {
@@ -40,7 +39,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
         public void LogRequest_Configured_LogsRequest_WithError()
         {
             // Arrange
-            var requestLoggingConfiguration = new RequestLoggingConfiguration.Builder();
+            var requestLoggingConfiguration = new RequestLoggingConfiguration();
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfigurationWithError(_logger.Object, requestLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
@@ -60,8 +59,9 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var requestLoggingConfiguration =
-                new RequestLoggingConfiguration.Builder().IncludeQueryInPath(true);
-            var loggingConfiguration = LoggerHelper.GetLoggingConfiguration(_logger.Object, requestLoggingConfiguration);
+                new RequestLoggingConfiguration { IncludeQueryInPath = true };
+            var loggingConfiguration =
+                LoggerHelper.GetLoggingConfiguration(_logger.Object, requestLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var request = new CoreRequest(HttpMethod.Post,
                 "https://example.com/api/resource?param1=value1&param2=value2", new Dictionary<string, string>(), null,
@@ -79,9 +79,9 @@ namespace APIMatic.Core.Test.Utilities.Logger
         public void LogRequest_Configured_LogsRequestWithOutQueryUrl()
         {
             // Arrange
-            var requestLoggingConfiguration =
-                new RequestLoggingConfiguration.Builder();
-            var loggingConfiguration = LoggerHelper.GetLoggingConfiguration(_logger.Object, requestLoggingConfiguration);
+            var requestLoggingConfiguration = new RequestLoggingConfiguration();
+            var loggingConfiguration =
+                LoggerHelper.GetLoggingConfiguration(_logger.Object, requestLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var request = new CoreRequest(HttpMethod.Post,
                 null, new Dictionary<string, string>(), null,
@@ -98,8 +98,9 @@ namespace APIMatic.Core.Test.Utilities.Logger
         public void LogRequest_Configured_LogsRequestWithBody()
         {
             // Arrange
-            var requestLoggingConfiguration = new RequestLoggingConfiguration.Builder().Body(true);
-            var loggingConfiguration = LoggerHelper.GetLoggingConfiguration(_logger.Object, requestLoggingConfiguration);
+            var requestLoggingConfiguration = new RequestLoggingConfiguration { Body = true };
+            var loggingConfiguration =
+                LoggerHelper.GetLoggingConfiguration(_logger.Object, requestLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var request = new CoreRequest(HttpMethod.Post, "https://example.com/api/resource",
                 new Dictionary<string, string>(), "{'key': 'value'}", null);
@@ -117,8 +118,9 @@ namespace APIMatic.Core.Test.Utilities.Logger
         public void LogRequest_Configured_LogsRequestWithHeaders()
         {
             // Arrange
-            var requestLoggingConfiguration = new RequestLoggingConfiguration.Builder().Headers(true);
-            var loggingConfiguration = LoggerHelper.GetLoggingConfiguration(_logger.Object, requestLoggingConfiguration);
+            var requestLoggingConfiguration = new RequestLoggingConfiguration { Headers = true };
+            var loggingConfiguration =
+                LoggerHelper.GetLoggingConfiguration(_logger.Object, requestLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string> { { "Content-Type", "application/json" } };
             var request = new CoreRequest(HttpMethod.Post, "https://example.com/api/resource", headers, null, null);

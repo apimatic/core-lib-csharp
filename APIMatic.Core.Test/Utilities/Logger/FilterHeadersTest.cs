@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using APIMatic.Core.Types.Sdk;
+using APIMatic.Core.Utilities.Logger;
 using APIMatic.Core.Utilities.Logger.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -15,10 +16,10 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new Mock<ILogger>();
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration.Builder().Headers(true);
+            var responseLoggingConfiguration = new ResponseLoggingConfiguration { Headers = true };
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfiguration(logger.Object, responseLoggingConfiguration);
-            var sdkLogger = new Core.Utilities.Logger.SdkLogger(loggingConfiguration);
+            var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string>
             {
                 { "Content-Type", "application/json" }, { "Authorization", "8491ea71-a6e9-499e-84e2-a00946b1995e" }
@@ -39,11 +40,13 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new Mock<ILogger>();
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration.Builder().Headers(true)
-                .IncludeHeaders("content-type");
+            var responseLoggingConfiguration = new ResponseLoggingConfiguration
+            {
+                Headers = true, HeadersToInclude = new List<string> { "content-type" }
+            };
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfiguration(logger.Object, responseLoggingConfiguration);
-            var sdkLogger = new Core.Utilities.Logger.SdkLogger(loggingConfiguration);
+            var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string>
             {
                 { "Content-Type", "application/json" }, { "Authorization", "8491ea71-a6e9-499e-84e2-a00946b1995e" }
@@ -65,11 +68,13 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new Mock<ILogger>();
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration.Builder().Headers(true)
-                .ExcludeHeaders("authorization");
+            var responseLoggingConfiguration = new ResponseLoggingConfiguration
+            {
+                Headers = true, HeadersToExclude = new List<string> { "authorization" }
+            };
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfiguration(logger.Object, responseLoggingConfiguration);
-            var sdkLogger = new Core.Utilities.Logger.SdkLogger(loggingConfiguration);
+            var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string>
             {
                 { "Content-Type", "application/json" }, { "Authorization", "8491ea71-a6e9-499e-84e2-a00946b1995e" }
@@ -91,11 +96,15 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new Mock<ILogger>();
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration.Builder().Headers(true)
-                .UnmaskHeaders("authorization").IncludeHeaders("authorization");
+            var responseLoggingConfiguration = new ResponseLoggingConfiguration
+            {
+                Headers = true,
+                HeadersToInclude = new List<string> { "authorization" },
+                HeadersToUnmask = new List<string> { "authorization" }
+            };
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfiguration(logger.Object, responseLoggingConfiguration);
-            var sdkLogger = new Core.Utilities.Logger.SdkLogger(loggingConfiguration);
+            var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string>
             {
                 { "Content-Type", "application/json" }, { "Authorization", "8491ea71-a6e9-499e-84e2-a00946b1995e" }
@@ -117,10 +126,10 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new Mock<ILogger>();
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration.Builder().Headers(true);
+            var responseLoggingConfiguration = new ResponseLoggingConfiguration { Headers = true };
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfigurationWithoutMask(logger.Object, responseLoggingConfiguration);
-            var sdkLogger = new Core.Utilities.Logger.SdkLogger(loggingConfiguration);
+            var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string>
             {
                 { "Content-Type", "application/json" }, { "Authorization", "8491ea71-a6e9-499e-84e2-a00946b1995e" }

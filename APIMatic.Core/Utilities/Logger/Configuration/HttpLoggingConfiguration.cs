@@ -63,27 +63,27 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
         /// <summary>
         /// Gets or sets a value indicating whether to log the body of the HTTP request/response.
         /// </summary>
-        public bool Body { get; protected set; }
+        public bool Body { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to log the headers of the HTTP request/response.
         /// </summary>
-        public bool Headers { get; protected set; }
+        public bool Headers { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of headers to include in the logged output.
         /// </summary>
-        public IReadOnlyCollection<string> HeadersToInclude { get; protected set; }
+        public IReadOnlyCollection<string> HeadersToInclude { get; set; } = new List<string>();
 
         /// <summary>
         /// Gets or sets the collection of headers to exclude from the logged output.
         /// </summary>
-        public IReadOnlyCollection<string> HeadersToExclude { get; protected set; }
+        public IReadOnlyCollection<string> HeadersToExclude { get; set; } = new List<string>();
 
         /// <summary>
         /// Gets or sets the collection of headers to unmask (e.g., replace sensitive data) in the logged output.
         /// </summary>
-        public IReadOnlyCollection<string> HeadersToUnmask { get; protected set; }
+        public IReadOnlyCollection<string> HeadersToUnmask { get; set; } = new List<string>();
 
         /// <summary>
         /// Retrieves the headers to be logged based on the logging configuration, headers, and sensitivity
@@ -134,15 +134,5 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
             HeadersToUnmask.Contains(key, StringComparer.OrdinalIgnoreCase)
                 ? value
                 : "**Redacted**";
-
-        /// <inheritdoc/>
-        public override string ToString()
-        {
-            return $"{Body} , " +
-                   $"{Headers} , " +
-                   $"{string.Join(" , ", HeadersToInclude)} , " +
-                   $"{string.Join(" , ", HeadersToExclude)} , " +
-                   $"{string.Join(" , ", HeadersToUnmask)}";
-        }
     }
 }
