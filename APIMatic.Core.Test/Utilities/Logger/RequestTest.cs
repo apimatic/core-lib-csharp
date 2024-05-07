@@ -12,7 +12,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
     [TestFixture]
     public class RequestTest
     {
-   [Test]
+        [Test]
         public void LogRequest_NotConfigured_NoLogSent()
         {
             // Arrange
