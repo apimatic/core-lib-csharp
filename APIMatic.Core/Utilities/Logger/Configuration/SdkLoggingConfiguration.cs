@@ -41,6 +41,7 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
         /// </summary>
         public bool IsConfigured => Logger != NullLogger.Instance;
 
+        /// <inheritdoc/>
         public object Clone()
         {
             return new SdkLoggingConfiguration

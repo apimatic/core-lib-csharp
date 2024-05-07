@@ -13,6 +13,7 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
         /// </summary>
         public bool IncludeQueryInPath { get; set; }
 
+        /// <inheritdoc/>
         public object Clone()
         {
             return new RequestLoggingConfiguration

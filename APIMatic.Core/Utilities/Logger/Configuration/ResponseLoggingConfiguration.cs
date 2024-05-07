@@ -8,6 +8,7 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
     /// </summary>
     public class ResponseLoggingConfiguration : HttpLoggingConfiguration, ICloneable
     {
+        /// <inheritdoc/>
         public object Clone()
         {
             return new ResponseLoggingConfiguration
