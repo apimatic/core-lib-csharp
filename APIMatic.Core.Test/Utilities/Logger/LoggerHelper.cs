@@ -1,7 +1,8 @@
-﻿using System;
+﻿using System.Linq;
+using APIMatic.Core.Test.MockTypes.Utilities;
 using APIMatic.Core.Utilities.Logger.Configuration;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NUnit.Framework;
 
 namespace APIMatic.Core.Test.Utilities.Logger
 {
@@ -55,19 +56,23 @@ namespace APIMatic.Core.Test.Utilities.Logger
 
         public static SdkLoggingConfiguration GetLoggingConfigurationWithNoneLogger()
         {
-            var loggingConfiguration = new SdkLoggingConfiguration
-            {
-                MaskSensitiveHeaders = false
-            };
+            var loggingConfiguration = new SdkLoggingConfiguration { MaskSensitiveHeaders = false };
             return loggingConfiguration;
         }
 
-        public static void AssertLogs(Mock<ILogger> logger, LogLevel logLevel, string expectedMessage, int times)
+        public static void AssertLogs(TestLogger logger, LogLevel logLevel, string expectedMessage, int times)
         {
-            logger.Verify(l => l.Log(
-                    logLevel, It.IsAny<EventId>(), It.Is<object>(state => state.ToString().Equals(expectedMessage)),
-                    null, (Func<object, Exception, string>)It.IsAny<object>()),
-                Times.Exactly(times));
+            var filteredMessages = logger.LoggedMessages.Where(logEntry =>
+                logEntry.Message.Contains(expectedMessage) && logEntry.LogLevel.Equals(logLevel));
+
+            if (times == 0)
+            {
+                Assert.IsFalse(filteredMessages.Any());
+            }
+            else
+            {
+                Assert.AreEqual(times, filteredMessages.Count());
+            }
         }
     }
 }

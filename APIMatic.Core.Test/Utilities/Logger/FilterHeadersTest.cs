@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
+using APIMatic.Core.Test.MockTypes.Utilities;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities.Logger;
 using APIMatic.Core.Utilities.Logger.Configuration;
 using Microsoft.Extensions.Logging;
-using Moq;
 using NUnit.Framework;
 
 namespace APIMatic.Core.Test.Utilities.Logger
@@ -15,10 +15,10 @@ namespace APIMatic.Core.Test.Utilities.Logger
         public void LogResponse_Configured_LogsResponseWithSensitiveInformation()
         {
             // Arrange
-            var logger = new Mock<ILogger>();
+            var logger = new TestLogger();
             var responseLoggingConfiguration = new ResponseLoggingConfiguration { Headers = true };
             var loggingConfiguration =
-                LoggerHelper.GetLoggingConfiguration(logger.Object, responseLoggingConfiguration);
+                LoggerHelper.GetLoggingConfiguration(logger, responseLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string>
             {
@@ -39,13 +39,13 @@ namespace APIMatic.Core.Test.Utilities.Logger
         public void LogResponse_Configured_LogsResponseWithIncludeHeaders()
         {
             // Arrange
-            var logger = new Mock<ILogger>();
+            var logger = new TestLogger();
             var responseLoggingConfiguration = new ResponseLoggingConfiguration
             {
                 Headers = true, HeadersToInclude = new List<string> { "content-type" }
             };
             var loggingConfiguration =
-                LoggerHelper.GetLoggingConfiguration(logger.Object, responseLoggingConfiguration);
+                LoggerHelper.GetLoggingConfiguration(logger, responseLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string>
             {
@@ -67,13 +67,13 @@ namespace APIMatic.Core.Test.Utilities.Logger
         public void LogResponse_Configured_LogsResponseWithExcludeHeaders()
         {
             // Arrange
-            var logger = new Mock<ILogger>();
+            var logger = new TestLogger();
             var responseLoggingConfiguration = new ResponseLoggingConfiguration
             {
                 Headers = true, HeadersToExclude = new List<string> { "authorization" }
             };
             var loggingConfiguration =
-                LoggerHelper.GetLoggingConfiguration(logger.Object, responseLoggingConfiguration);
+                LoggerHelper.GetLoggingConfiguration(logger, responseLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string>
             {
@@ -85,8 +85,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
             sdkLogger.LogResponse(response);
 
             //Assert
-            LoggerHelper.AssertLogs(logger, LogLevel.Information, "Response 200 (null) application/json",
-                1);
+            LoggerHelper.AssertLogs(logger, LogLevel.Information, "Response 200 (null) application/json", 1);
             LoggerHelper.AssertLogs(logger, LogLevel.Information,
                 "Response Headers [Content-Type, application/json]", 1);
         }
@@ -95,7 +94,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
         public void LogResponse_Configured_LogsResponseWithUnmask()
         {
             // Arrange
-            var logger = new Mock<ILogger>();
+            var logger = new TestLogger();
             var responseLoggingConfiguration = new ResponseLoggingConfiguration
             {
                 Headers = true,
@@ -103,7 +102,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
                 HeadersToUnmask = new List<string> { "authorization" }
             };
             var loggingConfiguration =
-                LoggerHelper.GetLoggingConfiguration(logger.Object, responseLoggingConfiguration);
+                LoggerHelper.GetLoggingConfiguration(logger, responseLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string>
             {
@@ -115,8 +114,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
             sdkLogger.LogResponse(response);
 
             //Assert
-            LoggerHelper.AssertLogs(logger, LogLevel.Information, "Response 200 (null) application/json",
-                1);
+            LoggerHelper.AssertLogs(logger, LogLevel.Information, "Response 200 (null) application/json", 1);
             LoggerHelper.AssertLogs(logger, LogLevel.Information,
                 "Response Headers [Authorization, 8491ea71-a6e9-499e-84e2-a00946b1995e]", 1);
         }
@@ -125,10 +123,10 @@ namespace APIMatic.Core.Test.Utilities.Logger
         public void LogResponse_Configured_LogsResponseWithGlobalUnmask()
         {
             // Arrange
-            var logger = new Mock<ILogger>();
+            var logger = new TestLogger();
             var responseLoggingConfiguration = new ResponseLoggingConfiguration { Headers = true };
             var loggingConfiguration =
-                LoggerHelper.GetLoggingConfigurationWithoutMask(logger.Object, responseLoggingConfiguration);
+                LoggerHelper.GetLoggingConfigurationWithoutMask(logger, responseLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string>
             {
