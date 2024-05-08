@@ -9,6 +9,16 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
     /// </summary>
     public abstract class HttpLoggingConfiguration
     {
+        protected HttpLoggingConfiguration(bool body, bool headers, IReadOnlyCollection<string> headersToInclude,
+            IReadOnlyCollection<string> headersToExclude, IReadOnlyCollection<string> headersToUnmask)
+        {
+            Body = body;
+            Headers = headers;
+            HeadersToInclude = headersToInclude;
+            HeadersToExclude = headersToExclude;
+            HeadersToUnmask = headersToUnmask;
+        }
+
         /// <summary>
         /// List of non-sensitive headers for unmasking.
         /// </summary>
@@ -63,27 +73,27 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
         /// <summary>
         /// Gets or sets a value indicating whether to log the body of the HTTP request/response.
         /// </summary>
-        public bool Body { get; set; }
+        public bool Body { get; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to log the headers of the HTTP request/response.
         /// </summary>
-        public bool Headers { get; set; }
+        public bool Headers { get; }
 
         /// <summary>
         /// Gets or sets the collection of headers to include in the logged output.
         /// </summary>
-        public IReadOnlyCollection<string> HeadersToInclude { get; set; } = new List<string>();
+        public IReadOnlyCollection<string> HeadersToInclude { get; }
 
         /// <summary>
         /// Gets or sets the collection of headers to exclude from the logged output.
         /// </summary>
-        public IReadOnlyCollection<string> HeadersToExclude { get; set; } = new List<string>();
+        public IReadOnlyCollection<string> HeadersToExclude { get; }
 
         /// <summary>
         /// Gets or sets the collection of headers to unmask (e.g., replace sensitive data) in the logged output.
         /// </summary>
-        public IReadOnlyCollection<string> HeadersToUnmask { get; set; } = new List<string>();
+        public IReadOnlyCollection<string> HeadersToUnmask { get; }
 
         /// <summary>
         /// Retrieves the headers to be logged based on the logging configuration, headers, and sensitivity

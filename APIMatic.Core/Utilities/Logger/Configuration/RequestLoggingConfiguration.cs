@@ -1,30 +1,42 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace APIMatic.Core.Utilities.Logger.Configuration
 {
     /// <summary>
     /// Represents the configuration settings for logging HTTP requests.
     /// </summary>
-    public class RequestLoggingConfiguration : HttpLoggingConfiguration, ICloneable
+    public class RequestLoggingConfiguration : HttpLoggingConfiguration
     {
         /// <summary>
         /// Gets or sets a value indicating whether to include the query string in the logged path of HTTP requests.
         /// </summary>
-        public bool IncludeQueryInPath { get; set; }
+        public bool IncludeQueryInPath { get; }
 
-        /// <inheritdoc/>
-        public object Clone()
+        public RequestLoggingConfiguration(bool body, bool headers, IReadOnlyCollection<string> headersToInclude,
+            IReadOnlyCollection<string> headersToExclude, IReadOnlyCollection<string> headersToUnmask,
+            bool includeQueryInPath) : base(body, headers, headersToInclude, headersToExclude, headersToUnmask)
         {
-            return new RequestLoggingConfiguration
-            {
-                Body = this.Body,
-                Headers = this.Headers,
-                IncludeQueryInPath = this.IncludeQueryInPath,
-                HeadersToInclude = new List<string>(this.HeadersToInclude).AsReadOnly(),
-                HeadersToExclude = new List<string>(this.HeadersToExclude).AsReadOnly(),
-                HeadersToUnmask = new List<string>(this.HeadersToUnmask).AsReadOnly()
-            };
+            IncludeQueryInPath = includeQueryInPath;
         }
+
+        internal static RequestLoggingConfiguration Default() =>
+            new RequestLoggingConfiguration(
+                false,
+                false,
+                Enumerable.Empty<string>().ToList(),
+                Enumerable.Empty<string>().ToList(),
+                Enumerable.Empty<string>().ToList(),
+                false);
+
+        public static RequestLoggingConfiguration Builder(bool logBody, bool logHeaders, bool includeQueryInPath,
+            IReadOnlyCollection<string> headersToInclude, IReadOnlyCollection<string> headersToExclude,
+            IReadOnlyCollection<string> headersToUnmask) =>
+            new RequestLoggingConfiguration(logBody,
+                logHeaders,
+                headersToInclude ?? Enumerable.Empty<string>().ToList(),
+                headersToExclude ?? Enumerable.Empty<string>().ToList(),
+                headersToUnmask ?? Enumerable.Empty<string>().ToList(), 
+                includeQueryInPath);
     }
 }

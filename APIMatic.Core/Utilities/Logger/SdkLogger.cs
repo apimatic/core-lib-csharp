@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities.Logger.Configuration;
 using Microsoft.Extensions.Logging;
@@ -11,7 +12,7 @@ namespace APIMatic.Core.Utilities.Logger
     internal class SdkLogger
     {
         private readonly ILogger _logger;
-        private readonly LogLevel? _logLevel;
+        private readonly Func<LogLevel, LogLevel> _getOverridenLogLevel;
         private readonly RequestLoggingConfiguration _requestConfiguration;
         private readonly ResponseLoggingConfiguration _responseConfiguration;
         private readonly bool _isConfigured;
@@ -24,7 +25,7 @@ namespace APIMatic.Core.Utilities.Logger
         public SdkLogger(SdkLoggingConfiguration loggingConfiguration)
         {
             _logger = loggingConfiguration.Logger;
-            _logLevel = loggingConfiguration.LogLevel;
+            _getOverridenLogLevel = level => loggingConfiguration.LogLevel.GetValueOrDefault(level);
             _requestConfiguration = loggingConfiguration.RequestLoggingConfiguration;
             _responseConfiguration = loggingConfiguration.ResponseLoggingConfiguration;
             _isConfigured = loggingConfiguration.IsConfigured;
@@ -38,7 +39,7 @@ namespace APIMatic.Core.Utilities.Logger
         public void LogRequest(CoreRequest request)
         {
             if (!_isConfigured) return;
-            var localLogLevel = _logLevel.GetValueOrDefault(LogLevel.Information);
+            var localLogLevel = _getOverridenLogLevel(LogLevel.Information);
             var contentTypeHeader = request.Headers.GetContentType();
             var url = _requestConfiguration.IncludeQueryInPath ? request.QueryUrl : ParseQueryPath(request.QueryUrl);
             _logger.Log(localLogLevel, "Request {HttpMethod} {Url} {ContentType}",
@@ -66,7 +67,7 @@ namespace APIMatic.Core.Utilities.Logger
         public void LogResponse(CoreResponse response)
         {
             if (!_isConfigured) return;
-            var localLogLevel = _logLevel.GetValueOrDefault(LogLevel.Information);
+            var localLogLevel = _getOverridenLogLevel(LogLevel.Information);
             var contentTypeHeader = response.Headers.GetContentType();
             var contentLengthHeader = response.Headers.GetContentLength();
             _logger.Log(localLogLevel, "Response {HttpStatusCode} {ContentType} {ContentLength}",
