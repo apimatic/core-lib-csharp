@@ -2,9 +2,7 @@
 using APIMatic.Core.Test.MockTypes.Utilities;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities.Logger;
-using APIMatic.Core.Utilities.Logger.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.TestPlatform.Utilities;
 using NUnit.Framework;
 
 namespace APIMatic.Core.Test.Utilities.Logger
