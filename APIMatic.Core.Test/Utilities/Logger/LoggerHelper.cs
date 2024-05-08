@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using APIMatic.Core.Test.MockTypes.Utilities;
 using APIMatic.Core.Utilities.Logger.Configuration;
 using Microsoft.Extensions.Logging;
@@ -11,54 +12,32 @@ namespace APIMatic.Core.Test.Utilities.Logger
         public static SdkLoggingConfiguration GetLoggingConfiguration(ILogger logger,
             RequestLoggingConfiguration requestLoggingConfiguration)
         {
-            var loggingConfiguration = new SdkLoggingConfiguration
-            {
-                Logger = logger,
-                MaskSensitiveHeaders = true,
-                RequestLoggingConfiguration = requestLoggingConfiguration
-            };
-            return loggingConfiguration;
-        }
-
-        public static SdkLoggingConfiguration GetLoggingConfiguration(ILogger logger,
-            ResponseLoggingConfiguration responseLoggingConfiguration)
-        {
-            var loggingConfiguration = new SdkLoggingConfiguration
-            {
-                Logger = logger, ResponseLoggingConfiguration = responseLoggingConfiguration
-            };
-            return loggingConfiguration;
-        }
-
-        public static SdkLoggingConfiguration GetLoggingConfigurationWithError(ILogger logger,
-            RequestLoggingConfiguration requestLoggingConfiguration)
-        {
-            var loggingConfiguration = new SdkLoggingConfiguration
-            {
-                Logger = logger,
-                LogLevel = LogLevel.Error,
-                RequestLoggingConfiguration = requestLoggingConfiguration
-            };
-            return loggingConfiguration;
+            return LoggerHelper.GetSdkLoggingConfiguration(logger: logger, maskSensitiveHeaders: true, requestLoggingConfiguration: requestLoggingConfiguration);
         }
 
         public static SdkLoggingConfiguration GetLoggingConfigurationWithoutMask(ILogger logger,
             ResponseLoggingConfiguration responseLoggingConfiguration)
         {
-            var loggingConfiguration = new SdkLoggingConfiguration
-            {
-                Logger = logger,
-                MaskSensitiveHeaders = false,
-                ResponseLoggingConfiguration = responseLoggingConfiguration
-            };
-            return loggingConfiguration;
+            return GetSdkLoggingConfiguration(logger: logger, maskSensitiveHeaders: false,
+                responseLoggingConfiguration: responseLoggingConfiguration);
         }
 
-        public static SdkLoggingConfiguration GetLoggingConfigurationWithNoneLogger()
-        {
-            var loggingConfiguration = new SdkLoggingConfiguration { MaskSensitiveHeaders = false };
-            return loggingConfiguration;
-        }
+        public static SdkLoggingConfiguration GetSdkLoggingConfiguration(ILogger logger = null,
+            LogLevel? logLevel = null, bool maskSensitiveHeaders = true,
+            RequestLoggingConfiguration requestLoggingConfiguration = null,
+            ResponseLoggingConfiguration responseLoggingConfiguration = null) => SdkLoggingConfiguration.Builder(logger,
+            logLevel, maskSensitiveHeaders, requestLoggingConfiguration, responseLoggingConfiguration);
+
+        public static RequestLoggingConfiguration GetRequestLoggingConfiguration(bool body = false,
+            bool headers = false, bool includeQueryInPath = false, IReadOnlyCollection<string> headersToInclude = null,
+            IReadOnlyCollection<string> headersToExclude = null, IReadOnlyCollection<string> headersToUnmask = null) =>
+            RequestLoggingConfiguration.Builder(body, headers, includeQueryInPath, headersToInclude, headersToExclude,
+                headersToUnmask);
+
+        public static ResponseLoggingConfiguration GetResponseLoggingConfiguration(bool body = false,
+            bool headers = false, IReadOnlyCollection<string> headersToInclude = null,
+            IReadOnlyCollection<string> headersToExclude = null, IReadOnlyCollection<string> headersToUnmask = null) =>
+            ResponseLoggingConfiguration.Builder(body, headers, headersToInclude, headersToExclude, headersToUnmask);
 
         public static void AssertLogs(TestLogger logger, LogLevel logLevel, string expectedMessage, int times)
         {

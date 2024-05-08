@@ -16,7 +16,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new TestLogger();
-            var loggingConfiguration = LoggerHelper.GetLoggingConfigurationWithNoneLogger();
+            var loggingConfiguration = LoggerHelper.GetSdkLoggingConfiguration(maskSensitiveHeaders: false);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var response = new CoreResponse(200, new Dictionary<string, string>(), null, "{\"message\":\"Success\"}");
 
@@ -32,9 +32,9 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new TestLogger();
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration();
-            var loggingConfiguration =
-                LoggerHelper.GetLoggingConfiguration(logger, responseLoggingConfiguration);
+            var responseLoggingConfiguration = LoggerHelper.GetResponseLoggingConfiguration();
+            var loggingConfiguration = LoggerHelper.GetSdkLoggingConfiguration(logger: logger,
+                maskSensitiveHeaders: true, responseLoggingConfiguration: responseLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var response = new CoreResponse(200, new Dictionary<string, string>(), null, null);
 
@@ -51,9 +51,9 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new TestLogger();
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration { Body = true };
-            var loggingConfiguration =
-                LoggerHelper.GetLoggingConfiguration(logger, responseLoggingConfiguration);
+            var responseLoggingConfiguration = LoggerHelper.GetResponseLoggingConfiguration(body: true);
+            var loggingConfiguration = LoggerHelper.GetSdkLoggingConfiguration(logger: logger,
+                responseLoggingConfiguration: responseLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var response = new CoreResponse(200, new Dictionary<string, string>(), null, "{\"message\":\"Success\"}");
 
@@ -70,9 +70,9 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new TestLogger();
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration { Headers = true };
-            var loggingConfiguration =
-                LoggerHelper.GetLoggingConfiguration(logger, responseLoggingConfiguration);
+            var responseLoggingConfiguration = LoggerHelper.GetResponseLoggingConfiguration(headers: true);
+            var loggingConfiguration = LoggerHelper.GetSdkLoggingConfiguration(logger: logger,
+                responseLoggingConfiguration: responseLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string> { { "Content-Type", "application/json" } };
             var response = new CoreResponse(200, headers, null, null);

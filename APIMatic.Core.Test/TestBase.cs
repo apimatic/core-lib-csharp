@@ -55,7 +55,7 @@ namespace APIMatic.Core.Test
                 ("{language}", "my lang"),
                 ("{version}", "1.*.*")
             })
-            .loggingConfig(new SdkLoggingConfiguration())
+            .loggingConfig(SdkLoggingConfiguration.Default())
             .ApiCallback(ApiCallBack)
             .Build()
         );

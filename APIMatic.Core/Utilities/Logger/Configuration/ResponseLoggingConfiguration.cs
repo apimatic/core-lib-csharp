@@ -25,8 +25,7 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
 
         public static ResponseLoggingConfiguration Builder(bool logBody, bool logHeaders,
             IReadOnlyCollection<string> headersToInclude, IReadOnlyCollection<string> headersToExclude,
-            IReadOnlyCollection<string> headersToUnmask)
-            =>
+            IReadOnlyCollection<string> headersToUnmask) =>
                 new ResponseLoggingConfiguration(logBody,
                     logHeaders,
                     headersToInclude ?? Enumerable.Empty<string>().ToList(),

@@ -5,6 +5,7 @@ using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities.Logger;
 using APIMatic.Core.Utilities.Logger.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
 namespace APIMatic.Core.Test.Utilities.Logger
@@ -17,7 +18,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new TestLogger();
-            var loggingConfiguration = LoggerHelper.GetLoggingConfigurationWithNoneLogger();
+            var loggingConfiguration = LoggerHelper.GetSdkLoggingConfiguration(logger: NullLogger.Instance);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var request = new CoreRequest(HttpMethod.Post, "https://example.com/api/resource", null, null, null);
 
@@ -33,9 +34,9 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new TestLogger();
-            var requestLoggingConfiguration = new RequestLoggingConfiguration();
-            var loggingConfiguration =
-                LoggerHelper.GetLoggingConfigurationWithError(logger, requestLoggingConfiguration);
+            var requestLoggingConfiguration = LoggerHelper.GetRequestLoggingConfiguration();
+            var loggingConfiguration = LoggerHelper.GetSdkLoggingConfiguration(logger: logger, logLevel: LogLevel.Error,
+                requestLoggingConfiguration: requestLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var request = new CoreRequest(HttpMethod.Post, "https://example.com/api/resource",
                 new Dictionary<string, string>(), null, null);
@@ -53,8 +54,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new TestLogger();
-            var requestLoggingConfiguration =
-                new RequestLoggingConfiguration { IncludeQueryInPath = true };
+            var requestLoggingConfiguration = LoggerHelper.GetRequestLoggingConfiguration(includeQueryInPath: true);
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfiguration(logger, requestLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
@@ -75,7 +75,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new TestLogger();
-            var requestLoggingConfiguration = new RequestLoggingConfiguration();
+            var requestLoggingConfiguration = LoggerHelper.GetRequestLoggingConfiguration();
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfiguration(logger, requestLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
@@ -95,7 +95,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new TestLogger();
-            var requestLoggingConfiguration = new RequestLoggingConfiguration { Body = true };
+            var requestLoggingConfiguration = LoggerHelper.GetRequestLoggingConfiguration(body: true);
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfiguration(logger, requestLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
@@ -116,7 +116,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new TestLogger();
-            var requestLoggingConfiguration = new RequestLoggingConfiguration { Headers = true };
+            var requestLoggingConfiguration = LoggerHelper.GetRequestLoggingConfiguration(headers: true);
             var loggingConfiguration =
                 LoggerHelper.GetLoggingConfiguration(logger, requestLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);

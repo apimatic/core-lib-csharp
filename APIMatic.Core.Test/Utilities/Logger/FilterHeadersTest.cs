@@ -4,6 +4,7 @@ using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities.Logger;
 using APIMatic.Core.Utilities.Logger.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using NUnit.Framework;
 
 namespace APIMatic.Core.Test.Utilities.Logger
@@ -16,9 +17,9 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new TestLogger();
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration { Headers = true };
-            var loggingConfiguration =
-                LoggerHelper.GetLoggingConfiguration(logger, responseLoggingConfiguration);
+            var responseLoggingConfiguration = LoggerHelper.GetResponseLoggingConfiguration(headers: true);
+            var loggingConfiguration = LoggerHelper.GetSdkLoggingConfiguration(logger: logger,
+                responseLoggingConfiguration: responseLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string>
             {
@@ -40,12 +41,11 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new TestLogger();
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration
-            {
-                Headers = true, HeadersToInclude = new List<string> { "content-type" }
-            };
-            var loggingConfiguration =
-                LoggerHelper.GetLoggingConfiguration(logger, responseLoggingConfiguration);
+            var responseLoggingConfiguration =
+                LoggerHelper.GetResponseLoggingConfiguration(headers: true,
+                    headersToInclude: new List<string> { "content-type" });
+            var loggingConfiguration = LoggerHelper.GetSdkLoggingConfiguration(logger: logger,
+                responseLoggingConfiguration: responseLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string>
             {
@@ -68,12 +68,10 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new TestLogger();
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration
-            {
-                Headers = true, HeadersToExclude = new List<string> { "authorization" }
-            };
-            var loggingConfiguration =
-                LoggerHelper.GetLoggingConfiguration(logger, responseLoggingConfiguration);
+            var responseLoggingConfiguration = LoggerHelper.GetResponseLoggingConfiguration(headers: true,
+                headersToExclude: new List<string> { "authorization" });
+            var loggingConfiguration = LoggerHelper.GetSdkLoggingConfiguration(logger: logger,
+                responseLoggingConfiguration: responseLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string>
             {
@@ -95,14 +93,11 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new TestLogger();
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration
-            {
-                Headers = true,
-                HeadersToInclude = new List<string> { "authorization" },
-                HeadersToUnmask = new List<string> { "authorization" }
-            };
-            var loggingConfiguration =
-                LoggerHelper.GetLoggingConfiguration(logger, responseLoggingConfiguration);
+            var responseLoggingConfiguration = LoggerHelper.GetResponseLoggingConfiguration(headers: true,
+                headersToInclude: new List<string> { "authorization" },
+                headersToUnmask: new List<string> { "authorization" });
+            var loggingConfiguration = LoggerHelper.GetSdkLoggingConfiguration(logger: logger,
+                responseLoggingConfiguration: responseLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string>
             {
@@ -124,9 +119,9 @@ namespace APIMatic.Core.Test.Utilities.Logger
         {
             // Arrange
             var logger = new TestLogger();
-            var responseLoggingConfiguration = new ResponseLoggingConfiguration { Headers = true };
-            var loggingConfiguration =
-                LoggerHelper.GetLoggingConfigurationWithoutMask(logger, responseLoggingConfiguration);
+            var responseLoggingConfiguration = LoggerHelper.GetResponseLoggingConfiguration(headers: true);
+            var loggingConfiguration = LoggerHelper.GetSdkLoggingConfiguration(logger: logger,
+                maskSensitiveHeaders: false, responseLoggingConfiguration: responseLoggingConfiguration);
             var sdkLogger = new SdkLogger(loggingConfiguration);
             var headers = new Dictionary<string, string>
             {
