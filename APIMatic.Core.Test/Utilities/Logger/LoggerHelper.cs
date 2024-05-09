@@ -12,14 +12,8 @@ namespace APIMatic.Core.Test.Utilities.Logger
         public static SdkLoggingConfiguration GetLoggingConfiguration(ILogger logger,
             RequestLoggingConfiguration requestLoggingConfiguration)
         {
-            return LoggerHelper.GetSdkLoggingConfiguration(logger: logger, maskSensitiveHeaders: true, requestLoggingConfiguration: requestLoggingConfiguration);
-        }
-
-        public static SdkLoggingConfiguration GetLoggingConfigurationWithoutMask(ILogger logger,
-            ResponseLoggingConfiguration responseLoggingConfiguration)
-        {
-            return GetSdkLoggingConfiguration(logger: logger, maskSensitiveHeaders: false,
-                responseLoggingConfiguration: responseLoggingConfiguration);
+            return LoggerHelper.GetSdkLoggingConfiguration(logger: logger, maskSensitiveHeaders: true,
+                requestLoggingConfiguration: requestLoggingConfiguration);
         }
 
         public static SdkLoggingConfiguration GetSdkLoggingConfiguration(ILogger logger = null,

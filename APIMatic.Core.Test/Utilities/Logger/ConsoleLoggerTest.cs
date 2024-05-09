@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using APIMatic.Core.Utilities.Logger;
+using APIMatic.Core.Utilities.Logger.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace APIMatic.Core.Test.Utilities.Logger
@@ -19,7 +20,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
         [SetUp]
         public void SetUp()
         {
-            _logger = ConsoleLogger.Instance;
+            _logger = SdkLoggingConfiguration.Console().Logger;
             _eventId = new EventId(100);
         }
 
