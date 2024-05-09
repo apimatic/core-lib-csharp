@@ -71,10 +71,7 @@ namespace APIMatic.Core.Utilities.Logger
                 stringWriter.Write(message);
             }
 
-            if (logEntry.Exception == null)
-            {
-                return stringWriter.ToString();
-            }
+            if (logEntry.Exception == null) return stringWriter.ToString();
 
             var exceptionMessage = logEntry.Exception.ToString();
             stringWriter.Write(' ');
