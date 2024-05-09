@@ -154,7 +154,7 @@ namespace APIMatic.Core
             /// </summary>
             /// <param name="sdkLoggingConfiguration">The logging configuration to be set for the SDK.</param>
             /// <returns>A reference to the current builder instance.</returns>
-            public Builder loggingConfig(SdkLoggingConfiguration sdkLoggingConfiguration)
+            public Builder LoggingConfig(SdkLoggingConfiguration sdkLoggingConfiguration)
             {
                 this.sdkLoggingConfiguration = sdkLoggingConfiguration;
                 return this;
