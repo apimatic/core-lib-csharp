@@ -49,7 +49,6 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
             RequestLoggingConfiguration = requestLoggingConfiguration;
             ResponseLoggingConfiguration = responseLoggingConfiguration;
         }
-        
 
         public static SdkLoggingConfiguration Default() =>
             new SdkLoggingConfiguration(NullLogger.Instance, null, true,

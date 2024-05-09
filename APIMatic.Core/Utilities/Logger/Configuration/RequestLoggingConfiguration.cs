@@ -13,14 +13,14 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
         /// </summary>
         public bool IncludeQueryInPath { get; }
 
-        public RequestLoggingConfiguration(bool body, bool headers, IReadOnlyCollection<string> headersToInclude,
+        private RequestLoggingConfiguration(bool body, bool headers, IReadOnlyCollection<string> headersToInclude,
             IReadOnlyCollection<string> headersToExclude, IReadOnlyCollection<string> headersToUnmask,
             bool includeQueryInPath) : base(body, headers, headersToInclude, headersToExclude, headersToUnmask)
         {
             IncludeQueryInPath = includeQueryInPath;
         }
 
-        internal static RequestLoggingConfiguration Default() =>
+        public static RequestLoggingConfiguration Default() =>
             new RequestLoggingConfiguration(
                 false,
                 false,
