@@ -9,7 +9,7 @@ namespace APIMatic.Core.Utilities.Logger
     /// <summary>
     /// Provides logging functionality for SDK operations.
     /// </summary>
-    internal class SdkLogger
+    internal class SdkLogger : ISdkLogger
     {
         private readonly ILogger _logger;
         private readonly Func<LogLevel, LogLevel> _getOverridenLogLevel;
