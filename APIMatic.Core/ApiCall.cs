@@ -36,7 +36,7 @@ namespace APIMatic.Core
         private readonly Func<Response, ResponseType, ReturnType> returnTypeCreator;
         private Enum apiCallServer;
         private RequestBuilder requestBuilder;
-        private readonly SdkLogger _sdkLogger;
+        private readonly ISdkLogger _sdkLogger;
 
         /// <summary>
         /// Creates a new instance of ApiCall
@@ -54,7 +54,7 @@ namespace APIMatic.Core
             arraySerialization = serialization;
             this.returnTypeCreator = returnTypeCreator;
             responseHandler = new ResponseHandler<Request, Response, Context, ApiException, ResponseType>(compatibility, globalErrors);
-            _sdkLogger = new SdkLogger(configuration.SdkLoggingConfiguration);
+            _sdkLogger = SdkLoggerFactory.Create(configuration.SdkLoggingConfiguration);
         }
 
         /// <summary>
