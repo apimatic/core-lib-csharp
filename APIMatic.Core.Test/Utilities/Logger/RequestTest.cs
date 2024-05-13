@@ -19,7 +19,8 @@ namespace APIMatic.Core.Test.Utilities.Logger
             var logger = new TestLogger();
             var loggingConfiguration = LoggerHelper.GetSdkLoggingConfiguration(logger: NullLogger.Instance);
             var sdkLogger = new SdkLogger(loggingConfiguration);
-            var request = new CoreRequest(HttpMethod.Post, "https://example.com/api/resource", null, null, null);
+            var request = new CoreRequest(HttpMethod.Post, "https://example.com/api/resource",
+                new Dictionary<string, string>(), null, null);
 
             // Act
             sdkLogger.LogRequest(request);

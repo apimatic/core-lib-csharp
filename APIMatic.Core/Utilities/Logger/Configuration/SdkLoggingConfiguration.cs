@@ -22,7 +22,7 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
         /// <summary>
         /// Gets or sets whether sensitive headers should be masked in logs.
         /// </summary>
-        public bool MaskSensitiveHeaders { get; } 
+        public bool MaskSensitiveHeaders { get; }
 
         /// <summary>
         /// Gets or sets the configuration for request logging.
@@ -34,11 +34,6 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
         /// </summary>
         public ResponseLoggingConfiguration ResponseLoggingConfiguration { get; }
 
-        /// <summary>
-        /// Gets a value indicating whether the logging configuration is fully set up.
-        /// </summary>
-        public bool IsConfigured => Logger != NullLogger.Instance;
-
         private SdkLoggingConfiguration(ILogger logger, LogLevel? logLevel, bool maskSensitiveHeaders,
             RequestLoggingConfiguration requestLoggingConfiguration,
             ResponseLoggingConfiguration responseLoggingConfiguration)
@@ -49,18 +44,11 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
             RequestLoggingConfiguration = requestLoggingConfiguration;
             ResponseLoggingConfiguration = responseLoggingConfiguration;
         }
-        
-
-        public static SdkLoggingConfiguration Default() =>
-            new SdkLoggingConfiguration(NullLogger.Instance, null, true,
-                RequestLoggingConfiguration.Default(),
-                ResponseLoggingConfiguration.Default());
 
         public static SdkLoggingConfiguration Console() =>
             new SdkLoggingConfiguration(ConsoleLogger.Instance, null, true,
                 RequestLoggingConfiguration.Default(),
                 ResponseLoggingConfiguration.Default());
-
 
         public static SdkLoggingConfiguration Builder(ILogger logger, LogLevel? logLevel, bool maskSensitiveHeaders,
             RequestLoggingConfiguration requestLoggingConfiguration,
