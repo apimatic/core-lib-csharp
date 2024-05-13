@@ -14,8 +14,7 @@ namespace APIMatic.Core.Utilities.Logger
         /// Returns the shared instance of <see cref="T:Microsoft.Extensions.Logging.Abstractions.NullLogger" />.
         /// </summary>
         public static ConsoleLogger Instance { get; } = new ConsoleLogger();
-
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="T:Microsoft.Extensions.Logging.Abstractions.NullLogger" /> class.
         /// </summary>
