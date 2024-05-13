@@ -6,7 +6,6 @@ using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Test.MockTypes.Authentication;
 using APIMatic.Core.Types;
 using APIMatic.Core.Utilities.Logger.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using RichardSzalay.MockHttp;
 
