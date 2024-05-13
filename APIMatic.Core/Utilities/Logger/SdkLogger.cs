@@ -9,13 +9,12 @@ namespace APIMatic.Core.Utilities.Logger
     /// <summary>
     /// Provides logging functionality for SDK operations.
     /// </summary>
-    internal class SdkLogger
+    internal class SdkLogger : ISdkLogger
     {
         private readonly ILogger _logger;
         private readonly Func<LogLevel, LogLevel> _getOverridenLogLevel;
         private readonly RequestLoggingConfiguration _requestConfiguration;
         private readonly ResponseLoggingConfiguration _responseConfiguration;
-        private readonly bool _isConfigured;
         private readonly bool _maskSensitiveHeaders;
 
         /// <summary>
@@ -28,7 +27,6 @@ namespace APIMatic.Core.Utilities.Logger
             _getOverridenLogLevel = level => loggingConfiguration.LogLevel.GetValueOrDefault(level);
             _requestConfiguration = loggingConfiguration.RequestLoggingConfiguration;
             _responseConfiguration = loggingConfiguration.ResponseLoggingConfiguration;
-            _isConfigured = loggingConfiguration.IsConfigured;
             _maskSensitiveHeaders = loggingConfiguration.MaskSensitiveHeaders;
         }
 
@@ -38,7 +36,6 @@ namespace APIMatic.Core.Utilities.Logger
         /// <param name="request">The request to be logged.</param>
         public void LogRequest(CoreRequest request)
         {
-            if (!_isConfigured) return;
             var localLogLevel = _getOverridenLogLevel(LogLevel.Information);
             var contentTypeHeader = request.Headers.GetContentType();
             var url = _requestConfiguration.IncludeQueryInPath ? request.QueryUrl : ParseQueryPath(request.QueryUrl);
@@ -66,7 +63,6 @@ namespace APIMatic.Core.Utilities.Logger
         /// <param name="response">The response to be logged.</param>
         public void LogResponse(CoreResponse response)
         {
-            if (!_isConfigured) return;
             var localLogLevel = _getOverridenLogLevel(LogLevel.Information);
             var contentTypeHeader = response.Headers.GetContentType();
             var contentLengthHeader = response.Headers.GetContentLength();
