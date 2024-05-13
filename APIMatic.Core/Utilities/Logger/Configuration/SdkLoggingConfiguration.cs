@@ -34,11 +34,6 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
         /// </summary>
         public ResponseLoggingConfiguration ResponseLoggingConfiguration { get; }
 
-        /// <summary>
-        /// Gets a value indicating whether the logging configuration is fully set up.
-        /// </summary>
-        public bool IsConfigured => Logger != NullLogger.Instance;
-
         private SdkLoggingConfiguration(ILogger logger, LogLevel? logLevel, bool maskSensitiveHeaders,
             RequestLoggingConfiguration requestLoggingConfiguration,
             ResponseLoggingConfiguration responseLoggingConfiguration)
