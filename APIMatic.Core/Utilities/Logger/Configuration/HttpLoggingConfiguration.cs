@@ -83,17 +83,17 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
         /// <summary>
         /// Gets or sets the collection of headers to include in the logged output.
         /// </summary>
-        public IReadOnlyCollection<string> HeadersToInclude { get; }
+        private IReadOnlyCollection<string> HeadersToInclude { get; }
 
         /// <summary>
         /// Gets or sets the collection of headers to exclude from the logged output.
         /// </summary>
-        public IReadOnlyCollection<string> HeadersToExclude { get; }
+        private IReadOnlyCollection<string> HeadersToExclude { get; }
 
         /// <summary>
         /// Gets or sets the collection of headers to unmask (e.g., replace sensitive data) in the logged output.
         /// </summary>
-        public IReadOnlyCollection<string> HeadersToUnmask { get; }
+        private IReadOnlyCollection<string> HeadersToUnmask { get; }
 
         /// <summary>
         /// Retrieves the headers to be logged based on the logging configuration, headers, and sensitivity

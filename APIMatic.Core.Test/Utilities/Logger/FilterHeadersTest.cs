@@ -23,7 +23,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
             {
                 { "Content-Type", "application/json" }, { "Authorization", "8491ea71-a6e9-499e-84e2-a00946b1995e" }
             };
-            var response = new CoreResponse(200, headers, null, null);
+            var response = new CoreResponse(200, headers, null);
 
             // Act
             sdkLogger.LogResponse(response);
@@ -49,7 +49,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
             {
                 { "Content-Type", "application/json" }, { "Authorization", "8491ea71-a6e9-499e-84e2-a00946b1995e" }
             };
-            var response = new CoreResponse(200, headers, null, null);
+            var response = new CoreResponse(200, headers, null);
 
             // Act
             sdkLogger.LogResponse(response);

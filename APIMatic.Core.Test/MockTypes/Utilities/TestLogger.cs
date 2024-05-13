@@ -24,12 +24,12 @@ namespace APIMatic.Core.Test.MockTypes.Utilities
             var message = formatter(state, exception);
             LoggedMessages.Add(new LogEntry(logLevel, message));
         }
-        
+
         internal class LogEntry
         {
             public LogLevel LogLevel { get; }
             public string Message { get; }
-            
+
             public LogEntry(LogLevel logLevel, string message)
             {
                 LogLevel = logLevel;

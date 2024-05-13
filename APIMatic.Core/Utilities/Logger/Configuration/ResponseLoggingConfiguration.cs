@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,7 +8,7 @@ namespace APIMatic.Core.Utilities.Logger.Configuration
     /// </summary>
     public class ResponseLoggingConfiguration : HttpLoggingConfiguration
     {
-        public ResponseLoggingConfiguration(bool body, bool headers, IReadOnlyCollection<string> headersToInclude,
+        private ResponseLoggingConfiguration(bool body, bool headers, IReadOnlyCollection<string> headersToInclude,
             IReadOnlyCollection<string> headersToExclude, IReadOnlyCollection<string> headersToUnmask) : base(body,
             headers, headersToInclude, headersToExclude, headersToUnmask)
         {

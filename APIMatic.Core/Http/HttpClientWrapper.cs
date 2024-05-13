@@ -35,7 +35,7 @@ namespace APIMatic.Core.Http
         private readonly IList<HttpStatusCode> _statusCodesToRetry;
         private readonly IList<HttpMethod> _requestMethodsToRetry;
         private readonly bool _overrideHttpClientConfiguration;
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpClientWrapper"/> class.
         /// </summary>
@@ -193,7 +193,7 @@ namespace APIMatic.Core.Http
             return formContent;
         }
 
-        private ByteArrayContent GetByteArrayContentFromRequestBody(object requestBody)
+        private static ByteArrayContent GetByteArrayContentFromRequestBody(object requestBody)
         {
             byte[] bytes;
             if (requestBody is Stream stream)
@@ -216,7 +216,7 @@ namespace APIMatic.Core.Http
             return new ByteArrayContent(bytes ?? Array.Empty<byte>());
         }
 
-        private MediaTypeHeaderValue GetFileStreamContentType(CoreFileStreamInfo file, string contentType)
+        private static MediaTypeHeaderValue GetFileStreamContentType(CoreFileStreamInfo file, string contentType)
         {
             if (!string.IsNullOrWhiteSpace(file.ContentType))
             {
@@ -310,7 +310,6 @@ namespace APIMatic.Core.Http
                     headers.Add(contentHeader.Key, contentHeader.Value.First());
                 }
             }
-
             return headers;
         }
     }

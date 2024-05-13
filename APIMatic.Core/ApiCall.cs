@@ -12,7 +12,6 @@ using APIMatic.Core.Response;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
 using APIMatic.Core.Utilities.Logger;
-using Microsoft.Extensions.Logging;
 
 namespace APIMatic.Core
 {
@@ -44,10 +43,9 @@ namespace APIMatic.Core
         /// </summary>
         /// <param name="configuration"></param>
         /// <param name="compatibility"></param>
-        /// <param name="errors"></param>
+        /// <param name="globalErrors"></param>
         /// <param name="serialization"></param>
         /// <param name="returnTypeCreator"></param>
-        /// <param name="logHelper"></param>
         public ApiCall(GlobalConfiguration configuration, ICompatibilityFactory<Request, Response, Context, ApiException> compatibility,
             Dictionary<string, ErrorCase<Request, Response, Context, ApiException>> globalErrors = null, ArraySerialization serialization = ArraySerialization.Indexed,
             Func<Response, ResponseType, ReturnType> returnTypeCreator = null)
@@ -112,7 +110,6 @@ namespace APIMatic.Core
             _sdkLogger.LogResponse(response);
             var context = new CoreContext<CoreRequest, CoreResponse>(request, response);
             return responseHandler.Result(context, returnTypeCreator);
-            
         }
     }
 }

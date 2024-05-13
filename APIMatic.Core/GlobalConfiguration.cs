@@ -11,7 +11,6 @@ using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Request;
 using APIMatic.Core.Request.Parameters;
 using APIMatic.Core.Types;
-using APIMatic.Core.Utilities.Logger;
 using APIMatic.Core.Utilities.Logger.Configuration;
 
 namespace APIMatic.Core
@@ -31,17 +30,16 @@ namespace APIMatic.Core
         internal Parameter.Builder RuntimeParameters { get; private set; }
         internal HttpCallBack ApiCallback { get; private set; }
         internal HttpClientWrapper HttpClient { get; private set; }
-        
 
         private GlobalConfiguration(ICoreHttpClientConfiguration httpConfiguration, Dictionary<string, AuthManager> authManagers,
             Dictionary<Enum, string> serverUrls, Enum defaultServer, Parameter.Builder parameters,
-            Parameter.Builder runtimeParameters, HttpCallBack apiCallback, SdkLoggingConfiguration sdkLoggingOptionsConfiguration)
+            Parameter.Builder runtimeParameters, HttpCallBack apiCallback, SdkLoggingConfiguration sdkLoggingConfiguration)
         {
             _serverUrls = serverUrls;
             _defaultServer = defaultServer;
             _parameters = parameters;
             ApiCallback = apiCallback;
-            SdkLoggingConfiguration = sdkLoggingOptionsConfiguration;
+            SdkLoggingConfiguration = sdkLoggingConfiguration;
             AuthManagers = authManagers;
             RuntimeParameters = runtimeParameters;
             HttpClient = new HttpClientWrapper(httpConfiguration);
@@ -80,7 +78,7 @@ namespace APIMatic.Core
             private readonly Parameter.Builder runtimeParameters = new Parameter.Builder();
             private HttpCallBack apiCallback;
             private SdkLoggingConfiguration sdkLoggingConfiguration;
-            
+
             /// <summary>
             /// Required: Configures the http configurations
             /// </summary>
@@ -148,7 +146,7 @@ namespace APIMatic.Core
                 this.apiCallback = apiCallback;
                 return this;
             }
-            
+
             /// <summary>
             /// Sets the logging configuration for the SDK.
             /// </summary>
@@ -159,7 +157,7 @@ namespace APIMatic.Core
                 this.sdkLoggingConfiguration = sdkLoggingConfiguration;
                 return this;
             }
-            
+
             /// <summary>
             /// Sets the user-agent header and configure values and place holders in it
             /// </summary>
@@ -180,7 +178,6 @@ namespace APIMatic.Core
                 parameters.Header(h => h.Setup("user-agent", userAgent));
                 return this;
             }
-
 
             /// <summary>
             /// This applies all the configuration and build an instance of GlobalConfiguration

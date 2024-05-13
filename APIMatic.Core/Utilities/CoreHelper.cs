@@ -100,7 +100,6 @@ namespace APIMatic.Core.Utilities
         /// <param name="queryBuilder">The queryBuilder to append the parameters.</param>
         /// <param name="parameters">The parameters to append.</param>
         /// <param name="arraySerialization">arraySerializationFormat.</param>
-        /// <param name="separator">separator.</param>
         public static void AppendUrlWithQueryParameters(StringBuilder queryBuilder, IEnumerable<KeyValuePair<string, object>> parameters, ArraySerialization arraySerialization = ArraySerialization.UnIndexed)
         {
             if (!parameters.Any())
@@ -472,7 +471,7 @@ namespace APIMatic.Core.Utilities
         /// </summary>
         /// <param name="array">Array of elements to flatten.</param>
         /// <param name="fmt">Format string to use for array flattening.</param>
-        /// <param name="separator">Separator to use for string concat.</param>
+        /// <param name="key">Separator to use for string concat.</param>
         /// <returns>Representative string made up of array elements.</returns>
         private static string FlattenCollection(
             ICollection array,

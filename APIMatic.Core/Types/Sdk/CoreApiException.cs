@@ -21,9 +21,6 @@ namespace APIMatic.Core.Types.Sdk
         /// <summary>
         ///     Initializes a new instance of the <see cref="CoreApiException{Request, Response, Context}" /> class.
         /// </summary>
-        /// <param name="statusCode">Status code.</param>
-        /// <param name="headers">Headers.</param>
-        /// <param name="data">Data.</param>
         public CoreApiException(string reason, Context context) : base(reason)
         {
             HttpContext = context;

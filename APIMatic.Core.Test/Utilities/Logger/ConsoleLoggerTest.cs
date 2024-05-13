@@ -13,9 +13,9 @@ namespace APIMatic.Core.Test.Utilities.Logger
     {
         private ILogger _logger;
         private EventId _eventId;
-        private readonly string _state = "Test log message";
+        private const string State = "Test log message";
 
-        private string Formatter(string s, Exception ex) => $"{s} {ex?.Message}";
+        private static string Formatter(string s, Exception ex) => $"{s} {ex?.Message}";
 
         [SetUp]
         public void SetUp()
@@ -33,7 +33,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
             try
             {
                 // Act
-                _logger.Log(logLevel, _eventId, _state, exception, Formatter);
+                _logger.Log(logLevel, _eventId, State, exception, Formatter);
 
                 // Assert
                 Assert.AreEqual(expectedLogString, sw.ToString().Trim());
@@ -97,7 +97,7 @@ namespace APIMatic.Core.Test.Utilities.Logger
             // Act
             var ex = Assert.Throws<TargetInvocationException>(
                 () => getLogLevelString?.Invoke(ConsoleLogger.Instance, parameters));
-            
+
             // Assert
             Assert.That(ex?.InnerException, Is.TypeOf<ArgumentOutOfRangeException>());
         }
