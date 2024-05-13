@@ -5,6 +5,7 @@ using APIMatic.Core.Authentication;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Test.MockTypes.Authentication;
 using APIMatic.Core.Types;
+using APIMatic.Core.Utilities.Logger.Configuration;
 using RichardSzalay.MockHttp;
 
 namespace APIMatic.Core.Test
@@ -54,6 +55,7 @@ namespace APIMatic.Core.Test
                 ("{language}", "my lang"),
                 ("{version}", "1.*.*")
             })
+            .LoggingConfig(SdkLoggingConfiguration.Default())
             .ApiCallback(ApiCallBack)
             .Build()
         );

@@ -66,12 +66,10 @@ namespace APIMatic.Core.Http
         /// </summary>
         /// <param name="request">Http request.</param>
         /// <param name="cancellationToken"> cancellationToken.</param>
-        /// <param name="retryConfiguration">The <see cref="RetryConfiguration"/> for request.</param>
         /// <returns>Returns the HttpStringResponse.</returns>
         public async Task<CoreResponse> ExecuteAsync(CoreRequest request, CancellationToken cancellationToken = default)
         {
             HttpResponseMessage responseMessage;
-
             if (_overrideHttpClientConfiguration)
             {
                 responseMessage = await GetCombinedPolicy(request.RetryOption).ExecuteAsync(
@@ -97,8 +95,8 @@ namespace APIMatic.Core.Http
             CoreRequest request,
             CancellationToken cancellationToken)
         {
-            var requestMessage = CreateHttpRequestMessageFromRequest(request);
-            return await _client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
+            var httpRequestMessage = CreateHttpRequestMessageFromRequest(request);
+            return await _client.SendAsync(httpRequestMessage, cancellationToken).ConfigureAwait(false);
         }
 
         private HttpRequestMessage CreateHttpRequestMessageFromRequest(CoreRequest request)
@@ -134,7 +132,7 @@ namespace APIMatic.Core.Http
                 return requestMessage;
             }
 
-            string contentType = request.Headers.Where(p => p.Key.Equals("content-type", StringComparison.InvariantCultureIgnoreCase))
+            string contentType = request.Headers?.Where(p => p.Key.Equals("content-type", StringComparison.InvariantCultureIgnoreCase))
                                 .Select(x => x.Value)
                                 .FirstOrDefault();
 
@@ -195,9 +193,9 @@ namespace APIMatic.Core.Http
             return formContent;
         }
 
-        private ByteArrayContent GetByteArrayContentFromRequestBody(object requestBody)
+        private static ByteArrayContent GetByteArrayContentFromRequestBody(object requestBody)
         {
-            byte[] bytes = null;
+            byte[] bytes;
             if (requestBody is Stream stream)
             {
                 stream.Position = 0;
@@ -218,7 +216,7 @@ namespace APIMatic.Core.Http
             return new ByteArrayContent(bytes ?? Array.Empty<byte>());
         }
 
-        private MediaTypeHeaderValue GetFileStreamContentType(CoreFileStreamInfo file, string contentType)
+        private static MediaTypeHeaderValue GetFileStreamContentType(CoreFileStreamInfo file, string contentType)
         {
             if (!string.IsNullOrWhiteSpace(file.ContentType))
             {
@@ -233,13 +231,13 @@ namespace APIMatic.Core.Http
             return new MediaTypeHeaderValue("application/octet-stream");
         }
 
-        private bool IsHeaderOnlyHttpMethod(HttpMethod method)
+        private static bool IsHeaderOnlyHttpMethod(HttpMethod method)
         {
             return !method.Equals(HttpMethod.Delete) && !method.Equals(HttpMethod.Post) &&
                    !method.Equals(HttpMethod.Put) && !method.Equals(new HttpMethod("PATCH"));
         }
 
-        private bool CheckFormParametersForMultiPart(List<KeyValuePair<string, object>> formParameters)
+        private static bool CheckFormParametersForMultiPart(IReadOnlyCollection<KeyValuePair<string, object>> formParameters)
         {
             return formParameters != null &&
                    (formParameters.Any(f => f.Value is MultipartContent) ||
@@ -254,7 +252,7 @@ namespace APIMatic.Core.Http
                 (_statusCodesToRetry.Contains(response.StatusCode) || response?.Headers?.RetryAfter != null);
         }
 
-        private TimeSpan GetServerWaitDuration(DelegateResult<HttpResponseMessage> response)
+        private static TimeSpan GetServerWaitDuration(DelegateResult<HttpResponseMessage> response)
         {
             var retryAfter = response?.Result?.Headers?.RetryAfter;
             if (retryAfter == null)
@@ -272,10 +270,14 @@ namespace APIMatic.Core.Http
                 .Or<TaskCanceledException>()
                 .Or<HttpRequestException>()
                 .WaitAndRetryAsync(
-                retryCount: _numberOfRetries,
-                sleepDurationProvider: (retryAttempt, result, context) =>
-                TimeSpan.FromMilliseconds(Math.Max(GetExponentialWaitTime(retryAttempt), GetServerWaitDuration(result).TotalMilliseconds)),
-                onRetryAsync: async (result, timespan, retryAttempt, context) => await Task.CompletedTask);
+                    retryCount: _numberOfRetries,
+                    sleepDurationProvider: (retryAttempt, result, context) =>
+                        TimeSpan.FromMilliseconds(Math.Max(GetExponentialWaitTime(retryAttempt),
+                            GetServerWaitDuration(result).TotalMilliseconds)),
+                    onRetryAsync: async (result, timespan, retryAttempt, context) =>
+                    {
+                        await Task.CompletedTask;
+                    });
 
         private AsyncTimeoutPolicy GetTimeoutPolicy()
         {
@@ -308,7 +310,6 @@ namespace APIMatic.Core.Http
                     headers.Add(contentHeader.Key, contentHeader.Value.First());
                 }
             }
-
             return headers;
         }
     }

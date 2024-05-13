@@ -11,6 +11,7 @@ using APIMatic.Core.Request;
 using APIMatic.Core.Response;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
+using APIMatic.Core.Utilities.Logger;
 
 namespace APIMatic.Core
 {
@@ -35,13 +36,14 @@ namespace APIMatic.Core
         private readonly Func<Response, ResponseType, ReturnType> returnTypeCreator;
         private Enum apiCallServer;
         private RequestBuilder requestBuilder;
+        private readonly SdkLogger _sdkLogger;
 
         /// <summary>
         /// Creates a new instance of ApiCall
         /// </summary>
         /// <param name="configuration"></param>
         /// <param name="compatibility"></param>
-        /// <param name="errors"></param>
+        /// <param name="globalErrors"></param>
         /// <param name="serialization"></param>
         /// <param name="returnTypeCreator"></param>
         public ApiCall(GlobalConfiguration configuration, ICompatibilityFactory<Request, Response, Context, ApiException> compatibility,
@@ -52,6 +54,7 @@ namespace APIMatic.Core
             arraySerialization = serialization;
             this.returnTypeCreator = returnTypeCreator;
             responseHandler = new ResponseHandler<Request, Response, Context, ApiException, ResponseType>(compatibility, globalErrors);
+            _sdkLogger = new SdkLogger(configuration.SdkLoggingConfiguration);
         }
 
         /// <summary>
@@ -101,8 +104,10 @@ namespace APIMatic.Core
             requestBuilder.AcceptHeader = responseHandler.AcceptHeader;
             CoreRequest request = requestBuilder.Build();
             globalConfiguration.ApiCallback?.OnBeforeHttpRequestEventHandler(request);
+            _sdkLogger.LogRequest(request);
             CoreResponse response = await globalConfiguration.HttpClient.ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
             globalConfiguration.ApiCallback?.OnAfterHttpResponseEventHandler(response);
+            _sdkLogger.LogResponse(response);
             var context = new CoreContext<CoreRequest, CoreResponse>(request, response);
             return responseHandler.Result(context, returnTypeCreator);
         }
