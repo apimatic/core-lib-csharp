@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading.Tasks;
 using APIMatic.Core.Authentication;
 using APIMatic.Core.Test.MockTypes.Authentication;
 using APIMatic.Core.Types.Sdk.Exceptions;
@@ -12,7 +13,7 @@ namespace APIMatic.Core.Test
     public class AuthenticationTest : TestBase
     {
         [Test]
-        public void Multiple_Authentication_Success_WithFirstAuth()
+        public async Task Multiple_Authentication_Success_WithFirstAuth()
         {
             var globalConfiguration = new GlobalConfiguration.Builder()
                 .ServerUrls(new Dictionary<Enum, string>
@@ -28,7 +29,7 @@ namespace APIMatic.Core.Test
                 .HttpConfiguration(_clientConfiguration)
                 .Build();
 
-            var request = globalConfiguration.GlobalRequestBuilder()
+            var request = await globalConfiguration.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/auth")
                 .WithOrAuth(auth => auth
                     .AddAndGroup(innerGroup => innerGroup
@@ -45,7 +46,7 @@ namespace APIMatic.Core.Test
         }
 
         [Test]
-        public void Multiple_Authentication_Success_WithSecondAuth()
+        public async Task Multiple_Authentication_Success_WithSecondAuth()
         {
             var basicAuthManager = new BasicAuthManager("username", "password");
             var globalConfiguration = new GlobalConfiguration.Builder()
@@ -62,7 +63,7 @@ namespace APIMatic.Core.Test
                 .HttpConfiguration(_clientConfiguration)
                 .Build();
 
-            var request = globalConfiguration.GlobalRequestBuilder()
+            var request = await globalConfiguration.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/auth")
                 .WithOrAuth(auth => auth
                     .AddAndGroup(innerGroup => innerGroup
@@ -95,7 +96,7 @@ namespace APIMatic.Core.Test
                 .HttpConfiguration(_clientConfiguration)
                 .Build();
 
-            var exp = Assert.Throws<AuthValidationException>(() => globalConfiguration.GlobalRequestBuilder()
+            var exp = Assert.ThrowsAsync<AuthValidationException>(() =>  globalConfiguration.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/auth")
                 .WithOrAuth(auth => auth
                     .Add("basic")
@@ -110,7 +111,7 @@ namespace APIMatic.Core.Test
         }
 
         [Test]
-        public void Multiple_Authentication_AND_Validation_Failure()
+        public async Task Multiple_Authentication_AND_Validation_Failure()
         {
             var globalConfiguration = new GlobalConfiguration.Builder()
                 .ServerUrls(new Dictionary<Enum, string>
@@ -126,15 +127,24 @@ namespace APIMatic.Core.Test
                 .HttpConfiguration(_clientConfiguration)
                 .Build();
 
-            var exp = Assert.Throws<AuthValidationException>(() => globalConfiguration.GlobalRequestBuilder()
+
+            var exp = Assert.ThrowsAsync<AuthValidationException>(() => globalConfiguration.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/auth")
-                .WithAndAuth(auth => auth
-                    .Add("query")
+                .WithAndAuth(auth => auth.Add("query")
                     .Add("header"))
                 .Build());
 
             Assert.AreEqual("Following authentication credentials are required:\n" +
                 "-> Missing required header field: TOKEN", exp.Message);
+
+            async void AuthCode()
+            {
+                await globalConfiguration.GlobalRequestBuilder()
+                    .Setup(HttpMethod.Get, "/auth")
+                    .WithAndAuth(auth => auth.Add("query")
+                        .Add("header"))
+                    .Build();
+            }
         }
 
         [Test]
@@ -153,7 +163,7 @@ namespace APIMatic.Core.Test
                 .HttpConfiguration(_clientConfiguration)
                 .Build();
 
-            var exp = Assert.Throws<AuthValidationException>(() => globalConfiguration.GlobalRequestBuilder()
+            var exp = Assert.ThrowsAsync<AuthValidationException>(() => globalConfiguration.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/auth")
                 .WithAndAuth(auth => auth
                     .Add("query")
@@ -184,7 +194,7 @@ namespace APIMatic.Core.Test
                 .HttpConfiguration(_clientConfiguration)
                 .Build();
 
-            var exp = Assert.Throws<AuthValidationException>(() => globalConfiguration.GlobalRequestBuilder()
+            var exp = Assert.ThrowsAsync<AuthValidationException>(() => globalConfiguration.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/auth")
                 .WithAndAuth(auth => auth
                     .Add("query")

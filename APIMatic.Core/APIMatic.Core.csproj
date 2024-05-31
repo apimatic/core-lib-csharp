@@ -20,7 +20,6 @@
         <PackageTags>APIMatic;dotnet;core;Core Library</PackageTags>
         <PackageProjectUrl>https://www.apimatic.io</PackageProjectUrl>
         <PackageIcon>icon.png</PackageIcon>
-        <UserSecretsId>5d4cfd39-614d-4884-b9bc-d138d7d3d778</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>

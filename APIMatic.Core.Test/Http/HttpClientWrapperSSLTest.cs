@@ -14,7 +14,7 @@ namespace APIMatic.Core.Test.Http
         private readonly string expiredSSLCertUrl = "https://expired.badssl.com/";
 
         [Test]
-        public void TestHttpClientSSLCertificateVerification_ExceptionResponse()
+        public async Task TestHttpClientSSLCertificateVerification_ExceptionResponse()
         {
             var expectedValue = "The SSL connection could not be established, see inner exception.";
             var clientConfiguration = new CoreHttpClientConfiguration.Builder()
@@ -31,7 +31,7 @@ namespace APIMatic.Core.Test.Http
 
             var client = config.HttpClient;
 
-            var request = config.GlobalRequestBuilder()
+            var request = await config.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, string.Empty)
                 .Build();
 
@@ -58,7 +58,7 @@ namespace APIMatic.Core.Test.Http
 
             var client = config.HttpClient;
 
-            var request = config.GlobalRequestBuilder()
+            var request = await config.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, string.Empty)
                 .Build();
 

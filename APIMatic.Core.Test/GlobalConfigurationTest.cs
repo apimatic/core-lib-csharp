@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using APIMatic.Core.Http.Configuration;
 using NUnit.Framework;
 
@@ -19,19 +20,19 @@ namespace APIMatic.Core.Test
         }
 
         [Test]
-        public void TestGlobalRequestQueryUrl()
+        public async Task TestGlobalRequestQueryUrl()
         {
-            var request = LazyGlobalConfiguration.Value.GlobalRequestBuilder().Build();
+            var request = await LazyGlobalConfiguration.Value.GlobalRequestBuilder().Build();
             Assert.AreEqual("http://my/path:3000/v1", request.QueryUrl);
 
-            var request2 = LazyGlobalConfiguration.Value.GlobalRequestBuilder(MockServer.Server2).Build();
+            var request2 = await LazyGlobalConfiguration.Value.GlobalRequestBuilder(MockServer.Server2).Build();
             Assert.AreEqual("https://my/path/v2", request2.QueryUrl);
         }
 
         [Test]
-        public void TestGlobalRequestHeaders()
+        public async Task TestGlobalRequestHeaders()
         {
-            var request = LazyGlobalConfiguration.Value.GlobalRequestBuilder().Build();
+            var request = await LazyGlobalConfiguration.Value.GlobalRequestBuilder().Build();
             Assert.True(request.Headers.Count == 5);
             Assert.AreEqual("headVal1", request.Headers["additionalHead1"]);
             Assert.AreEqual("headVal2", request.Headers["additionalHead2"]);
@@ -41,10 +42,10 @@ namespace APIMatic.Core.Test
         }
 
         [Test]
-        public void TestGlobalRequest_NullUserAgent()
+        public async Task TestGlobalRequest_NullUserAgent()
         {
             var httpClientConfiguration = new CoreHttpClientConfiguration.Builder().Build();
-            var request = new GlobalConfiguration.Builder()
+            var request = await new GlobalConfiguration.Builder()
                 .HttpConfiguration(httpClientConfiguration)
                 .UserAgent(null)
                 .ServerUrls(new Dictionary<Enum, string>
