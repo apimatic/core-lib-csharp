@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using APIMatic.Core.Request;
 using APIMatic.Core.Types.Sdk.Exceptions;
 
@@ -112,10 +113,13 @@ namespace APIMatic.Core.Authentication
         /// Add authentication group information to the RequestBuilder.
         /// </summary>
         /// <param name="requestBuilder">The RequestBuilder object on which authentication will be applied.</param>
-        internal override void Apply(RequestBuilder requestBuilder)
+        public override async Task Apply(RequestBuilder requestBuilder)
         {
             Validate();
-            validatedAuthManagers.ForEach(authManager => authManager.Apply(requestBuilder));
+            foreach (var authManager in validatedAuthManagers)
+            {
+                await authManager.Apply(requestBuilder);
+            }
         }
     }
 }

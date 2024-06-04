@@ -40,7 +40,7 @@ namespace APIMatic.Core.Test.Http
         [Test]
         public async Task HttpClient_GetCall_200Response()
         {
-            var request = _config.GlobalRequestBuilder()
+            var request = await _config.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/httpclient/get/200")
                 .Parameters(p => p
                     .Body(b => b.Setup("Get Response")))
@@ -60,7 +60,7 @@ namespace APIMatic.Core.Test.Http
         [Test]
         public async Task TestHttpClientGetCall_400Response()
         {
-            var request = _config.GlobalRequestBuilder()
+            var request = await _config.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/httpclient/get/400")
                 .Parameters(p => p
                     .Body(b => b.Setup("Get Bad Request")))
@@ -84,7 +84,7 @@ namespace APIMatic.Core.Test.Http
             var customHeaderKey = "Custom-Headder";
             var customHeaderValue = "customHeader";
 
-            var request = _config.GlobalRequestBuilder()
+            var request = await _config.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/httpclient/get-combined-headers/200")
                 .Build();
 

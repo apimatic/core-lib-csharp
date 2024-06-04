@@ -2,6 +2,7 @@
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
+using System.Threading.Tasks;
 using APIMatic.Core.Request;
 using APIMatic.Core.Request.Parameters;
 
@@ -37,10 +38,11 @@ namespace APIMatic.Core.Authentication
         /// Add authentication information to the HTTP Request.
         /// </summary>
         /// <param name="requestBuilder">The http request object on which authentication will be applied.</param>
-        internal virtual void Apply(RequestBuilder requestBuilder)
+        public virtual Task Apply(RequestBuilder requestBuilder)
         {
             Validate();
             parameters.Apply(requestBuilder);
+            return Task.CompletedTask;
         }
     }
 }

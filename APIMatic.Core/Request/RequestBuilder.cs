@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using APIMatic.Core.Authentication;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Request.Parameters;
@@ -145,11 +146,11 @@ namespace APIMatic.Core.Request
         /// This applies all the configuration and build an instance of CoreRequest
         /// </summary>
         /// <returns></returns>
-        public CoreRequest Build()
+        public async Task<CoreRequest> Build()
         {
             parameters.Validate().Apply(this);
             configuration.RuntimeParameters.Validate().Apply(this);
-            authGroup.Apply(this);
+            await authGroup.Apply(this);
             CoreHelper.AppendUrlWithQueryParameters(QueryUrl, queryParameters, ArraySerialization);
             body = bodyParameters.Any() ? bodyParameters : body;
             AppendContentTypeHeader();

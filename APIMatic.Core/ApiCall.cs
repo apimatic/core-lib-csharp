@@ -102,7 +102,7 @@ namespace APIMatic.Core
         public async Task<ReturnType> ExecuteAsync(CancellationToken cancellationToken = default)
         {
             requestBuilder.AcceptHeader = responseHandler.AcceptHeader;
-            CoreRequest request = requestBuilder.Build();
+            CoreRequest request = await requestBuilder.Build();
             globalConfiguration.ApiCallback?.OnBeforeHttpRequestEventHandler(request);
             _sdkLogger.LogRequest(request);
             CoreResponse response = await globalConfiguration.HttpClient.ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
