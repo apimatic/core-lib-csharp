@@ -6,6 +6,7 @@ using System.Text;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Test.MockTypes.Models;
 using APIMatic.Core.Test.MockTypes.Utilities;
+using APIMatic.Core.Types;
 using APIMatic.Core.Utilities;
 using APIMatic.Core.Utilities.Converters;
 using APIMatic.Core.Utilities.Date;
@@ -988,6 +989,39 @@ namespace APIMatic.Core.Test.Utilities
             Assert.That(converter.CanConvert(typeof(WorkingDaysAllowAdditionalValues)), Is.True);
         }
 
+        #endregion
+
+        #region Others
+
+        [Test]
+        public void IsNullableType_AllTypes()
+        {
+            Assert.That(CoreHelper.IsNullableType(typeof(WorkingDays)), Is.False);
+            Assert.That(CoreHelper.IsNullableType(typeof(WorkingDays?)), Is.True);
+
+            Assert.That(CoreHelper.IsNullableType(typeof(DateTime)), Is.False);
+            Assert.That(CoreHelper.IsNullableType(typeof(DateTime?)), Is.True);
+
+            Assert.That(CoreHelper.IsNullableType(typeof(void)), Is.False);
+            Assert.That(CoreHelper.IsNullableType(typeof(VoidType)), Is.True);
+
+            Assert.That(CoreHelper.IsNullableType(typeof(int)), Is.False);
+            Assert.That(CoreHelper.IsNullableType(typeof(int?)), Is.True);
+            Assert.That(CoreHelper.IsNullableType(typeof(Nullable<int>)), Is.True);
+
+            Assert.That(CoreHelper.IsNullableType(typeof(double)), Is.False);
+            Assert.That(CoreHelper.IsNullableType(typeof(double?)), Is.True);
+            Assert.That(CoreHelper.IsNullableType(typeof(Nullable<double>)), Is.True);
+
+            Assert.That(CoreHelper.IsNullableType(typeof(bool)), Is.False);
+            Assert.That(CoreHelper.IsNullableType(typeof(bool?)), Is.True);
+            Assert.That(CoreHelper.IsNullableType(typeof(Nullable<bool>)), Is.True);
+
+            Assert.That(CoreHelper.IsNullableType(typeof(string)), Is.True);
+            Assert.That(CoreHelper.IsNullableType(typeof(ServerResponse)), Is.True);
+            Assert.That(CoreHelper.IsNullableType(typeof(List<object>)), Is.True);
+            Assert.That(CoreHelper.IsNullableType(typeof(Dictionary<string, object>)), Is.True);
+        }
         #endregion
     }
 }

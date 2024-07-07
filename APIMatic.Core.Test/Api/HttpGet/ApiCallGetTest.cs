@@ -597,7 +597,6 @@ namespace APIMatic.Core.Test.Api.HttpGet
 
             // Act and Assert
             var actual = CoreHelper.RunTask(apiCall);
-
             Assert.Null(actual);
         }
 
@@ -606,7 +605,6 @@ namespace APIMatic.Core.Test.Api.HttpGet
         {
             //Arrange
             var url = "/apicall/get/model/missingContent";
-            var expected = new Dictionary<string, object>();
 
             handlerMock.When(GetCompleteUrl(url))
                 .Respond(HttpStatusCode.NoContent, new ByteArrayContent(Array.Empty<byte>()));
@@ -617,7 +615,6 @@ namespace APIMatic.Core.Test.Api.HttpGet
 
             // Act and Assert
             var actual = CoreHelper.RunTask(apiCall);
-
             Assert.Null(actual);
         }
 
@@ -626,7 +623,6 @@ namespace APIMatic.Core.Test.Api.HttpGet
         {
             //Arrange
             var url = "/apicall/get/string/missingContent";
-            var expected = new Dictionary<string, object>();
 
             handlerMock.When(GetCompleteUrl(url))
                 .Respond(HttpStatusCode.NoContent, new ByteArrayContent(Array.Empty<byte>()));
@@ -637,7 +633,6 @@ namespace APIMatic.Core.Test.Api.HttpGet
 
             // Act and Assert
             var actual = CoreHelper.RunTask(apiCall);
-
             Assert.Null(actual);
         }
 
@@ -646,7 +641,6 @@ namespace APIMatic.Core.Test.Api.HttpGet
         {
             //Arrange
             var url = "/apicall/get/number/missingContent";
-            var expected = new Dictionary<string, object>();
 
             handlerMock.When(GetCompleteUrl(url))
                 .Respond(HttpStatusCode.NoContent, new ByteArrayContent(Array.Empty<byte>()));
@@ -666,7 +660,6 @@ namespace APIMatic.Core.Test.Api.HttpGet
         {
             //Arrange
             var url = "/apicall/get/nullableNumber/missingContent";
-            var expected = new Dictionary<string, object>();
 
             handlerMock.When(GetCompleteUrl(url))
                 .Respond(HttpStatusCode.NoContent, new ByteArrayContent(Array.Empty<byte>()));
@@ -678,7 +671,6 @@ namespace APIMatic.Core.Test.Api.HttpGet
 
             // Act and Assert
             var actual = CoreHelper.RunTask(apiCall);
-
             Assert.Null(actual);
         }
 
@@ -687,7 +679,6 @@ namespace APIMatic.Core.Test.Api.HttpGet
         {
             //Arrange
             var url = "/apicall/get/nullableNumber/withContent";
-            var expected = new Dictionary<string, object>();
 
             handlerMock.When(GetCompleteUrl(url))
                 .Respond(HttpStatusCode.OK, new StringContent("123"));
@@ -699,7 +690,6 @@ namespace APIMatic.Core.Test.Api.HttpGet
 
             // Act and Assert
             var actual = CoreHelper.RunTask(apiCall);
-
             Assert.AreEqual(123, actual);
         }
     }
