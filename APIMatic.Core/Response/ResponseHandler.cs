@@ -125,6 +125,10 @@ namespace APIMatic.Core.Response
             {
                 return default;
             }
+            if (CoreHelper.IsNullableType(typeof(ResponseType)) && IsBodyMissing(context.Response))
+            {
+                return default;
+            }
             ResponseType result = ConvertResponse(context.Response);
             result = contextAdder(result, compatibilityFactory.CreateHttpContext(context.Request, context.Response));
             if (result is ReturnType convertedResult)
@@ -137,6 +141,8 @@ namespace APIMatic.Core.Response
             }
             throw new InvalidOperationException($"Unable to transform {typeof(ResponseType)} into {typeof(ReturnType)}. ReturnTypeCreator is not provided.");
         }
+
+        private bool IsBodyMissing(CoreResponse response) => string.Equals(response.Body, string.Empty);
 
         private ApiException ResponseError(CoreContext<CoreRequest, CoreResponse> context)
         {
