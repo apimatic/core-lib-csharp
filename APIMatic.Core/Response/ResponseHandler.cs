@@ -121,11 +121,7 @@ namespace APIMatic.Core.Response
                 }
                 throw ResponseError(context);
             }
-            if (typeof(ResponseType) == typeof(VoidType))
-            {
-                return default;
-            }
-            if (CoreHelper.IsNullableType(typeof(ResponseType)) && IsBodyMissing(context.Response))
+            if (HasEmptyResponse(context.Response))
             {
                 return default;
             }
@@ -142,7 +138,15 @@ namespace APIMatic.Core.Response
             throw new InvalidOperationException($"Unable to transform {typeof(ResponseType)} into {typeof(ReturnType)}. ReturnTypeCreator is not provided.");
         }
 
-        private bool IsBodyMissing(CoreResponse response) => string.Equals(response.Body, string.Empty);
+        private bool HasEmptyResponse(CoreResponse response)
+        {
+            var resType = typeof(ResponseType);
+            if (resType == typeof(VoidType))
+            {
+                return true;
+            }
+            return string.Equals(response.Body, string.Empty) && CoreHelper.IsNullableType(resType);
+        }
 
         private ApiException ResponseError(CoreContext<CoreRequest, CoreResponse> context)
         {
