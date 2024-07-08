@@ -675,6 +675,25 @@ namespace APIMatic.Core.Test.Api.HttpGet
         }
 
         [Test]
+        public void ApiCall_GetNullableNumber_WhiteSpaceContent()
+        {
+            //Arrange
+            var url = "/apicall/get/nullableNumber/whiteSpacedContent";
+
+            handlerMock.When(GetCompleteUrl(url))
+                .Respond(HttpStatusCode.NoContent, new StringContent("  "));
+
+            var apiCall = CreateSimpleApiCall<int?>()
+                .RequestBuilder(requestBuilderAction => requestBuilderAction.Setup(HttpMethod.Get, url))
+                .ResponseHandler(resHandlerAction => resHandlerAction.Deserializer(res => int.Parse(res)))
+                .ExecuteAsync();
+
+            // Act and Assert
+            var actual = CoreHelper.RunTask(apiCall);
+            Assert.Null(actual);
+        }
+
+        [Test]
         public void ApiCall_GetNullableNumber_WithContent()
         {
             //Arrange

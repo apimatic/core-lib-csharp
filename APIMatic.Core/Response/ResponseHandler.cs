@@ -145,7 +145,7 @@ namespace APIMatic.Core.Response
             {
                 return true;
             }
-            return string.Equals(response.Body, string.Empty) && CoreHelper.IsNullableType(resType);
+            return string.Equals(response.Body?.Trim(), string.Empty) && CoreHelper.IsNullableType(resType);
         }
 
         private ApiException ResponseError(CoreContext<CoreRequest, CoreResponse> context)
