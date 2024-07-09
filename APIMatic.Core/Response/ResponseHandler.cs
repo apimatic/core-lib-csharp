@@ -121,7 +121,7 @@ namespace APIMatic.Core.Response
                 }
                 throw ResponseError(context);
             }
-            if (typeof(ResponseType) == typeof(VoidType))
+            if (HasEmptyResponse(context.Response))
             {
                 return default;
             }
@@ -136,6 +136,16 @@ namespace APIMatic.Core.Response
                 return returnTypeCreator(compatibilityFactory.CreateHttpResponse(context.Response), result);
             }
             throw new InvalidOperationException($"Unable to transform {typeof(ResponseType)} into {typeof(ReturnType)}. ReturnTypeCreator is not provided.");
+        }
+
+        private bool HasEmptyResponse(CoreResponse response)
+        {
+            var resType = typeof(ResponseType);
+            if (resType == typeof(VoidType))
+            {
+                return true;
+            }
+            return string.Equals(response.Body?.Trim(), string.Empty) && CoreHelper.IsNullableType(resType);
         }
 
         private ApiException ResponseError(CoreContext<CoreRequest, CoreResponse> context)

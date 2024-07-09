@@ -597,8 +597,119 @@ namespace APIMatic.Core.Test.Api.HttpGet
 
             // Act and Assert
             var actual = CoreHelper.RunTask(apiCall);
-
             Assert.Null(actual);
+        }
+
+        [Test]
+        public void ApiCall_GetModel_MissingContent()
+        {
+            //Arrange
+            var url = "/apicall/get/model/missingContent";
+
+            handlerMock.When(GetCompleteUrl(url))
+                .Respond(HttpStatusCode.NoContent, new ByteArrayContent(Array.Empty<byte>()));
+
+            var apiCall = CreateSimpleApiCall<ServerResponse>()
+                .RequestBuilder(requestBuilderAction => requestBuilderAction.Setup(HttpMethod.Get, url))
+                .ExecuteAsync();
+
+            // Act and Assert
+            var actual = CoreHelper.RunTask(apiCall);
+            Assert.Null(actual);
+        }
+
+        [Test]
+        public void ApiCall_GetString_MissingContent()
+        {
+            //Arrange
+            var url = "/apicall/get/string/missingContent";
+
+            handlerMock.When(GetCompleteUrl(url))
+                .Respond(HttpStatusCode.NoContent, new ByteArrayContent(Array.Empty<byte>()));
+
+            var apiCall = CreateSimpleApiCall<string>()
+                .RequestBuilder(requestBuilderAction => requestBuilderAction.Setup(HttpMethod.Get, url))
+                .ExecuteAsync();
+
+            // Act and Assert
+            var actual = CoreHelper.RunTask(apiCall);
+            Assert.Null(actual);
+        }
+
+        [Test]
+        public void ApiCall_GetNumber_MissingContent()
+        {
+            //Arrange
+            var url = "/apicall/get/number/missingContent";
+
+            handlerMock.When(GetCompleteUrl(url))
+                .Respond(HttpStatusCode.NoContent, new ByteArrayContent(Array.Empty<byte>()));
+
+            var apiCall = CreateSimpleApiCall<int>()
+                .RequestBuilder(requestBuilderAction => requestBuilderAction.Setup(HttpMethod.Get, url))
+                .ResponseHandler(resHandlerAction => resHandlerAction.Deserializer(res => int.Parse(res)))
+                .ExecuteAsync();
+
+            // Act and Assert
+            var exp = Assert.Throws<FormatException>(() => CoreHelper.RunTask(apiCall));
+            Assert.AreEqual("Input string was not in a correct format.", exp.Message);
+        }
+
+        [Test]
+        public void ApiCall_GetNullableNumber_MissingContent()
+        {
+            //Arrange
+            var url = "/apicall/get/nullableNumber/missingContent";
+
+            handlerMock.When(GetCompleteUrl(url))
+                .Respond(HttpStatusCode.NoContent, new ByteArrayContent(Array.Empty<byte>()));
+
+            var apiCall = CreateSimpleApiCall<int?>()
+                .RequestBuilder(requestBuilderAction => requestBuilderAction.Setup(HttpMethod.Get, url))
+                .ResponseHandler(resHandlerAction => resHandlerAction.Deserializer(res => int.Parse(res)))
+                .ExecuteAsync();
+
+            // Act and Assert
+            var actual = CoreHelper.RunTask(apiCall);
+            Assert.Null(actual);
+        }
+
+        [Test]
+        public void ApiCall_GetNullableNumber_WhiteSpaceContent()
+        {
+            //Arrange
+            var url = "/apicall/get/nullableNumber/whiteSpacedContent";
+
+            handlerMock.When(GetCompleteUrl(url))
+                .Respond(HttpStatusCode.NoContent, new StringContent("  "));
+
+            var apiCall = CreateSimpleApiCall<int?>()
+                .RequestBuilder(requestBuilderAction => requestBuilderAction.Setup(HttpMethod.Get, url))
+                .ResponseHandler(resHandlerAction => resHandlerAction.Deserializer(res => int.Parse(res)))
+                .ExecuteAsync();
+
+            // Act and Assert
+            var actual = CoreHelper.RunTask(apiCall);
+            Assert.Null(actual);
+        }
+
+        [Test]
+        public void ApiCall_GetNullableNumber_WithContent()
+        {
+            //Arrange
+            var url = "/apicall/get/nullableNumber/withContent";
+
+            handlerMock.When(GetCompleteUrl(url))
+                .Respond(HttpStatusCode.OK, new StringContent("123"));
+
+            var apiCall = CreateSimpleApiCall<int?>()
+                .RequestBuilder(requestBuilderAction => requestBuilderAction.Setup(HttpMethod.Get, url))
+                .ResponseHandler(resHandlerAction => resHandlerAction.Deserializer(res => int.Parse(res)))
+                .ExecuteAsync();
+
+            // Act and Assert
+            var actual = CoreHelper.RunTask(apiCall);
+            Assert.AreEqual(123, actual);
         }
     }
 }

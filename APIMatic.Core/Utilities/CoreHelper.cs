@@ -172,6 +172,12 @@ namespace APIMatic.Core.Utilities
             return Type.GetTypeCode(type) != TypeCode.Object || type == typeof(VoidType);
         }
 
+        internal static bool IsNullableType(Type type)
+        {
+            // Check if it's a reference type or a nullable value type
+            return !type.IsValueType || Nullable.GetUnderlyingType(type) != null;
+        }
+
         /// <summary>
         /// Prepares parameters for serialization as a form encoded string by flattening complex Types such as Collections and Models to a list of KeyValuePairs, where each value is a string representation of the original Type.
         /// </summary>
