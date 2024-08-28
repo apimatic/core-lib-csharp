@@ -1,7 +1,6 @@
 ﻿// <copyright file="CoreRequest.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -128,7 +127,7 @@ namespace APIMatic.Core.Types.Sdk
         /// The string representation of the <see cref="Body"/> if it is not <c>null</c>;
         /// otherwise, returns an empty string.
         /// </returns>
-        internal string GetBodyAsString() => Body == null ? String.Empty : Body.ToString();
+        internal string GetBodyAsString() => Body == null ? string.Empty : Body.ToString();
         
         /// <inheritdoc/>
         public override string ToString()

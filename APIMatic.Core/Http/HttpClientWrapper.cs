@@ -147,7 +147,7 @@ namespace APIMatic.Core.Http
             return requestMessage;
         }
         
-        private void AddHeadersToRequestMessage(HttpRequestMessage requestMessage, CoreRequest request)
+        private static void AddHeadersToRequestMessage(HttpRequestMessage requestMessage, CoreRequest request)
         {
             foreach (var headers in request.Headers ?? Enumerable.Empty<KeyValuePair<string, string>>())
             {
@@ -155,7 +155,7 @@ namespace APIMatic.Core.Http
             }
         }
 
-        private HttpContent GetFormContent(CoreRequest request)
+        private static HttpContent GetFormContent(CoreRequest request)
         {
             if (CheckFormParametersForMultiPart(request.FormParameters))
             {
