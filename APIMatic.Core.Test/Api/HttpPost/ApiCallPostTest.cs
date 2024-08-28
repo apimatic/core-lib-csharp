@@ -494,5 +494,31 @@ namespace APIMatic.Core.Test.Api.HttpPost
             Assert.NotNull(actual.Data);
             Assert.AreEqual(actual.Data.Message, expected.Message);
         }
+        
+        [Test]
+        public void ApiCall_PostNullBodyValue_OKResponse()
+        {
+            //Arrange
+            const string url = "/apicall/null-body-post/200";
+            
+            handlerMock.When(GetCompleteUrl(url))
+                .With(req =>
+                {
+                    Assert.AreEqual("application/json", req.Content?.Headers.ContentType?.MediaType);
+                    return true;
+                })
+                .Respond(HttpStatusCode.OK);
+
+            var apiCall = CreateApiCall<ServerResponse>()
+                .RequestBuilder(requestBuilderAction => requestBuilderAction
+                    .Setup(HttpMethod.Post, url)
+                    .Parameters(p => p
+                        .Body(b => b.Setup(null))
+                        .Header(h => h.Setup("content-type", "application/json"))))
+                .ExecuteAsync();
+
+            // Act
+            CoreHelper.RunTask(apiCall);
+        }
     }
 }
