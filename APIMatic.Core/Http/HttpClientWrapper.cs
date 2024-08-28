@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Types.Sdk;
+using APIMatic.Core.Utilities;
 using Polly;
 using Polly.Retry;
 using Polly.Timeout;
@@ -104,38 +105,19 @@ namespace APIMatic.Core.Http
             HttpRequestMessage requestMessage = new HttpRequestMessage
             {
                 RequestUri = new Uri(request.QueryUrl),
-                Method = request.HttpMethod,
+                Method = request.HttpMethod
             };
 
-            if (request.Headers != null)
-            {
-                foreach (var headers in request.Headers)
-                {
-                    requestMessage.Headers.TryAddWithoutValidation(headers.Key, headers.Value);
-                }
-            }
+            AddHeadersToRequestMessage(requestMessage, request);
+            if (IsHeaderOnlyHttpMethod(request.HttpMethod)) return requestMessage;
 
-            if (IsHeaderOnlyHttpMethod(request.HttpMethod))
+            if (request.HasFormParameters)
             {
+                requestMessage.Content = GetFormContent(request);
                 return requestMessage;
             }
 
-            if (request.Body == null)
-            {
-                if (CheckFormParametersForMultiPart(request.FormParameters))
-                {
-                    requestMessage.Content = GetMultipartFormDataContentFromRequest(request);
-                    return requestMessage;
-                }
-
-                requestMessage.Content = new FormUrlEncodedContent(request.FormParameters.Select(param => new KeyValuePair<string, string>(param.Key, param.Value.ToString())).ToList());
-                return requestMessage;
-            }
-
-            string contentType = request.Headers?.Where(p => p.Key.Equals("content-type", StringComparison.InvariantCultureIgnoreCase))
-                                .Select(x => x.Value)
-                                .FirstOrDefault();
-
+            var contentType = request.GetContentType();
             if (request.Body is CoreFileStreamInfo file)
             {
                 file.FileStream.Position = 0;
@@ -146,21 +128,50 @@ namespace APIMatic.Core.Http
 
             if (string.IsNullOrEmpty(contentType))
             {
-                requestMessage.Content = new StringContent(request.Body.ToString(), Encoding.UTF8, "text/plain");
+                requestMessage.Content =
+                    new StringContent(request.GetBodyAsString(), Encoding.UTF8, "text/plain");
                 return requestMessage;
             }
 
-            if (contentType.Equals("application/json; charset=utf-8", StringComparison.OrdinalIgnoreCase))
+            if (IsContentTypeJsonUtf8(contentType))
             {
-                requestMessage.Content = new StringContent(request.Body.ToString(), Encoding.UTF8, "application/json");
+                requestMessage.Content =
+                    new StringContent(request.GetBodyAsString(), Encoding.UTF8, "application/json");
                 return requestMessage;
             }
 
+            if (request.Body == null) return requestMessage;
+            
             requestMessage.Content = GetByteArrayContentFromRequestBody(request.Body);
             GetByteArrayContentType(requestMessage.Content.Headers, contentType);
             return requestMessage;
         }
+        
+        private void AddHeadersToRequestMessage(HttpRequestMessage requestMessage, CoreRequest request)
+        {
+            foreach (var headers in request.Headers ?? Enumerable.Empty<KeyValuePair<string, string>>())
+            {
+                requestMessage.Headers.TryAddWithoutValidation(headers.Key, headers.Value);
+            }
+        }
 
+        private HttpContent GetFormContent(CoreRequest request)
+        {
+            if (CheckFormParametersForMultiPart(request.FormParameters))
+            {
+                return GetMultipartFormDataContentFromRequest(request);
+            }
+            
+            return new FormUrlEncodedContent(request.FormParameters
+                .Select(param => new KeyValuePair<string, string>(param.Key, param.Value.ToString())).ToList());
+        }
+        
+        private static bool IsContentTypeJsonUtf8(string contentType)
+        {
+            return contentType.EqualsIgnoreCase("application/json") || 
+                   contentType.EqualsIgnoreCase("application/json; charset=utf-8");
+        }
+        
         private static void GetByteArrayContentType(HttpContentHeaders contentHeader, string contentType)
         {
             try
@@ -239,9 +250,8 @@ namespace APIMatic.Core.Http
 
         private static bool CheckFormParametersForMultiPart(IReadOnlyCollection<KeyValuePair<string, object>> formParameters)
         {
-            return formParameters != null &&
-                   (formParameters.Any(f => f.Value is MultipartContent) ||
-                    formParameters.Any(f => f.Value is CoreFileStreamInfo));
+            return formParameters.Any(f => f.Value is MultipartContent) ||
+                    formParameters.Any(f => f.Value is CoreFileStreamInfo);
         }
 
         private bool ShouldRetry(HttpResponseMessage response, RetryOption retryOption)

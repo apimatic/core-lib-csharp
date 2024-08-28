@@ -1,6 +1,7 @@
 ﻿// <copyright file="CoreRequest.cs" company="APIMatic">
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -82,6 +83,13 @@ namespace APIMatic.Core.Types.Sdk
         internal bool HasBinaryResponse { get; set; }
 
         /// <summary>
+        /// Gets a value indicating whether the request is likely to have form content.
+        /// This is determined by checking if the <see cref="Body"/> is null 
+        /// and if the <see cref="FormParameters"/> collection is not null and contains any items.
+        /// </summary>
+        internal bool HasFormParameters => Body == null && FormParameters != null && FormParameters.Any();
+        
+        /// <summary>
         /// Concatenate values from a Dictionary to this object.
         /// </summary>
         /// <param name="headersToAdd"> headersToAdd. </param>
@@ -103,6 +111,25 @@ namespace APIMatic.Core.Types.Sdk
                 ?? new Dictionary<string, object>(queryParamaters);
         }
 
+        /// <summary>
+        /// Retrieves the value of the "Content-Type" header from the request headers.
+        /// </summary>
+        /// <returns>
+        /// The value of the "Content-Type" header if present; otherwise, <c>null</c>.
+        /// </returns>
+        internal string GetContentType() => Headers?.Where(p => p.Key.EqualsIgnoreCase("content-type"))
+            .Select(x => x.Value)
+            .FirstOrDefault();
+        
+        /// <summary>
+        /// Converts the body of the request to a string representation.
+        /// </summary>
+        /// <returns>
+        /// The string representation of the <see cref="Body"/> if it is not <c>null</c>;
+        /// otherwise, returns an empty string.
+        /// </returns>
+        internal string GetBodyAsString() => Body == null ? String.Empty : Body.ToString();
+        
         /// <inheritdoc/>
         public override string ToString()
         {

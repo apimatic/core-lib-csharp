@@ -209,7 +209,7 @@ namespace APIMatic.Core.Request
             {
                 return false;
             }
-            if (headers.Any(p => p.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase)))
+            if (headers.Any(p => p.Key.EqualsIgnoreCase(key)))
             {
                 return false;
             }
