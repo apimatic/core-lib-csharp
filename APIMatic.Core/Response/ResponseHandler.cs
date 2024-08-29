@@ -127,13 +127,17 @@ namespace APIMatic.Core.Response
             }
             ResponseType result = ConvertResponse(context.Response);
             result = contextAdder(result, compatibilityFactory.CreateHttpContext(context.Request, context.Response));
+            if (returnTypeCreator != null)
+            {
+                return returnTypeCreator(compatibilityFactory.CreateHttpResponse(context.Response), result);
+            }
             if (result is ReturnType convertedResult)
             {
                 return convertedResult;
             }
-            if (returnTypeCreator != null)
+            if (typeof(ReturnType) == typeof(VoidType))
             {
-                return returnTypeCreator(compatibilityFactory.CreateHttpResponse(context.Response), result);
+                return default;
             }
             throw new InvalidOperationException($"Unable to transform {typeof(ResponseType)} into {typeof(ReturnType)}. ReturnTypeCreator is not provided.");
         }
@@ -141,10 +145,6 @@ namespace APIMatic.Core.Response
         private bool HasEmptyResponse(CoreResponse response)
         {
             var resType = typeof(ResponseType);
-            if (resType == typeof(VoidType))
-            {
-                return true;
-            }
             return string.Equals(response.Body?.Trim(), string.Empty) && CoreHelper.IsNullableType(resType);
         }
 
@@ -206,6 +206,10 @@ namespace APIMatic.Core.Response
 
         private ResponseType ConvertResponse(CoreResponse response)
         {
+            if (typeof(ResponseType) == typeof(VoidType))
+            {
+                return default;
+            }
             if (response.RawBody is ResponseType streamResponse)
             {
                 return streamResponse;
