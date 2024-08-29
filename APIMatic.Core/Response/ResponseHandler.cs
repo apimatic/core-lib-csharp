@@ -131,7 +131,7 @@ namespace APIMatic.Core.Response
                 return returnTypeCreator(compatibilityFactory.CreateHttpResponse(context.Response), result);
             }
 
-            if (result == null || result.Equals(default))
+            if (EqualityComparer<ResponseType>.Default.Equals(result, default))
             {
                 return default;
             }
