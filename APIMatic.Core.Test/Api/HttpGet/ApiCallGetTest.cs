@@ -403,10 +403,10 @@ namespace APIMatic.Core.Test.Api.HttpGet
                 .ExecuteAsync();
 
             // Act
-            var actual = CoreHelper.RunTask(apiCall);
+            ApiResponse<VoidType> actual = CoreHelper.RunTask(apiCall);
 
             // Assert
-            Assert.IsInstanceOf<ApiResponse<VoidType>>(actual);
+            Assert.AreEqual(200, actual.StatusCode);
             Assert.Null(actual.Data);
         }
 

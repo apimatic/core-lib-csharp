@@ -119,33 +119,29 @@ namespace APIMatic.Core.Response
                 {
                     return default;
                 }
+
                 throw ResponseError(context);
             }
-            if (HasEmptyResponse(context.Response))
-            {
-                return default;
-            }
+
             ResponseType result = ConvertResponse(context.Response);
             result = contextAdder(result, compatibilityFactory.CreateHttpContext(context.Request, context.Response));
+
             if (returnTypeCreator != null)
             {
                 return returnTypeCreator(compatibilityFactory.CreateHttpResponse(context.Response), result);
             }
+
+            if (result == null || result.Equals(default))
+            {
+                return default;
+            }
+
             if (result is ReturnType convertedResult)
             {
                 return convertedResult;
             }
-            if (typeof(ReturnType) == typeof(VoidType))
-            {
-                return default;
-            }
-            throw new InvalidOperationException($"Unable to transform {typeof(ResponseType)} into {typeof(ReturnType)}. ReturnTypeCreator is not provided.");
-        }
 
-        private bool HasEmptyResponse(CoreResponse response)
-        {
-            var resType = typeof(ResponseType);
-            return string.Equals(response.Body?.Trim(), string.Empty) && CoreHelper.IsNullableType(resType);
+            throw new InvalidOperationException($"Unable to transform {typeof(ResponseType)} into {typeof(ReturnType)}. ReturnTypeCreator is not provided.");
         }
 
         private ApiException ResponseError(CoreContext<CoreRequest, CoreResponse> context)
@@ -206,7 +202,7 @@ namespace APIMatic.Core.Response
 
         private ResponseType ConvertResponse(CoreResponse response)
         {
-            if (typeof(ResponseType) == typeof(VoidType))
+            if (HasEmptyResponse(response))
             {
                 return default;
             }
@@ -219,6 +215,16 @@ namespace APIMatic.Core.Response
                 return stringResponse;
             }
             return deserializer(response.Body);
+        }
+
+        private bool HasEmptyResponse(CoreResponse response)
+        {
+            var resType = typeof(ResponseType);
+            if (typeof(VoidType).IsAssignableFrom(resType))
+            {
+                return true;
+            }
+            return string.Equals(response.Body?.Trim(), string.Empty) && CoreHelper.IsNullableType(resType);
         }
     }
 }
