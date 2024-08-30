@@ -384,6 +384,33 @@ namespace APIMatic.Core.Test.Api.HttpGet
         }
 
         [Test]
+        public void ApiCall_GetVoid_WithApiResponse()
+        {
+            //Arrange
+            var url = "/apicall/get-void/api-response/200";
+
+            var content = JsonContent.Create("Test body");
+            handlerMock.When(GetCompleteUrl(url))
+                .With(req =>
+                {
+                    Assert.AreEqual(0, req.Headers.Accept.Count);
+                    return true;
+                })
+                .Respond(HttpStatusCode.OK, content);
+
+            var apiCall = CreateApiCall<VoidType>()
+                .RequestBuilder(requestBuilderAction => requestBuilderAction.Setup(HttpMethod.Get, url))
+                .ExecuteAsync();
+
+            // Act
+            ApiResponse<VoidType> actual = CoreHelper.RunTask(apiCall);
+
+            // Assert
+            Assert.AreEqual(200, actual.StatusCode);
+            Assert.Null(actual.Data);
+        }
+
+        [Test]
         public void ApiCall_GetStream()
         {
             //Arrange
