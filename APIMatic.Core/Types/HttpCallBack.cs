@@ -24,7 +24,7 @@ namespace APIMatic.Core.Types
         /// BeforeHttpRequestEventHandler.
         /// </summary>
         /// <param name="request">Http Request.</param>
-        public void OnBeforeHttpRequestEventHandler(CoreRequest request)
+        public virtual void OnBeforeHttpRequestEventHandler(CoreRequest request)
         {
             Request = request;
         }
@@ -34,7 +34,7 @@ namespace APIMatic.Core.Types
         /// </summary>
         /// <param name="source">Http Client.</param>
         /// <param name="response">Http Response.</param>
-        public void OnAfterHttpResponseEventHandler(CoreResponse response)
+        public virtual void OnAfterHttpResponseEventHandler(CoreResponse response)
         {
             Response = response;
         }
