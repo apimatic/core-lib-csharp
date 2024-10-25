@@ -280,7 +280,8 @@ namespace APIMatic.Core.Utilities
             return convertedValue;
         }
 
-        private static void PrepareFormFieldsForCustomTypes(string name, object value, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys)
+        private static void PrepareFormFieldsForCustomTypes(string name, object value,
+            ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys)
         {
             // Custom object Iterate through its properties
             var enumerator = value.GetType().GetProperties().GetEnumerator();
@@ -288,12 +289,36 @@ namespace APIMatic.Core.Utilities
             while (enumerator.MoveNext())
             {
                 var pInfo = enumerator.Current as PropertyInfo;
+                if (pInfo?.GetIndexParameters().Length != 0) { continue; }
 
                 var jsonProperty = (JsonPropertyAttribute)pInfo.GetCustomAttributes(t, true).FirstOrDefault();
+
                 var subName = (jsonProperty != null) ? jsonProperty.PropertyName : pInfo.Name;
                 string fullSubName = string.IsNullOrWhiteSpace(name) ? subName : name + '[' + subName + ']';
                 var subValue = pInfo.GetValue(value, null);
                 PrepareFormFieldsFromObject(fullSubName, subValue, arraySerializationFormat, keys, pInfo);
+            }
+
+            ProcessAdditionalProperties(name, value, arraySerializationFormat, keys);
+        }
+
+        private static void ProcessAdditionalProperties(string name, object value, ArraySerialization arraySerializationFormat,
+            List<KeyValuePair<string, object>> keys)
+        {
+            var additionalPropertiesField = value.GetType()
+                .GetProperties(BindingFlags.NonPublic | BindingFlags.Instance)
+                .FirstOrDefault(prop => prop.GetCustomAttribute<JsonExtensionDataAttribute>() != null);
+
+            if (additionalPropertiesField == null)
+                return;
+
+            if (additionalPropertiesField.GetValue(value) is IDictionary<string, JToken> additionalProperties)
+            {
+                foreach (var kvp in additionalProperties)
+                {
+                    string fullSubName = string.IsNullOrWhiteSpace(name) ? kvp.Key : $"{name}[{kvp.Key}]";
+                    PrepareFormFieldsFromObject(fullSubName, kvp.Value, arraySerializationFormat, keys, null);
+                }
             }
         }
 
