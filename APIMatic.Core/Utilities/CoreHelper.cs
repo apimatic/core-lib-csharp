@@ -302,26 +302,41 @@ namespace APIMatic.Core.Utilities
             ProcessAdditionalProperties(name, value, arraySerializationFormat, keys);
         }
 
-        private static void ProcessAdditionalProperties(string name, object value, ArraySerialization arraySerializationFormat,
+        private static void ProcessAdditionalProperties(
+            string name, object value, ArraySerialization arraySerializationFormat,
             List<KeyValuePair<string, object>> keys)
         {
-            var additionalPropertiesField = value.GetType()
-                .GetProperties(BindingFlags.NonPublic | BindingFlags.Instance)
-                .FirstOrDefault(prop => prop.GetCustomAttribute<JsonExtensionDataAttribute>() != null);
+            // Find a member (field or property) with the [JsonExtensionData] attribute.
+            var additionalPropertiesMember = value.GetType()
+                .GetMembers(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+                .FirstOrDefault(member => member.GetCustomAttribute<JsonExtensionDataAttribute>() != null);
 
-            if (additionalPropertiesField == null)
-                return;
+            if (additionalPropertiesMember == null) return;
 
-            if (additionalPropertiesField.GetValue(value) is IDictionary<string, JToken> additionalProperties)
+            object additionalProperties = additionalPropertiesMember is FieldInfo fieldInfo
+                ? fieldInfo.GetValue(value)
+                : (additionalPropertiesMember as PropertyInfo)?.GetValue(value);
+
+            switch (additionalProperties)
             {
-                foreach (var kvp in additionalProperties)
-                {
-                    string fullSubName = string.IsNullOrWhiteSpace(name) ? kvp.Key : $"{name}[{kvp.Key}]";
-                    PrepareFormFieldsFromObject(fullSubName, kvp.Value, arraySerializationFormat, keys, null);
-                }
-            }
-        }
+                case IDictionary<string, JToken> additionalPropertiesJToken:
+                    foreach (var kvp in additionalPropertiesJToken)
+                    {
+                        string fullSubName = string.IsNullOrWhiteSpace(name) ? kvp.Key : $"{name}[{kvp.Key}]";
+                        PrepareFormFieldsFromObject(fullSubName, kvp.Value, arraySerializationFormat, keys, null);
+                    }
+                    return;
 
+                case IDictionary<string, object> additionalPropertiesObj:
+                    foreach (var kvp in additionalPropertiesObj)
+                    {
+                        string fullSubName = string.IsNullOrWhiteSpace(name) ? kvp.Key : $"{name}[{kvp.Key}]";
+                        PrepareFormFieldsFromObject(fullSubName, kvp.Value, arraySerializationFormat, keys, null);
+                    }
+                    return;
+            }
+
+        }
         private static void PrepareFormFieldsForDictionary(string name, IDictionary dictionary, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys = null, PropertyInfo propInfo = null)
         {
             foreach (var sName in dictionary.Keys)
