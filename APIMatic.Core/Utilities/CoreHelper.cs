@@ -311,7 +311,10 @@ namespace APIMatic.Core.Utilities
                 .GetMembers(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
                 .FirstOrDefault(member => member.GetCustomAttribute<JsonExtensionDataAttribute>() != null);
 
-            if (additionalPropertiesMember == null) return;
+            if (additionalPropertiesMember == null)
+            {
+                return;
+            }
 
             object additionalProperties = additionalPropertiesMember is FieldInfo fieldInfo
                 ? fieldInfo.GetValue(value)
