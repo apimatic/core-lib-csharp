@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -15,6 +16,7 @@ namespace APIMatic.Core.Test.MockTypes.Models
         /// <summary>
         /// Set the value associated with the specified key in the AdditionalProperties dictionary.
         /// </summary>
+        [IndexerName("AdditionalPropertiesIndexer")]
         public string this[string key]
         {
             set => _additionalProperties.SetValue(key, value);
