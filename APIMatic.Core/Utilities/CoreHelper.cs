@@ -323,24 +323,28 @@ namespace APIMatic.Core.Utilities
             switch (additionalProperties)
             {
                 case IDictionary<string, JToken> additionalPropertiesJToken:
-                    foreach (var kvp in additionalPropertiesJToken)
-                    {
-                        string fullSubName = string.IsNullOrWhiteSpace(name) ? kvp.Key : $"{name}[{kvp.Key}]";
-                        PrepareFormFieldsFromObject(fullSubName, kvp.Value, arraySerializationFormat, keys, null);
-                    }
+                    HandleAdditionalProperties(additionalPropertiesJToken, name, arraySerializationFormat, keys);
                     return;
 
                 case IDictionary<string, object> additionalPropertiesObj:
-                    foreach (var kvp in additionalPropertiesObj)
-                    {
-                        string fullSubName = string.IsNullOrWhiteSpace(name) ? kvp.Key : $"{name}[{kvp.Key}]";
-                        PrepareFormFieldsFromObject(fullSubName, kvp.Value, arraySerializationFormat, keys, null);
-                    }
+                    HandleAdditionalProperties(additionalPropertiesObj, name, arraySerializationFormat, keys);
                     return;
             }
-
         }
-        private static void PrepareFormFieldsForDictionary(string name, IDictionary dictionary, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys = null, PropertyInfo propInfo = null)
+
+        private static void HandleAdditionalProperties<T>(IDictionary<string, T> properties, string name,
+            ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys)
+        {
+            foreach (var kvp in properties)
+            {
+                string fullSubName = string.IsNullOrWhiteSpace(name) ? kvp.Key : $"{name}[{kvp.Key}]";
+                PrepareFormFieldsFromObject(fullSubName, kvp.Value, arraySerializationFormat, keys, null);
+            }
+        }
+
+        private static void PrepareFormFieldsForDictionary(string name, IDictionary dictionary,
+            ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys = null,
+            PropertyInfo propInfo = null)
         {
             foreach (var sName in dictionary.Keys)
             {
