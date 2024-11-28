@@ -280,7 +280,8 @@ namespace APIMatic.Core.Utilities
             return convertedValue;
         }
 
-        private static void PrepareFormFieldsForCustomTypes(string name, object value, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys)
+        private static void PrepareFormFieldsForCustomTypes(string name, object value,
+            ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys)
         {
             // Custom object Iterate through its properties
             var enumerator = value.GetType().GetProperties().GetEnumerator();
@@ -288,16 +289,62 @@ namespace APIMatic.Core.Utilities
             while (enumerator.MoveNext())
             {
                 var pInfo = enumerator.Current as PropertyInfo;
+                if (pInfo?.GetIndexParameters().Length != 0) { continue; }
 
                 var jsonProperty = (JsonPropertyAttribute)pInfo.GetCustomAttributes(t, true).FirstOrDefault();
+
                 var subName = (jsonProperty != null) ? jsonProperty.PropertyName : pInfo.Name;
                 string fullSubName = string.IsNullOrWhiteSpace(name) ? subName : name + '[' + subName + ']';
                 var subValue = pInfo.GetValue(value, null);
                 PrepareFormFieldsFromObject(fullSubName, subValue, arraySerializationFormat, keys, pInfo);
             }
+
+            ProcessAdditionalProperties(name, value, arraySerializationFormat, keys);
         }
 
-        private static void PrepareFormFieldsForDictionary(string name, IDictionary dictionary, ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys = null, PropertyInfo propInfo = null)
+        private static void ProcessAdditionalProperties(
+            string name, object value, ArraySerialization arraySerializationFormat,
+            List<KeyValuePair<string, object>> keys)
+        {
+            // Find a member (field or property) with the [JsonExtensionData] attribute.
+            var additionalPropertiesMember = value.GetType()
+                .GetMembers(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+                .FirstOrDefault(member => member.GetCustomAttribute<JsonExtensionDataAttribute>() != null);
+
+            if (additionalPropertiesMember == null)
+            {
+                return;
+            }
+
+            object additionalProperties = additionalPropertiesMember is FieldInfo fieldInfo
+                ? fieldInfo.GetValue(value)
+                : (additionalPropertiesMember as PropertyInfo)?.GetValue(value);
+
+            switch (additionalProperties)
+            {
+                case IDictionary<string, JToken> additionalPropertiesJToken:
+                    HandleAdditionalProperties(additionalPropertiesJToken, name, arraySerializationFormat, keys);
+                    return;
+
+                case IDictionary<string, object> additionalPropertiesObj:
+                    HandleAdditionalProperties(additionalPropertiesObj, name, arraySerializationFormat, keys);
+                    return;
+            }
+        }
+
+        private static void HandleAdditionalProperties<T>(IDictionary<string, T> properties, string name,
+            ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys)
+        {
+            foreach (var kvp in properties)
+            {
+                string fullSubName = string.IsNullOrWhiteSpace(name) ? kvp.Key : $"{name}[{kvp.Key}]";
+                PrepareFormFieldsFromObject(fullSubName, kvp.Value, arraySerializationFormat, keys, null);
+            }
+        }
+
+        private static void PrepareFormFieldsForDictionary(string name, IDictionary dictionary,
+            ArraySerialization arraySerializationFormat, List<KeyValuePair<string, object>> keys = null,
+            PropertyInfo propInfo = null)
         {
             foreach (var sName in dictionary.Keys)
             {

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Test.MockTypes.Models;
@@ -961,6 +962,59 @@ namespace APIMatic.Core.Test.Utilities
             List<KeyValuePair<string, object>> actual = CoreHelper.PrepareFormFieldsFromObject("jsonValue", jsonValue, ArraySerialization.Indexed);
             Assert.AreEqual(expected, actual);
         }
+
+        [Test]
+        public void PrepareFormFieldsFromObject_WithAdditionalPropertiesAsField()
+        {
+            var queryBuilder = new StringBuilder();
+            queryBuilder.Append(SERVER_URL);
+            var simpleModelWithAdditionalPropertiesField =
+                new SimpleModelWithAdditionalPropertiesField("Required Field")
+                {
+                    ["additionalPropertyKey"] = "additionalPropertyValue"
+                };
+
+            List<KeyValuePair<string, object>> expected = new List<KeyValuePair<string, object>>()
+            {
+                new("simpleModelWithAdditionalPropertiesField[requiredProperty]", "Required Field"),
+                new("simpleModelWithAdditionalPropertiesField[additionalPropertyKey]", "additionalPropertyValue")
+            };
+
+            List<KeyValuePair<string, object>> actual = CoreHelper.PrepareFormFieldsFromObject(
+                "simpleModelWithAdditionalPropertiesField", simpleModelWithAdditionalPropertiesField,
+                ArraySerialization.Indexed);
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void PrepareFormFieldsFromObject_WithAdditionalPropertiesBaseModel()
+        {
+            var queryBuilder = new StringBuilder();
+            queryBuilder.Append(SERVER_URL);
+            var simpleModelWithAdditionalPropertiesBaseModel =
+                new SimpleModelWithAdditionalPropertiesBaseModel("Required Field")
+                {
+                    AdditionalProperties =
+                        new Dictionary<string, object> { { "additionalPropertyKey", "additionalPropertyValue" } }
+                };
+
+            List<KeyValuePair<string, object>> expected = new List<KeyValuePair<string, object>>()
+            {
+                new("simpleModelWithAdditionalPropertiesBaseModel[requiredProperty]", "Required Field"),
+                new("simpleModelWithAdditionalPropertiesBaseModel[additionalPropertyKey]", "additionalPropertyValue")
+            };
+
+            List<KeyValuePair<string, object>> actual = CoreHelper.PrepareFormFieldsFromObject(
+                "simpleModelWithAdditionalPropertiesBaseModel", simpleModelWithAdditionalPropertiesBaseModel,
+                ArraySerialization.Indexed);
+
+            // Assert that all items in 'expected' are found within 'actual'
+            bool containsAllExpectedEntries = expected.All(item => actual.Contains(item));
+            Assert.IsTrue(containsAllExpectedEntries, "Not all expected entries are present in actual.");
+
+        }
+
         #endregion
 
         #region DeepCloneObject
