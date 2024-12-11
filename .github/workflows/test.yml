@@ -39,7 +39,7 @@ jobs:
       run: dotnet test APIMatic.Core.Test/APIMatic.Core.Test.csproj -p:CollectCoverage=true -p:CoverletOutputFormat=lcov
     
     - name: Upload coverage report
-      if: ${{ matrix.os == 'ubuntu-latest' && matrix.dotnet == '7.0.x' }}
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.dotnet == '7.0.x' && github.actor != 'dependabot[bot]' }}
       uses: paambaati/codeclimate-action@v3.0.0
       env:
         CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_KEY }}
