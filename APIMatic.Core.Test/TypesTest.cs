@@ -96,5 +96,45 @@ namespace APIMatic.Core.Test
             var actualDeserialized = CoreHelper.JsonDeserialize<JsonValue>(expectedString);
             Assert.AreEqual(jsonValue.ToString(), actualDeserialized.ToString());
         }
+        
+        [Test]
+        public void AddHeaders_ShouldAddHeaders_WhenHeadersNotNull()
+        {
+            // Arrange
+            var coreRequest = new HttpRequest(HttpMethod.Get, "https://myurl.com");
+            var headersToAdd = new Dictionary<string, string>
+            {
+                { "Content-Type", "application/json" },
+                { "Authorization", "Bearer token" }
+            };
+
+            // Act
+            var result = coreRequest.AddHeaders(headersToAdd);
+
+            // Assert
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual("application/json", result["Content-Type"]);
+            Assert.AreEqual("Bearer token", result["Authorization"]);
+        }
+        
+        [Test]
+        public void AddQueryParameters_ShouldAddQueryParameters_WhenQueryParametersAreNotNull()
+        {
+            // Arrange
+            var coreRequest = new HttpRequest(HttpMethod.Get, "https://myurl.com");
+            var queryParametersToAdd = new Dictionary<string, object>
+            {
+                { "search", "test" },
+                { "limit", 10 }
+            };
+
+            // Act
+            coreRequest.AddQueryParameters(queryParametersToAdd);
+
+            // Assert
+            Assert.AreEqual(2, coreRequest.QueryParameters.Count);
+            Assert.AreEqual("test", coreRequest.QueryParameters["search"]);
+            Assert.AreEqual(10, coreRequest.QueryParameters["limit"]);
+        }
     }
 }
