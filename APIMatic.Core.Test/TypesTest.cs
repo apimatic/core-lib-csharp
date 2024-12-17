@@ -63,34 +63,6 @@ namespace APIMatic.Core.Test
         }
 
         [Test]
-        public void HttpContext_String_Representation()
-        {
-            var response = new HttpResponse(200, new Dictionary<string, string>(), new MemoryStream(Encoding.UTF8.GetBytes("")), "Test body");
-            var request = new HttpRequest(HttpMethod.Get, "https://myurl.com");
-
-            request.AddHeaders(new Dictionary<string, string>
-            {
-                { "keyA1", "value A1"}
-            });
-            request.AddHeaders(new Dictionary<string, string>
-            {
-                { "keyA2", "value A2"}
-            });
-            request.AddQueryParameters(new Dictionary<string, object>
-            {
-                { "queryA1", "value A1"},
-            });
-            request.AddQueryParameters(new Dictionary<string, object>
-            {
-                { "queryA2", "value A2"}
-            });
-            var context = new HttpContext(request, response);
-
-            var expected = " Request =  HttpMethod = GET,  QueryUrl = https://myurl.com,  QueryParameters = {\"queryA1\":\"value A1\",\"queryA2\":\"value A2\"},  Headers = {\"keyA1\":\"value A1\",\"keyA2\":\"value A2\"},  FormParameters = ,  Body = ,  Username = ,  Password = , Response =  StatusCode = 200,  Headers = {} RawBody = System.IO.MemoryStream";
-            Assert.AreEqual(expected, context.ToString());
-        }
-
-        [Test]
         public void JsonObject_String_Representation()
         {
             var jsonObject = JsonObject.FromJsonString(null);

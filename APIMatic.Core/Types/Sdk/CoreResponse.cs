@@ -41,13 +41,5 @@ namespace APIMatic.Core.Types.Sdk
         /// Gets the raw string body of the http response.
         /// </summary>
         public string Body { get; }
-
-        /// <inheritdoc/>
-        public override string ToString()
-        {
-            return $" StatusCode = {StatusCode}, " +
-                $" Headers = {CoreHelper.JsonSerialize(Headers)}" +
-                $" RawBody = {RawBody}";
-        }
     }
 }
