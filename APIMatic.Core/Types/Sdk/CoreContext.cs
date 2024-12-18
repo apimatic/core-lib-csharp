@@ -31,11 +31,5 @@ namespace APIMatic.Core.Types.Sdk
         public Res Response { get; }
 
         internal bool IsFailure() => (Response.StatusCode < 200) || (Response.StatusCode > 208);
-
-        /// <inheritdoc/>
-        public override string ToString()
-        {
-            return $" Request = {Request}, Response = {Response}";
-        }
     }
 }

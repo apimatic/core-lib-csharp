@@ -128,18 +128,5 @@ namespace APIMatic.Core.Types.Sdk
         /// otherwise, returns an empty string.
         /// </returns>
         internal string GetBodyAsString() => Body == null ? string.Empty : Body.ToString();
-        
-        /// <inheritdoc/>
-        public override string ToString()
-        {
-            return $" HttpMethod = {HttpMethod}, " +
-                $" QueryUrl = {QueryUrl}, " +
-                $" QueryParameters = {CoreHelper.JsonSerialize(QueryParameters)}, " +
-                $" Headers = {CoreHelper.JsonSerialize(Headers)}, " +
-                $" FormParameters = {CoreHelper.JsonSerialize(FormParameters)}, " +
-                $" Body = {Body}, " +
-                $" Username = {Username}, " +
-                $" Password = {Password}";
-        }
     }
 }
