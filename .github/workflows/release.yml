@@ -9,7 +9,7 @@ on:
 jobs:
   create-release:
     name: Creating release version ${{ github.event.inputs.Version }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     environment: Production
     steps:
       - uses: actions/checkout@v3
