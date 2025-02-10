@@ -13,7 +13,7 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-latest] # windows-latest, macos-latest
+        os: [ubuntu-22.04] # windows-latest, macos-latest
         dotnet: ['2.0.x', '2.1.x', '2.2.x', '3.0.x', '3.1.x', '5.0.x', '6.0.x', '7.0.x']
     name: Dotnet ${{ matrix.dotnet }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -31,15 +31,15 @@ jobs:
       run: dotnet build
 
     - name: Test
-      if: ${{ matrix.os != 'ubuntu-latest' || matrix.dotnet != '7.0.x' }}
+      if: ${{ matrix.os != 'ubuntu-22.04' || matrix.dotnet != '7.0.x' }}
       run: dotnet test
 
     - name: Test & Coverage Collection
-      if: ${{ matrix.os == 'ubuntu-latest' && matrix.dotnet == '7.0.x' }}
+      if: ${{ matrix.os == 'ubuntu-22.04' && matrix.dotnet == '7.0.x' }}
       run: dotnet test APIMatic.Core.Test/APIMatic.Core.Test.csproj -p:CollectCoverage=true -p:CoverletOutputFormat=lcov
     
     - name: Upload coverage report
-      if: ${{ matrix.os == 'ubuntu-latest' && matrix.dotnet == '7.0.x' && github.actor != 'dependabot[bot]' }}
+      if: ${{ matrix.os == 'ubuntu-22.04' && matrix.dotnet == '7.0.x' && github.actor != 'dependabot[bot]' }}
       uses: paambaati/codeclimate-action@v3.0.0
       env:
         CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_KEY }}

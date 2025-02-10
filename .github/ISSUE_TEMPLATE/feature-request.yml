@@ -31,7 +31,6 @@ body:
         A clear and concise description of any alternative solutions or features you've considered.
     validations:
       required: false
-mrafnadeem-apimatic marked this conversation as resolved.
   - type: textarea
     attributes:
       label: Who will this benefit?
@@ -39,7 +38,6 @@ mrafnadeem-apimatic marked this conversation as resolved.
         What kind of use case will this feature be useful for? Please be specific and provide examples, this will help us prioritize properly.
     validations:
       required: false
-asadali214 marked this conversation as resolved.
   - type: input
     attributes:
       label: Are you interested in contributing this feature?

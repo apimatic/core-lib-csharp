@@ -24,7 +24,6 @@ Thank you for your interest in contributing! 🎉 Your contributions help make t
 #### Step 2: Make Your Changes
 
 - Follow the project's **coding standards**.
-asadali214 marked this conversation as resolved.
 - Add **unit tests** if applicable.
 - Ensure your changes **do not break existing functionality**.
 
@@ -45,7 +44,6 @@ asadali214 marked this conversation as resolved.
   - Provide a clear **description** of the changes.
   - Mention related **issue numbers**.
   - Request a **review** from maintainers.
-mrafnadeem-apimatic marked this conversation as resolved.
   - Make sure your changes clear all the **PR Checks**.
 
 ---
