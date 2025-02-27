@@ -150,7 +150,7 @@ namespace APIMatic.Core.Request
         {
             parameters.Validate().Apply(this);
             configuration.RuntimeParameters.Validate().Apply(this);
-            await authGroup.Apply(this);
+            await authGroup.Apply(this).ConfigureAwait(false);
             CoreHelper.AppendUrlWithQueryParameters(QueryUrl, queryParameters, ArraySerialization);
             body = bodyParameters.Any() ? bodyParameters : body;
             AppendContentTypeHeader();

@@ -118,7 +118,7 @@ namespace APIMatic.Core.Authentication
             Validate();
             foreach (var authManager in validatedAuthManagers)
             {
-                await authManager.Apply(requestBuilder);
+                await authManager.Apply(requestBuilder).ConfigureAwait(false);
             }
         }
     }
