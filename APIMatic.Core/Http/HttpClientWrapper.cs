@@ -74,7 +74,7 @@ namespace APIMatic.Core.Http
             if (_overrideHttpClientConfiguration)
             {
                 responseMessage = await GetCombinedPolicy(request.RetryOption).ExecuteAsync(
-                    async (cancellation) => await ExecuteHttpRequest(request, cancellation).ConfigureAwait(false), cancellationToken)
+                    async (cancellation) => await ExecuteHttpRequest(request, cancellation).ConfigureAwait(false), cancellationToken, false)
                     .ConfigureAwait(false);
             }
             else
@@ -286,7 +286,7 @@ namespace APIMatic.Core.Http
                             GetServerWaitDuration(result).TotalMilliseconds)),
                     onRetryAsync: async (result, timespan, retryAttempt, context) =>
                     {
-                        await Task.CompletedTask;
+                        await Task.CompletedTask.ConfigureAwait(false);
                     });
 
         private AsyncTimeoutPolicy GetTimeoutPolicy()
