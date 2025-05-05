@@ -43,5 +43,8 @@
     <ItemGroup>
         <InternalsVisibleTo Include="APIMatic.Core.Test" />
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\dotnet proxy\SpotifyACG.json\SpotifyWebAPI.Standard\SpotifyWebAPI.Standard.csproj" />
+    </ItemGroup>
 
 </Project>
