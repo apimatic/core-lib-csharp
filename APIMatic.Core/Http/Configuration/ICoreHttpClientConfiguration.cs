@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using APIMatic.Core.Proxy;
 
 namespace APIMatic.Core.Http.Configuration
 {
@@ -12,6 +13,8 @@ namespace APIMatic.Core.Http.Configuration
     /// </summary>
     public interface ICoreHttpClientConfiguration
     {
+        CoreProxyConfiguration ProxyConfiguration { get; }
+
         /// <summary>
         /// Http client timeout.
         /// </summary>
