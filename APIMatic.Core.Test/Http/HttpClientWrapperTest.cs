@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using APIMatic.Core.Http;
 using APIMatic.Core.Http.Configuration;
+using APIMatic.Core.Proxy; // Include the proxy namespace
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
 
@@ -21,14 +22,24 @@ namespace APIMatic.Core.Test.Http
         [SetUp]
         public void SetupHttpClient()
         {
-            var clientConfiguration = new CoreHttpClientConfiguration.Builder()
+            // Create a proxy configuration instance
+            var proxyConfig = new CoreProxyConfiguration(
+                address: "http://localhost",
+                port: 8080,
+                user: "user",
+                pass: "pass",
+                tunnel: true
+            );
+
+            // Pass the proxy configuration to the HttpClient configuration builder
+            var clientConfiguration = new CoreHttpClientConfiguration.Builder(proxyConfig)
                 .HttpClientInstance(new HttpClient(handlerMock), false)
                 .Build();
 
             _config = new GlobalConfiguration.Builder()
                 .ServerUrls(new Dictionary<Enum, string>
                 {
-                    { MockServer.Server1, "http://my/path:3000/{one}"},
+                    { MockServer.Server1, "http://my/path:3000/{one}" },
                 }, MockServer.Server1)
                 .HttpConfiguration(clientConfiguration)
                 .ApiCallback(ApiCallBack)
@@ -43,8 +54,7 @@ namespace APIMatic.Core.Test.Http
             var request = await _config.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/httpclient/get/200")
                 .Parameters(p => p
-                    .Body(b => b.Setup("Get Response")))
-                .Build();
+                    .Body(b => b.Setup("Get Response"))).Build();
 
             var content = new StringContent(request.Body.ToString(), Encoding.UTF8, "application/json");
 
@@ -63,8 +73,7 @@ namespace APIMatic.Core.Test.Http
             var request = await _config.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/httpclient/get/400")
                 .Parameters(p => p
-                    .Body(b => b.Setup("Get Bad Request")))
-                .Build();
+                    .Body(b => b.Setup("Get Bad Request"))).Build();
 
             var content = new StringContent(request.Body.ToString(), Encoding.UTF8, "application/json");
 

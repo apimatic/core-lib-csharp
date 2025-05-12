@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using APIMatic.Core.Http.Configuration;
+using APIMatic.Core.Proxy; // Add this import for CoreProxyConfiguration
 using NUnit.Framework;
 
 namespace APIMatic.Core.Test
@@ -44,16 +45,28 @@ namespace APIMatic.Core.Test
         [Test]
         public async Task TestGlobalRequest_NullUserAgent()
         {
-            var httpClientConfiguration = new CoreHttpClientConfiguration.Builder().Build();
+            // Create a CoreProxyConfiguration instance
+            var proxyConfig = new CoreProxyConfiguration(
+                address: "http://localhost",
+                port: 8080,
+                user: "user",
+                pass: "pass",
+                tunnel: true
+            );
+
+            // Pass the proxyConfig to the builder
+            var httpClientConfiguration = new CoreHttpClientConfiguration.Builder(proxyConfig).Build();
+
             var request = await new GlobalConfiguration.Builder()
                 .HttpConfiguration(httpClientConfiguration)
                 .UserAgent(null)
                 .ServerUrls(new Dictionary<Enum, string>
                 {
-                    { MockServer.Server1, "http://my/path:3000/{one}"},
-                    { MockServer.Server2, "https://my/path/{two}"}
+                    { MockServer.Server1, "http://my/path:3000/{one}" },
+                    { MockServer.Server2, "https://my/path/{two}" }
                 }, MockServer.Server1)
                 .Build().GlobalRequestBuilder().Build();
+
             Assert.IsFalse(request.Headers.ContainsKey("user-agent"));
         }
     }
