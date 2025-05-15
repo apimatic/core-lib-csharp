@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using APIMatic.Core.Http.Configuration;
-using APIMatic.Core.Proxy; // Include the proxy namespace
-
+using APIMatic.Core.Proxy;
 using NUnit.Framework;
 
 namespace APIMatic.Core.Test.Http
@@ -13,11 +12,9 @@ namespace APIMatic.Core.Test.Http
     {
         private CoreHttpClientConfiguration _config;
 
-
         [SetUp]
         public void SetupCoreHttpClient()
         {
-            // Create the proxy configuration instance here
             var proxyConfig = new CoreProxyConfiguration(
                 address: "http://localhost",
                 port: 8080,
@@ -25,15 +22,12 @@ namespace APIMatic.Core.Test.Http
                 pass: "pass",
                 tunnel: true
             );
-
-            // Pass the proxy configuration into the builder
             _config = new CoreHttpClientConfiguration.Builder(proxyConfig).Build();
         }
 
         [Test]
         public void Builder_BuildWithParameters_CoreHttpClientConfiguration()
         {
-            // Arrange
             var timeout = 180;
             var skipSslCertVerification = true;
             var numberOfRetries = 3;
@@ -43,7 +37,6 @@ namespace APIMatic.Core.Test.Http
             var statusCodesToRetry = new List<int>() { 408, 409 };
             var requestMethodsToRetry = new List<HttpMethod>() { HttpMethod.Post, HttpMethod.Get };
 
-            // Act
             var config = _config.ToBuilder()
                 .Timeout(TimeSpan.FromSeconds(timeout))
                 .SkipSslCertVerification(skipSslCertVerification)
@@ -55,7 +48,6 @@ namespace APIMatic.Core.Test.Http
                 .RequestMethodsToRetry(requestMethodsToRetry)
             .Build();
 
-            // Assert
             Assert.NotNull(config);
             Assert.AreEqual(config.Timeout, TimeSpan.FromSeconds(timeout));
             Assert.AreEqual(config.SkipSslCertVerification, skipSslCertVerification);
@@ -70,7 +62,6 @@ namespace APIMatic.Core.Test.Http
         [Test]
         public void Builder_BuildWithInvalidParameters_CoreHttpClientConfiguration()
         {
-            // Arrange
             var timeout = 0;
             var numberOfRetries = -1;
             var backoffFactor = 0;
@@ -90,14 +81,12 @@ namespace APIMatic.Core.Test.Http
                 .RequestMethodsToRetry(null)
             .Build();
 
-            //expected default values
             var defaultTimeout = 100;
             var defaultNumberOfRetries = 0;
             var defaultBackoffFactor = 2;
             var defaultRetryInterval = 1;
             var defaultMaximumRetryWaitTime = 120;
 
-            // Assert
             Assert.NotNull(config);
             Assert.NotNull(config.HttpClientInstance);
             Assert.AreEqual(config.Timeout, TimeSpan.FromSeconds(defaultTimeout));
@@ -113,10 +102,7 @@ namespace APIMatic.Core.Test.Http
         [Test]
         public void ToString_Default_CoreHttpClientConfiguration()
         {
-            // Act
             var actual = _config.ToString();
-
-            // Assert
             var expected = "HttpClientConfiguration: 00:01:40 , False , 0 , 2 , 1 , 00:02:00 , System.Collections.Immutable.ImmutableList`1[System.Int32] , System.Collections.Immutable.ImmutableList`1[System.Net.Http.HttpMethod] , System.Net.Http.HttpClient , True ";
             Assert.AreEqual(expected, actual);
         }

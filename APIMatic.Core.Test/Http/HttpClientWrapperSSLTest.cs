@@ -14,17 +14,14 @@ namespace APIMatic.Core.Test.Http
     {
         private readonly string expiredSSLCertUrl = "https://expired.badssl.com/";
 
-        // Helper method to create client configuration with SSL handling
         private CoreHttpClientConfiguration CreateClientConfiguration(bool skipSslVerification)
         {
             var handler = new HttpClientHandler
             {
-                // If skipSslVerification is true, we bypass the SSL check
                 ServerCertificateCustomValidationCallback = skipSslVerification
                     ? (sender, cert, chain, sslPolicyErrors) => true
                     : (sender, cert, chain, sslPolicyErrors) =>
                     {
-                        // This will force SSL validation failure to simulate the expired certificate error
                         return sslPolicyErrors == SslPolicyErrors.None;
                     }
             };
@@ -38,14 +35,14 @@ namespace APIMatic.Core.Test.Http
             );
 
             return new CoreHttpClientConfiguration.Builder(proxyConfig)
-                .HttpClientInstance(new HttpClient(handler)) // Set custom handler with SSL validation behavior
+                .HttpClientInstance(new HttpClient(handler))
                 .Build();
         }
 
         [Test]
         public async Task TestHttpClientSSLCertificateVerification_ExceptionResponse()
         {
-            var clientConfiguration = CreateClientConfiguration(skipSslVerification: false); // Disable SSL verification
+            var clientConfiguration = CreateClientConfiguration(skipSslVerification: false);
 
             var config = new GlobalConfiguration.Builder()
                 .ServerUrls(new Dictionary<Enum, string>

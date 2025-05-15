@@ -11,7 +11,6 @@ namespace APIMatic.Core.Http.Configuration
     /// </summary>
     public interface ICoreHttpClientConfiguration
     {
-
         /// <summary>
         /// Http client timeout.
         /// </summary>

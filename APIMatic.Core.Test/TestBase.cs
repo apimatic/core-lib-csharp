@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using APIMatic.Core.Authentication;
 using APIMatic.Core.Http.Configuration;
-using APIMatic.Core.Proxy; // Include the proxy namespace
+using APIMatic.Core.Proxy;
 using APIMatic.Core.Test.MockTypes.Authentication;
 using APIMatic.Core.Types;
 using RichardSzalay.MockHttp;
@@ -23,10 +23,8 @@ namespace APIMatic.Core.Test
             AutoFlush = true
         };
 
-        // Create the proxy configuration instance
         protected static readonly CoreProxyConfiguration proxyConfig = new("http://localhost", 8080, "user", "pass", true);
 
-        // Pass the proxy configuration to the HttpClient configuration builder
         protected static readonly ICoreHttpClientConfiguration _clientConfiguration = new CoreHttpClientConfiguration.Builder(proxyConfig)
             .HttpClientInstance(new HttpClient(handlerMock))
             .NumberOfRetries(numberOfRetries)

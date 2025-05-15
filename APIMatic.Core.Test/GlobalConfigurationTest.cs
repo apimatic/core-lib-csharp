@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using APIMatic.Core.Http.Configuration;
-using APIMatic.Core.Proxy; // Add this import for CoreProxyConfiguration
+using APIMatic.Core.Proxy;
 using NUnit.Framework;
 
 namespace APIMatic.Core.Test
@@ -45,7 +45,7 @@ namespace APIMatic.Core.Test
         [Test]
         public async Task TestGlobalRequest_NullUserAgent()
         {
-            // Create a CoreProxyConfiguration instance
+
             var proxyConfig = new CoreProxyConfiguration(
                 address: "http://localhost",
                 port: 8080,
@@ -54,7 +54,6 @@ namespace APIMatic.Core.Test
                 tunnel: true
             );
 
-            // Pass the proxyConfig to the builder
             var httpClientConfiguration = new CoreHttpClientConfiguration.Builder(proxyConfig).Build();
 
             var request = await new GlobalConfiguration.Builder()

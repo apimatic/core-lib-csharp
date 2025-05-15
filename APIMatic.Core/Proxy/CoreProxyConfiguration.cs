@@ -8,7 +8,6 @@
         public string Pass { get; }
         public bool Tunnel { get; }
 
-        // Constructor for direct initialization
         public CoreProxyConfiguration(string address, int port, string user, string pass, bool tunnel)
         {
             Address = address;
@@ -18,7 +17,6 @@
             Tunnel = tunnel;
         }
 
-        // Copy constructor (optional, for backward compatibility)
         public CoreProxyConfiguration(CoreProxyConfiguration proxy)
         {
             Address = proxy?.Address;

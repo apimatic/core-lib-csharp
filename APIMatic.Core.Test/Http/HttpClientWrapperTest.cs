@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using APIMatic.Core.Http;
 using APIMatic.Core.Http.Configuration;
-using APIMatic.Core.Proxy; // Include the proxy namespace
+using APIMatic.Core.Proxy;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
 
@@ -22,7 +22,6 @@ namespace APIMatic.Core.Test.Http
         [SetUp]
         public void SetupHttpClient()
         {
-            // Create a proxy configuration instance
             var proxyConfig = new CoreProxyConfiguration(
                 address: "http://localhost",
                 port: 8080,
@@ -31,7 +30,6 @@ namespace APIMatic.Core.Test.Http
                 tunnel: true
             );
 
-            // Pass the proxy configuration to the HttpClient configuration builder
             var clientConfiguration = new CoreHttpClientConfiguration.Builder(proxyConfig)
                 .HttpClientInstance(new HttpClient(handlerMock), false)
                 .Build();
