@@ -30,9 +30,11 @@ namespace APIMatic.Core.Test.Http
                 tunnel: true
             );
 
-            var clientConfiguration = new CoreHttpClientConfiguration.Builder(proxyConfig)
+            var clientConfiguration = new CoreHttpClientConfiguration.Builder()
+                .ProxyConfiguration(proxyConfig)
                 .HttpClientInstance(new HttpClient(handlerMock), false)
                 .Build();
+
 
             _config = new GlobalConfiguration.Builder()
                 .ServerUrls(new Dictionary<Enum, string>

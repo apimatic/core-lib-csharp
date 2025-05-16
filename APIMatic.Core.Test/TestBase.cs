@@ -25,10 +25,12 @@ namespace APIMatic.Core.Test
 
         protected static readonly CoreProxyConfiguration proxyConfig = new("http://localhost", 8080, "user", "pass", true);
 
-        protected static readonly ICoreHttpClientConfiguration _clientConfiguration = new CoreHttpClientConfiguration.Builder(proxyConfig)
+        protected static readonly ICoreHttpClientConfiguration _clientConfiguration = new CoreHttpClientConfiguration.Builder()
+            .ProxyConfiguration(proxyConfig)
             .HttpClientInstance(new HttpClient(handlerMock))
             .NumberOfRetries(numberOfRetries)
             .Build();
+
 
         private static GlobalConfiguration globalConfiguration;
 

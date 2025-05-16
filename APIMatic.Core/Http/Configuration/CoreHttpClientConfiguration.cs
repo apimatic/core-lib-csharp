@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using APIMatic.Core.Proxy;
 
 namespace APIMatic.Core.Http.Configuration
 {
@@ -28,7 +30,8 @@ namespace APIMatic.Core.Http.Configuration
             IList<int> statusCodesToRetry,
             IList<HttpMethod> requestMethodsToRetry,
             HttpClient httpClientInstance,
-            bool overrideHttpClientConfiguration)
+            bool overrideHttpClientConfiguration,
+            CoreProxyConfiguration proxyConfiguration)
         {
             Timeout = timeout;
             SkipSslCertVerification = skipSslCertVerification;
@@ -40,6 +43,7 @@ namespace APIMatic.Core.Http.Configuration
             RequestMethodsToRetry = requestMethodsToRetry;
             HttpClientInstance = httpClientInstance;
             OverrideHttpClientConfiguration = overrideHttpClientConfiguration;
+            CoreProxyConfiguration = proxyConfiguration;
         }
 
         /// <summary>
@@ -92,6 +96,11 @@ namespace APIMatic.Core.Http.Configuration
         /// </summary>
         public bool OverrideHttpClientConfiguration { get; }
 
+        /// <summary>
+        /// Gets the core proxy configuration that defines the proxy settings
+        /// </summary>
+        public CoreProxyConfiguration CoreProxyConfiguration { get; }
+
         /// <inheritdoc/>
         public override string ToString()
         {
@@ -134,6 +143,7 @@ namespace APIMatic.Core.Http.Configuration
         public class Builder
         {
             private TimeSpan timeout = TimeSpan.FromSeconds(100);
+            private CoreProxyConfiguration proxyConfiguration = null;
             private bool skipSslCertVerification = false;
             private int numberOfRetries = 0;
             private int backoffFactor = 2;
@@ -158,6 +168,12 @@ namespace APIMatic.Core.Http.Configuration
             public Builder Timeout(TimeSpan timeout)
             {
                 this.timeout = timeout.TotalSeconds <= 0 ? TimeSpan.FromSeconds(100) : timeout;
+                return this;
+            }
+
+            public Builder ProxyConfiguration(CoreProxyConfiguration proxyConfiguration)
+            {
+                this.proxyConfiguration = proxyConfiguration;
                 return this;
             }
 
@@ -267,33 +283,49 @@ namespace APIMatic.Core.Http.Configuration
                         statusCodesToRetry,
                         requestMethodsToRetry,
                         GetInitializedHttpClientInstance(),
-                        overrideHttpClientConfiguration);
+                        overrideHttpClientConfiguration,
+                        proxyConfiguration);
             }
 
             private HttpClient GetInitializedHttpClientInstance()
             {
-                if (overrideHttpClientConfiguration)
+                if (!overrideHttpClientConfiguration)
                 {
-                    if (skipSslCertVerification)
-                    {
-                        var httpClientHandler = new HttpClientHandler
-                        {
-                            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; }
-                        };
-                        return new HttpClient(httpClientHandler, disposeHandler: true)
-                        {
-                            Timeout = timeout,
-                        };
-                    }
-
-                    var httpClient = httpClientInstance ?? new HttpClient();
-                    httpClient.Timeout = timeout;
-
-                    return httpClient;
+                    var client = httpClientInstance ?? new HttpClient();
+                    client.Timeout = timeout;
+                    return client;
                 }
 
-                return httpClientInstance ?? new HttpClient();
+                var handler = new HttpClientHandler();
+
+                if (skipSslCertVerification)
+                {
+                    handler.ServerCertificateCustomValidationCallback =
+                        (message, cert, chain, errors) => true;
+                }
+
+                if (proxyConfiguration != null && !string.IsNullOrEmpty(proxyConfiguration.Address))
+                {
+                    var proxy = new WebProxy(proxyConfiguration.Address, proxyConfiguration.Port)
+                    {
+                        BypassProxyOnLocal = false,
+                        Credentials = !string.IsNullOrEmpty(proxyConfiguration.User)
+                            ? new NetworkCredential(proxyConfiguration.User, proxyConfiguration.Pass)
+                            : null
+                    };
+
+                    handler.Proxy = proxy;
+                    handler.UseProxy = true;
+                }
+
+                var clientWithHandler = new HttpClient(handler, disposeHandler: true)
+                {
+                    Timeout = timeout
+                };
+
+                return clientWithHandler;
             }
+
         }
     }
 }

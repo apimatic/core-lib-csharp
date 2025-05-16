@@ -22,7 +22,11 @@ namespace APIMatic.Core.Test.Http
                 pass: "pass",
                 tunnel: true
             );
-            _config = new CoreHttpClientConfiguration.Builder(proxyConfig).Build();
+            _config = new CoreHttpClientConfiguration.Builder()
+            .ProxyConfiguration(proxyConfig)
+            .Build();
+
+
         }
 
         [Test]

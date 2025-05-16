@@ -34,9 +34,11 @@ namespace APIMatic.Core.Test.Http
                 tunnel: true
             );
 
-            return new CoreHttpClientConfiguration.Builder(proxyConfig)
+            return new CoreHttpClientConfiguration.Builder()
+                .ProxyConfiguration(proxyConfig)
                 .HttpClientInstance(new HttpClient(handler))
                 .Build();
+
         }
 
         [Test]

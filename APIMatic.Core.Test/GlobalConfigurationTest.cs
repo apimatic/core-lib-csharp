@@ -54,7 +54,9 @@ namespace APIMatic.Core.Test
                 tunnel: true
             );
 
-            var httpClientConfiguration = new CoreHttpClientConfiguration.Builder(proxyConfig).Build();
+            var httpClientConfiguration = new CoreHttpClientConfiguration.Builder()
+            .ProxyConfiguration(proxyConfig)
+            .Build();
 
             var request = await new GlobalConfiguration.Builder()
                 .HttpConfiguration(httpClientConfiguration)
