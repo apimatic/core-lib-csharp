@@ -6,10 +6,21 @@ using NUnit.Framework;
 
 namespace APIMatic.Core.Test
 {
-    public class GlobalConfigurationTests : TestBase
+    [TestFixture]
+    public class GlobalConfigurationTest : TestBase
     {
         [Test]
-        public async Task TestGlobalRequestUrl()
+        public void TestServerUrl()
+        {
+            var actualServer1 = LazyGlobalConfiguration.Value.ServerUrl();
+            Assert.AreEqual("http://my/path:3000/v1", actualServer1);
+
+            var actualServer2 = LazyGlobalConfiguration.Value.ServerUrl(MockServer.Server2);
+            Assert.AreEqual("https://my/path/v2", actualServer2);
+        }
+
+        [Test]
+        public async Task TestGlobalRequestQueryUrl()
         {
             var request = await LazyGlobalConfiguration.Value.GlobalRequestBuilder().Build();
             Assert.AreEqual("http://my/path:3000/v1", request.QueryUrl);
@@ -39,13 +50,10 @@ namespace APIMatic.Core.Test
                 .UserAgent(null)
                 .ServerUrls(new Dictionary<Enum, string>
                 {
-                    { MockServer.Server1, "http://my/path:3000/{one}" },
-                    { MockServer.Server2, "https://my/path/{two}" }
+                    { MockServer.Server1, "http://my/path:3000/{one}"},
+                    { MockServer.Server2, "https://my/path/{two}"}
                 }, MockServer.Server1)
-                .Build()
-                .GlobalRequestBuilder()
-                .Build();
-
+                .Build().GlobalRequestBuilder().Build();
             Assert.IsFalse(request.Headers.ContainsKey("user-agent"));
         }
     }

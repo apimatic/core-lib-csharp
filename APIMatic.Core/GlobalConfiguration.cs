@@ -23,6 +23,7 @@ namespace APIMatic.Core
         private readonly Dictionary<Enum, string> _serverUrls;
         private readonly Enum _defaultServer;
         private readonly Parameter.Builder _parameters;
+
         internal SdkLoggingConfiguration SdkLoggingConfiguration { get; private set; }
 
         internal Dictionary<string, AuthManager> AuthManagers { get; private set; }

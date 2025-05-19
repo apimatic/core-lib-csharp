@@ -17,6 +17,7 @@ namespace APIMatic.Core.Test.Http
     {
         private HttpClientWrapper _client;
         private GlobalConfiguration _config;
+
         [SetUp]
         public void SetupHttpClient()
         {
@@ -32,8 +33,10 @@ namespace APIMatic.Core.Test.Http
                 .HttpConfiguration(clientConfiguration)
                 .ApiCallback(ApiCallBack)
                 .Build();
+
             _client = _config.HttpClient;
         }
+
         [Test]
         public async Task HttpClient_GetCall_200Response()
         {
@@ -47,10 +50,13 @@ namespace APIMatic.Core.Test.Http
 
             handlerMock.When(request.QueryUrl)
                                 .Respond(HttpStatusCode.OK, content);
+
             var actual = await _client.ExecuteAsync(request);
+
             Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.AreEqual(actual.Body, request.Body);
         }
+
         [Test]
         public async Task TestHttpClientGetCall_400Response()
         {
@@ -64,21 +70,27 @@ namespace APIMatic.Core.Test.Http
 
             handlerMock.When(request.QueryUrl)
                                 .Respond(HttpStatusCode.BadRequest, content);
+
             var actual = await _client.ExecuteAsync(request);
+
             Assert.AreEqual((int)HttpStatusCode.BadRequest, actual.StatusCode);
             Assert.AreEqual(actual.Body, request.Body);
         }
+
         [Test]
         public async Task TestHttpClientGetCall_200Response()
         {
             var inputString = "Test with combined response headers.";
             var customHeaderKey = "Custom-Headder";
             var customHeaderValue = "customHeader";
+
             var request = await _config.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, "/httpclient/get-combined-headers/200")
                 .Build();
+
             var content = JsonContent.Create(inputString);
             content.Headers.Add(customHeaderKey, customHeaderValue);
+
             handlerMock.When(request.QueryUrl)
                     .Respond(_ =>
                     {
@@ -89,8 +101,10 @@ namespace APIMatic.Core.Test.Http
                         response.Headers.Add(customHeaderKey, customHeaderValue);
                         return response;
                     });
+
             // Act
             var actual = await _client.ExecuteAsync(request);
+
             Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
             Assert.AreEqual(customHeaderValue, actual.Headers[customHeaderKey]);
         }
