@@ -105,9 +105,10 @@ namespace APIMatic.Core.Test.Http
             var actual = _config.ToString();
 
             // Assert
-            var expected = "HttpClientConfiguration: 00:01:40 , False , 0 , 2 , 1 , 00:02:00 , System.Collections.Immutable.ImmutableList`1[System.Int32] , System.Collections.Immutable.ImmutableList`1[System.Net.Http.HttpMethod] , System.Net.Http.HttpClient , True ";
+            var expected = "HttpClientConfiguration: 00:01:40 , False , 0 , 2 , 1 , 00:02:00 , System.Collections.Immutable.ImmutableList`1[System.Int32] , System.Collections.Immutable.ImmutableList`1[System.Net.Http.HttpMethod] ,  , System.Net.Http.HttpClient , True ";
             Assert.AreEqual(expected, actual);
         }
+
 
 
         [Test]
