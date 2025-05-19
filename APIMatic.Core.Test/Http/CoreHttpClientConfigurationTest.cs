@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using APIMatic.Core.Http.Configuration;
+using APIMatic.Core.Proxy;
 using NUnit.Framework;
 
 namespace APIMatic.Core.Test.Http
@@ -109,6 +110,35 @@ namespace APIMatic.Core.Test.Http
             Assert.AreEqual(expected, actual);
         }
 
+        [Test]
+        public void ToString_WithProxy_CoreHttpClientConfiguration()
+        {
+            // Arrange
+            var proxyConfig = new CoreProxyConfiguration(
+                address: "proxy.example.com",
+                port: 8080,
+                user: "admin",
+                pass: "secret",
+                tunnel: true
+            );
+
+            var config = new CoreHttpClientConfiguration.Builder()
+                .ProxyConfiguration(proxyConfig)
+                .HttpClientInstance(new HttpClient())
+                .Build();
+
+            // Act
+            var actual = config.ToString();
+
+            // Assert
+            var expected = "HttpClientConfiguration: 00:01:40 , False , 0 , 2 , 1 , 00:02:00 , " +
+                           "System.Collections.Immutable.ImmutableList`1[System.Int32] , " +
+                           "System.Collections.Immutable.ImmutableList`1[System.Net.Http.HttpMethod] , " +
+                           "CoreProxyConfiguration: Address=proxy.example.com, Port=8080, User=admin, Pass=****, Tunnel=True , " +
+                           "System.Net.Http.HttpClient , True ";
+
+            Assert.AreEqual(expected, actual);
+        }
 
 
         [Test]
@@ -134,6 +164,7 @@ namespace APIMatic.Core.Test.Http
             Assert.AreEqual("user", ((NetworkCredential)webProxy.Credentials).UserName);
             Assert.AreEqual("pass", ((NetworkCredential)webProxy.Credentials).Password);
             Assert.IsTrue(handler.UseProxy);
+            Assert.IsFalse(handler.UseDefaultCredentials, "Tunnel mode should disable default credentials");
         }
 
         [Test]
@@ -162,6 +193,7 @@ namespace APIMatic.Core.Test.Http
             Assert.IsNotNull(credentials);
             Assert.AreEqual("user", credentials.UserName);
             Assert.AreEqual("pass", credentials.Password);
+            Assert.IsFalse(handler.UseDefaultCredentials, "Tunnel mode should disable default credentials");
 
             Assert.IsTrue(handler.UseProxy);
             Assert.IsNotNull(handler.ServerCertificateCustomValidationCallback);

@@ -307,7 +307,6 @@ namespace APIMatic.Core.Http.Configuration
 
                 if (httpClientInstance != null)
                 {
-                    // Respect the injected instance (used in tests with mock handler)
                     httpClientInstance.Timeout = timeout;
                     return httpClientInstance;
                 }

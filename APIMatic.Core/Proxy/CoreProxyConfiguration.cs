@@ -17,5 +17,15 @@
             Tunnel = tunnel;
         }
 
+        public override string ToString()
+        {
+            return $"CoreProxyConfiguration: " +
+                   $"Address={Address ?? "null"}, " +
+                   $"Port={Port}, " +
+                   $"User={(string.IsNullOrEmpty(User) ? "null" : User)}, " +
+                   $"Pass={(string.IsNullOrEmpty(Pass) ? "null" : "****")}, " +
+                   $"Tunnel={Tunnel}";
+        }
+
     }
 }
