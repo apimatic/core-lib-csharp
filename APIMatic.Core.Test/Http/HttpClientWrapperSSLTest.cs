@@ -13,10 +13,6 @@ namespace APIMatic.Core.Test.Http
     {
         private readonly string expiredSSLCertUrl = "https://expired.badssl.com/";
 
-        /// <summary>
-        /// Verifies that an exception is thrown when the HTTP client attempts to connect
-        /// to a server with an expired SSL certificate without skipping SSL verification.
-        /// </summary>
         [Test]
         public async Task TestHttpClientSSLCertificateVerification_ExceptionResponse()
         {
@@ -41,15 +37,9 @@ namespace APIMatic.Core.Test.Http
 
             // Act
             var ex = Assert.ThrowsAsync<HttpRequestException>(() => client.ExecuteAsync(request));
-
-            // Assert
             Assert.AreEqual(expectedValue, ex.Message);
         }
 
-        /// <summary>
-        /// Verifies that the HTTP client can successfully connect to a server with an expired
-        /// SSL certificate when SSL certificate verification is skipped.
-        /// </summary>
         [Test]
         public async Task TestHttpClientSkipSSLCertificateVerification_OKResponse()
         {
@@ -67,6 +57,7 @@ namespace APIMatic.Core.Test.Http
                 .Build();
 
             var client = config.HttpClient;
+
             var request = await config.GlobalRequestBuilder()
                 .Setup(HttpMethod.Get, string.Empty)
                 .Build();
@@ -74,8 +65,7 @@ namespace APIMatic.Core.Test.Http
             // Act
             var actual = await client.ExecuteAsync(request);
 
-            // Assert
-            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
+            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
         }
     }
 }

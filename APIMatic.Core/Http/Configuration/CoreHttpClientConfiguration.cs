@@ -113,6 +113,7 @@ namespace APIMatic.Core.Http.Configuration
                 $"{MaximumRetryWaitTime} , " +
                 $"{StatusCodesToRetry} , " +
                 $"{RequestMethodsToRetry} , " +
+                $"{CoreProxyConfiguration} , " +
                 $"{HttpClientInstance} , " +
                 $"{OverrideHttpClientConfiguration} ";
         }
@@ -132,6 +133,7 @@ namespace APIMatic.Core.Http.Configuration
                 .MaximumRetryWaitTime(MaximumRetryWaitTime)
                 .StatusCodesToRetry(StatusCodesToRetry)
                 .RequestMethodsToRetry(RequestMethodsToRetry)
+                .ProxyConfiguration(CoreProxyConfiguration)
                 .HttpClientInstance(HttpClientInstance, OverrideHttpClientConfiguration);
 
             return builder;
@@ -303,19 +305,23 @@ namespace APIMatic.Core.Http.Configuration
                     return httpClientInstance ?? new HttpClient();
                 }
 
+                if (httpClientInstance != null)
+                {
+                    // Respect the injected instance (used in tests with mock handler)
+                    httpClientInstance.Timeout = timeout;
+                    return httpClientInstance;
+                }
+
                 var handler = new HttpClientHandler();
-
                 AddSkipSSLCertVerification(handler);
-
                 AddProxyConfiguration(handler);
 
-                var clientWithHandler = new HttpClient(handler, disposeHandler: true)
+                return new HttpClient(handler, disposeHandler: true)
                 {
                     Timeout = timeout
                 };
-
-                return clientWithHandler;
             }
+
 
             private void AddProxyConfiguration(HttpClientHandler handler)
             {
