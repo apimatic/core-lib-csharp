@@ -87,6 +87,11 @@ namespace APIMatic.Core.Http.Configuration
         public IList<HttpMethod> RequestMethodsToRetry { get; }
 
         /// <summary>
+        /// Gets the core proxy configuration that defines the proxy settings
+        /// </summary>
+        public CoreProxyConfiguration CoreProxyConfiguration { get; }
+
+        /// <summary>
         /// Gets HttpClient instance used to make the HTTP calls
         /// </summary>
         public HttpClient HttpClientInstance { get; }
@@ -95,11 +100,6 @@ namespace APIMatic.Core.Http.Configuration
         /// Gets Boolean which allows the SDK to override http client instance's settings used for features like retries, timeouts etc.
         /// </summary>
         public bool OverrideHttpClientConfiguration { get; }
-
-        /// <summary>
-        /// Gets the core proxy configuration that defines the proxy settings
-        /// </summary>
-        public CoreProxyConfiguration CoreProxyConfiguration { get; }
 
         /// <inheritdoc/>
         public override string ToString()
@@ -287,36 +287,27 @@ namespace APIMatic.Core.Http.Configuration
                         proxyConfiguration);
             }
 
+            internal HttpClientHandler GetHandler()
+            {
+                var handler = new HttpClientHandler();
+                AddSkipSSLCertVerification(handler);
+                AddProxyConfiguration(handler);
+
+                return handler;
+            }
+
             private HttpClient GetInitializedHttpClientInstance()
             {
                 if (!overrideHttpClientConfiguration)
                 {
-                    var client = httpClientInstance ?? new HttpClient();
-                    client.Timeout = timeout;
-                    return client;
+                    return httpClientInstance ?? new HttpClient();
                 }
 
                 var handler = new HttpClientHandler();
 
-                if (skipSslCertVerification)
-                {
-                    handler.ServerCertificateCustomValidationCallback =
-                        (message, cert, chain, errors) => true;
-                }
+                AddSkipSSLCertVerification(handler);
 
-                if (proxyConfiguration != null && !string.IsNullOrEmpty(proxyConfiguration.Address))
-                {
-                    var proxy = new WebProxy(proxyConfiguration.Address, proxyConfiguration.Port)
-                    {
-                        BypassProxyOnLocal = false,
-                        Credentials = !string.IsNullOrEmpty(proxyConfiguration.User)
-                            ? new NetworkCredential(proxyConfiguration.User, proxyConfiguration.Pass)
-                            : null
-                    };
-
-                    handler.Proxy = proxy;
-                    handler.UseProxy = true;
-                }
+                AddProxyConfiguration(handler);
 
                 var clientWithHandler = new HttpClient(handler, disposeHandler: true)
                 {
@@ -326,6 +317,35 @@ namespace APIMatic.Core.Http.Configuration
                 return clientWithHandler;
             }
 
+            private void AddProxyConfiguration(HttpClientHandler handler)
+            {
+                if (proxyConfiguration == null || string.IsNullOrEmpty(proxyConfiguration.Address))
+                {
+                    return;
+                }
+
+                var proxy = new WebProxy(proxyConfiguration.Address, proxyConfiguration.Port)
+                {
+                    BypassProxyOnLocal = false,
+                    Credentials = !string.IsNullOrEmpty(proxyConfiguration.User)
+                        ? new NetworkCredential(proxyConfiguration.User, proxyConfiguration.Pass)
+                        : null
+                };
+
+                handler.Proxy = proxy;
+            }
+
+
+            private void AddSkipSSLCertVerification(HttpClientHandler handler)
+            {
+                if (!skipSslCertVerification)
+                {
+                    return;
+                }
+
+                handler.ServerCertificateCustomValidationCallback =
+                        (message, cert, chain, errors) => true;
+            }
         }
     }
 }

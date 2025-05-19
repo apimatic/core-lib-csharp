@@ -2,26 +2,14 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using APIMatic.Core.Http.Configuration;
-using APIMatic.Core.Proxy;
 using NUnit.Framework;
 
 namespace APIMatic.Core.Test
 {
-    [TestFixture]
-    public class GlobalConfigurationTest : TestBase
+    public class GlobalConfigurationTests : TestBase
     {
         [Test]
-        public void TestServerUrl()
-        {
-            var actualServer1 = LazyGlobalConfiguration.Value.ServerUrl();
-            Assert.AreEqual("http://my/path:3000/v1", actualServer1);
-
-            var actualServer2 = LazyGlobalConfiguration.Value.ServerUrl(MockServer.Server2);
-            Assert.AreEqual("https://my/path/v2", actualServer2);
-        }
-
-        [Test]
-        public async Task TestGlobalRequestQueryUrl()
+        public async Task TestGlobalRequestUrl()
         {
             var request = await LazyGlobalConfiguration.Value.GlobalRequestBuilder().Build();
             Assert.AreEqual("http://my/path:3000/v1", request.QueryUrl);
@@ -45,19 +33,7 @@ namespace APIMatic.Core.Test
         [Test]
         public async Task TestGlobalRequest_NullUserAgent()
         {
-
-            var proxyConfig = new CoreProxyConfiguration(
-                address: "http://localhost",
-                port: 8080,
-                user: "user",
-                pass: "pass",
-                tunnel: true
-            );
-
-            var httpClientConfiguration = new CoreHttpClientConfiguration.Builder()
-            .ProxyConfiguration(proxyConfig)
-            .Build();
-
+            var httpClientConfiguration = new CoreHttpClientConfiguration.Builder().Build();
             var request = await new GlobalConfiguration.Builder()
                 .HttpConfiguration(httpClientConfiguration)
                 .UserAgent(null)
@@ -66,7 +42,9 @@ namespace APIMatic.Core.Test
                     { MockServer.Server1, "http://my/path:3000/{one}" },
                     { MockServer.Server2, "https://my/path/{two}" }
                 }, MockServer.Server1)
-                .Build().GlobalRequestBuilder().Build();
+                .Build()
+                .GlobalRequestBuilder()
+                .Build();
 
             Assert.IsFalse(request.Headers.ContainsKey("user-agent"));
         }

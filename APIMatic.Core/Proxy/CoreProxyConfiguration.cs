@@ -17,13 +17,5 @@
             Tunnel = tunnel;
         }
 
-        public CoreProxyConfiguration(CoreProxyConfiguration proxy)
-        {
-            Address = proxy?.Address;
-            Port = proxy?.Port ?? 0;
-            User = proxy?.User;
-            Pass = proxy?.Pass;
-            Tunnel = proxy?.Tunnel ?? false;
-        }
     }
 }
