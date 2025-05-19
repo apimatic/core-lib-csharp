@@ -320,8 +320,6 @@ namespace APIMatic.Core.Http.Configuration
                     Timeout = timeout
                 };
             }
-
-
             private void AddProxyConfiguration(HttpClientHandler handler)
             {
                 if (proxyConfiguration == null || string.IsNullOrEmpty(proxyConfiguration.Address))
@@ -338,8 +336,13 @@ namespace APIMatic.Core.Http.Configuration
                 };
 
                 handler.Proxy = proxy;
-            }
 
+                if (proxyConfiguration.Tunnel)
+                {
+                    handler.UseDefaultCredentials = false;
+                    handler.PreAuthenticate = true;
+                }
+            }
 
             private void AddSkipSSLCertVerification(HttpClientHandler handler)
             {

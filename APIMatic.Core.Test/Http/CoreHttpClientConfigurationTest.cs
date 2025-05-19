@@ -165,6 +165,8 @@ namespace APIMatic.Core.Test.Http
             Assert.AreEqual("pass", ((NetworkCredential)webProxy.Credentials).Password);
             Assert.IsTrue(handler.UseProxy);
             Assert.IsFalse(handler.UseDefaultCredentials, "Tunnel mode should disable default credentials");
+            Assert.IsTrue(handler.PreAuthenticate);
+
         }
 
         [Test]
@@ -176,7 +178,7 @@ namespace APIMatic.Core.Test.Http
                 port: 8080,
                 user: "user",
                 pass: "pass",
-                tunnel: true);
+                tunnel: false);
 
             // Act
             var handler = new CoreHttpClientConfiguration.Builder()
@@ -193,8 +195,7 @@ namespace APIMatic.Core.Test.Http
             Assert.IsNotNull(credentials);
             Assert.AreEqual("user", credentials.UserName);
             Assert.AreEqual("pass", credentials.Password);
-            Assert.IsFalse(handler.UseDefaultCredentials, "Tunnel mode should disable default credentials");
-
+            Assert.IsFalse(handler.PreAuthenticate);
             Assert.IsTrue(handler.UseProxy);
             Assert.IsNotNull(handler.ServerCertificateCustomValidationCallback);
 
