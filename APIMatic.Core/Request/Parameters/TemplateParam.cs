@@ -48,7 +48,7 @@ namespace APIMatic.Core.Request.Parameters
             }
             CoreHelper.TryGetInnerValueForContainer(value, out var innerValue);
             string replacerValue = Uri.EscapeUriString(GetReplacerValue(innerValue ?? value));
-            requestBuilder.QueryUrl.Replace(string.Format("{{{0}}}", key), replacerValue);
+            requestBuilder.QueryUrl.Replace($"{{{key}}}", replacerValue);
         }
     }
 }
