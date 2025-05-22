@@ -8,7 +8,7 @@
         <Description>Core logic and the utilities for the APIMatic's C# SDK</Description>
         <Copyright>Copyright APIMatic Ltd.</Copyright>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageReadmeFile>../README.md</PackageReadmeFile>
         <PackageReleaseNotes>
             APIMatic's goal is to provide a stable runtime that powers all functionality of our C# SDKs and we are continuously trying to improve the API developer experience with each release of this package. Check out the release notes for all the improvements that are added to this package over time.
 

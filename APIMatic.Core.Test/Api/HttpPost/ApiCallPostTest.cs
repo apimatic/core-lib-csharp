@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using APIMatic.Core.Test.MockTypes.Models;
+using APIMatic.Core.Test.Utilities;
 using APIMatic.Core.Utilities;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
@@ -62,16 +63,16 @@ namespace APIMatic.Core.Test.Api.HttpPost
             //Arrange
             var text1 = "Post body response.";
             var text2 = "Second item.";
-            var expectedResponse = CoreHelper.JsonSerialize(new Dictionary<string, object>
+            var expectedResponse = new Dictionary<string, string>
             {
                 { "key1", text1 },
                 { "key2", text2 },
-            });
+            };
             var url = "/apicall/multiple-body-post/200";
 
             var expected = new ServerResponse()
             {
-                Message = expectedResponse,
+                Message = CoreHelper.JsonSerialize(expectedResponse),
                 Passed = true,
             };
 
@@ -79,7 +80,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
             handlerMock.When(GetCompleteUrl(url))
                 .With(req =>
                 {
-                    Assert.AreEqual(expectedResponse, req.Content.ReadAsStringAsync().Result);
+                    Assert.AreEqual(expectedResponse, req.Content.ReadAsStringAsync().Result.ToJsonToDictionary());
                     Assert.AreEqual("application/json", req.Content.Headers.ContentType.MediaType);
                     Assert.AreEqual("utf-8", req.Content.Headers.ContentType.CharSet);
                     Assert.AreEqual("application/json", req.Headers.Accept.ToString());
@@ -362,7 +363,8 @@ namespace APIMatic.Core.Test.Api.HttpPost
             var text2 = "Value in KeyA";
             var text3 = "Value in KeyB";
             var url = "/apicall/form-post/200";
-            var expectedFormData = "key+1=Post+form+data.&keyA=Value+in+KeyA&keyB=Value+in+KeyB";
+            var expectedFormData =
+                "key+1=Post+form+data.&keyA=Value+in+KeyA&keyB=Value+in+KeyB".ToQueryStringDictionary();
 
             var expected = new ServerResponse()
             {
@@ -374,7 +376,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
             handlerMock.When(GetCompleteUrl(url))
                 .With(req =>
                 {
-                    Assert.AreEqual(expectedFormData, req.Content.ReadAsStringAsync().Result);
+                    Assert.AreEqual(expectedFormData, req.Content.ReadAsStringAsync().Result.ToQueryStringDictionary());
                     Assert.AreEqual("application/x-www-form-urlencoded", req.Content.Headers.ContentType.MediaType);
                     Assert.IsNull(req.Content.Headers.ContentType.CharSet);
                     Assert.AreEqual("application/json", req.Headers.Accept.ToString());
@@ -414,7 +416,8 @@ namespace APIMatic.Core.Test.Api.HttpPost
             var text3 = "Value in KeyB";
             var url = "/apicall/query-post/200";
             var queryString = "?key%201=Post%20form%20data.&keyA=Value%20in%20KeyA&keyB=Value%20in%20KeyB";
-            var expectedQueryString = "?key 1=Post form data.&keyA=Value in KeyA&keyB=Value in KeyB";
+            var expectedQueryString =
+                "?key 1=Post form data.&keyA=Value in KeyA&keyB=Value in KeyB".ToQueryStringDictionary();
 
             var expected = new ServerResponse()
             {
@@ -426,7 +429,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
             handlerMock.When(GetCompleteUrl(url + queryString))
                 .With(req =>
                 {
-                    Assert.AreEqual(GetCompleteUrl(url + expectedQueryString), req.RequestUri.ToString());
+                    Assert.AreEqual(expectedQueryString, req.RequestUri?.Query.ToString().ToQueryStringDictionary());
                     return true;
                 })
                 .Respond(HttpStatusCode.OK, content);

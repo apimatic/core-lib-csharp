@@ -2,6 +2,7 @@
 // Copyright (c) APIMatic. All rights reserved.
 // </copyright>
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -76,7 +77,7 @@ namespace APIMatic.Core.Request.Parameters
         /// </summary>
         public class Builder
         {
-            private readonly List<Parameter> parameters = new List<Parameter>();
+            private readonly ConcurrentBag<Parameter> parameters = new ConcurrentBag<Parameter>();
 
             internal Builder() { }
 
@@ -192,7 +193,7 @@ namespace APIMatic.Core.Request.Parameters
             internal Builder Validate()
             {
                 var missingArgErrors = new List<string>();
-                parameters.ForEach(p =>
+                foreach (var p in parameters)
                 {
                     try
                     {
@@ -202,7 +203,7 @@ namespace APIMatic.Core.Request.Parameters
                     {
                         missingArgErrors.Add(exp.Message);
                     }
-                });
+                }
                 if (missingArgErrors.Any())
                 {
                     throw new ArgumentNullException(null, string.Join("\n-> ", missingArgErrors));
@@ -216,7 +217,10 @@ namespace APIMatic.Core.Request.Parameters
             /// <returns></returns>
             internal void Apply(RequestBuilder requestBuilder)
             {
-                parameters.ForEach(p => p.Apply(requestBuilder));
+                foreach (var p in parameters)
+                {
+                    p.Apply(requestBuilder);
+                }
             }
         }
     }
