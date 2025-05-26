@@ -2,22 +2,20 @@ name: Handle Dependabot PRs
 
 on:
   pull_request:
+    branches:
+      - 'dependabot/**'  # Match only PRs created from Dependabot branches
     types: [opened, synchronize, labeled]
 
 jobs:
   handle:
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
     steps:
-      - name: Send Slack Notification
-        uses: slackapi/slack-github-action@v1.24.0
+      - name: Send message to Slack
+        uses: archive/github-actions-slack@v2.0.0
         with:
-          payload: |
-            {
-              "text": "New Dependabot PR opened in *${{ github.repository }}*:\n*<${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>*"
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_WEBHOOK_URL }}
+          slack-channel: "dependabot-alerts"  # e.g., "#dependabot-alerts"
+          slack-text: "New Dependabot PR opened in *${{ github.repository }}*:\n<${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>"
 
       - name: Close PR if checks fail
         uses: actions/github-script@v7
