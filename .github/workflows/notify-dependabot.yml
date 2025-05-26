@@ -6,7 +6,6 @@ on:
 jobs:
   notify:
     runs-on: ubuntu-latest
-
     steps:
       - name: Send Slack notification
         uses: slackapi/slack-github-action@v1.25.0
@@ -15,47 +14,35 @@ jobs:
         with:
           payload: |
             {
-              "text": "🚀 Dependabot Notification",
+              "text": "PR open ${{ github.repository }}",
               "blocks": [
                 {
-                  "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "🚀 Dependabot Notification",
-                    "emoji": true
-                  }
-                },
-                {
                   "type": "section",
-                  "fields": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Repository:*\n<https://github.com/${{ github.repository }}|${{ github.repository }}>"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Triggered by:*\n${{ github.actor }}"
-                    }
-                  ]
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*PR open* <https://github.com/${{ github.repository }}|${{ github.repository }}>"
+                  }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "This is a manually triggered notification about Dependabot updates."
+                    "text": "*PR title:* [Manual trigger - no PR title]"
                   }
                 },
                 {
-                  "type": "divider"
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*PR author:* ${{ github.actor }}"
+                  }
                 },
                 {
-                  "type": "context",
-                  "elements": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "ℹ️ *Note:* This notification was triggered manually. For automated PR notifications, use the `pull_request` trigger."
-                    }
-                  ]
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*PR link:* [Manual trigger - no PR link]"
+                  }
                 }
               ]
             }
