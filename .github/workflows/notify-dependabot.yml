@@ -2,10 +2,6 @@ name: Dependabot Slack Notifications
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - 'dependabot/**'
-    types: [opened, synchronize, labeled]
 
 jobs:
   notify:
@@ -19,7 +15,7 @@ jobs:
         with:
           slack-message: |
             {
-              "text": "New Dependabot PR Notification",
+              "text": "Manual Dependabot PR Test Notification",
               "blocks": [
                 {
                   "type": "section",
@@ -33,7 +29,7 @@ jobs:
                   "fields": [
                     {
                       "type": "mrkdwn",
-                      "text": "*Repository:*\n<https://github.com/${{ github.repository }}|${{ github.repository }}"
+                      "text": "*Repository:*\n<https://github.com/${{ github.repository }}|${{ github.repository }})"
                     },
                     {
                       "type": "mrkdwn",
@@ -41,15 +37,15 @@ jobs:
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*PR Title:*\n<${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>"
+                      "text": "*PR Title:*\n<https://github.com/${{ github.repository }}/pull/123|Bump lodash from 4.17.15 to 4.17.21>"
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*Branch:*\n${{ github.event.pull_request.base.ref }}"
+                      "text": "*Branch:*\nmain"
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*PR Number:*\n#${{ github.event.pull_request.number }}"
+                      "text": "*PR Number:*\n#123"
                     }
                   ]
                 }
