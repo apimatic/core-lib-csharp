@@ -2,6 +2,13 @@ name: Dependabot PR Manager
 
 on:
   workflow_dispatch:
+    inputs:
+      pr_title:
+        description: 'PR Title (for manual triggers)'
+        required: false
+      pr_link:
+        description: 'PR Link (for manual triggers)'
+        required: false
   pull_request:
     types: [opened, closed]
 
@@ -22,7 +29,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "📦 *${{ github.event.pull_request && 'Dependabot PR' || 'Manual PR Notification' }}* opened"
+                    "text": ":package: *PR Opened*"
                   }
                 },
                 {
@@ -34,7 +41,7 @@ jobs:
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*PR Number*\n#${{ github.event.pull_request.number || 'N/A' }}"
+                      "text": "*PR Number*\n${{ github.event.pull_request.number || 'N/A' }}"
                     }
                   ]
                 },
@@ -43,7 +50,7 @@ jobs:
                   "fields": [
                     {
                       "type": "mrkdwn",
-                      "text": "*Title*\n${{ github.event.pull_request.title || '[Manual trigger]' }}"
+                      "text": "*Title*\n${{ github.event.pull_request.title || inputs.pr_title || 'Manual notification' }}"
                     },
                     {
                       "type": "mrkdwn",
@@ -61,7 +68,7 @@ jobs:
                         "text": "View PR",
                         "emoji": true
                       },
-                      "url": "${{ github.event.pull_request.html_url || 'https://github.com/' + github.repository + '/pulls' }}"
+                      "url": "${{ github.event.pull_request.html_url || inputs.pr_link || format('https://github.com/{0}/pulls', github.repository) }}"
                     }
                   ]
                 }
