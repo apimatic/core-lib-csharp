@@ -22,7 +22,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "📦 *${{ github.event.pull_request && 'Dependabot PR' || 'Manual PR Notification' }* opened"
+                    "text": "📦 *${{ github.event.pull_request && 'Dependabot PR' || 'Manual PR Notification' }}* opened"
                   }
                 },
                 {
@@ -43,7 +43,7 @@ jobs:
                   "fields": [
                     {
                       "type": "mrkdwn",
-                      "text": "*Title*\n${{ github.event.pull_request.title || inputs.pr_title || '[Manual trigger]' }}"
+                      "text": "*Title*\n${{ github.event.pull_request.title || '[Manual trigger]' }}"
                     },
                     {
                       "type": "mrkdwn",
@@ -61,7 +61,7 @@ jobs:
                         "text": "View PR",
                         "emoji": true
                       },
-                      "url": "${{ github.event.pull_request.html_url || inputs.pr_link || 'https://github.com/' + github.repository + '/pulls' }}"
+                      "url": "${{ github.event.pull_request.html_url || 'https://github.com/' + github.repository + '/pulls' }}"
                     }
                   ]
                 }
@@ -89,7 +89,7 @@ jobs:
             echo "PR checks passed"
           else
             echo "PR checks failed - closing PR"
-            echo "::set-output name=should_close::true"
+            echo "should_close=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Close failed PR
@@ -134,13 +134,6 @@ jobs:
                   "text": {
                     "type": "mrkdwn",
                     "text": "*Reason*\nAutomatically closed due to failed checks"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*Failed Checks*\n${{ steps.wait-for-check.outputs.failed-checks }}"
                   }
                 }
               ]
