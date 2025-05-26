@@ -2,15 +2,8 @@ name: Dependabot Slack Notifications
 
 on:
   workflow_dispatch:
-    inputs:
-      pr_title:
-        description: 'PR Title'
-        required: false
-        default: '[Manual trigger - no PR title]'
-      pr_link:
-        description: 'PR Link'
-        required: false
-        default: '[Manual trigger - no PR link]'
+  pull_request:
+    types: [opened]
 
 jobs:
   notify:
@@ -23,32 +16,34 @@ jobs:
         with:
           payload: |
             {
+              "text": "PR open ${{ github.repository }}",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": " *PR Open*: <https://github.com/${{ github.repository }}|${{ github.repository }}>"
+                    "text": "*PR open* <https://github.com/${{ github.repository }}|${{ github.repository }}>"
                   }
-                },
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Title*\n${{ inputs.pr_title || github.event.pull_request.title || '[No title provided]' }}"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Author*\n${{ github.actor || github.event.pull_request.user.login || '[Unknown author]' }}"
-                    }
-                  ]
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Link*\n${{ inputs.pr_link || github.event.pull_request.html_url || '[No link available]' }}"
+                    "text": "*PR title:* ${{ github.event.pull_request.title || '[Manual trigger - no PR title]' }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*PR author:* ${{ github.event.pull_request.user.login || github.actor }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*PR link:* ${{ github.event.pull_request.html_url || '[Manual trigger - no PR link]' }}"
                   }
                 }
               ]
