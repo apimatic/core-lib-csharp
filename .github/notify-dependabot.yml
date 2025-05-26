@@ -7,7 +7,7 @@ on:
 jobs:
   handle:
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
+    if: github.actor != 'some-random-user'
     steps:
       - name: Send Slack Notification
         uses: slackapi/slack-github-action@v1.24.0
