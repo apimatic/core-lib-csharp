@@ -15,13 +15,13 @@ jobs:
         with:
           payload: |
             {
-              "text": "🚀 New Dependabot PR: ${{ github.event.pull_request.title }}",
+              "text": "🚀 Dependabot Notification",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "🚀 New Dependabot PR",
+                    "text": "🚀 Dependabot Notification",
                     "emoji": true
                   }
                 },
@@ -34,45 +34,26 @@ jobs:
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*PR Number:*\n<${{ github.event.pull_request.html_url }}|#${{ github.event.pull_request.number }}>"
+                      "text": "*Triggered by:*\n${{ github.actor }}"
                     }
                   ]
                 },
                 {
                   "type": "section",
-                  "fields": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Title:*\n${{ github.event.pull_request.title }}"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Branch:*\n${{ github.event.pull_request.head.ref }} → ${{ github.event.pull_request.base.ref }}"
-                    }
-                  ]
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "This is a manually triggered notification about Dependabot updates."
+                  }
                 },
                 {
-                  "type": "actions",
+                  "type": "divider"
+                },
+                {
+                  "type": "context",
                   "elements": [
                     {
-                      "type": "button",
-                      "text": {
-                        "type": "plain_text",
-                        "text": "View PR",
-                        "emoji": true
-                      },
-                      "url": "${{ github.event.pull_request.html_url }}",
-                      "style": "primary"
-                    },
-                    {
-                      "type": "button",
-                      "text": {
-                        "type": "plain_text",
-                        "text": "Approve",
-                        "emoji": true
-                      },
-                      "url": "${{ github.event.pull_request.html_url }}/files#submit-review",
-                      "style": "danger"
+                      "type": "mrkdwn",
+                      "text": "ℹ️ *Note:* This notification was triggered manually. For automated PR notifications, use the `pull_request` trigger."
                     }
                   ]
                 }
