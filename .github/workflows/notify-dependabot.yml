@@ -17,13 +17,15 @@ jobs:
         with:
           payload: |
             {
-              "text": "New PR Notification: ${{ github.event.pull_request.title || 'Manual workflow trigger' }}",
+              "text": "New PR Notification for ${{ github.repository }} - ${{ github.event.pull_request.title || 'Manual trigger' }} by ${{ github.event.pull_request.user.login || github.actor }}",
+              "username": "Dependabot Manager",
+              "icon_emoji": ":robot_face:",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": ":package: *PR Notification*"
+                    "text": ":package: *New PR Notification* :package:"
                   }
                 },
                 {
@@ -44,7 +46,7 @@ jobs:
                   "fields": [
                     {
                       "type": "mrkdwn",
-                      "text": "*Title*\n${{ github.event.pull_request.title || 'Manual notification' }}"
+                      "text": "*Title*\n${{ github.event.pull_request.title || 'Manual workflow trigger' }}"
                     },
                     {
                       "type": "mrkdwn",
@@ -53,18 +55,11 @@ jobs:
                   ]
                 },
                 {
-                  "type": "actions",
-                  "elements": [
-                    {
-                      "type": "button",
-                      "text": {
-                        "type": "plain_text",
-                        "text": "View PR",
-                        "emoji": true
-                      },
-                      "url": "${{ github.event.pull_request.html_url || format('https://github.com/{0}/pulls', github.repository) }}"
-                    }
-                  ]
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*PR Link*\n<${{ github.event.pull_request.html_url || format('https://github.com/{0}/pulls', github.repository) }}|View PR>"
+                  }
                 }
               ]
             }
@@ -108,7 +103,9 @@ jobs:
         with:
           payload: |
             {
-              "text": "Dependabot PR #${{ github.event.pull_request.number }} was closed due to failed checks",
+              "text": "Dependabot PR #${{ github.event.pull_request.number }} was closed due to failed checks in ${{ github.repository }}",
+              "username": "Dependabot Manager",
+              "icon_emoji": ":warning:",
               "blocks": [
                 {
                   "type": "header",
@@ -130,6 +127,13 @@ jobs:
                       "text": "*PR Number*\n#${{ github.event.pull_request.number }}"
                     }
                   ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Title*\n${{ github.event.pull_request.title }}"
+                  }
                 },
                 {
                   "type": "section",
