@@ -6,7 +6,7 @@ on:
 
 jobs:
   monitor_checks:
-    if: github.actor == 'dependabot[bot]' && github.event.check_suite.conclusion != 'neutral'
+    if: github.event.action == 'completed' && github.event.check_suite.conclusion != 'neutral'
     runs-on: ubuntu-latest
 
     steps:
