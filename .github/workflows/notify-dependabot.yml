@@ -2,13 +2,6 @@ name: Dependabot PR Manager
 
 on:
   workflow_dispatch:
-    inputs:
-      pr_title:
-        description: 'PR Title (for manual triggers)'
-        required: false
-      pr_link:
-        description: 'PR Link (for manual triggers)'
-        required: false
   pull_request:
     types: [opened, closed]
 
@@ -24,12 +17,13 @@ jobs:
         with:
           payload: |
             {
+              "text": "New PR Notification: ${{ github.event.pull_request.title || 'Manual workflow trigger' }}",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": ":package: *PR Opened*"
+                    "text": ":package: *PR Notification*"
                   }
                 },
                 {
@@ -50,7 +44,7 @@ jobs:
                   "fields": [
                     {
                       "type": "mrkdwn",
-                      "text": "*Title*\n${{ github.event.pull_request.title || inputs.pr_title || 'Manual notification' }}"
+                      "text": "*Title*\n${{ github.event.pull_request.title || 'Manual notification' }}"
                     },
                     {
                       "type": "mrkdwn",
@@ -68,7 +62,7 @@ jobs:
                         "text": "View PR",
                         "emoji": true
                       },
-                      "url": "${{ github.event.pull_request.html_url || inputs.pr_link || format('https://github.com/{0}/pulls', github.repository) }}"
+                      "url": "${{ github.event.pull_request.html_url || format('https://github.com/{0}/pulls', github.repository) }}"
                     }
                   ]
                 }
@@ -114,6 +108,7 @@ jobs:
         with:
           payload: |
             {
+              "text": "Dependabot PR #${{ github.event.pull_request.number }} was closed due to failed checks",
               "blocks": [
                 {
                   "type": "header",
