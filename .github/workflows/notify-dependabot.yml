@@ -1,111 +1,58 @@
 name: Dependabot PR Manager
+
 on:
-  workflow_dispatch:
-  pull_request:
-    types: [opened, closed]
+  check_suite:
+    types: [completed]
+
 jobs:
-  notify:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send PR notification
-        if: github.event.action == 'opened' || github.event_name == 'workflow_dispatch'
-        uses: slackapi/slack-github-action@v1.25.0
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        with:
-          payload: |
-            {
-              "text": "New PR Notification for ${{ github.repository }} - ${{ github.event.pull_request.title || 'Manual trigger' }} by ${{ github.event.pull_request.user.login || github.actor }}",
-              "username": "Dependabot Manager",
-              "icon_emoji": ":robot_face:",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": ":package: *New PR Notification* :package:"
-                  }
-                },
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Repository*\n<https://github.com/${{ github.repository }}|${{ github.repository }}>"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*PR Number*\n${{ github.event.pull_request.number || 'N/A' }}"
-                    }
-                  ]
-                },
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Title*\n${{ github.event.pull_request.title || 'Manual workflow trigger' }}"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Author*\n${{ github.event.pull_request.user.login || github.actor }}"
-                    }
-                  ]
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*PR Link*\n<${{ github.event.pull_request.html_url || format('https://github.com/{0}/pulls', github.repository) }}|View PR>"
-                  }
-                }
-              ]
-            }
   monitor_checks:
-    if: github.actor == 'dependabot[bot]' && github.event.action == 'opened'
+    if: github.actor == 'dependabot[bot]' && github.event.check_suite.conclusion != 'neutral'
     runs-on: ubuntu-latest
-    needs: notify
+
     steps:
-      - name: Wait for checks
-        uses: fountainhead/action-wait-for-check@v1.0.0
-        id: wait-for-check
+      - name: Get associated PR
+        id: get_pr
+        uses: actions/github-script@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ref: ${{ github.event.pull_request.head.sha }}
-          timeout-seconds: 600
-          interval-seconds: 30
-      - name: Check PR status
-        id: check-pr-status
-        run: |
-          if [[ "${{ steps.wait-for-check.outputs.conclusion }}" == "success" ]]; then
-            echo "PR checks passed"
-          else
-            echo "PR checks failed - closing PR"
-            echo "should_close=true" >> $GITHUB_OUTPUT
-          fi
-      - name: Close failed PR
-        if: steps.check-pr-status.outputs.should_close == 'true'
+          script: |
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: context.payload.check_suite.head_branch,
+              state: 'open'
+            });
+            const dependabotPR = prs.data.find(pr => pr.user.login === 'dependabot[bot]');
+            if (dependabotPR) {
+              core.setOutput('pr_number', dependabotPR.number);
+              core.setOutput('pr_title', dependabotPR.title);
+              core.setOutput('pr_url', dependabotPR.html_url);
+            }
+
+      - name: Close PR if checks failed
+        if: github.event.check_suite.conclusion != 'success' && steps.get_pr.outputs.pr_number != ''
         uses: superbrothers/close-pull-request@v3
         with:
+          pull-request-number: ${{ steps.get_pr.outputs.pr_number }}
           comment: "Automatically closed due to failed checks"
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Notify Slack about closed PR
-        if: steps.check-pr-status.outputs.should_close == 'true'
+
+      - name: Notify Slack if checks passed
+        if: github.event.check_suite.conclusion == 'success' && steps.get_pr.outputs.pr_number != ''
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
           payload: |
             {
-              "text": "Dependabot PR #${{ github.event.pull_request.number }} was closed due to failed checks in ${{ github.repository }}",
+              "text": "✅ Dependabot PR #${{ steps.get_pr.outputs.pr_number }} passed all checks in ${{ github.repository }}",
               "username": "Dependabot Manager",
-              "icon_emoji": ":warning:",
+              "icon_emoji": ":white_check_mark:",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": ":x: Dependabot PR Closed",
+                    "text": ":white_check_mark: Dependabot PR Passed",
                     "emoji": true
                   }
                 },
@@ -118,7 +65,7 @@ jobs:
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*PR Number*\n#${{ github.event.pull_request.number }}"
+                      "text": "*PR Number*\n#${{ steps.get_pr.outputs.pr_number }}"
                     }
                   ]
                 },
@@ -126,14 +73,14 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Title*\n${{ github.event.pull_request.title }}"
+                    "text": "*Title*\n${{ steps.get_pr.outputs.pr_title }}"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Reason*\nAutomatically closed due to failed checks"
+                    "text": "*PR Link*\n<${{ steps.get_pr.outputs.pr_url }}|View PR>"
                   }
                 }
               ]
