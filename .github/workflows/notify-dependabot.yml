@@ -20,7 +20,7 @@ jobs:
           echo "PR_URL=$(jq -r '.[0].html_url' <<< '${{ toJson(github.event.check_suite.pull_requests) }}')" >> $GITHUB_ENV
 
       - name: Close PR if checks failed
-        if: github.event.check_suite.conclusion != 'success'
+        if: ${{ github.event.check_suite.conclusion != 'success' }}
         uses: superbrothers/close-pull-request@v3
         with:
           pull-request-number: ${{ env.PR_NUMBER }}
@@ -28,28 +28,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Notify Slack - PR Failed
-        if: github.event.check_suite.conclusion != 'success'
-        uses: slackapi/slack-github-action@v1.25.0
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        with:
-          payload: |
-            {
-              "text": ":x: Dependabot PR #${{ env.PR_NUMBER }} failed checks and was closed.",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*Closed PR:* <${{ env.PR_URL }}|${{ env.PR_TITLE }}> due to failed CI checks."
-                  }
-                }
-              ]
-            }
-
       - name: Notify Slack - PR Success
-        if: github.event.check_suite.conclusion == 'success'
+        if: ${{ github.event.check_suite.conclusion == 'success' }}
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
