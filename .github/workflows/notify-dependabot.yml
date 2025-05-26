@@ -1,58 +1,56 @@
 name: Dependabot Slack Notifications
 
-on: workflow_dispatch
+on:
+  pull_request:
+    branches:
+      - 'dependabot/**'
+    types: [opened, synchronize, labeled]
 
 jobs:
   notify:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Send Slack notification (via curl)
-        run: |
-          curl -X POST -H 'Content-type: application/json' \
-          --data "{
-            \"text\": \"🚀 New Dependabot PR created\",
-            \"blocks\": [
-              {
-                \"type\": \"header\",
-                \"text\": {
-                  \"type\": \"plain_text\",
-                  \"text\": \"🚀 New Dependabot PR\"
+      - name: Send Slack notification
+        uses: slackapi/slack-github-action@v1.25.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        with:
+          slack-message: |
+            {
+              "text": "New Dependabot PR Notification",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":rocket: *New Dependabot PR*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Repository:*\n<https://github.com/${{ github.repository }}|${{ github.repository }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Author:*\n${{ github.actor }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*PR Title:*\n<${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Branch:*\n${{ github.event.pull_request.base.ref }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*PR Number:*\n#${{ github.event.pull_request.number }}"
+                    }
+                  ]
                 }
-              },
-              {
-                \"type\": \"section\",
-                \"fields\": [
-                  {
-                    \"type\": \"mrkdwn\",
-                    \"text\": \"*Repository:*\n<https://github.com/${{ github.repository }}|${{ github.repository }}>\"
-                  },
-                  {
-                    \"type\": \"mrkdwn\",
-                    \"text\": \"*Author:*\n${{ github.actor }}\"
-                  },
-                  {
-                    \"type\": \"mrkdwn\",
-                    \"text\": \"*PR Title:*\n<${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>\"
-                  },
-                  {
-                    \"type\": \"mrkdwn\",
-                    \"text\": \"*Branch:*\n${{ github.head_ref || github.ref_name }}\"
-                  },
-                  {
-                    \"type\": \"mrkdwn\",
-                    \"text\": \"*PR Number:*\n#${{ github.event.pull_request.number }}\"
-                  }
-                ]
-              },
-              {
-                \"type\": \"context\",
-                \"elements\": [
-                  {
-                    \"type\": \"mrkdwn\",
-                    \"text\": \"🔎 Dependabot PR triggered via manual workflow\"
-                  }
-                ]
-              }
-            ]
-          }" \
-          ${{ secrets.SLACK_WEBHOOK_URL }}
+              ]
+            }
