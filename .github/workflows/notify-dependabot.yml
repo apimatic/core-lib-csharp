@@ -8,7 +8,6 @@ jobs:
   handle_dependabot_pr:
     if: >
       github.event.check_suite.pull_requests != null &&
-      github.event.check_suite.pull_requests[0].user.login == 'dependabot[bot]' &&
       github.event.check_suite.status == 'completed'
     runs-on: ubuntu-latest
 
