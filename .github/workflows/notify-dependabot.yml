@@ -1,119 +1,50 @@
-name: Dependabot PR Check Manager
+name: Handle Completed Dependabot PR Checks
 
 on:
-  check_run:
+  check_suite:
     types: [completed]
 
 jobs:
   handle_dependabot_pr:
-    # Only run for Dependabot PRs when all checks complete
-    if: github.actor == 'dependabot[bot]'
+    if: >
+      github.event.check_suite.pull_requests != null &&
+      github.event.check_suite.pull_requests[0].user.login == 'dependabot[bot]' &&
+      github.event.check_suite.status == 'completed'
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Get PR information
-        id: pr-info
-        uses: actions/github-script@v6
-        with:
-          script: |
-            // Find all PRs associated with this commit
-            const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              commit_sha: context.sha
-            });
-            
-            if (prs.length === 0) {
-              console.log('No PR found for this commit');
-              return { number: 0 };
-            }
-            
-            const pr = prs[0];
-            return {
-              number: pr.number,
-              title: pr.title,
-              url: pr.html_url,
-              user: pr.user.login,
-              state: pr.state
-            };
-
-      - name: Skip if no PR or not open
-        if: fromJson(steps.pr-info.outputs.result).number == 0 || fromJson(steps.pr-info.outputs.result).state != 'open'
-        run: exit 0
-
-      - name: Verify all checks completed successfully
-        id: check-status
+      - name: Extract PR Info
+        id: pr_info
         run: |
-          # Get all check runs for this ref
-          checks=$(curl -s \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}/check-runs")
-          
-          total_checks=$(echo "$checks" | jq -r '.total_count')
-          completed_checks=$(echo "$checks" | jq -r '.check_runs | map(select(.status == "completed")) | length')
-          failed_checks=$(echo "$checks" | jq -r '.check_runs | map(select(.conclusion == "failure")) | length')
-          
-          echo "Total checks: $total_checks"
-          echo "Completed checks: $completed_checks"
-          echo "Failed checks: $failed_checks"
-          
-          if [ "$total_checks" -gt 0 ] && [ "$completed_checks" -eq "$total_checks" ]; then
-            if [ "$failed_checks" -gt 0 ]; then
-              echo "status=failure" >> $GITHUB_OUTPUT
-            else
-              echo "status=success" >> $GITHUB_OUTPUT
-            fi
-          else
-            echo "status=pending" >> $GITHUB_OUTPUT
-          fi
+          echo "PR_NUMBER=$(jq '.[0].number' <<< '${{ toJson(github.event.check_suite.pull_requests) }}')" >> $GITHUB_ENV
+          echo "PR_TITLE=$(jq -r '.[0].title' <<< '${{ toJson(github.event.check_suite.pull_requests) }}')" >> $GITHUB_ENV
+          echo "PR_URL=$(jq -r '.[0].html_url' <<< '${{ toJson(github.event.check_suite.pull_requests) }}')" >> $GITHUB_ENV
 
       - name: Close PR if checks failed
-        if: steps.check-status.outputs.status == 'failure'
+        if: ${{ github.event.check_suite.conclusion != 'success' }}
         uses: superbrothers/close-pull-request@v3
         with:
-          comment: "Automatically closed due to failed checks"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pull_request_number: ${{ fromJson(steps.pr-info.outputs.result).number }}
+          pull-request-number: ${{ env.PR_NUMBER }}
+          comment: "Closed automatically due to failed CI checks."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Notify Slack if checks passed
-        if: steps.check-status.outputs.status == 'success'
+      - name: Notify Slack - PR Success
+        if: ${{ github.event.check_suite.conclusion == 'success' }}
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
           payload: |
             {
-              "text": "✅ Dependabot PR Ready: ${{ fromJson(steps.pr-info.outputs.result).title }}",
+              "text": ":white_check_mark: Dependabot PR #${{ env.PR_NUMBER }} passed all checks.",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*✅ Dependabot Update Ready*"
+                    "text": "*Successful PR:* <${{ env.PR_URL }}|${{ env.PR_TITLE }}> passed all CI checks."
                   }
-                },
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "*PR*: <${{ fromJson(steps.pr-info.outputs.result).url }}|#${{ fromJson(steps.pr-info.outputs.result).number }}>"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Title*: ${{ fromJson(steps.pr-info.outputs.result).title }}"
-                    }
-                  ]
-                },
-                {
-                  "type": "context",
-                  "elements": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "Submitted by: ${{ fromJson(steps.pr-info.outputs.result).user }} | Repository: ${{ github.repository }}"
-                    }
-                  ]
                 }
               ]
             }
