@@ -1,15 +1,32 @@
-name: Test Dependabot Slack Alert
-
-on:
-  workflow_dispatch:  # Manual trigger
+name: Dependabot Slack Notifications
+on: workflow_dispatch
 
 jobs:
-  test-slack:
+  notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Send test message to Slack
+      - name: Send Slack notification
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
-          slack-message: "TEST: Manual workflow triggered in *${{ github.repository }}*"
+          slack-message: |
+            {
+              "text": "New Dependabot activity in ${{ github.repository }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "🚀 *New Dependabot PR*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "• Repository: <https://github.com/${{ github.repository }}|${{ github.repository }}>\n• PR: <${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>"
+                  }
+                }
+              ]
+            }
