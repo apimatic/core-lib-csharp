@@ -29,7 +29,7 @@ jobs:
                   "fields": [
                     {
                       "type": "mrkdwn",
-                      "text": "*Repository:*\n<https://github.com/${{ github.repository }}|${{ github.repository }})"
+                      "text": "*Repository:*\n<https://github.com/${{ github.repository }}|${{ github.repository }}>"
                     },
                     {
                       "type": "mrkdwn",
