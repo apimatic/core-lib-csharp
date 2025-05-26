@@ -1,10 +1,7 @@
 name: Dependabot Slack Notifications
 
 on:
-  pull_request:
-    branches:
-      - 'dependabot/**'
-    types: [opened, synchronize, labeled]
+  workflow_dispatch:
 
 jobs:
   notify:
