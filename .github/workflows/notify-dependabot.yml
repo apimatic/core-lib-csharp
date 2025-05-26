@@ -1,159 +1,68 @@
-name: Dependabot PR Manager
+name: Handle Completed Dependabot PR Checks
 
 on:
-  workflow_dispatch:
   check_suite:
     types: [completed]
-  pull_request:
-    types: [closed]
 
 jobs:
-  monitor_checks:
-    if: github.actor == 'dependabot[bot]' && github.event.check_suite.conclusion != 'skipped'
+  handle_dependabot_checks:
+    if: >
+      github.event.check_suite.pull_requests != null &&
+      github.event.check_suite.pull_requests[0].user.login == 'dependabot[bot]'
     runs-on: ubuntu-latest
+
     steps:
-      - name: Get PR information
-        id: pr-info
-        uses: octokit/request-action@v2.x
+      - name: Extract PR Info
+        id: pr_info
+        run: |
+          echo "PR_NUMBER=$(jq '.[0].number' <<< '${{ toJson(github.event.check_suite.pull_requests) }}')" >> $GITHUB_ENV
+          echo "PR_TITLE=$(jq -r '.[0].title' <<< '${{ toJson(github.event.check_suite.pull_requests) }}')" >> $GITHUB_ENV
+          echo "PR_URL=$(jq -r '.[0].html_url' <<< '${{ toJson(github.event.check_suite.pull_requests) }}')" >> $GITHUB_ENV
+
+      - name: Close PR if checks failed
+        if: github.event.check_suite.conclusion != 'success'
+        uses: superbrothers/close-pull-request@v3
         with:
-          route: GET /repos/${{ github.repository }}/commits/${{ github.event.check_suite.head_sha }}/pulls
-          mediaType: |
-            {
-              "previews": ["groot"]
-            }
+          pull-request-number: ${{ env.PR_NUMBER }}
+          comment: "Closed automatically due to failed checks."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract PR number
-        id: extract-pr
-        run: |
-          PR_DATA=$(echo '${{ steps.pr-info.outputs.data }}' | jq -r '.[0]')
-          if [ -z "$PR_DATA" ] || [ "$PR_DATA" == "null" ]; then
-            echo "No PR associated with this commit"
-            echo "pr_number=0" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          echo "pr_number=$(echo "$PR_DATA" | jq -r '.number')" >> $GITHUB_OUTPUT
-          echo "pr_title=$(echo "$PR_DATA" | jq -r '.title')" >> $GITHUB_OUTPUT
-          echo "pr_user=$(echo "$PR_DATA" | jq -r '.user.login')" >> $GITHUB_OUTPUT
-          echo "pr_url=$(echo "$PR_DATA" | jq -r '.html_url')" >> $GITHUB_OUTPUT
-
-      - name: Check PR status
-        id: check-pr-status
-        run: |
-          if [[ "${{ github.event.check_suite.conclusion }}" == "success" ]]; then
-            echo "PR checks passed"
-            echo "should_notify=true" >> $GITHUB_OUTPUT
-          else
-            echo "PR checks failed - closing PR"
-            echo "should_close=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Close failed PR
-        if: steps.check-pr-status.outputs.should_close == 'true' && steps.extract-pr.outputs.pr_number != '0'
-        uses: superbrothers/close-pull-request@v3
-        with:
-          comment: "Automatically closed due to failed checks"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pull_request_number: ${{ steps.extract-pr.outputs.pr_number }}
-
-      - name: Notify Slack about successful PR
-        if: steps.check-pr-status.outputs.should_notify == 'true' && steps.extract-pr.outputs.pr_number != '0'
+      - name: Notify Slack - PR Failed
+        if: github.event.check_suite.conclusion != 'success'
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
           payload: |
             {
-              "text": "Dependabot PR #${{ steps.extract-pr.outputs.pr_number }} passed checks in ${{ github.repository }}",
-              "username": "Dependabot Manager",
-              "icon_emoji": ":white_check_mark:",
+              "text": ":x: Dependabot PR #${{ env.PR_NUMBER }} failed checks and was closed.",
               "blocks": [
-                {
-                  "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "✅ Dependabot PR Ready",
-                    "emoji": true
-                  }
-                },
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Repository*\n<https://github.com/${{ github.repository }}|${{ github.repository }}>"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*PR Number*\n#${{ steps.extract-pr.outputs.pr_number }}"
-                    }
-                  ]
-                },
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Title*\n${{ steps.extract-pr.outputs.pr_title }}"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Author*\n${{ steps.extract-pr.outputs.pr_user }}"
-                    }
-                  ]
-                },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*PR Link*\n<${{ steps.extract-pr.outputs.pr_url }}|View PR>"
+                    "text": "*Closed PR:* <${{ env.PR_URL }}|${{ env.PR_TITLE }}> due to failed CI checks."
                   }
                 }
               ]
             }
 
-  notify_closed:
-    if: github.actor == 'dependabot[bot]' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Notify Slack about closed PR
+      - name: Notify Slack - PR Success
+        if: github.event.check_suite.conclusion == 'success'
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
           payload: |
             {
-              "text": "Dependabot PR #${{ github.event.pull_request.number }} was closed in ${{ github.repository }}",
-              "username": "Dependabot Manager",
-              "icon_emoji": ":package:",
+              "text": ":white_check_mark: Dependabot PR #${{ env.PR_NUMBER }} passed all checks.",
               "blocks": [
-                {
-                  "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "📦 Dependabot PR Closed",
-                    "emoji": true
-                  }
-                },
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Repository*\n${{ github.repository }}"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*PR Number*\n#${{ github.event.pull_request.number }}"
-                    }
-                  ]
-                },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Title*\n${{ github.event.pull_request.title }}"
+                    "text": "*Successful PR:* <${{ env.PR_URL }}|${{ env.PR_TITLE }}> passed all CI checks."
                   }
                 }
               ]
