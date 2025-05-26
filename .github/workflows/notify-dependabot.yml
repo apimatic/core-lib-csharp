@@ -13,9 +13,9 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
-          slack-message: |
+          payload: |
             {
-              "text": "Manual Dependabot PR Test Notification",
+              "text": "🚀 *New Dependabot PR*",
               "blocks": [
                 {
                   "type": "section",
