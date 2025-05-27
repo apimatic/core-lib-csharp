@@ -1,7 +1,6 @@
 name: PR Checks Completed Notification
 
 on:
-  workflow_dispatch:
   check_suite:
     types: [completed]
 
