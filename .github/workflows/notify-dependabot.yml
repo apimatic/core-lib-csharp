@@ -9,6 +9,15 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
+      - name: Determine PR type
+        id: pr-type
+        run: |
+          if [ "${{ github.actor }}" = "dependabot[bot]" ]; then
+            echo "pr_type=Dependabot" >> $GITHUB_ENV
+          else
+            echo "pr_type=Regular" >> $GITHUB_ENV
+          fi
+
       - name: Send PR notification
         uses: slackapi/slack-github-action@v1.25.0
         env:
@@ -16,14 +25,14 @@ jobs:
         with:
           payload: |
             {
-              "username": "Dependabot Manager",
+              "username": "PR Manager",
               "icon_emoji": ":robot_face:",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "📦 New ${{ github.actor == 'dependabot[bot]' ? 'Dependabot' : '' }} PR",
+                    "text": "📦 New ${{ env.pr_type }} PR",
                     "emoji": true
                   }
                 },
@@ -56,7 +65,7 @@ jobs:
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*Type*\n${{ github.actor == 'dependabot[bot]' ? 'Dependency Update' : 'Regular PR' }}"
+                      "text": "*Type*\n${{ env.pr_type }} PR"
                     }
                   ]
                 },
