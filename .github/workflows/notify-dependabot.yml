@@ -9,6 +9,8 @@ on:
 jobs:
   notify-checks:
     runs-on: ubuntu-latest
+    # Only run for Dependabot
+    #if: github.actor == 'dependabot[bot]'
     steps:
       - name: Get PR Information
         id: get-pr-info
@@ -86,6 +88,24 @@ jobs:
             if (incompleteRuns.data.total_count === 0) {
               core.exportVariable('ALL_CHECKS_STATUS', overallStatus);
               core.exportVariable('SHOULD_NOTIFY', 'true');
+              
+              // If checks failed and PR exists, close it
+              if ((overallStatus === 'failure' || overallStatus === 'cancelled') && pr) {
+                await github.rest.pulls.update({
+                  owner,
+                  repo,
+                  pull_number: pr.number,
+                  state: 'closed'
+                });
+                
+                // Add comment explaining why PR was closed
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: pr.number,
+                  body: `This PR was automatically closed because some checks failed.\nStatus Summary: ${summary}`
+                });
+              }
             } else {
               core.exportVariable('SHOULD_NOTIFY', 'false');
             }
@@ -99,19 +119,6 @@ jobs:
           payload: |
             {
               "text": ":white_check_mark: All PR checks passed!\nRepository: ${{ github.repository }}\nTitle: ${{ env.PR_TITLE }}\nAuthor: ${{ env.PR_AUTHOR }}\nLink: ${{ env.PR_LINK }}\nStatus Summary: ${{ env.CHECKS_SUMMARY }}",
-              "username": "PR Checks Monitor",
-              "icon_emoji": ":robot_face:"
-            }
-
-      - name: Send Slack Notification for Failure or Other Status
-        if: env.SHOULD_NOTIFY == 'true' && env.ALL_CHECKS_STATUS != 'success'
-        uses: slackapi/slack-github-action@v1.25.0
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        with:
-          payload: |
-            {
-              "text": ":warning: PR Checks Status Update\nRepository: ${{ github.repository }}\nTitle: ${{ env.PR_TITLE }}\nAuthor: ${{ env.PR_AUTHOR }}\nLink: ${{ env.PR_LINK }}\nStatus Summary: ${{ env.CHECKS_SUMMARY }}",
               "username": "PR Checks Monitor",
               "icon_emoji": ":robot_face:"
             }
