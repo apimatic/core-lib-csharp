@@ -8,6 +8,15 @@ jobs:
   notify-checks:
     runs-on: ubuntu-latest
     steps:
+      - name: Fetch PR Details
+        id: fetch-pr
+        run: |
+          echo "Fetching PR details..."
+          PR_NUMBER=${{ github.event.check_suite.pull_requests[0].number }}
+          PR_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}")
+          PR_TITLE=$(echo "$PR_DATA" | jq -r '.title')
+          echo "PR_TITLE=${PR_TITLE}" >> $GITHUB_ENV
       - name: Prepare PR Link
         id: prepare-link
         run: |
