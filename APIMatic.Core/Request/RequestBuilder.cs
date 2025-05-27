@@ -13,6 +13,8 @@ using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Request.Parameters;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
+using Microsoft.Json.Pointer;
+using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Request
 {
@@ -142,6 +144,29 @@ namespace APIMatic.Core.Request
             return this;
         }
 
+        public RequestBuilder UpdateByReference(string pointerString, Func<object, object> setter)
+        {
+            if (pointerString == null)
+                return this;
+
+            var parts = pointerString.Split('#');
+
+            if (parts.Length <= 1)
+                return this;
+
+            var jsonPointer = new JsonPointer(parts[1]);
+
+            switch (parts[0])
+            {
+                case "$request.path": case "$request.query": case "$request.headers":
+                    parameters.UpdateParameterValueByPointer(setter, jsonPointer);
+                    parameters.Apply(this);
+                    return this;
+                default:
+                    return this;
+            }
+        }
+
         /// <summary>
         /// This applies all the configuration and build an instance of CoreRequest
         /// </summary>
@@ -151,11 +176,12 @@ namespace APIMatic.Core.Request
             parameters.Validate().Apply(this);
             configuration.RuntimeParameters.Validate().Apply(this);
             await authGroup.Apply(this).ConfigureAwait(false);
-            CoreHelper.AppendUrlWithQueryParameters(QueryUrl, queryParameters, ArraySerialization);
+            var queryUrl = new StringBuilder(QueryUrl.ToString());
+            CoreHelper.AppendUrlWithQueryParameters(queryUrl, queryParameters, ArraySerialization);
             body = bodyParameters.Any() ? bodyParameters : body;
             AppendContentTypeHeader();
             AppendAcceptHeader();
-            return new CoreRequest(httpMethod, CoreHelper.CleanUrl(QueryUrl), headers, bodySerializer(body), formParameters, queryParameters)
+            return new CoreRequest(httpMethod, CoreHelper.CleanUrl(queryUrl), headers, bodySerializer(body), formParameters, queryParameters)
             {
                 RetryOption = retryOption,
                 HasBinaryResponse = HasBinaryResponse
@@ -231,6 +257,51 @@ namespace APIMatic.Core.Request
                 return innerValue;
             }
             return CoreHelper.JsonSerialize(value);
+        }
+
+        public RequestBuilder Clone()
+        {
+            var clone = new RequestBuilder(configuration)
+                .WithRetryOption(retryOption)
+                .DisableContentType();
+            clone.contentTypeAllowed = contentTypeAllowed;
+            clone.httpMethod = this.httpMethod;
+            clone.QueryUrl.Append(this.QueryUrl);
+            clone.AcceptHeader = this.AcceptHeader;
+            clone.ArraySerialization = this.ArraySerialization;
+            clone.HasBinaryResponse = this.HasBinaryResponse;
+            clone.xmlRequest = this.xmlRequest;
+            clone.bodySerializer = this.bodySerializer;
+            clone.body = this.body;
+            clone.bodyType = this.bodyType;
+
+            foreach (var kvp in this.headers)
+            {
+                clone.headers.Add(kvp.Key, kvp.Value);
+            }
+
+            foreach (var kvp in this.bodyParameters)
+            {
+                clone.bodyParameters.Add(kvp.Key, kvp.Value);
+            }
+
+            foreach (var kvp in this.formParameters)
+            {
+                clone.formParameters.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
+            }
+
+            foreach (var kvp in this.queryParameters)
+            {
+                clone.queryParameters.Add(kvp.Key, kvp.Value);
+            }
+
+            // Clone parameters builder
+            this.parameters.Clone(clone.parameters);
+
+            // Clone authGroup
+            this.authGroup.Clone(clone.authGroup);
+
+            return clone;
         }
     }
 }

@@ -25,5 +25,16 @@ namespace APIMatic.Core.Request.Parameters
             }
             requestBuilder.headers[key] = headerValue;
         }
+
+        public override Parameter Clone()
+        {
+            return new HeaderParam
+            {
+                key = this.key,
+                value = this.value,
+                validated = this.validated,
+                typeName = this.typeName
+            };
+        }
     }
 }

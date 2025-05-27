@@ -15,5 +15,19 @@ namespace APIMatic.Core.Request.Parameters
             parameters.Query(q => q.Setup(key, value));
             return this;
         }
+
+        public override Parameter Clone()
+        {
+            var clone = new AdditionalQueryParams
+            {
+                key = this.key,
+                value = this.value,
+                validated = this.validated,
+                typeName = this.typeName
+            };
+
+            this.parameters.Clone(clone.parameters);
+            return clone;
+        }
     }
 }

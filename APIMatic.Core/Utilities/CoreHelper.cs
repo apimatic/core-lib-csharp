@@ -13,9 +13,11 @@ using System.Threading.Tasks;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Types;
 using APIMatic.Core.Types.Sdk;
+using Microsoft.Json.Pointer;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using System.Net;
 
 namespace APIMatic.Core.Utilities
 {
@@ -94,6 +96,22 @@ namespace APIMatic.Core.Utilities
             }
         }
 
+        public static IDictionary<string, object> ExtractQueryParametersForUrl(string queryUrl)
+        { 
+            var queryParams = queryUrl.Split('?');
+
+            if (queryParams.Length <= 1)
+            {
+                return new Dictionary<string, object>();
+            }
+
+            return queryParams[1].Split('&').Select(param => param.Split(new []{'='}, 2))
+                .ToDictionary(
+                    pair => WebUtility.UrlDecode(pair[0]),
+                    pair => (object)(pair.Length > 1 ? WebUtility.UrlDecode(pair[1]) : string.Empty)
+                );
+        }
+
         /// <summary>
         /// Appends the given set of parameters to the given query string.
         /// </summary>
@@ -120,6 +138,55 @@ namespace APIMatic.Core.Utilities
                 AppendParameters(queryBuilder, arraySerialization, pair);
             }
         }
+
+        public static string GetValueByReference(string pointerString, string jsonBody, string jsonHeaders)
+        {
+            if (pointerString == null)
+                return null;
+
+            var parts = pointerString.Split('#');
+
+            if (parts.Length <= 1)
+                return null;
+
+            var jsonPointer = new JsonPointer(parts[1]);
+
+            switch (parts[0])
+            {
+                case "$response.body":
+                    return GetJsonValueUsingPointer(jsonPointer, jsonBody);
+                case "$response.headers":
+                    return GetJsonValueUsingPointer(jsonPointer, jsonHeaders);
+                default:
+                    return null;
+            }
+        }
+
+        private static string GetJsonValueUsingPointer(JsonPointer pointer, string json)
+        {
+            if (pointer == null || json == null)
+                return null;
+
+            var jsonObject = JObject.Parse(json);
+            JToken jsonToken;
+            try
+            {
+                jsonToken = pointer.Evaluate(jsonObject);
+            }
+            catch
+            {
+                return null;
+            }
+
+            if (jsonToken.Type == JTokenType.Null)
+                return null;
+
+            if (jsonToken.Type == JTokenType.String)
+                return jsonToken.Value<string>();
+
+            return jsonToken.ToString();
+        }
+
 
         private static void AppendParameters(StringBuilder queryBuilder, ArraySerialization arraySerialization, KeyValuePair<string, object> pair)
         {

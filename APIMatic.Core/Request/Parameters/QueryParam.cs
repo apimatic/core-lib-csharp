@@ -18,5 +18,16 @@ namespace APIMatic.Core.Request.Parameters
             }
             requestBuilder.queryParameters[key] = value;
         }
+
+        public override Parameter Clone()
+        {
+            return new QueryParam
+            {
+                key = this.key,
+                value = this.value,
+                validated = this.validated,
+                typeName = this.typeName,
+            };
+        }
     }
 }

@@ -36,5 +36,17 @@ namespace APIMatic.Core.Request.Parameters
             }
             requestBuilder.bodyParameters[key] = value;
         }
+
+        public override Parameter Clone()
+        {
+            return new BodyParam
+            {
+                key = this.key,
+                value = this.value,
+                validated = this.validated,
+                typeName = this.typeName,
+                valueType = this.valueType
+            };
+        }
     }
 }

@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using APIMatic.Core.Http.Configuration;
+using APIMatic.Core.Pagination;
 using APIMatic.Core.Request;
 using APIMatic.Core.Response;
 using APIMatic.Core.Types.Sdk;
@@ -82,6 +83,12 @@ namespace APIMatic.Core
             return this;
         }
 
+        public ApiCall<Request, Response, Context, ApiException, ReturnType, ResponseType> RequestBuilder(RequestBuilder _requestBuilder)
+        {
+            requestBuilder = _requestBuilder;
+            return this;
+        }
+
         /// <summary>
         /// Setup the response handler
         /// </summary>
@@ -110,6 +117,60 @@ namespace APIMatic.Core
             _sdkLogger.LogResponse(response);
             var context = new CoreContext<CoreRequest, CoreResponse>(request, response);
             return responseHandler.Result(context, returnTypeCreator);
+        }
+
+        private async Task<PaginatedResult<TItem, TPageMetadata>> ExecutePaginationAsync<TItem, TPageMetadata>(
+            IPaginationDataManager manager,
+            Func<ReturnType, IEnumerable<TItem>> converter,
+            Func<ReturnType, IPaginationDataManager, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
+            CancellationToken cancellationToken = default)
+        {
+            requestBuilder.AcceptHeader = responseHandler.AcceptHeader;
+            CoreRequest request = await requestBuilder.Build().ConfigureAwait(false);
+            globalConfiguration.ApiCallback?.OnBeforeHttpRequestEventHandler(request);
+            _sdkLogger.LogRequest(request);
+            var response = await globalConfiguration.HttpClient.ExecuteAsync(request, cancellationToken)
+                .ConfigureAwait(false);
+            globalConfiguration.ApiCallback?.OnAfterHttpResponseEventHandler(response);
+            _sdkLogger.LogResponse(response);
+            var context = new CoreContext<CoreRequest, CoreResponse>(request, response);
+            var page = responseHandler.Result(context, returnTypeCreator);
+            var pageItems = converter(page);
+            var pageMeta = pageResponseConverter(page, manager, pageItems);
+            return new PaginatedResult<TItem, TPageMetadata>(response, pageItems, pageMeta);
+        }
+
+        public TEnumerable Paginate<TItem, TEnumerable, TPageMetadata>(
+            Func<ReturnType, IEnumerable<TItem>> converter,
+            Func<ReturnType, IPaginationDataManager, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
+            Func<
+                Func<RequestBuilder, IPaginationDataManager, Task<PaginatedResult<TItem, TPageMetadata>>>,
+                RequestBuilder, IPaginationDataManager[],
+                TEnumerable> returnTypeGetter,
+            CancellationToken cancellationToken = default,
+            params IPaginationDataManager[] dataManagers)
+        {
+            return returnTypeGetter(
+                (reqBuilder, manager) => RequestBuilder(reqBuilder).ExecutePaginationAsync(manager, converter, pageResponseConverter, cancellationToken),
+                requestBuilder.Clone(),
+                dataManagers);
+        }
+
+        public TEnumerable PaginateAsync<TItem, TEnumerable, TPageMetadata>(
+            Func<ReturnType, IEnumerable<TItem>> converter,
+            Func<ReturnType, IPaginationDataManager, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
+            Func<
+                Func<RequestBuilder, IPaginationDataManager, CancellationToken, Task<PaginatedResult<TItem, TPageMetadata>>>,
+                RequestBuilder, IPaginationDataManager[],
+                TEnumerable> returnTypeGetter,
+                CancellationToken cancellationTokenOld = default,  // Merge these cancellationTokens
+            params IPaginationDataManager[] dataManagers)
+        {
+            return returnTypeGetter(
+                (reqBuilder, manager, cancellationToken) =>
+                    RequestBuilder(reqBuilder).ExecutePaginationAsync(manager, converter, pageResponseConverter,cancellationToken == default ? cancellationTokenOld : cancellationToken),
+                requestBuilder.Clone(),
+                dataManagers);
         }
     }
 }
