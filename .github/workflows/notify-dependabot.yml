@@ -1,16 +1,19 @@
-name: Dependabot PR Manager
+# .github/workflows/notify-or-close.yml
+
+name: Notify or Close PR After CI
 
 on:
-  check_suite:
-    types: [completed]
+  workflow_run:
+    workflows: ["CI"] # Must match the exact name of the CI workflow
+    types:
+      - completed
 
 jobs:
-  monitor_checks:
-    if: github.event.action == 'completed' && github.event.check_suite.conclusion != 'neutral'
+  handle_result:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get associated PR
+      - name: Get PR for workflow_run SHA
         id: get_pr
         uses: actions/github-script@v6
         with:
@@ -18,41 +21,46 @@ jobs:
             const prs = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              head: context.payload.check_suite.head_branch,
               state: 'open'
             });
-            const dependabotPR = prs.data.find(pr => pr.user.login === 'dependabot[bot]');
-            if (dependabotPR) {
-              core.setOutput('pr_number', dependabotPR.number);
-              core.setOutput('pr_title', dependabotPR.title);
-              core.setOutput('pr_url', dependabotPR.html_url);
+
+            const pr = prs.data.find(pr => pr.head.sha === "${{ github.event.workflow_run.head_commit.id }}");
+            if (pr) {
+              core.setOutput("pr_number", pr.number);
+              core.setOutput("pr_title", pr.title);
+              core.setOutput("pr_url", pr.html_url);
+              core.setOutput("is_dependabot", pr.user.login === "dependabot[bot]");
             }
 
-      - name: Close PR if checks failed
-        if: github.event.check_suite.conclusion != 'success' && steps.get_pr.outputs.pr_number != ''
+      - name: Close PR if failed (even your own test PRs)
+        if: steps.get_pr.outputs.pr_number != '' && github.event.workflow_run.conclusion != 'success'
         uses: superbrothers/close-pull-request@v3
         with:
           pull-request-number: ${{ steps.get_pr.outputs.pr_number }}
-          comment: "Automatically closed due to failed checks"
+          comment: "❌ Automatically closed because CI checks failed."
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Notify Slack if checks passed
-        if: github.event.check_suite.conclusion == 'success' && steps.get_pr.outputs.pr_number != ''
+      - name: Notify Slack if CI passed
+        if: steps.get_pr.outputs.pr_number != '' && github.event.workflow_run.conclusion == 'success'
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          PR_NUMBER: ${{ steps.get_pr.outputs.pr_number }}
+          PR_TITLE: ${{ steps.get_pr.outputs.pr_title }}
+          PR_URL: ${{ steps.get_pr.outputs.pr_url }}
+          REPOSITORY: ${{ github.repository }}
         with:
           payload: |
             {
-              "text": "✅ Dependabot PR #${{ steps.get_pr.outputs.pr_number }} passed all checks in ${{ github.repository }}",
-              "username": "Dependabot Manager",
+              "text": "✅ PR #${PR_NUMBER} passed CI in ${REPOSITORY}",
+              "username": "PR Notifier",
               "icon_emoji": ":white_check_mark:",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": ":white_check_mark: Dependabot PR Passed",
+                    "text": ":rocket: CI Passed for PR",
                     "emoji": true
                   }
                 },
@@ -61,11 +69,11 @@ jobs:
                   "fields": [
                     {
                       "type": "mrkdwn",
-                      "text": "*Repository*\n${{ github.repository }}"
+                      "text": "*Repository:*\n${REPOSITORY}"
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*PR Number*\n#${{ steps.get_pr.outputs.pr_number }}"
+                      "text": "*PR Number:*\n#${PR_NUMBER}"
                     }
                   ]
                 },
@@ -73,14 +81,14 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Title*\n${{ steps.get_pr.outputs.pr_title }}"
+                    "text": "*Title:*\n${PR_TITLE}"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*PR Link*\n<${{ steps.get_pr.outputs.pr_url }}|View PR>"
+                    "text": "*PR Link:*\n<${PR_URL}|View PR>"
                   }
                 }
               ]
