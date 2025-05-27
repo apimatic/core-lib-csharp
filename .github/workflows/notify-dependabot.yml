@@ -9,16 +9,23 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Determine PR type
-        id: pr-type
+      - name: Prepare PR data
+        id: prepare
         run: |
-          if [ "${{ github.actor }}" = "dependabot[bot]" ]; then
-            echo "pr_type=Dependabot" >> $GITHUB_ENV
-          else
-            echo "pr_type=Regular" >> $GITHUB_ENV
-          fi
+          # Set default values if PR data isn't available (workflow_dispatch case)
+          PR_TITLE="${GITHUB_EVENT_NAME == 'workflow_dispatch' && 'Manual workflow trigger' || '${{ github.event.pull_request.title }}'}"
+          PR_NUMBER="${GITHUB_EVENT_NAME == 'workflow_dispatch' && 'N/A' || '${{ github.event.pull_request.number }}'}"
+          PR_AUTHOR="${GITHUB_EVENT_NAME == 'workflow_dispatch' && '${{ github.actor }}' || '${{ github.event.pull_request.user.login }}'}"
+          PR_URL="${GITHUB_EVENT_NAME == 'workflow_dispatch' && 'https://github.com/${{ github.repository }}/pulls' || '${{ github.event.pull_request.html_url }}'}"
+          PR_TYPE="${{ github.actor == 'dependabot[bot]' && 'Dependabot' || 'Regular' }}"
+          
+          echo "PR_TITLE=${PR_TITLE}" >> $GITHUB_ENV
+          echo "PR_NUMBER=${PR_NUMBER}" >> $GITHUB_ENV
+          echo "PR_AUTHOR=${PR_AUTHOR}" >> $GITHUB_ENV
+          echo "PR_URL=${PR_URL}" >> $GITHUB_ENV
+          echo "PR_TYPE=${PR_TYPE}" >> $GITHUB_ENV
 
-      - name: Send PR notification
+      - name: Send Slack notification
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -32,7 +39,7 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "📦 New ${{ env.pr_type }} PR",
+                    "text": "📦 New ${{ env.PR_TYPE }} PR",
                     "emoji": true
                   }
                 },
@@ -40,7 +47,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*<${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>*"
+                    "text": "*<${{ env.PR_URL }}|${{ env.PR_TITLE }}>*"
                   }
                 },
                 {
@@ -52,7 +59,7 @@ jobs:
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*PR Number*\n#${{ github.event.pull_request.number }}"
+                      "text": "*PR Number*\n#${{ env.PR_NUMBER }}"
                     }
                   ]
                 },
@@ -61,11 +68,11 @@ jobs:
                   "fields": [
                     {
                       "type": "mrkdwn",
-                      "text": "*Author*\n@${{ github.event.pull_request.user.login }}"
+                      "text": "*Author*\n@${{ env.PR_AUTHOR }}"
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*Type*\n${{ env.pr_type }} PR"
+                      "text": "*Type*\n${{ env.PR_TYPE }} PR"
                     }
                   ]
                 },
@@ -79,7 +86,7 @@ jobs:
                         "text": "View PR",
                         "emoji": true
                       },
-                      "url": "${{ github.event.pull_request.html_url }}"
+                      "url": "${{ env.PR_URL }}"
                     }
                   ]
                 }
