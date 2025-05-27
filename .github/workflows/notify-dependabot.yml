@@ -1,12 +1,23 @@
 name: Dependabot PR Manager
+
 on:
   workflow_dispatch:
   pull_request:
     types: [opened, closed]
+
 jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
+      - name: Prepare PR Link
+        id: prepare-link
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "PR_LINK=${{ github.event.pull_request.html_url }}" >> $GITHUB_ENV
+          else
+            echo "PR_LINK=https://github.com/${{ github.repository }}/pulls" >> $GITHUB_ENV
+          fi
+
       - name: Send PR notification
         if: github.event.action == 'opened' || github.event_name == 'workflow_dispatch'
         uses: slackapi/slack-github-action@v1.25.0
@@ -15,7 +26,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "New PR Notification for ${{ github.repository }} - ${{ github.event.pull_request.title || 'Manual trigger' }} by ${{ github.event.pull_request.user.login || github.actor }}",
+              "text": "📦 New PR in ${{ github.repository }}\nTitle: ${{ github.event.pull_request.title || 'Manual trigger' }}\nAuthor: ${{ github.event.pull_request.user.login || github.actor }}\nLink: ${{ env.PR_LINK }}",
               "username": "Dependabot Manager",
               "icon_emoji": ":robot_face:",
               "blocks": [
@@ -56,11 +67,12 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*PR Link*\n<${{ github.event.pull_request.html_url || format('https://github.com/{0}/pulls', github.repository) }}|View PR>"
+                    "text": "*PR Link*\n<${{ env.PR_LINK }}|View PR>"
                   }
                 }
               ]
             }
+
   monitor_checks:
     if: github.actor == 'dependabot[bot]' && github.event.action == 'opened'
     runs-on: ubuntu-latest
@@ -97,7 +109,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "Dependabot PR #${{ github.event.pull_request.number }} was closed due to failed checks in ${{ github.repository }}",
+              "text": "❌ Dependabot PR #${{ github.event.pull_request.number }} was closed due to failed checks\nRepository: ${{ github.repository }}\nTitle: ${{ github.event.pull_request.title }}\nLink: ${{ github.event.pull_request.html_url }}",
               "username": "Dependabot Manager",
               "icon_emoji": ":warning:",
               "blocks": [
@@ -134,6 +146,13 @@ jobs:
                   "text": {
                     "type": "mrkdwn",
                     "text": "*Reason*\nAutomatically closed due to failed checks"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*PR Link*\n<${{ github.event.pull_request.html_url }}|View Closed PR>"
                   }
                 }
               ]
