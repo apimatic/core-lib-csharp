@@ -1,7 +1,7 @@
 name: PR Checks Completed Notification
 
 on:
-  check_suite:
+  status:
     types: [completed]
 
 jobs:
