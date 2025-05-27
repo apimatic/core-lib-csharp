@@ -9,10 +9,9 @@ on:
 jobs:
   notify-checks:
     runs-on: ubuntu-latest
-
-    if: github.actor == 'dependabot[bot]'
     steps:
       - name: Get PR Information
+        if: github.actor == 'dependabot[bot]'
         id: get-pr-info
         uses: actions/github-script@v6
         with:
@@ -111,11 +110,11 @@ jobs:
             }
 
       - name: Send Slack Notification for Success
-        if: env.SHOULD_NOTIFY == 'true' && env.ALL_CHECKS_STATUS == 'success'
+        if: env.SHOULD_NOTIFY == 'true' && env.ALL_CHECKS_STATUS == 'success' && github.actor == 'dependabot[bot]'
         id: slack
         uses: slackapi/slack-github-action@v1.25.0
         with:
-          channel-id: 'C012YFE3D6D'
+          channel-id: 'C08TLGVQ6V8'
           slack-message: |
             Repository: ${{ github.repository }}
             Title: ${{ env.PR_TITLE }}
