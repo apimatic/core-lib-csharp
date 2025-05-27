@@ -18,62 +18,100 @@ jobs:
             const { owner, repo } = context.repo;
             const run = context.payload.workflow_run;
             
-            // Get associated PRs
-            const pulls = await github.rest.pulls.list({
+            // Get PR directly from the workflow run's head SHA
+            const response = await github.rest.repos.listPullRequestsAssociatedWithCommit({
               owner,
               repo,
-              state: 'open'
+              commit_sha: run.head_sha
             });
             
-            // Find PR associated with this commit
-            const pr = pulls.data.find(pr => pr.head.sha === run.head_sha);
+            const pr = response.data[0];  // Get the first associated PR
             
             if (pr) {
               core.exportVariable('PR_TITLE', pr.title);
               core.exportVariable('PR_AUTHOR', pr.user.login);
               core.exportVariable('PR_LINK', pr.html_url);
+              core.exportVariable('PR_NUMBER', pr.number.toString());
             } else {
               core.exportVariable('PR_TITLE', 'Unknown');
               core.exportVariable('PR_AUTHOR', context.actor);
               core.exportVariable('PR_LINK', `https://github.com/${owner}/${repo}/pulls`);
+              core.exportVariable('PR_NUMBER', '');
             }
             
-            // Get all workflow runs for this commit
-            const allRuns = await github.rest.actions.listWorkflowRunsForRepo({
+            // Get check runs for this commit
+            const checkRuns = await github.rest.checks.listForRef({
               owner,
               repo,
-              head_sha: run.head_sha
+              ref: run.head_sha
             });
             
-            // Check if all workflows are complete and successful
-            const isSuccess = allRuns.data.workflow_runs.every(run => 
-              run.status === 'completed' && run.conclusion === 'success'
-            );
+            // Count different check conclusions
+            const stats = checkRuns.data.check_runs.reduce((acc, check) => {
+              acc[check.conclusion] = (acc[check.conclusion] || 0) + 1;
+              return acc;
+            }, {});
             
-            core.exportVariable('ALL_CHECKS_STATUS', isSuccess ? 'success' : 'failure');
+            // Create status summary
+            const summary = Object.entries(stats)
+              .map(([status, count]) => `${count} ${status}`)
+              .join(', ');
+            
+            core.exportVariable('CHECKS_SUMMARY', summary);
+            
+            // Determine overall status
+            const hasFailures = stats.failure > 0;
+            const hasSuccess = stats.success > 0;
+            const hasCancelled = stats.cancelled > 0;
+            
+            let overallStatus;
+            if (hasFailures) {
+              overallStatus = 'failure';
+            } else if (hasCancelled && !hasSuccess) {
+              overallStatus = 'cancelled';
+            } else if (hasSuccess) {
+              overallStatus = 'success';
+            } else {
+              overallStatus = 'unknown';
+            }
+            
+            // Only set status if this is the last workflow to complete
+            const incompleteRuns = await github.rest.actions.listWorkflowRunsForRepo({
+              owner,
+              repo,
+              head_sha: run.head_sha,
+              status: 'in_progress'
+            });
+            
+            if (incompleteRuns.data.total_count === 0) {
+              core.exportVariable('ALL_CHECKS_STATUS', overallStatus);
+              core.exportVariable('SHOULD_NOTIFY', 'true');
+            } else {
+              core.exportVariable('SHOULD_NOTIFY', 'false');
+            }
 
       - name: Send Slack Notification for Success
-        if: env.ALL_CHECKS_STATUS == 'success'
+        if: env.SHOULD_NOTIFY == 'true' && env.ALL_CHECKS_STATUS == 'success'
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
           payload: |
             {
-              "text": ":white_check_mark: All PR checks passed!\nRepository: ${{ github.repository }}\nTitle: ${{ env.PR_TITLE }}\nAuthor: ${{ env.PR_AUTHOR }}\nLink: ${{ env.PR_LINK }}",
+              "text": ":white_check_mark: All PR checks passed!\nRepository: ${{ github.repository }}\nTitle: ${{ env.PR_TITLE }}\nAuthor: ${{ env.PR_AUTHOR }}\nLink: ${{ env.PR_LINK }}\nStatus Summary: ${{ env.CHECKS_SUMMARY }}",
               "username": "PR Checks Monitor",
               "icon_emoji": ":robot_face:"
             }
 
-      - name: Send Slack Notification for Failure
-        if: env.ALL_CHECKS_STATUS == 'failure'
+      - name: Send Slack Notification for Failure or Other Status
+        if: env.SHOULD_NOTIFY == 'true' && env.ALL_CHECKS_STATUS != 'success'
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
           payload: |
             {
-              "text": ":x: Some PR checks failed!\nRepository: ${{ github.repository }}\nTitle: ${{ env.PR_TITLE }}\nAuthor: ${{ env.PR_AUTHOR }}\nLink: ${{ env.PR_LINK }}",
+              "text": ":warning: PR Checks Status Update\nRepository: ${{ github.repository }}\nTitle: ${{ env.PR_TITLE }}\nAuthor: ${{ env.PR_AUTHOR }}\nLink: ${{ env.PR_LINK }}\nStatus Summary: ${{ env.CHECKS_SUMMARY }}",
               "username": "PR Checks Monitor",
               "icon_emoji": ":robot_face:"
             }
