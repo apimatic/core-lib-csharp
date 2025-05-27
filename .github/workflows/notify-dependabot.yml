@@ -1,45 +1,79 @@
 name: PR Checks Completed Notification
 
 on:
-  check_suite:
-    types: [completed]
+  workflow_run:
+    workflows: ["*"]
+    types:
+      - completed
 
 jobs:
   notify-checks:
     runs-on: ubuntu-latest
     steps:
-    
-      - name: Prepare PR Link
-        id: prepare-link
-        run: |
-          if [ "${{ github.event.check_suite.pull_requests[0].html_url }}" != "" ]; then
-            echo "PR_LINK=${{ github.event.check_suite.pull_requests[0].html_url }}" >> $GITHUB_ENV
-          else
-            echo "PR_LINK=https://github.com/${{ github.repository }}/pulls" >> $GITHUB_ENV
-          fi
+      - name: Get PR Information
+        id: get-pr-info
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const run = context.payload.workflow_run;
+            
+            // Get associated PRs
+            const pulls = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open'
+            });
+            
+            // Find PR associated with this commit
+            const pr = pulls.data.find(pr => pr.head.sha === run.head_sha);
+            
+            if (pr) {
+              core.exportVariable('PR_TITLE', pr.title);
+              core.exportVariable('PR_AUTHOR', pr.user.login);
+              core.exportVariable('PR_LINK', pr.html_url);
+            } else {
+              core.exportVariable('PR_TITLE', 'Unknown');
+              core.exportVariable('PR_AUTHOR', context.actor);
+              core.exportVariable('PR_LINK', `https://github.com/${owner}/${repo}/pulls`);
+            }
+            
+            // Get all workflow runs for this commit
+            const allRuns = await github.rest.actions.listWorkflowRunsForRepo({
+              owner,
+              repo,
+              head_sha: run.head_sha
+            });
+            
+            // Check if all workflows are complete and successful
+            const isSuccess = allRuns.data.workflow_runs.every(run => 
+              run.status === 'completed' && run.conclusion === 'success'
+            );
+            
+            core.exportVariable('ALL_CHECKS_STATUS', isSuccess ? 'success' : 'failure');
 
       - name: Send Slack Notification for Success
-        if: github.event.check_suite.conclusion == 'success'
+        if: env.ALL_CHECKS_STATUS == 'success'
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
           payload: |
             {
-              "text": ":white_check_mark: PR checks passed in ${{ github.repository }}\nTitle: ${{ github.event.check_suite.pull_requests[0].title || 'Unknown' }}\nAuthor: ${{ github.event.check_suite.pull_requests[0].user.login || github.actor }}\nLink: ${{ env.PR_LINK }}",
-              "username": "Dependabot Manager",
+              "text": ":white_check_mark: All PR checks passed!\nRepository: ${{ github.repository }}\nTitle: ${{ env.PR_TITLE }}\nAuthor: ${{ env.PR_AUTHOR }}\nLink: ${{ env.PR_LINK }}",
+              "username": "PR Checks Monitor",
               "icon_emoji": ":robot_face:"
             }
 
       - name: Send Slack Notification for Failure
-        if: github.event.check_suite.conclusion == 'failure'
+        if: env.ALL_CHECKS_STATUS == 'failure'
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
           payload: |
             {
-              "text": ":x: PR checks failed in ${{ github.repository }}\nTitle: ${{ github.event.check_suite.pull_requests[0].title || 'Unknown' }}\nAuthor: ${{ github.event.check_suite.pull_requests[0].user.login || github.actor }}\nLink: ${{ env.PR_LINK }}",
-              "username": "Dependabot Manager",
+              "text": ":x: Some PR checks failed!\nRepository: ${{ github.repository }}\nTitle: ${{ env.PR_TITLE }}\nAuthor: ${{ env.PR_AUTHOR }}\nLink: ${{ env.PR_LINK }}",
+              "username": "PR Checks Monitor",
               "icon_emoji": ":robot_face:"
             }
