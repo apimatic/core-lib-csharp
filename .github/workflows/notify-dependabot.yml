@@ -1,33 +1,64 @@
-name: Notify on PR Open
+name: Dependabot PR Notifier
 
 on:
+  workflow_dispatch:
   pull_request:
     types: [opened]
 
 jobs:
-  slack-notify:
+  notify:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Send Slack notification
+      - name: Send PR notification
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
           payload: |
             {
-              "text": "📢 New PR opened in ${{ github.repository }}",
-              "username": "PR Notifier",
-              "icon_emoji": ":bell:",
+              "username": "Dependabot Manager",
+              "icon_emoji": ":robot_face:",
               "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "📦 New ${{ github.actor == 'dependabot[bot]' ? 'Dependabot' : '' }} PR",
+                    "emoji": true
+                  }
+                },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*<${{
-                      github.event.pull_request.html_url
-                    }}|New PR opened in ${{ github.repository }}>*\n*Title:* ${{ github.event.pull_request.title }}\n*Number:* #${{ github.event.pull_request.number }}\n*Author:* <${{ github.event.pull_request.user.html_url }}|@${{ github.event.pull_request.user.login }}>"
+                    "text": "*<${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>*"
                   }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Repository*\n<https://github.com/${{ github.repository }}|${{ github.repository }}>"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*PR Number*\n#${{ github.event.pull_request.number }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Author*\n@${{ github.event.pull_request.user.login }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Type*\n${{ github.actor == 'dependabot[bot]' ? 'Dependency Update' : 'Regular PR' }}"
+                    }
+                  ]
                 },
                 {
                   "type": "actions",
