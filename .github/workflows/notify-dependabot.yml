@@ -1,29 +1,44 @@
-name: Dependabot PR Manager
+name: PR Checks Completed Notification
+
 on:
-  workflow_dispatch:
-  pull_request:
-    types: [opened, closed]
+  check_suite:
+    types: [completed]
+
 jobs:
-  notify:
+  notify-checks:
     runs-on: ubuntu-latest
     steps:
       - name: Prepare PR Link
         id: prepare-link
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            echo "PR_LINK=${{ github.event.pull_request.html_url }}" >> $GITHUB_ENV
+          if [ "${{ github.event.check_suite.pull_requests[0].html_url }}" != "" ]; then
+            echo "PR_LINK=${{ github.event.check_suite.pull_requests[0].html_url }}" >> $GITHUB_ENV
           else
             echo "PR_LINK=https://github.com/${{ github.repository }}/pulls" >> $GITHUB_ENV
           fi
-      - name: Send PR notification
-        if: github.event.action == 'opened' || github.event_name == 'workflow_dispatch'
+
+      - name: Send Slack Notification for Success
+        if: github.event.check_suite.conclusion == 'success'
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
           payload: |
             {
-              "text": ":package: New PR in ${{ github.repository }}\nTitle: ${{ github.event.pull_request.title || 'Manual trigger' }}\nAuthor: ${{ github.event.pull_request.user.login || github.actor }}\nLink: ${{ env.PR_LINK }}",
+              "text": ":white_check_mark: PR checks passed in ${{ github.repository }}\nTitle: ${{ github.event.check_suite.pull_requests[0].title || 'Unknown' }}\nAuthor: ${{ github.event.check_suite.pull_requests[0].user.login || github.actor }}\nLink: ${{ env.PR_LINK }}",
+              "username": "Dependabot Manager",
+              "icon_emoji": ":robot_face:"
+            }
+
+      - name: Send Slack Notification for Failure
+        if: github.event.check_suite.conclusion == 'failure'
+        uses: slackapi/slack-github-action@v1.25.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        with:
+          payload: |
+            {
+              "text": ":x: PR checks failed in ${{ github.repository }}\nTitle: ${{ github.event.check_suite.pull_requests[0].title || 'Unknown' }}\nAuthor: ${{ github.event.check_suite.pull_requests[0].user.login || github.actor }}\nLink: ${{ env.PR_LINK }}",
               "username": "Dependabot Manager",
               "icon_emoji": ":robot_face:"
             }
