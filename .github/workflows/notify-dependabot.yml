@@ -1,4 +1,4 @@
-name: PR Checks Completed Notification
+name: Dependabot Notifications
 
 on:
   workflow_run:
@@ -9,8 +9,8 @@ on:
 jobs:
   notify-checks:
     runs-on: ubuntu-latest
-    # Only run for Dependabot
-    #if: github.actor == 'dependabot[bot]'
+
+    if: github.actor == 'dependabot[bot]'
     steps:
       - name: Get PR Information
         id: get-pr-info
@@ -118,7 +118,7 @@ jobs:
         with:
           payload: |
             {
-              "text": ":white_check_mark: All PR checks passed!\nRepository: ${{ github.repository }}\nTitle: ${{ env.PR_TITLE }}\nAuthor: ${{ env.PR_AUTHOR }}\nLink: ${{ env.PR_LINK }}\nStatus Summary: ${{ env.CHECKS_SUMMARY }}",
+              "text": "Repository: ${{ github.repository }}\nTitle: ${{ env.PR_TITLE }}\nAuthor: ${{ env.PR_AUTHOR }}\nLink: ${{ env.PR_LINK }}\nStatus Summary: ${{ env.CHECKS_SUMMARY }}",
               "username": "PR Checks Monitor",
               "icon_emoji": ":robot_face:"
             }
