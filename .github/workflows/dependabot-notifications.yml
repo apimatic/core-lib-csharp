@@ -9,6 +9,7 @@ on:
 jobs:
   notify-checks:
     runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
     steps:
       - name: Get PR Information
         if: github.actor == 'dependabot[bot]'
