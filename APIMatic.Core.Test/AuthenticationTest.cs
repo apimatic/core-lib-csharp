@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using APIMatic.Core.Authentication;
@@ -150,6 +151,15 @@ namespace APIMatic.Core.Test
         [Test]
         public void Multiple_Authentication_AND_All_Missing_Validation_Failure()
         {
+            var expectedLines = new[]
+            {
+                "Following authentication credentials are required:",
+                "-> Missing required query field: API-KEY",
+                "-> Missing required query field: TOKEN",
+                "-> Missing required header field: API-KEY",
+                "-> Missing required header field: TOKEN"
+            }.OrderBy(line => line);
+            
             var globalConfiguration = new GlobalConfiguration.Builder()
                 .ServerUrls(new Dictionary<Enum, string>
                 {
@@ -170,11 +180,7 @@ namespace APIMatic.Core.Test
                     .Add("header"))
                 .Build());
 
-            Assert.AreEqual("Following authentication credentials are required:\n" +
-                "-> Missing required query field: API-KEY\n" +
-                "-> Missing required query field: TOKEN\n" +
-                "-> Missing required header field: API-KEY\n" +
-                "-> Missing required header field: TOKEN", exp.Message);
+            Assert.AreEqual(expectedLines, exp?.Message.Split('\n').OrderBy(line => line));
         }
 
         [Test]

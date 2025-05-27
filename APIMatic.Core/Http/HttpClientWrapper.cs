@@ -109,7 +109,10 @@ namespace APIMatic.Core.Http
             };
 
             AddHeadersToRequestMessage(requestMessage, request);
-            if (IsHeaderOnlyHttpMethod(request.HttpMethod)) return requestMessage;
+            if (IsHeaderOnlyHttpMethod(request.HttpMethod))
+            {
+                return requestMessage;
+            }
 
             if (request.HasFormParameters)
             {
@@ -140,13 +143,15 @@ namespace APIMatic.Core.Http
                 return requestMessage;
             }
 
-            if (request.Body == null) return requestMessage;
-            
+            if (request.Body == null)
+            {
+                return requestMessage;
+            }
+
             requestMessage.Content = GetByteArrayContentFromRequestBody(request.Body);
             GetByteArrayContentType(requestMessage.Content.Headers, contentType);
             return requestMessage;
         }
-        
         private static void AddHeadersToRequestMessage(HttpRequestMessage requestMessage, CoreRequest request)
         {
             foreach (var headers in request.Headers ?? Enumerable.Empty<KeyValuePair<string, string>>())
@@ -161,17 +166,13 @@ namespace APIMatic.Core.Http
             {
                 return GetMultipartFormDataContentFromRequest(request);
             }
-            
             return new FormUrlEncodedContent(request.FormParameters
                 .Select(param => new KeyValuePair<string, string>(param.Key, param.Value.ToString())).ToList());
         }
-        
         private static bool IsContentTypeJsonUtf8(string contentType)
         {
-            return contentType.EqualsIgnoreCase("application/json") || 
-                   contentType.EqualsIgnoreCase("application/json; charset=utf-8");
+            return contentType.EqualsIgnoreCase("application/json") || contentType.EqualsIgnoreCase("application/json; charset=utf-8");
         }
-        
         private static void GetByteArrayContentType(HttpContentHeaders contentHeader, string contentType)
         {
             try
