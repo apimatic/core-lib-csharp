@@ -1,95 +1,47 @@
-# .github/workflows/notify-or-close.yml
-
-name: Notify or Close PR After CI
+name: Notify on PR Open
 
 on:
-  workflow_run:
-    workflows: ["CI"] # Must match the exact name of the CI workflow
-    types:
-      - completed
+  pull_request:
+    types: [opened]
 
 jobs:
-  handle_result:
+  slack-notify:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get PR for workflow_run SHA
-        id: get_pr
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const prs = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open'
-            });
-
-            const pr = prs.data.find(pr => pr.head.sha === "${{ github.event.workflow_run.head_commit.id }}");
-            if (pr) {
-              core.setOutput("pr_number", pr.number);
-              core.setOutput("pr_title", pr.title);
-              core.setOutput("pr_url", pr.html_url);
-              core.setOutput("is_dependabot", pr.user.login === "dependabot[bot]");
-            }
-
-      - name: Close PR if failed (even your own test PRs)
-        if: steps.get_pr.outputs.pr_number != '' && github.event.workflow_run.conclusion != 'success'
-        uses: superbrothers/close-pull-request@v3
-        with:
-          pull-request-number: ${{ steps.get_pr.outputs.pr_number }}
-          comment: "❌ Automatically closed because CI checks failed."
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Notify Slack if CI passed
-        if: steps.get_pr.outputs.pr_number != '' && github.event.workflow_run.conclusion == 'success'
+      - name: Send Slack notification
         uses: slackapi/slack-github-action@v1.25.0
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          PR_NUMBER: ${{ steps.get_pr.outputs.pr_number }}
-          PR_TITLE: ${{ steps.get_pr.outputs.pr_title }}
-          PR_URL: ${{ steps.get_pr.outputs.pr_url }}
-          REPOSITORY: ${{ github.repository }}
         with:
           payload: |
             {
-              "text": "✅ PR #${PR_NUMBER} passed CI in ${REPOSITORY}",
+              "text": "📢 New PR opened in ${{ github.repository }}",
               "username": "PR Notifier",
-              "icon_emoji": ":white_check_mark:",
+              "icon_emoji": ":bell:",
               "blocks": [
                 {
-                  "type": "header",
+                  "type": "section",
                   "text": {
-                    "type": "plain_text",
-                    "text": ":rocket: CI Passed for PR",
-                    "emoji": true
+                    "type": "mrkdwn",
+                    "text": "*<${{
+                      github.event.pull_request.html_url
+                    }}|New PR opened in ${{ github.repository }}>*\n*Title:* ${{ github.event.pull_request.title }}\n*Number:* #${{ github.event.pull_request.number }}\n*Author:* <${{ github.event.pull_request.user.html_url }}|@${{ github.event.pull_request.user.login }}>"
                   }
                 },
                 {
-                  "type": "section",
-                  "fields": [
+                  "type": "actions",
+                  "elements": [
                     {
-                      "type": "mrkdwn",
-                      "text": "*Repository:*\n${REPOSITORY}"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*PR Number:*\n#${PR_NUMBER}"
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View PR",
+                        "emoji": true
+                      },
+                      "url": "${{ github.event.pull_request.html_url }}"
                     }
                   ]
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*Title:*\n${PR_TITLE}"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*PR Link:*\n<${PR_URL}|View PR>"
-                  }
                 }
               ]
             }
