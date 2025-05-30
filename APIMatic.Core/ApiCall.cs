@@ -167,9 +167,10 @@ namespace APIMatic.Core
             params IPaginationDataManager[] dataManagers)
         {
             return returnTypeGetter(
-                (reqBuilder, manager, cancellationToken) =>
-                    RequestBuilder(reqBuilder).ExecutePaginationAsync(manager, converter, pageResponseConverter,
-                        cancellationToken),
+                async (reqBuilder, manager, cancellationToken) =>
+                    await RequestBuilder(reqBuilder)
+                        .ExecutePaginationAsync(manager, converter, pageResponseConverter, cancellationToken)
+                        .ConfigureAwait(false),
                 requestBuilder.Clone(),
                 pagedResponseItemConverter,
                 dataManagers);
