@@ -161,8 +161,6 @@ namespace APIMatic.Core
             Func<ReturnType, IPaginationDataManager, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
             Func<TPageMetadata, IEnumerable<TItem>> pagedResponseItemConverter,
             Func<
-                Func<RequestBuilder, IPaginationDataManager, CancellationToken,
-                    Task<PaginatedResult<TItem, TPageMetadata>>>,
                 Func<RequestBuilder, IPaginationDataManager, CancellationToken, Task<PaginatedResult<TItem, TPageMetadata>>>,
                 RequestBuilder, Func<TPageMetadata, IEnumerable<TItem>>, IPaginationDataManager[],
                 TEnumerable> returnTypeGetter,
