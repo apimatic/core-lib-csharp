@@ -163,6 +163,7 @@ namespace APIMatic.Core
             Func<
                 Func<RequestBuilder, IPaginationDataManager, CancellationToken,
                     Task<PaginatedResult<TItem, TPageMetadata>>>,
+                Func<RequestBuilder, IPaginationDataManager, CancellationToken, Task<PaginatedResult<TItem, TPageMetadata>>>,
                 RequestBuilder, Func<TPageMetadata, IEnumerable<TItem>>, IPaginationDataManager[],
                 TEnumerable> returnTypeGetter,
             params IPaginationDataManager[] dataManagers)
