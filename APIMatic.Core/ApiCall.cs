@@ -159,9 +159,10 @@ namespace APIMatic.Core
         public TEnumerable PaginateAsync<TItem, TEnumerable, TPageMetadata>(
             Func<ReturnType, IEnumerable<TItem>> converter,
             Func<ReturnType, IPaginationDataManager, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
+            Func<TPageMetadata, IEnumerable<TItem>> pagedResponseItemConverter,
             Func<
                 Func<RequestBuilder, IPaginationDataManager, CancellationToken, Task<PaginatedResult<TItem, TPageMetadata>>>,
-                RequestBuilder, IPaginationDataManager[],
+                RequestBuilder, Func<TPageMetadata, IEnumerable<TItem>>, IPaginationDataManager[],
                 TEnumerable> returnTypeGetter,
                 CancellationToken cancellationTokenOld = default,  // Merge these cancellationTokens
             params IPaginationDataManager[] dataManagers)
@@ -170,6 +171,7 @@ namespace APIMatic.Core
                 (reqBuilder, manager, cancellationToken) =>
                     RequestBuilder(reqBuilder).ExecutePaginationAsync(manager, converter, pageResponseConverter,cancellationToken == default ? cancellationTokenOld : cancellationToken),
                 requestBuilder.Clone(),
+                pagedResponseItemConverter,
                 dataManagers);
         }
     }
