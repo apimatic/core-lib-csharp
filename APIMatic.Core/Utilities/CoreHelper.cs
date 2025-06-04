@@ -187,6 +187,39 @@ namespace APIMatic.Core.Utilities
             return jsonToken.ToString();
         }
 
+        internal static T UpdateValueByPointer<T>(T value, JsonPointer pointer, Func<object, object> updater)
+        {
+            if (value == null || pointer == null || updater == null)
+                return value;
+
+            try
+            {
+                // Step 1: Serialize the object to JSON
+                var json = CoreHelper.JsonSerialize(value);
+                if (string.IsNullOrWhiteSpace(json)) return value;
+
+                // Step 2: Parse JSON and evaluate pointer
+                var jsonObject = JObject.Parse(json);
+                var jsonToken = pointer.Evaluate(jsonObject);
+                if (jsonToken == null) return value;
+
+                // Step 3: Apply updater
+                var oldValue = jsonToken.ToObject<object>();
+                var newValue = updater(oldValue);
+                if (newValue == null) return value;
+
+                // Step 4: Replace token
+                jsonToken.Replace(JToken.FromObject(newValue));
+
+                // Step 5: Deserialize back to T
+                var updatedJson = jsonObject.ToString();
+                return CoreHelper.JsonDeserialize<T>(updatedJson);
+            }
+            catch
+            {
+                return value;
+            }
+        }
 
         private static void AppendParameters(StringBuilder queryBuilder, ArraySerialization arraySerialization, KeyValuePair<string, object> pair)
         {

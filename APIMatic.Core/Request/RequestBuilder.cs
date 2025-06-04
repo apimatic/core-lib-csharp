@@ -5,15 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using APIMatic.Core.Authentication;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Request.Parameters;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
 using Microsoft.Json.Pointer;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Request
@@ -45,7 +48,7 @@ namespace APIMatic.Core.Request
             authGroup = new AuthGroupBuilder(configuration.AuthManagers);
         }
 
-        internal StringBuilder QueryUrl { get; } = new StringBuilder();
+        internal StringBuilder QueryUrl { get; private set; } = new StringBuilder();
 
         internal ContentType AcceptHeader { get; set; } = ContentType.SCALAR;
 
@@ -146,24 +149,56 @@ namespace APIMatic.Core.Request
 
         public RequestBuilder UpdateByReference(string pointerString, Func<object, object> setter)
         {
-            if (pointerString == null)
+            var index = pointerString.IndexOf('#');
+            if (index < 0)
                 return this;
 
-            var parts = pointerString.Split('#');
+            var prefix = pointerString.Substring(0, index);
+            var path = pointerString.Substring(index + 1);
+            var jsonPointer = new JsonPointer(path);
 
-            if (parts.Length <= 1)
-                return this;
-
-            var jsonPointer = new JsonPointer(parts[1]);
-
-            switch (parts[0])
+            switch (prefix)
             {
-                case "$request.path": case "$request.query": case "$request.headers":
-                    parameters.UpdateParameterValueByPointer(setter, jsonPointer);
-                    parameters.Apply(this);
-                    return this;
-                default:
-                    return this;
+                case "$request.path":
+                    UpdateTemplateParams(setter, jsonPointer);
+                    break;
+                case "$request.query":
+                    UpdateQueryParams(setter, jsonPointer);
+                    break;
+                case "$request.headers":
+                    UpdateHeaderParams(setter, jsonPointer);
+                    break;
+            }
+
+            return this;
+        }
+
+        private void UpdateTemplateParams(Func<object, object> setter, JsonPointer jsonPointer)
+        {
+            var template = QueryUrl.ToString().ToTemplateParameters();
+            QueryUrl = new StringBuilder(CoreHelper.UpdateValueByPointer(template, jsonPointer, setter)
+                .ToQueryString());
+        }
+
+        private void UpdateHeaderParams(Func<object, object> setter, JsonPointer pointer)
+        {
+            var updatedHeaders =
+                CoreHelper.UpdateValueByPointer(new Dictionary<string, string>(headers), pointer, setter);
+
+            foreach (var entry in updatedHeaders)
+            {
+                headers[entry.Key] = entry.Value;
+            }
+        }
+
+        private void UpdateQueryParams(Func<object, object> setter, JsonPointer pointer)
+        {
+            var updatedQueryParams =
+                CoreHelper.UpdateValueByPointer(new Dictionary<string, object>(queryParameters), pointer, setter);
+
+            foreach (var entry in updatedQueryParams)
+            {
+                queryParameters[entry.Key] = entry.Value;
             }
         }
 
@@ -259,49 +294,89 @@ namespace APIMatic.Core.Request
             return CoreHelper.JsonSerialize(value);
         }
 
-        public RequestBuilder Clone()
+        public RequestBuilder(RequestBuilder source)
         {
-            var clone = new RequestBuilder(configuration)
-                .WithRetryOption(retryOption)
-                .DisableContentType();
-            clone.contentTypeAllowed = contentTypeAllowed;
-            clone.httpMethod = this.httpMethod;
-            clone.QueryUrl.Append(this.QueryUrl);
-            clone.AcceptHeader = this.AcceptHeader;
-            clone.ArraySerialization = this.ArraySerialization;
-            clone.HasBinaryResponse = this.HasBinaryResponse;
-            clone.xmlRequest = this.xmlRequest;
-            clone.bodySerializer = this.bodySerializer;
-            clone.body = this.body;
-            clone.bodyType = this.bodyType;
+            this.configuration = source.configuration;
+            this.retryOption = source.retryOption;
+            this.contentTypeAllowed = source.contentTypeAllowed;
+            this.httpMethod = source.httpMethod;
+            this.QueryUrl = new StringBuilder(source.QueryUrl.ToString());
+            this.AcceptHeader = source.AcceptHeader;
+            this.ArraySerialization = source.ArraySerialization;
+            this.HasBinaryResponse = source.HasBinaryResponse;
+            this.xmlRequest = source.xmlRequest;
+            this.bodySerializer = source.bodySerializer;
+            this.body = source.body;
+            this.bodyType = source.bodyType;
 
-            foreach (var kvp in this.headers)
+            this.headers = new Dictionary<string, string>(source.headers);
+            this.bodyParameters = new Dictionary<string, object>(source.bodyParameters);
+            this.formParameters = new List<KeyValuePair<string, object>>(source.formParameters);
+            this.queryParameters = new Dictionary<string, object>(source.queryParameters);
+            this.authGroup = new AuthGroupBuilder(source.configuration.AuthManagers);
+        }
+        
+        public static RequestBuilder RequestBuilderWithParameters(RequestBuilder source)
+        {
+            var requestBuilder = new RequestBuilder(source);
+            source.parameters.Validate().Apply(requestBuilder);
+            return requestBuilder;
+        }
+    }
+    
+    internal static class QueryUrlParser
+    {
+        public static Dictionary<string, object> ToTemplateParameters(this string queryUrl)
+        {
+            var uri = new Uri(queryUrl);
+            var query = HttpUtility.ParseQueryString(uri.Query);
+
+            var paramDict = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string key in query.AllKeys.Where(k => k != null))
             {
-                clone.headers.Add(kvp.Key, kvp.Value);
+                var values = query.GetValues(key);
+                if (values.Length > 1)
+                {
+                    paramDict[key] = values.Cast<object>().ToList();
+                }
+                else
+                {
+                    paramDict[key] = values[0];
+                }
             }
 
-            foreach (var kvp in this.bodyParameters)
+            return paramDict;
+        }
+        
+        public static string ToQueryString(this Dictionary<string, object> parameters)
+        {
+            if (parameters == null || parameters.Count == 0)
+                return string.Empty;
+
+            var builder = new StringBuilder();
+
+            foreach (var kvp in parameters)
             {
-                clone.bodyParameters.Add(kvp.Key, kvp.Value);
+                var key = WebUtility.UrlEncode(kvp.Key);
+                if (kvp.Value is IEnumerable<object> list && !(kvp.Value is string))
+                {
+                    foreach (var val in list)
+                    {
+                        builder.Append($"{key}={WebUtility.UrlEncode(val?.ToString())}&");
+                    }
+                }
+                else
+                {
+                    builder.Append($"{key}={WebUtility.UrlEncode(kvp.Value?.ToString())}&");
+                }
             }
 
-            foreach (var kvp in this.formParameters)
-            {
-                clone.formParameters.Add(new KeyValuePair<string, object>(kvp.Key, kvp.Value));
-            }
+            // Remove trailing '&' if present
+            if (builder.Length > 0)
+                builder.Length--;
 
-            foreach (var kvp in this.queryParameters)
-            {
-                clone.queryParameters.Add(kvp.Key, kvp.Value);
-            }
-
-            // Clone parameters builder
-            this.parameters.Clone(clone.parameters);
-
-            // Clone authGroup
-            this.authGroup.Clone(clone.authGroup);
-
-            return clone;
+            return builder.ToString();
         }
     }
 }

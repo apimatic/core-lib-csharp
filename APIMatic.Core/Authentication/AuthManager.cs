@@ -44,12 +44,5 @@ namespace APIMatic.Core.Authentication
             parameters.Apply(requestBuilder);
             return Task.CompletedTask;
         }
-
-        public AuthManager Clone()
-        {
-            var clone = new AuthManager();
-            this.parameters.Clone(clone.parameters);
-            return clone;
-        }
     }
 }

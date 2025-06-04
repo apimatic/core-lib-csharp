@@ -69,23 +69,5 @@ namespace APIMatic.Core.Request.Parameters
             }
             requestBuilder.formParameters.AddRange(PrepareFormParameters(requestBuilder.ArraySerialization));
         }
-
-        public override Parameter Clone()
-        {
-            var clone = new FormParam
-            {
-                key = this.key,
-                value = this.value,
-                validated = this.validated,
-                typeName = this.typeName,
-            };
-
-            foreach (var header in this.encodingHeaders)
-            {
-                clone.encodingHeaders.Add(header.Key, header.Value);
-            }
-
-            return clone;
-        }
     }
 }

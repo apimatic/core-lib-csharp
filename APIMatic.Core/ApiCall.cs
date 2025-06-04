@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Pagination;
+using APIMatic.Core.Pagination.Strategies;
 using APIMatic.Core.Request;
 using APIMatic.Core.Response;
 using APIMatic.Core.Types.Sdk;
@@ -120,9 +121,9 @@ namespace APIMatic.Core
         }
 
         private async Task<PaginatedResult<TItem, TPageMetadata>> ExecutePaginationAsync<TItem, TPageMetadata>(
-            IPaginationDataManager manager,
+            IPaginationStrategy manager,
             Func<ReturnType, IEnumerable<TItem>> converter,
-            Func<ReturnType, IPaginationDataManager, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
+            Func<ReturnType, IPaginationStrategy, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
             CancellationToken cancellationToken = default)
         {
             requestBuilder.AcceptHeader = responseHandler.AcceptHeader;
@@ -142,36 +143,36 @@ namespace APIMatic.Core
 
         public TEnumerable Paginate<TItem, TEnumerable, TPageMetadata>(
             Func<ReturnType, IEnumerable<TItem>> converter,
-            Func<ReturnType, IPaginationDataManager, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
+            Func<ReturnType, IPaginationStrategy, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
+            Func<TPageMetadata, IEnumerable<TItem>> pagedResponseItemConverter,
             Func<
-                    Func<RequestBuilder, IPaginationDataManager, Task<PaginatedResult<TItem, TPageMetadata>>>,
-                    RequestBuilder, IPaginationDataManager[],
+                    Func<RequestBuilder, IPaginationStrategy, Task<PaginatedResult<TItem, TPageMetadata>>>,
+                    RequestBuilder, Func<TPageMetadata, IEnumerable<TItem>>, IPaginationStrategy[],
                     TEnumerable> returnTypeGetter,
-                params IPaginationDataManager[] dataManagers)
+                params IPaginationStrategy[] dataManagers)
         {
             return returnTypeGetter(
                 (reqBuilder, manager) => RequestBuilder(reqBuilder)
                     .ExecutePaginationAsync(manager, converter, pageResponseConverter),
-                requestBuilder.Clone(),
+                requestBuilder,
+                pagedResponseItemConverter,
                 dataManagers);
         }
 
         public TEnumerable PaginateAsync<TItem, TEnumerable, TPageMetadata>(
             Func<ReturnType, IEnumerable<TItem>> converter,
-            Func<ReturnType, IPaginationDataManager, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
+            Func<ReturnType, IPaginationStrategy, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
             Func<TPageMetadata, IEnumerable<TItem>> pagedResponseItemConverter,
             Func<
-                Func<RequestBuilder, IPaginationDataManager, CancellationToken, Task<PaginatedResult<TItem, TPageMetadata>>>,
-                RequestBuilder, Func<TPageMetadata, IEnumerable<TItem>>, IPaginationDataManager[],
+                Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TItem, TPageMetadata>>>,
+                RequestBuilder, Func<TPageMetadata, IEnumerable<TItem>>, IPaginationStrategy[],
                 TEnumerable> returnTypeGetter,
-            params IPaginationDataManager[] dataManagers)
+            params IPaginationStrategy[] dataManagers)
         {
-            return returnTypeGetter(
-                async (reqBuilder, manager, cancellationToken) =>
-                    await RequestBuilder(reqBuilder)
-                        .ExecutePaginationAsync(manager, converter, pageResponseConverter, cancellationToken)
-                        .ConfigureAwait(false),
-                requestBuilder.Clone(),
+            return returnTypeGetter(async (reqBuilder, manager, cancellationToken) =>
+                    await RequestBuilder(reqBuilder).ExecutePaginationAsync(manager, converter, pageResponseConverter,
+                        cancellationToken).ConfigureAwait(false),
+                requestBuilder,
                 pagedResponseItemConverter,
                 dataManagers);
         }

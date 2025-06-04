@@ -75,8 +75,6 @@ namespace APIMatic.Core.Request.Parameters
 
         internal abstract void Apply(RequestBuilder requestBuilder);
 
-        public abstract Parameter Clone();
-
         /// <summary>
         /// Used to build a request by creating and adding multiple parameters into the RequestBuilder
         /// </summary>
@@ -225,40 +223,6 @@ namespace APIMatic.Core.Request.Parameters
                 foreach (var p in parameters)
                 {
                     p.Apply(requestBuilder);
-                }
-            }
-
-            internal void UpdateParameterValueByPointer(Func<object, object> setter, JsonPointer pointer)
-            {
-                try
-                {
-                    var paramsDictionary = parameters.ToDictionary(p => p.key, p => p.value);
-                    var json = CoreHelper.JsonSerialize(paramsDictionary);
-                    if (string.IsNullOrWhiteSpace(json)) { return; }
-
-                    JObject jsonObject = JObject.Parse(json);
-                    JToken jsonToken = pointer.Evaluate(jsonObject);
-                    object updatedValue = setter(jsonToken.ToObject<object>());
-                    jsonToken.Replace(JToken.FromObject(updatedValue));
-
-                    foreach (var parameter in parameters)
-                    {
-                        if (!jsonObject.TryGetValue(parameter.key, out JToken valueToken)) { continue; }
-
-                        parameter.Setup(parameter.key, valueToken.ToObject<object>());
-                    }
-                }
-                catch
-                {
-                    //  return value
-                }
-            }
-
-            internal void Clone(Builder clone)
-            {
-                foreach (var parameter in parameters)
-                {
-                    clone.parameters.Add(parameter.Clone());
                 }
             }
         }

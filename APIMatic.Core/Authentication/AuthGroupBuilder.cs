@@ -121,22 +121,5 @@ namespace APIMatic.Core.Authentication
                 await authManager.Apply(requestBuilder).ConfigureAwait(false);
             }
         }
-        
-        public void Clone(AuthGroupBuilder clone)
-        {
-            foreach (var kvp in this.authManagersMap)
-            {
-                clone.authManagersMap[kvp.Key] = kvp.Value.Clone();
-            }
-            foreach (var parameter in this.authManagers)
-            {
-                clone.authManagers.Add(parameter.Clone());
-            }
-            foreach (var parameter in this.validatedAuthManagers)
-            {
-                clone.validatedAuthManagers.Add(parameter.Clone());
-            }
-            clone.isAndGroup = isAndGroup;
-        }
     }
 }

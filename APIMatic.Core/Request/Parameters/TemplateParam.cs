@@ -50,16 +50,5 @@ namespace APIMatic.Core.Request.Parameters
             string replacerValue = Uri.EscapeUriString(GetReplacerValue(innerValue ?? value));
             requestBuilder.QueryUrl.Replace(string.Format("{{{0}}}", key), replacerValue);
         }
-
-        public override Parameter Clone()
-        {
-            return new TemplateParam
-            {
-                key = this.key,
-                value = this.value,
-                validated = this.validated,
-                typeName = this.typeName
-            };
-        }
     }
 }
