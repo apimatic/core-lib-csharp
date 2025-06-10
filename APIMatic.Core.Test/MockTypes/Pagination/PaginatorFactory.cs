@@ -8,14 +8,22 @@ using APIMatic.Core.Request;
 
 namespace APIMatic.Core.Test.MockTypes.Pagination
 {
-    internal static class PageableFactory
+    internal static class PaginatorFactory
     {
         public static AsyncPaginator<TItem, TPageMetadata> Create<TItem, TPageMetadata>(
             Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TItem, TPageMetadata>>>
                 apiCallExecutor,
             RequestBuilder requestBuilder,
             Func<TPageMetadata, IEnumerable<TItem>> pagedResponseItemConverter,
-            params IPaginationStrategy[] dataManagers) => new AsyncPaginator<TItem, TPageMetadata>(apiCallExecutor,
+            params IPaginationStrategy[] dataManagers) => new(apiCallExecutor,
+            requestBuilder, pagedResponseItemConverter, dataManagers);
+        
+        public static Paginator<TItem, TPageMetadata> Create<TItem, TPageMetadata>(
+            Func<RequestBuilder, IPaginationStrategy, Task<PaginatedResult<TItem, TPageMetadata>>>
+                apiCallExecutor,
+            RequestBuilder requestBuilder,
+            Func<TPageMetadata, IEnumerable<TItem>> pagedResponseItemConverter,
+            params IPaginationStrategy[] dataManagers) => new(apiCallExecutor,
             requestBuilder, pagedResponseItemConverter, dataManagers);
     }
 }

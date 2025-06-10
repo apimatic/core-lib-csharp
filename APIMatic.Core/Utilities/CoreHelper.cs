@@ -96,7 +96,7 @@ namespace APIMatic.Core.Utilities
             }
         }
 
-        public static IDictionary<string, object> ExtractQueryParametersForUrl(string queryUrl)
+        internal static IDictionary<string, object> ExtractQueryParametersForUrl(string queryUrl)
         { 
             var queryParams = queryUrl.Split('?');
 
@@ -151,15 +151,12 @@ namespace APIMatic.Core.Utilities
 
             var jsonPointer = new JsonPointer(parts[1]);
 
-            switch (parts[0])
+            return parts[0] switch
             {
-                case "$response.body":
-                    return GetJsonValueUsingPointer(jsonPointer, jsonBody);
-                case "$response.headers":
-                    return GetJsonValueUsingPointer(jsonPointer, jsonHeaders);
-                default:
-                    return null;
-            }
+                "$response.body" => GetJsonValueUsingPointer(jsonPointer, jsonBody),
+                "$response.headers" => GetJsonValueUsingPointer(jsonPointer, jsonHeaders),
+                _ => null
+            };
         }
 
         private static string GetJsonValueUsingPointer(JsonPointer pointer, string json)
@@ -178,30 +175,28 @@ namespace APIMatic.Core.Utilities
                 return null;
             }
 
-            if (jsonToken.Type == JTokenType.Null)
-                return null;
-
-            if (jsonToken.Type == JTokenType.String)
-                return jsonToken.Value<string>();
-
-            return jsonToken.ToString();
+            return jsonToken.Type switch
+            {
+                JTokenType.Null => null,
+                JTokenType.String => jsonToken.Value<string>(),
+                _ => jsonToken.ToString()
+            };
         }
 
         internal static T UpdateValueByPointer<T>(T value, JsonPointer pointer, Func<object, object> updater)
         {
-            if (value == null || pointer == null || updater == null)
+            if (pointer == null || updater == null)
                 return value;
 
             try
             {
                 // Step 1: Serialize the object to JSON
-                var json = CoreHelper.JsonSerialize(value);
+                var json = JsonSerialize(value);
                 if (string.IsNullOrWhiteSpace(json)) return value;
 
                 // Step 2: Parse JSON and evaluate pointer
                 var jsonObject = JObject.Parse(json);
                 var jsonToken = pointer.Evaluate(jsonObject);
-                if (jsonToken == null) return value;
 
                 // Step 3: Apply updater
                 var oldValue = jsonToken.ToObject<object>();

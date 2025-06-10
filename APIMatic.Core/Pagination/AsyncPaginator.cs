@@ -58,7 +58,7 @@ namespace APIMatic.Core.Pagination
 
                     var items = result?.Items;
                     if (items == null || !items.Any())
-                        break;
+                        yield break;
 
                     paginationContext = PaginationContext.Create(items.Count(), result.Response, requestBuilder);
 

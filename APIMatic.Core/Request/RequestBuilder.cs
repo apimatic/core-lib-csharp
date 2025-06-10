@@ -185,9 +185,12 @@ namespace APIMatic.Core.Request
             var updatedHeaders =
                 CoreHelper.UpdateValueByPointer(new Dictionary<string, string>(headers), pointer, setter);
 
-            foreach (var entry in updatedHeaders)
+            foreach (var kvp in updatedHeaders)
             {
-                headers[entry.Key] = entry.Value;
+                if (!headers.TryGetValue(kvp.Key, out var existingValue) || existingValue != kvp.Value)
+                {
+                    headers[kvp.Key] = kvp.Value;
+                }
             }
         }
 

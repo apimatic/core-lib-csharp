@@ -47,7 +47,7 @@ namespace APIMatic.Core.Test.Api.Pagination
                     res => res.Data.Data,
                     OffsetPagedResponseFactory.Create,
                     page => page.Items,
-                    PageableFactory.Create,
+                    PaginatorFactory.Create,
                     new OffsetPagination("$request.query#/offset")
                 );
 
@@ -61,10 +61,7 @@ namespace APIMatic.Core.Test.Api.Pagination
 
             // Assert
             Assert.AreEqual(allTransactions.Count, collected.Count);
-            foreach (var tx in allTransactions)
-            {
-                Assert.IsTrue(collected.Any(t => t.Id == tx.Id));
-            }
+            CollectionAssert.AreEquivalent(allTransactions.Select(t => t.Id), collected.Select(t => t.Id));
         }
 
         [Test]
@@ -96,7 +93,7 @@ namespace APIMatic.Core.Test.Api.Pagination
                     res => res.Data.Data,
                     CursorPagedResponseFactory.Create,
                     page => page.Items,
-                    PageableFactory.Create,
+                    PaginatorFactory.Create,
                     new CursorPagination("$response.body#/nextCursor", "$request.query#/cursor")
                 );
 
@@ -110,10 +107,7 @@ namespace APIMatic.Core.Test.Api.Pagination
 
             // Assert
             Assert.AreEqual(allTransactions.Count, collected.Count);
-            foreach (var tx in allTransactions)
-            {
-                Assert.IsTrue(collected.Any(t => t.Id == tx.Id));
-            }
+            CollectionAssert.AreEquivalent(allTransactions.Select(t => t.Id), collected.Select(t => t.Id));
         }
 
         [Test]
@@ -145,7 +139,7 @@ namespace APIMatic.Core.Test.Api.Pagination
                     res => res.Data.Data,
                     CursorPagedResponseFactory.Create,
                     page => page.Items,
-                    PageableFactory.Create,
+                    PaginatorFactory.Create,
                     new CursorPagination("$response.body/nextCursor", "$request.query#/cursor")
                 );
 
@@ -192,7 +186,7 @@ namespace APIMatic.Core.Test.Api.Pagination
                     res => res.Data.Data,
                     LinkPagedResponseFactory.Create,
                     page => page.Items,
-                    PageableFactory.Create,
+                    PaginatorFactory.Create,
                     new LinkPagination("$response.body#/links/next")
                 );
 
@@ -238,8 +232,8 @@ namespace APIMatic.Core.Test.Api.Pagination
                     res => res.Data.Data,
                     NumberPagedResponseFactory.Create,
                     page => page.Items,
-                    PageableFactory.Create,
-                    new PagePagination("$request.query#/page")
+                    PaginatorFactory.Create,
+                    new NumberPagination("$request.query#/page")
                 );
 
             var collected = new List<Transaction>();
@@ -284,9 +278,9 @@ namespace APIMatic.Core.Test.Api.Pagination
                     res => res.Data.Data,
                     PagedResponseFactory.Create,
                     page => page.Items,
-                    PageableFactory.Create,
+                    PaginatorFactory.Create,
                     new LinkPagination("$response.body#/links/next"),
-                    new PagePagination("$request.query#/page")
+                    new NumberPagination("$request.query#/page")
                 );
 
             var collected = new List<Transaction>();

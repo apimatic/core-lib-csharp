@@ -16,7 +16,7 @@ namespace APIMatic.Core.Pagination
         private readonly IPaginationStrategy[] _paginationStrategies;
         private readonly Func<TPage, IEnumerable<TItem>> _pagedResponseItemConverter;
 
-        protected Paginator(
+        public Paginator(
             Func<RequestBuilder, IPaginationStrategy, Task<PaginatedResult<TItem, TPage>>> apiCallExecutor, RequestBuilder requestBuilder,
             Func<TPage, IEnumerable<TItem>> pagedResponseItemConverter,
             IPaginationStrategy[] paginationStrategies)
@@ -55,7 +55,7 @@ namespace APIMatic.Core.Pagination
 
                     var items = result?.Items;
                     if (items == null || !items.Any())
-                        break;
+                        yield break;
 
                     paginationContext = PaginationContext.Create(items.Count(), result.Response, requestBuilder);
 

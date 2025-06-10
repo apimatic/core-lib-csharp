@@ -40,7 +40,7 @@ namespace APIMatic.Core.Test.MockTypes.Pagination
                     offsetPagination, pageItems),
                 CursorPagination cursorPagination => CursorPagedResponseFactory.Create(pageData,
                     cursorPagination, pageItems),
-                PagePagination pagePagination => NumberPagedResponseFactory.Create(pageData,
+                NumberPagination pagePagination => NumberPagedResponseFactory.Create(pageData,
                     pagePagination, pageItems),
                 LinkPagination linkPagination => LinkPagedResponseFactory.Create(pageData, linkPagination,
                     pageItems),

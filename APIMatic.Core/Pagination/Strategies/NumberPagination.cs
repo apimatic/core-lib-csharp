@@ -2,17 +2,17 @@
 
 namespace APIMatic.Core.Pagination.Strategies
 {
-    public class PagePagination : IPaginationStrategy
+    public class NumberPagination : IPaginationStrategy
     {
         private readonly string _input;
 
         public int CurrentPage { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PagePagination"/> class.
+        /// Initializes a new instance of the <see cref="NumberPagination"/> class.
         /// </summary>
         /// <param name="input">JsonPointer of a field in the request, representing the page number.</param>
-        public PagePagination(string input)
+        public NumberPagination(string input)
         {
             _input = input;
         }

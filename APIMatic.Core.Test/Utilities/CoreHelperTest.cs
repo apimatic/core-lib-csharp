@@ -11,6 +11,7 @@ using APIMatic.Core.Types;
 using APIMatic.Core.Utilities;
 using APIMatic.Core.Utilities.Converters;
 using APIMatic.Core.Utilities.Date;
+using Microsoft.Json.Pointer;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
@@ -808,7 +809,226 @@ namespace APIMatic.Core.Test.Utilities
         }
 
         #endregion
+        
+        #region ExtractQueryParameters
+        [Test]
+        public void ExtractQueryParametersForUrl_WithValidUrl_ReturnsCorrectDictionary()
+        {
+            // Arrange
+            var url = "https://api.example.com/items?limit=10&page=2&search=hello%20world";
 
+            // Act
+            var result = CoreHelper.ExtractQueryParametersForUrl(url);
+
+            // Assert
+            Assert.AreEqual(3, result.Count);
+            Assert.AreEqual("10", result["limit"]);
+            Assert.AreEqual("2", result["page"]);
+            Assert.AreEqual("hello world", result["search"]);
+        }
+
+        [Test]
+        public void ExtractQueryParametersForUrl_WithNoQuery_ReturnsEmptyDictionary()
+        {
+            // Arrange
+            var url = "https://api.example.com/items";
+
+            // Act
+            var result = CoreHelper.ExtractQueryParametersForUrl(url);
+
+            // Assert
+            Assert.IsEmpty(result);
+        }
+
+        [Test]
+        public void ExtractQueryParametersForUrl_WithEmptyValue_ReturnsEmptyString()
+        {
+            // Arrange
+            var url = "https://api.example.com/items?foo=";
+
+            // Act
+            var result = CoreHelper.ExtractQueryParametersForUrl(url);
+
+            // Assert
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(string.Empty, result["foo"]);
+        }
+
+        [Test]
+        public void ExtractQueryParametersForUrl_WithMissingValuePart_IgnoresIt()
+        {
+            // Arrange
+            var url = "https://api.example.com/items?onlykey";
+
+            // Act
+            var result = CoreHelper.ExtractQueryParametersForUrl(url);
+
+            // Assert
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(string.Empty, result["onlykey"]);
+        }
+        #endregion
+
+        #region JasonUpdatealueByPointer
+        [Test]
+        public void UpdateValueByPointer_ValidPointer_UpdatesValue()
+        {
+            // Arrange
+            var person = new Person { Name = "Alice", Age = 30 };
+            var pointer = new JsonPointer("/age");
+
+            // Act
+            var updated = CoreHelper.UpdateValueByPointer(
+                person,
+                pointer,
+                old => int.Parse(old.ToString() ?? "") + 5
+            );
+
+            // Assert
+            Assert.AreEqual(35, updated.Age);
+            Assert.AreEqual("Alice", updated.Name);
+        }
+
+        [Test]
+        public void UpdateValueByPointer_NullValue_ReturnsOriginal()
+        {
+            // Act
+            var result = CoreHelper.UpdateValueByPointer<Person>(
+                null,
+                new JsonPointer("/name"),
+                old => "Bob"
+            );
+
+            // Assert
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void UpdateValueByPointer_NullPointer_ReturnsOriginal()
+        {
+            var person = new Person { Name = "Charlie", Age = 40 };
+            var result = CoreHelper.UpdateValueByPointer(
+                person,
+                null,
+                old => "David"
+            );
+
+            Assert.AreEqual("Charlie", result.Name);
+        }
+        
+        [Test]
+        public void UpdateValueByPointer_NullUpdater_ReturnsOriginal()
+        {
+            var person = new Person { Name = "Charlie", Age = 40 };
+            var result = CoreHelper.UpdateValueByPointer(
+                person,
+                new JsonPointer("/name"),
+                null
+            );
+
+            Assert.AreEqual("Charlie", result.Name);
+        }
+
+        [Test]
+        public void UpdateValueByPointer_UpdaterReturnsNull_ReturnsOriginal()
+        {
+            var person = new Person { Name = "Eva", Age = 50 };
+            var pointer = new JsonPointer("/name");
+
+            var result = CoreHelper.UpdateValueByPointer(
+                person,
+                pointer,
+                old => null
+            );
+
+            Assert.AreEqual("Eva", result.Name);
+        }
+
+        [Test]
+        public void UpdateValueByPointer_InvalidPointer_ReturnsOriginal()
+        {
+            var person = new Person { Name = "Frank", Age = 60 };
+            var invalidPointer = new JsonPointer("/nonexistent");
+
+            var result = CoreHelper.UpdateValueByPointer(
+                person,
+                invalidPointer,
+                old => "ShouldNotApply"
+            );
+
+            Assert.AreEqual("Frank", result.Name);
+        }
+        
+        [Test]
+        public void GetValueByReference_NullPointer_ReturnsNull()
+        {
+            var result = CoreHelper.GetValueByReference(null, "{}", "{}");
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void GetValueByReference_InvalidFormat_ReturnsNull()
+        {
+            var result = CoreHelper.GetValueByReference("$response.body", "{}", "{}");
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void GetValueByReference_ValidBodyPointer_ReturnsValue()
+        {
+            var json = @"{""name"":""alice"", ""age"":30}";
+            var pointer = "$response.body#/name";
+
+            var result = CoreHelper.GetValueByReference(pointer, json, null);
+
+            Assert.AreEqual("alice", result);
+        }
+
+        [Test]
+        public void GetValueByReference_ValidHeadersPointer_ReturnsValue()
+        {
+            var headers = @"{""content-type"":""application/json""}";
+            var pointer = "$response.headers#/content-type";
+
+            var result = CoreHelper.GetValueByReference(pointer, null, headers);
+
+            Assert.AreEqual("application/json", result);
+        }
+
+        [Test]
+        public void GetValueByReference_PointerNotFound_ReturnsNull()
+        {
+            var json = @"{""name"":""alice""}";
+            var pointer = "$response.body#/nonexistent";
+
+            var result = CoreHelper.GetValueByReference(pointer, json, null);
+
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void GetValueByReference_UnsupportedPrefix_ReturnsNull()
+        {
+            var pointer = "$request.body#/name";
+            var json = @"{""name"":""alice""}";
+
+            var result = CoreHelper.GetValueByReference(pointer, json, null);
+
+            Assert.IsNull(result);
+        }
+        
+        [Test]
+        public void GetValueByReference_BooleanToken_ReturnsTokenToString()
+        {
+            var jsonBody = @"{ ""isActive"": true }";
+            var pointerString = "$response.body#/isActive";
+
+            var result = CoreHelper.GetValueByReference(pointerString, jsonBody, null);
+
+            Assert.AreEqual("True", result);
+        }
+        #endregion
+        
         #region PrepareFormFieldsFromObject
 
         [Test]

@@ -6,7 +6,7 @@ namespace APIMatic.Core.Test.MockTypes.Pagination.MetaData
 {
     public class NumberPagedResponse<TItem, TPage> : PagedResponse<TItem, TPage>
     {
-        public NumberPagedResponse(ApiResponse<TPage> pageData, PagePagination manager, IEnumerable<TItem> pageItems) : base(
+        public NumberPagedResponse(ApiResponse<TPage> pageData, NumberPagination manager, IEnumerable<TItem> pageItems) : base(
             pageData, pageItems)
         {
             Type = PaginationTypes.Page;
@@ -22,6 +22,6 @@ namespace APIMatic.Core.Test.MockTypes.Pagination.MetaData
             ApiResponse<TPage> pageData,
             IPaginationStrategy manager,
             IEnumerable<TItem> pageItems) =>
-            new NumberPagedResponse<TItem, TPage>(pageData, manager as PagePagination, pageItems);
+            new NumberPagedResponse<TItem, TPage>(pageData, manager as NumberPagination, pageItems);
     }
 }
