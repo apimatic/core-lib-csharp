@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -43,7 +43,7 @@ namespace APIMatic.Core.Test.Api.Pagination
                     .Parameters(p => p
                         .Query(q => q.Setup("offset", 0))
                         .Query(q => q.Setup("limit", limit))))
-                .PaginateAsync(
+                .Paginate(
                     res => res.Data.Data,
                     OffsetPagedResponseFactory.Create,
                     page => page.Items,
@@ -89,7 +89,7 @@ namespace APIMatic.Core.Test.Api.Pagination
                     .Parameters(p => p
                         .Query(q => q.Setup("cursor", "cursor0"))
                         .Query(q => q.Setup("limit", limit))))
-                .PaginateAsync(
+                .Paginate(
                     res => res.Data.Data,
                     CursorPagedResponseFactory.Create,
                     page => page.Items,
@@ -135,7 +135,7 @@ namespace APIMatic.Core.Test.Api.Pagination
                     .Parameters(p => p
                         .Query(q => q.Setup("cursor", "cursor0"))
                         .Query(q => q.Setup("limit", limit))))
-                .PaginateAsync(
+                .Paginate(
                     res => res.Data.Data,
                     CursorPagedResponseFactory.Create,
                     page => page.Items,
@@ -182,7 +182,7 @@ namespace APIMatic.Core.Test.Api.Pagination
                     .Parameters(p => p
                         .Query(q => q.Setup("page", "1"))
                         .Query(q => q.Setup("limit", limit))))
-                .PaginateAsync(
+                .Paginate(
                     res => res.Data.Data,
                     LinkPagedResponseFactory.Create,
                     page => page.Items,
@@ -228,7 +228,7 @@ namespace APIMatic.Core.Test.Api.Pagination
                     .Parameters(p => p
                         .Query(q => q.Setup("page", 0)) // Initial page
                         .Query(q => q.Setup("limit", limit))))
-                .PaginateAsync(
+                .Paginate(
                     res => res.Data.Data,
                     NumberPagedResponseFactory.Create,
                     page => page.Items,
@@ -274,7 +274,7 @@ namespace APIMatic.Core.Test.Api.Pagination
                     .Parameters(p => p
                         .Query(q => q.Setup("page", "1"))
                         .Query(q => q.Setup("limit", limit))))
-                .PaginateAsync(
+                .Paginate(
                     res => res.Data.Data,
                     PagedResponseFactory.Create,
                     page => page.Items,
