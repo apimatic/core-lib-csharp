@@ -107,7 +107,10 @@ namespace APIMatic.Core
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<ReturnType> ExecuteAsync(CancellationToken cancellationToken = default)
+        public async Task<ReturnType> ExecuteAsync(CancellationToken cancellationToken = default) => 
+            (await ExecuteAsync2(cancellationToken)).Item1;
+
+        public async Task<(ReturnType, CoreResponse)> ExecuteAsync2(CancellationToken cancellationToken = default)
         {
             requestBuilder.AcceptHeader = responseHandler.AcceptHeader;
             CoreRequest request = await requestBuilder.Build().ConfigureAwait(false);
@@ -117,7 +120,7 @@ namespace APIMatic.Core
             globalConfiguration.ApiCallback?.OnAfterHttpResponseEventHandler(response);
             _sdkLogger.LogResponse(response);
             var context = new CoreContext<CoreRequest, CoreResponse>(request, response);
-            return responseHandler.Result(context, returnTypeCreator);
+            return (responseHandler.Result(context, returnTypeCreator), response);
         }
 
 
@@ -134,10 +137,12 @@ namespace APIMatic.Core
         {
             return returnTypeGetter(async (reqBuilder, manager, cancellationToken) =>
                 {
-                    var context = await RequestBuilder(reqBuilder).ResponseHandler(respHandler =>
-                        this.responseHandler = new PaginationResponseHandler<Request, Response, Context, ApiException, ResponseType, ReturnType, TItem, TPageMetadata>(respHandler, manager,
-                                    converter, pageResponseConverter)).ExecuteAsync(cancellationToken);
-                    return context;
+                    var returntype = await ExecuteAsync(cancellationToken);
+
+                    var page = base.Result(context, returnTypeCreator);
+                    var pageItems = _converter(page);
+                    var pageMeta = _pageResponseConverter(page, _manager, pageItems);
+                    return new PaginatedResult<TItem, TPageMetadata>(context.Response, pageItems, pageMeta);
                 },
                 requestBuilder,
                 pagedResponseItemConverter,

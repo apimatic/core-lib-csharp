@@ -5,12 +5,14 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using APIMatic.Core.Pagination;
 using APIMatic.Core.Pagination.Strategies;
 using APIMatic.Core.Test.MockTypes.Models.Pagination;
 using APIMatic.Core.Test.MockTypes.Pagination;
 using APIMatic.Core.Test.MockTypes.Pagination.MetaData;
 using APIMatic.Core.Test.Utilities;
 using NUnit.Framework;
+using Polly;
 using RichardSzalay.MockHttp;
 
 namespace APIMatic.Core.Test.Api.Pagination
@@ -83,19 +85,31 @@ namespace APIMatic.Core.Test.Api.Pagination
             var transactionsWithCursor = PaginationHelper.ChunkTransactionsWithCursor(allTransactions, limit);
             handlerMock.MockCursorPaginatedResponses(transactionsWithCursor, $"{GetCompleteUrl(url)}?limit={limit}");
 
-            var asyncPageable = CreateApiCall<TransactionsOffset>()
+            var asyncPageable =await CreateApiCall<TransactionsOffset>()
                 .RequestBuilder(rb => rb
                     .Setup(HttpMethod.Get, url)
                     .Parameters(p => p
                         .Query(q => q.Setup("cursor", "cursor0"))
                         .Query(q => q.Setup("limit", limit))))
-                .Paginate(
-                    res => res.Data.Data,
-                    CursorPagedResponseFactory.Create,
-                    page => page.Items,
-                    PaginatorFactory.Create,
-                    new CursorPagination("$response.body#/nextCursor", "$request.query#/cursor")
-                );
+                .ExecuteAsync2();
+
+            // TODO Haseeb Wrap in class;
+            var final = PaginatedREsponse<>.TOPages();
+           
+
+            //var page = base.Result(context, returnTypeCreator);
+            //var pageItems = _converter(page);
+            //var pageMeta = _pageResponseConverter(page, _manager, pageItems);
+            //return new PaginatedResult<TItem, TPageMetadata>(context.Response, pageItems, pageMeta);
+            //asyncPageable.ToPaginated();
+
+            //    .Paginate(
+            //        res => res.Data.Data,
+            //        CursorPagedResponseFactory.Create,
+            //        page => page.Items,
+            //        PaginatorFactory.Create,
+            //        new CursorPagination("$response.body#/nextCursor", "$request.query#/cursor")
+            //    );
 
             var collected = new List<Transaction>();
 
