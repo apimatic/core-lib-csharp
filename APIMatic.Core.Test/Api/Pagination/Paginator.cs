@@ -49,11 +49,57 @@ namespace APIMatic.Core.Test.Api.Pagination
                     new OffsetPagination("$request.query#/offset")
                 );
 
-            var enumerator = (paginator as IEnumerable).GetEnumerator();
+            var enumerator = ((IEnumerable)paginator).GetEnumerator();
             var collected = new List<Transaction>();
             while (enumerator.MoveNext())
             {
                 collected.Add((Transaction)enumerator.Current);
+            }
+
+            // Assert
+            Assert.AreEqual(allTransactions.Count, collected.Count);
+            CollectionAssert.AreEquivalent(allTransactions.Select(t => t.Id), collected.Select(t => t.Id));
+        }
+
+        [Test]
+        public void Paginate_QueryLinkPaginationYieldsAllItems_AcrossPages()
+        {
+            // Arrange
+            const int limit = 2;
+            const string url = "/transactions";
+
+            var allTransactions = new List<Transaction>
+            {
+                new("id1", 100, DateTime.UtcNow),
+                new("id2", 200, DateTime.UtcNow),
+                new("id3", 300, DateTime.UtcNow),
+                new("id4", 400, DateTime.UtcNow),
+                new("id5", 500, DateTime.UtcNow)
+            };
+
+            var linkedPages = PaginationHelper.ChunkTransactionsWithLinks(allTransactions, limit, url);
+            handlerMock.MockLinkedPaginatedResponses(linkedPages, GetCompleteUrl(string.Empty));
+
+            var paginator = CreateApiCall<TransactionsLinked>()
+                .RequestBuilder(rb => rb
+                    .Setup(HttpMethod.Get, url)
+                    .Parameters(p => p
+                        .Query(q => q.Setup("page", "1"))
+                        .Query(q => q.Setup("limit", limit))))
+                .Paginate(
+                    res => res.Data.Data,
+                    LinkPagedResponseFactory.Create,
+                    page => page.Items,
+                    PaginatorFactory.Create,
+                    new LinkPagination("$response.body#/links/next")
+                );
+
+            var collected = new List<Transaction>();
+
+            // Act
+            foreach (var item in paginator)
+            {
+                collected.Add(item);
             }
 
             // Assert

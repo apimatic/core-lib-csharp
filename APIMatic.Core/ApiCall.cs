@@ -34,7 +34,7 @@ namespace APIMatic.Core
     {
         private readonly GlobalConfiguration globalConfiguration;
         private readonly ArraySerialization arraySerialization;
-        private ResponseHandler<Request, Response, Context, ApiException, ResponseType> responseHandler;
+        private readonly ResponseHandler<Request, Response, Context, ApiException, ResponseType> responseHandler;
         private readonly Func<Response, ResponseType, ReturnType> returnTypeCreator;
         private Enum apiCallServer;
         private RequestBuilder requestBuilder;
@@ -107,10 +107,10 @@ namespace APIMatic.Core
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<ReturnType> ExecuteAsync(CancellationToken cancellationToken = default) => 
-            (await ExecuteAsync2(cancellationToken)).Item1;
+        public async Task<ReturnType> ExecuteAsync(CancellationToken cancellationToken = default)
+            => responseHandler.Result(await ExecuteRequestAsync(cancellationToken), returnTypeCreator);
 
-        public async Task<(ReturnType, CoreResponse)> ExecuteAsync2(CancellationToken cancellationToken = default)
+        public async Task<CoreContext<CoreRequest, CoreResponse>> ExecuteRequestAsync(CancellationToken cancellationToken = default)
         {
             requestBuilder.AcceptHeader = responseHandler.AcceptHeader;
             CoreRequest request = await requestBuilder.Build().ConfigureAwait(false);
@@ -119,8 +119,42 @@ namespace APIMatic.Core
             CoreResponse response = await globalConfiguration.HttpClient.ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
             globalConfiguration.ApiCallback?.OnAfterHttpResponseEventHandler(response);
             _sdkLogger.LogResponse(response);
-            var context = new CoreContext<CoreRequest, CoreResponse>(request, response);
-            return (responseHandler.Result(context, returnTypeCreator), response);
+            return new CoreContext<CoreRequest, CoreResponse>(request, response);
         }
+
+        public TEnumerable Paginate<TItem, TEnumerable, TPageMetadata>(
+            Func<ReturnType, IEnumerable<TItem>> converter,
+            Func<ReturnType, IPaginationStrategy, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
+            Func<TPageMetadata, IEnumerable<TItem>> pagedResponseItemConverter,
+            Func<
+                    Func<RequestBuilder, IPaginationStrategy, Task<PaginatedResult<TItem, TPageMetadata>>>,
+                    RequestBuilder, Func<TPageMetadata, IEnumerable<TItem>>, IPaginationStrategy[],
+                    TEnumerable> returnTypeGetter,
+                params IPaginationStrategy[] dataManagers)
+        {
+            return returnTypeGetter(
+                (reqBuilder, manager) => RequestBuilder(reqBuilder)
+                    .ExecutePaginationAsync(manager, converter, pageResponseConverter),
+                requestBuilder,
+                pagedResponseItemConverter,
+                dataManagers);
+        }
+
+        public TEnumerable PaginateAsync<TItem, TEnumerable, TPageMetadata>(
+            Func<ReturnType, IEnumerable<TItem>> converter,
+            Func<ReturnType, IPaginationStrategy, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
+            Func<TPageMetadata, IEnumerable<TItem>> pagedResponseItemConverter,
+            Func<
+                Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TItem, TPageMetadata>>>,
+                RequestBuilder, Func<TPageMetadata, IEnumerable<TItem>>, IPaginationStrategy[],
+                TEnumerable> returnTypeGetter,
+            params IPaginationStrategy[] dataManagers)
+        {
+            return returnTypeGetter(async (reqBuilder, manager, cancellationToken) =>
+                    await RequestBuilder(reqBuilder).ExecutePaginationAsync(manager, converter, pageResponseConverter,
+                        cancellationToken).ConfigureAwait(false),
+                requestBuilder,
+                pagedResponseItemConverter,
+                dataManagers);
     }
 }
