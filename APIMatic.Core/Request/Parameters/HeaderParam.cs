@@ -18,12 +18,8 @@ namespace APIMatic.Core.Request.Parameters
             {
                 return;
             }
-            var headerValue = CoreHelper.JsonSerialize(value)?.TrimStart('"').TrimEnd('"');
-            if (headerValue == null)
-            {
-                return;
-            }
-            requestBuilder.headers[key] = headerValue;
+
+            requestBuilder.headers[key] = value;
         }
     }
 }

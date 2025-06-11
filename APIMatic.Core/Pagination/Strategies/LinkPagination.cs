@@ -1,5 +1,6 @@
 ﻿using APIMatic.Core.Utilities;
 using APIMatic.Core.Request;
+using APIMatic.Core.Utilities.Json;
 
 namespace APIMatic.Core.Pagination.Strategies
 {
@@ -20,7 +21,7 @@ namespace APIMatic.Core.Pagination.Strategies
 
         public RequestBuilder Apply(PaginationContext paginationContext)
         {
-            CurrentLinkValue = CoreHelper.GetValueByReference(
+            CurrentLinkValue = JsonPointerAccessor.ResolveJsonValueByReference(
                 _next,
                 paginationContext.ResponseBody,
                 paginationContext.ResponseHeaders

@@ -28,7 +28,7 @@ namespace APIMatic.Core.Test
             Assert.False(requestBuilder.queryParameters.ContainsKey("query"));
             Assert.False(requestBuilder.formParameters.Exists(kv => kv.Key == "form"));
             Assert.False(requestBuilder.headers.ContainsKey("header"));
-            Assert.True(requestBuilder.QueryUrl.ToString().Contains("{template}"));
+            Assert.True(requestBuilder.GetQueryUrl().Contains("{template}"));
 
 
             new Parameter.Builder()
@@ -74,7 +74,7 @@ namespace APIMatic.Core.Test
 
             new Parameter.Builder().Template(p => p.Setup("template", null)).Validate().Apply(requestBuilder);
 
-            Assert.AreEqual("http://my/path:3000/v1/path/", requestBuilder.QueryUrl.ToString());
+            Assert.AreEqual("http://my/path:3000/v1/path/", requestBuilder.GetQueryUrl());
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace APIMatic.Core.Test
                 "gamma"
             })).Validate().Apply(requestBuilder);
 
-            Assert.AreEqual("http://my/path:3000/v1/path/asad/alpha/gamma", requestBuilder.QueryUrl.ToString());
+            Assert.AreEqual("http://my/path:3000/v1/path/asad/alpha/gamma", requestBuilder.GetQueryUrl());
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace APIMatic.Core.Test
 
             new Parameter.Builder().Template(p => p.Setup("template", new DateTime(2022, 12, 14))).Validate().Apply(requestBuilder);
 
-            Assert.AreEqual("http://my/path:3000/v1/path/2022-12-14T00:00:00", requestBuilder.QueryUrl.ToString());
+            Assert.AreEqual("http://my/path:3000/v1/path/2022-12-14T00:00:00", requestBuilder.GetQueryUrl());
         }
 
         [Test]
@@ -111,7 +111,7 @@ namespace APIMatic.Core.Test
                 .Validate()
                 .Apply(requestBuilder);
 
-            Assert.AreEqual("http://my/path:3000/v1/path/2022-12-14T02:01:04+00:00", requestBuilder.QueryUrl.ToString());
+            Assert.AreEqual("http://my/path:3000/v1/path/2022-12-14T02:01:04+00:00", requestBuilder.GetQueryUrl());
         }
 
         [Test]

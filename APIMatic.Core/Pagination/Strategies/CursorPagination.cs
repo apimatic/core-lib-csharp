@@ -1,5 +1,6 @@
 ﻿using APIMatic.Core.Request;
 using APIMatic.Core.Utilities;
+using APIMatic.Core.Utilities.Json;
 
 namespace APIMatic.Core.Pagination.Strategies
 {
@@ -36,7 +37,7 @@ namespace APIMatic.Core.Pagination.Strategies
                             return oldValue;
                         }
 
-                        var cursorValue = CoreHelper.GetValueByReference(
+                        var cursorValue = JsonPointerAccessor.ResolveJsonValueByReference(
                             _output,
                             paginationContext.ResponseBody,
                             paginationContext.ResponseHeaders

@@ -81,19 +81,9 @@ namespace APIMatic.Core.Utilities
         /// <returns>The deserialized object.</returns>
         public static T JsonDeserialize<T>(string json, JsonConverter converter = null)
         {
-            if (string.IsNullOrWhiteSpace(json))
-            {
-                return default;
-            }
-
-            if (converter == null)
-            {
-                return JsonConvert.DeserializeObject<T>(json, new IsoDateTimeConverter());
-            }
-            else
-            {
-                return JsonConvert.DeserializeObject<T>(json, converter);
-            }
+            return string.IsNullOrWhiteSpace(json)
+                ? default
+                : JsonConvert.DeserializeObject<T>(json, converter ?? new IsoDateTimeConverter());
         }
 
         internal static IDictionary<string, object> ExtractQueryParametersForUrl(string queryUrl)
@@ -139,83 +129,27 @@ namespace APIMatic.Core.Utilities
             }
         }
 
-        public static string GetValueByReference(string pointerString, string jsonBody, string jsonHeaders)
+        private static string GetTemplateReplacerValueForCollection(ICollection collection)
         {
-            if (pointerString == null)
-                return null;
-
-            var parts = pointerString.Split('#');
-
-            if (parts.Length <= 1)
-                return null;
-
-            var jsonPointer = new JsonPointer(parts[1]);
-
-            return parts[0] switch
+            var replacedValues = new List<string>();
+            var enumerator = collection.GetEnumerator();
+            while (enumerator.MoveNext())
             {
-                "$response.body" => GetJsonValueUsingPointer(jsonPointer, jsonBody),
-                "$response.headers" => GetJsonValueUsingPointer(jsonPointer, jsonHeaders),
-                _ => null
+                replacedValues.Add(GetTemplateReplacerValue(enumerator.Current));
+            }
+            return string.Join("/", replacedValues);
+        }
+
+        public static string GetTemplateReplacerValue(object value)
+        {
+            return value switch
+            {
+                null => string.Empty,
+                ICollection collection => GetTemplateReplacerValueForCollection(collection),
+                _ => CoreHelper.JsonSerialize(value).TrimStart('"').TrimEnd('"')
             };
         }
-
-        private static string GetJsonValueUsingPointer(JsonPointer pointer, string json)
-        {
-            if (pointer == null || json == null)
-                return null;
-
-            var jsonObject = JObject.Parse(json);
-            JToken jsonToken;
-            try
-            {
-                jsonToken = pointer.Evaluate(jsonObject);
-            }
-            catch
-            {
-                return null;
-            }
-
-            return jsonToken.Type switch
-            {
-                JTokenType.Null => null,
-                JTokenType.String => jsonToken.Value<string>(),
-                _ => jsonToken.ToString()
-            };
-        }
-
-        internal static T UpdateValueByPointer<T>(T value, JsonPointer pointer, Func<object, object> updater)
-        {
-            if (pointer == null || updater == null)
-                return value;
-
-            try
-            {
-                // Step 1: Serialize the object to JSON
-                var json = JsonSerialize(value);
-                if (string.IsNullOrWhiteSpace(json)) return value;
-
-                // Step 2: Parse JSON and evaluate pointer
-                var jsonObject = JObject.Parse(json);
-                var jsonToken = pointer.Evaluate(jsonObject);
-
-                // Step 3: Apply updater
-                var oldValue = jsonToken.ToObject<object>();
-                var newValue = updater(oldValue);
-                if (newValue == null) return value;
-
-                // Step 4: Replace token
-                jsonToken.Replace(JToken.FromObject(newValue));
-
-                // Step 5: Deserialize back to T
-                var updatedJson = jsonObject.ToString();
-                return CoreHelper.JsonDeserialize<T>(updatedJson);
-            }
-            catch
-            {
-                return value;
-            }
-        }
-
+        
         private static void AppendParameters(StringBuilder queryBuilder, ArraySerialization arraySerialization, KeyValuePair<string, object> pair)
         {
             string paramKeyValPair;

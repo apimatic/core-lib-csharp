@@ -15,9 +15,8 @@ using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Request.Parameters;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
+using APIMatic.Core.Utilities.Json;
 using Microsoft.Json.Pointer;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Request
 {
@@ -33,22 +32,23 @@ namespace APIMatic.Core.Request
         private readonly Parameter.Builder parameters = new Parameter.Builder();
         private bool contentTypeAllowed = true;
         private bool xmlRequest = false;
+        private readonly StringBuilder queryUrl;
         private Func<dynamic, object> bodySerializer = PrepareBody;
 
-        internal readonly Dictionary<string, string> headers = new Dictionary<string, string>();
+        internal readonly Dictionary<string, object> headers = new Dictionary<string, object>();
         internal dynamic body;
         internal Type bodyType;
+        internal readonly Dictionary<string, object> templateParameters = new Dictionary<string, object>();
         internal readonly Dictionary<string, object> bodyParameters = new Dictionary<string, object>();
         internal readonly List<KeyValuePair<string, object>> formParameters = new List<KeyValuePair<string, object>>();
         internal readonly Dictionary<string, object> queryParameters = new Dictionary<string, object>();
 
-        internal RequestBuilder(GlobalConfiguration configuration)
+        internal RequestBuilder(GlobalConfiguration configuration, string serverUrl)
         {
             this.configuration = configuration;
+            queryUrl = new StringBuilder(serverUrl);
             authGroup = new AuthGroupBuilder(configuration.AuthManagers);
         }
-
-        internal StringBuilder QueryUrl { get; private set; } = new StringBuilder();
 
         internal ContentType AcceptHeader { get; set; } = ContentType.SCALAR;
 
@@ -67,7 +67,7 @@ namespace APIMatic.Core.Request
         public RequestBuilder Setup(HttpMethod httpMethod, string path)
         {
             this.httpMethod = httpMethod;
-            QueryUrl.Append(path);
+            queryUrl.Append(path);
             return this;
         }
 
@@ -173,17 +173,24 @@ namespace APIMatic.Core.Request
             return this;
         }
 
-        private void UpdateTemplateParams(Func<object, object> setter, JsonPointer jsonPointer)
+        private void UpdateTemplateParams(Func<object, object> setter, JsonPointer pointer)
         {
-            var template = QueryUrl.ToString().ToTemplateParameters();
-            QueryUrl = new StringBuilder(CoreHelper.UpdateValueByPointer(template, jsonPointer, setter)
-                .ToQueryString());
+            var updatedTemplateParameters =
+                JsonPointerAccessor.UpdateValueByPointer(templateParameters, pointer, setter);
+
+            foreach (var kvp in updatedTemplateParameters)
+            {
+                if (!templateParameters.TryGetValue(kvp.Key, out var existingValue) || existingValue != kvp.Value)
+                {
+                    templateParameters[kvp.Key] = kvp.Value;
+                }
+            }
         }
 
         private void UpdateHeaderParams(Func<object, object> setter, JsonPointer pointer)
         {
             var updatedHeaders =
-                CoreHelper.UpdateValueByPointer(new Dictionary<string, string>(headers), pointer, setter);
+                JsonPointerAccessor.UpdateValueByPointer(headers, pointer, setter);
 
             foreach (var kvp in updatedHeaders)
             {
@@ -197,12 +204,25 @@ namespace APIMatic.Core.Request
         private void UpdateQueryParams(Func<object, object> setter, JsonPointer pointer)
         {
             var updatedQueryParams =
-                CoreHelper.UpdateValueByPointer(new Dictionary<string, object>(queryParameters), pointer, setter);
+                JsonPointerAccessor.UpdateValueByPointer(queryParameters, pointer, setter);
 
-            foreach (var entry in updatedQueryParams)
+            foreach (var kvp in updatedQueryParams)
             {
-                queryParameters[entry.Key] = entry.Value;
+                if (!queryParameters.TryGetValue(kvp.Key, out var existingValue) || existingValue != kvp.Value)
+                {
+                    queryParameters[kvp.Key] = kvp.Value;
+                }
             }
+        }
+
+        internal string GetQueryUrl()
+        {
+            var queryBuilder = new StringBuilder(this.queryUrl.ToString());
+            foreach (var kvp in templateParameters)
+            {
+                queryBuilder.Replace($"{{{kvp.Key}}}", CoreHelper.GetTemplateReplacerValue(kvp.Value));
+            }
+            return queryBuilder.ToString();
         }
 
         /// <summary>
@@ -214,18 +234,15 @@ namespace APIMatic.Core.Request
             parameters.Validate().Apply(this);
             configuration.RuntimeParameters.Validate().Apply(this);
             await authGroup.Apply(this).ConfigureAwait(false);
-            var queryUrl = new StringBuilder(QueryUrl.ToString());
-            CoreHelper.AppendUrlWithQueryParameters(queryUrl, queryParameters, ArraySerialization);
+            var queryBuilder = new StringBuilder(GetQueryUrl());
+            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, queryParameters, ArraySerialization);
             body = bodyParameters.Any() ? bodyParameters : body;
             AppendContentTypeHeader();
             AppendAcceptHeader();
-            return new CoreRequest(httpMethod, CoreHelper.CleanUrl(queryUrl), headers, bodySerializer(body), formParameters, queryParameters)
-            {
-                RetryOption = retryOption,
-                HasBinaryResponse = HasBinaryResponse
-            };
+            return new CoreRequest(httpMethod, CoreHelper.CleanUrl(queryBuilder), headers.ToCoreRequestHeaders(), bodySerializer(body),
+                formParameters, queryParameters) { RetryOption = retryOption, HasBinaryResponse = HasBinaryResponse };
         }
-
+        
         private void AppendContentTypeHeader()
         {
             if (!ContentHeaderKeyRequired("content-type"))
@@ -303,7 +320,7 @@ namespace APIMatic.Core.Request
             this.retryOption = source.retryOption;
             this.contentTypeAllowed = source.contentTypeAllowed;
             this.httpMethod = source.httpMethod;
-            this.QueryUrl = new StringBuilder(source.QueryUrl.ToString());
+            this.queryUrl = new StringBuilder(source.queryUrl.ToString());
             this.AcceptHeader = source.AcceptHeader;
             this.ArraySerialization = source.ArraySerialization;
             this.HasBinaryResponse = source.HasBinaryResponse;
@@ -312,7 +329,8 @@ namespace APIMatic.Core.Request
             this.body = source.body;
             this.bodyType = source.bodyType;
 
-            this.headers = new Dictionary<string, string>(source.headers);
+            this.headers = new Dictionary<string, object>(source.headers);
+            this.templateParameters = new Dictionary<string, object>(source.templateParameters);
             this.bodyParameters = new Dictionary<string, object>(source.bodyParameters);
             this.formParameters = new List<KeyValuePair<string, object>>(source.formParameters);
             this.queryParameters = new Dictionary<string, object>(source.queryParameters);
@@ -327,59 +345,23 @@ namespace APIMatic.Core.Request
         }
     }
     
-    internal static class QueryUrlParser
+    internal static class RequestBuilderExtensions
     {
-        public static Dictionary<string, object> ToTemplateParameters(this string queryUrl)
+        public static Dictionary<string, string> ToCoreRequestHeaders(this Dictionary<string, object> headers)
         {
-            var uri = new Uri(queryUrl);
-            var query = HttpUtility.ParseQueryString(uri.Query);
+            var result = new Dictionary<string, string>();
 
-            var paramDict = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (string key in query.AllKeys.Where(k => k != null))
+            foreach (var kvp in headers)
             {
-                var values = query.GetValues(key);
-                if (values.Length > 1)
+                var serialized = CoreHelper.JsonSerialize(kvp.Value)?.TrimStart('"').TrimEnd('"');
+                if (serialized != null)
                 {
-                    paramDict[key] = values.Cast<object>().ToList();
-                }
-                else
-                {
-                    paramDict[key] = values[0];
+                    result[kvp.Key] = serialized;
                 }
             }
 
-            return paramDict;
+            return result;
         }
-        
-        public static string ToQueryString(this Dictionary<string, object> parameters)
-        {
-            if (parameters == null || parameters.Count == 0)
-                return string.Empty;
 
-            var builder = new StringBuilder();
-
-            foreach (var kvp in parameters)
-            {
-                var key = WebUtility.UrlEncode(kvp.Key);
-                if (kvp.Value is IEnumerable<object> list && !(kvp.Value is string))
-                {
-                    foreach (var val in list)
-                    {
-                        builder.Append($"{key}={WebUtility.UrlEncode(val?.ToString())}&");
-                    }
-                }
-                else
-                {
-                    builder.Append($"{key}={WebUtility.UrlEncode(kvp.Value?.ToString())}&");
-                }
-            }
-
-            // Remove trailing '&' if present
-            if (builder.Length > 0)
-                builder.Length--;
-
-            return builder.ToString();
-        }
     }
 }
