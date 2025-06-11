@@ -122,31 +122,5 @@ namespace APIMatic.Core
             var context = new CoreContext<CoreRequest, CoreResponse>(request, response);
             return (responseHandler.Result(context, returnTypeCreator), response);
         }
-
-
-        public TPageable Paginate<TItem, TPageable, TPageMetadata>(
-            Func<ReturnType, IReadOnlyCollection<TItem>> converter,
-            Func<ReturnType, IPaginationStrategy, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
-            Func<TPageMetadata, IEnumerable<TItem>> pagedResponseItemConverter,
-            Func<
-                Func<RequestBuilder, IPaginationStrategy, CancellationToken,
-                    Task<PaginatedResult<TItem, TPageMetadata>>>,
-                RequestBuilder, Func<TPageMetadata, IEnumerable<TItem>>, IPaginationStrategy[],
-                TPageable> returnTypeGetter,
-            params IPaginationStrategy[] dataManagers)
-        {
-            return returnTypeGetter(async (reqBuilder, manager, cancellationToken) =>
-                {
-                    var returntype = await ExecuteAsync(cancellationToken);
-
-                    var page = base.Result(context, returnTypeCreator);
-                    var pageItems = _converter(page);
-                    var pageMeta = _pageResponseConverter(page, _manager, pageItems);
-                    return new PaginatedResult<TItem, TPageMetadata>(context.Response, pageItems, pageMeta);
-                },
-                requestBuilder,
-                pagedResponseItemConverter,
-                dataManagers);
-        }
     }
 }

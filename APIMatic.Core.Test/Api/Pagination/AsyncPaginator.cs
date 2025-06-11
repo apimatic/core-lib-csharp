@@ -7,6 +7,7 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using APIMatic.Core.Pagination;
 using APIMatic.Core.Pagination.Strategies;
+using APIMatic.Core.Response;
 using APIMatic.Core.Test.MockTypes.Models.Pagination;
 using APIMatic.Core.Test.MockTypes.Pagination;
 using APIMatic.Core.Test.MockTypes.Pagination.MetaData;
@@ -85,7 +86,12 @@ namespace APIMatic.Core.Test.Api.Pagination
             var transactionsWithCursor = PaginationHelper.ChunkTransactionsWithCursor(allTransactions, limit);
             handlerMock.MockCursorPaginatedResponses(transactionsWithCursor, $"{GetCompleteUrl(url)}?limit={limit}");
 
-            var asyncPageable =await CreateApiCall<TransactionsOffset>()
+            var asyncPageable = await CreateApiCall<PaginatedResult<TransactionsOffset>>()
+                .ResponseHandler(ResponseHandler =>
+                {
+                    ResponseHandler.AcceptHeader
+                    ResponseHandler.PaginatedReault;
+                })
                 .RequestBuilder(rb => rb
                     .Setup(HttpMethod.Get, url)
                     .Parameters(p => p
@@ -94,8 +100,10 @@ namespace APIMatic.Core.Test.Api.Pagination
                 .ExecuteAsync2();
 
             // TODO Haseeb Wrap in class;
-            var final = PaginatedREsponse<>.TOPages();
-           
+            var final = PaginatedREsponse<CursorPagination>().ToPaginatedResult(parm1, param2,);
+            // Facotry Methiod
+            // new Class
+            // generic or no generic
 
             //var page = base.Result(context, returnTypeCreator);
             //var pageItems = _converter(page);
@@ -111,7 +119,32 @@ namespace APIMatic.Core.Test.Api.Pagination
             //        new CursorPagination("$response.body#/nextCursor", "$request.query#/cursor")
             //    );
 
-            var collected = new List<Transaction>();
+            //public TPageable Paginate<TItem, TPageable, TPageMetadata>(
+            //    Func<ReturnType, IReadOnlyCollection<TItem>> converter,
+            //    Func<ReturnType, IPaginationStrategy, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
+            //    Func<TPageMetadata, IEnumerable<TItem>> pagedResponseItemConverter,
+            //    Func<
+            //        Func<RequestBuilder, IPaginationStrategy, CancellationToken,
+            //            Task<PaginatedResult<TItem, TPageMetadata>>>,
+            //        RequestBuilder, Func<TPageMetadata, IEnumerable<TItem>>, IPaginationStrategy[],
+            //        TPageable> returnTypeGetter,
+            //    params IPaginationStrategy[] dataManagers)
+            //{
+            //    return returnTypeGetter(async (reqBuilder, manager, cancellationToken) =>
+            //        {
+            //            var returntype = await ExecuteAsync(cancellationToken);
+
+            //            var page = base.Result(context, returnTypeCreator);
+            //            var pageItems = _converter(page);
+            //            var pageMeta = _pageResponseConverter(page, _manager, pageItems);
+            //            return new PaginatedResult<TItem, TPageMetadata>(context.Response, pageItems, pageMeta);
+            //        },
+            //        requestBuilder,
+            //        pagedResponseItemConverter,
+            //        dataManagers);
+            //}
+
+        var collected = new List<Transaction>();
 
             // Act
             await foreach (var item in asyncPageable)
