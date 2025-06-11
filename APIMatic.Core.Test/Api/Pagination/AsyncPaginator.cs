@@ -1,20 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 using APIMatic.Core.Pagination;
 using APIMatic.Core.Pagination.Strategies;
-using APIMatic.Core.Response;
 using APIMatic.Core.Test.MockTypes.Models.Pagination;
 using APIMatic.Core.Test.MockTypes.Pagination;
 using APIMatic.Core.Test.MockTypes.Pagination.MetaData;
 using APIMatic.Core.Test.Utilities;
 using NUnit.Framework;
-using Polly;
-using RichardSzalay.MockHttp;
 
 namespace APIMatic.Core.Test.Api.Pagination
 {

@@ -24,9 +24,9 @@ namespace APIMatic.Core.Response
         where Context : CoreContext<Request, Response>
         where ApiException : CoreApiException<Request, Response, Context>
     {
-        protected readonly Dictionary<string, ErrorCase<Request, Response, Context, ApiException>> globalErrors;
+        private readonly Dictionary<string, ErrorCase<Request, Response, Context, ApiException>> globalErrors;
         private readonly Dictionary<string, ErrorCase<Request, Response, Context, ApiException>> localErrors;
-        protected readonly ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory;
+        private readonly ICompatibilityFactory<Request, Response, Context, ApiException> compatibilityFactory;
         private bool nullOn404 = false;
         private Func<string, ResponseType> deserializer = responseBody => CoreHelper.JsonDeserialize<ResponseType>(responseBody);
         private Func<ResponseType, Context, ResponseType> contextAdder = (result, context) => result;
@@ -45,9 +45,6 @@ namespace APIMatic.Core.Response
                 AcceptHeader = ContentType.SCALAR;
             }
         }
-
-        protected ResponseHandler(ResponseHandler<Request, Response, Context, ApiException, ResponseType> responseHandler)
-            : this (responseHandler.compatibilityFactory, responseHandler.globalErrors) { }
 
         /// <summary>
         /// This adds an case for throwing error, for a particular error code
@@ -114,7 +111,7 @@ namespace APIMatic.Core.Response
         /// <param name="returnTypeCreator"></param>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        internal virtual ReturnType Result<ReturnType>(CoreContext<CoreRequest, CoreResponse> context, Func<Response, ResponseType, ReturnType> returnTypeCreator)
+        internal ReturnType Result<ReturnType>(CoreContext<CoreRequest, CoreResponse> context, Func<Response, ResponseType, ReturnType> returnTypeCreator)
         {
             if (context.IsFailure())
             {
