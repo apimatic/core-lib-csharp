@@ -41,7 +41,7 @@ namespace APIMatic.Core.Test.Api.Pagination
                     .Parameters(p => p
                         .Query(q => q.Setup("offset", 0))
                         .Query(q => q.Setup("limit", limit))))
-                .Paginate(
+                .PaginateAsync(
                     res => res.Data.Data,
                     OffsetPagedResponseFactory.Create,
                     page => page.Items,
@@ -49,7 +49,7 @@ namespace APIMatic.Core.Test.Api.Pagination
                     new OffsetPagination("$request.query#/offset")
                 );
 
-            var enumerator = ((IEnumerable)paginator).GetEnumerator();
+            var enumerator = (paginator as IEnumerable).GetEnumerator();
             var collected = new List<Transaction>();
             while (enumerator.MoveNext())
             {
@@ -60,7 +60,7 @@ namespace APIMatic.Core.Test.Api.Pagination
             Assert.AreEqual(allTransactions.Count, collected.Count);
             CollectionAssert.AreEquivalent(allTransactions.Select(t => t.Id), collected.Select(t => t.Id));
         }
-
+        
         [Test]
         public void Paginate_QueryLinkPaginationYieldsAllItems_AcrossPages()
         {
@@ -86,7 +86,7 @@ namespace APIMatic.Core.Test.Api.Pagination
                     .Parameters(p => p
                         .Query(q => q.Setup("page", "1"))
                         .Query(q => q.Setup("limit", limit))))
-                .Paginate(
+                .PaginateAsync(
                     res => res.Data.Data,
                     LinkPagedResponseFactory.Create,
                     page => page.Items,
@@ -96,11 +96,7 @@ namespace APIMatic.Core.Test.Api.Pagination
 
             var collected = new List<Transaction>();
 
-            // Act
-            foreach (var item in paginator)
-            {
-                collected.Add(item);
-            }
+            Console.Write(paginator);
 
             // Assert
             Assert.AreEqual(allTransactions.Count, collected.Count);

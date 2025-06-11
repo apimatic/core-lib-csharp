@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using APIMatic.Core.Http.Configuration;
+using APIMatic.Core.Pagination;
+using APIMatic.Core.Pagination.Strategies;
 using APIMatic.Core.Types;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
@@ -142,6 +144,19 @@ namespace APIMatic.Core.Response
             }
 
             throw new InvalidOperationException($"Unable to transform {typeof(ResponseType)} into {typeof(ReturnType)}. ReturnTypeCreator is not provided.");
+        }
+
+        internal PaginatedResult<TItem, TPageMetadata> PaginatedResult<TItem, TPage, TPageMetadata>(
+            CoreContext<CoreRequest, CoreResponse> context,
+            IPaginationStrategy paginationStrategy,
+            Func<Response, ResponseType, TPage> returnTypeCreator,
+            Func<TPage, IEnumerable<TItem>> converter,
+            Func<TPage, IPaginationStrategy, IEnumerable<TItem>, TPageMetadata> pageResponseConverter)
+        {
+            var page = Result(context, returnTypeCreator);
+            var pageItems = converter(page);
+            var pageMeta = pageResponseConverter(page, paginationStrategy, pageItems);
+            return new PaginatedResult<TItem, TPageMetadata>(context.Response, pageItems, pageMeta);
         }
 
         private ApiException ResponseError(CoreContext<CoreRequest, CoreResponse> context)

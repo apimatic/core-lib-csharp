@@ -110,34 +110,18 @@ namespace APIMatic.Core
         public async Task<ReturnType> ExecuteAsync(CancellationToken cancellationToken = default)
             => responseHandler.Result(await ExecuteRequestAsync(cancellationToken), returnTypeCreator);
 
-        public async Task<CoreContext<CoreRequest, CoreResponse>> ExecuteRequestAsync(CancellationToken cancellationToken = default)
+        public async Task<CoreContext<CoreRequest, CoreResponse>> ExecuteRequestAsync(
+            CancellationToken cancellationToken = default)
         {
             requestBuilder.AcceptHeader = responseHandler.AcceptHeader;
             CoreRequest request = await requestBuilder.Build().ConfigureAwait(false);
             globalConfiguration.ApiCallback?.OnBeforeHttpRequestEventHandler(request);
             _sdkLogger.LogRequest(request);
-            CoreResponse response = await globalConfiguration.HttpClient.ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
+            CoreResponse response = await globalConfiguration.HttpClient.ExecuteAsync(request, cancellationToken)
+                .ConfigureAwait(false);
             globalConfiguration.ApiCallback?.OnAfterHttpResponseEventHandler(response);
             _sdkLogger.LogResponse(response);
             return new CoreContext<CoreRequest, CoreResponse>(request, response);
-        }
-
-        public TEnumerable Paginate<TItem, TEnumerable, TPageMetadata>(
-            Func<ReturnType, IEnumerable<TItem>> converter,
-            Func<ReturnType, IPaginationStrategy, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
-            Func<TPageMetadata, IEnumerable<TItem>> pagedResponseItemConverter,
-            Func<
-                    Func<RequestBuilder, IPaginationStrategy, Task<PaginatedResult<TItem, TPageMetadata>>>,
-                    RequestBuilder, Func<TPageMetadata, IEnumerable<TItem>>, IPaginationStrategy[],
-                    TEnumerable> returnTypeGetter,
-                params IPaginationStrategy[] dataManagers)
-        {
-            return returnTypeGetter(
-                (reqBuilder, manager) => RequestBuilder(reqBuilder)
-                    .ExecutePaginationAsync(manager, converter, pageResponseConverter),
-                requestBuilder,
-                pagedResponseItemConverter,
-                dataManagers);
         }
 
         public TEnumerable PaginateAsync<TItem, TEnumerable, TPageMetadata>(
@@ -145,16 +129,20 @@ namespace APIMatic.Core
             Func<ReturnType, IPaginationStrategy, IEnumerable<TItem>, TPageMetadata> pageResponseConverter,
             Func<TPageMetadata, IEnumerable<TItem>> pagedResponseItemConverter,
             Func<
-                Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TItem, TPageMetadata>>>,
+                Func<RequestBuilder, IPaginationStrategy, CancellationToken,
+                    Task<PaginatedResult<TItem, TPageMetadata>>>,
                 RequestBuilder, Func<TPageMetadata, IEnumerable<TItem>>, IPaginationStrategy[],
                 TEnumerable> returnTypeGetter,
             params IPaginationStrategy[] dataManagers)
         {
-            return returnTypeGetter(async (reqBuilder, manager, cancellationToken) =>
-                    await RequestBuilder(reqBuilder).ExecutePaginationAsync(manager, converter, pageResponseConverter,
-                        cancellationToken).ConfigureAwait(false),
+            return returnTypeGetter(async (reqBuilder, paginationStrategy, cancellationToken) =>
+                {
+                    var context = await RequestBuilder(reqBuilder).ExecuteRequestAsync(cancellationToken).ConfigureAwait(false);
+                    return responseHandler.PaginatedResult(context, paginationStrategy, returnTypeCreator, converter, pageResponseConverter);
+                },
                 requestBuilder,
                 pagedResponseItemConverter,
                 dataManagers);
+        }
     }
 }
