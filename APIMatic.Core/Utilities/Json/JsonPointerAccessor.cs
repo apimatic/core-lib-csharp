@@ -91,7 +91,6 @@ namespace APIMatic.Core.Utilities.Json
                 var typeMap = value.ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.GetType() ?? typeof(object));
                 var root = JToken.Parse(JsonConvert.SerializeObject(value));
                 var tokenToUpdate = pointer.Evaluate(root);
-
                 var updatedValue = updater(tokenToUpdate.ToObject<object>());
                 var newToken = updatedValue == null ? JValue.CreateNull() : JToken.FromObject(updatedValue);
 
@@ -103,18 +102,10 @@ namespace APIMatic.Core.Utilities.Json
                         break;
                 }
 
-                return ((JObject)root).Properties().ToDictionary(
-                    prop => prop.Name,
-                    prop =>
-                    {
-                        var type = typeMap.TryGetValue(prop.Name, out var t) ? t : typeof(object);
-                        return prop.Value.ToObject(type)!;
-                    });
+                return ((JObject)root).Properties().ToDictionary(prop => prop.Name,
+                    prop => prop.Value.ToObject(typeMap.TryGetValue(prop.Name, out var t) ? t : typeof(object)));
             }
-            catch
-            {
-                return value;
-            }
+            catch { return value; }
         }
     }
 }
