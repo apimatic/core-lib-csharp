@@ -222,32 +222,36 @@ namespace APIMatic.Core.Request
                 UpdateValuesByPointer(bodyParameters, pointer, setter);
                 return;
             }
-            
-            if (body != null)
+
+            if (body is null)
             {
-                if (body is CoreFileStreamInfo)
-                {
-                    return; // file data not supported
-                }
-
-                if (bodySerializer != null && string.IsNullOrEmpty(pointer))
-                {
-                    bodySerializer = _ => setter(body);
-                    return;
-                }
-
-                if (body is string && string.IsNullOrEmpty(pointer) || string.IsNullOrEmpty(pointer))
-                {
-                    body = setter(body);
-                    return;
-                }
-                
-                body = JsonPointerAccessor.UpdateBodyValueByPointer(body, pointer, setter);
+                UpdateFormParameter(formParameters, pointer, setter);
+                return;
             }
-            
-            UpdateFormParameter(formParameters, pointer, setter);
-        }
 
+            UpdateDynamicBodyContent(setter, pointer);
+        }
+        
+        private void UpdateDynamicBodyContent(Func<object, object> setter, string pointer)
+        {
+            if (body is CoreFileStreamInfo || setter == null)
+                return;
+
+            if (bodySerializer != null && string.IsNullOrEmpty(pointer))
+            {
+                bodySerializer = _ => setter(body);
+                return;
+            }
+
+            if (body is string || string.IsNullOrEmpty(pointer))
+            {
+                body = setter(body);
+                return;
+            }
+
+            body = JsonPointerAccessor.UpdateBodyValueByPointer(body, pointer, setter);
+        }
+        
         /// <summary>
         /// This applies all the configuration and build an instance of CoreRequest
         /// </summary>
