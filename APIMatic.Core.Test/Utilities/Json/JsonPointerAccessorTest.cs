@@ -32,8 +32,8 @@ namespace APIMatic.Core.Test.Utilities.Json
             builder.UpdateByReference("$request.headers#/id", old => 999);
 
             // Assert
-            Assert.IsTrue(builder.headers.ContainsKey("id"));
-            Assert.AreEqual("999", builder.headers["id"].ToString());
+            Assert.IsTrue(builder.headersParameters.ContainsKey("id"));
+            Assert.AreEqual("999", builder.headersParameters["id"].ToString());
         }
         
         [Test]
@@ -45,13 +45,13 @@ namespace APIMatic.Core.Test.Utilities.Json
             builder.Parameters(p => p.Header(h => h.Setup("id", 0)));
             await builder.Build();
 
-            var previousHeaders = builder.headers;
+            var previousHeaders = builder.headersParameters;
             
             // Act
             builder.UpdateByReference("$request.headers", old => 999);
             
             // Assert
-            Assert.AreEqual(previousHeaders, builder.headers);
+            Assert.AreEqual(previousHeaders, builder.headersParameters);
         }
 
         [Test]
@@ -63,13 +63,13 @@ namespace APIMatic.Core.Test.Utilities.Json
             builder.Parameters(p => p.Header(h => h.Setup("id", 0)));
             await builder.Build();
 
-            var previousHeaders = builder.headers;
+            var previousHeaders = builder.headersParameters;
 
             // Act
             builder.UpdateByReference("$request.headers#/nonexistent", old => 999);
 
             // Assert
-            Assert.AreEqual(previousHeaders, builder.headers);
+            Assert.AreEqual(previousHeaders, builder.headersParameters);
         }
 
         [Test]
@@ -86,8 +86,8 @@ namespace APIMatic.Core.Test.Utilities.Json
             builder.UpdateByReference("$request.headers#/user/Id", old => 456);
 
             // Assert
-            Assert.IsTrue(builder.headers.ContainsKey("user"));
-            var updatedUser = builder.headers["user"] as User;
+            Assert.IsTrue(builder.headersParameters.ContainsKey("user"));
+            var updatedUser = builder.headersParameters["user"] as User;
             Assert.IsNotNull(updatedUser);
             Assert.AreEqual(456, updatedUser.Id);
             Assert.AreEqual("User1", updatedUser.Name);
@@ -158,7 +158,7 @@ namespace APIMatic.Core.Test.Utilities.Json
             var pointer = new JsonPointer("/age");
 
             // Act
-            var updated = JsonPointerAccessor.UpdateValueByPointer(
+            var updated = JsonPointerAccessor.UpdateBodyValueByPointer(
                 person,
                 pointer,
                 old => int.Parse(old.ToString() ?? "") + 5
@@ -173,7 +173,7 @@ namespace APIMatic.Core.Test.Utilities.Json
         public void UpdateValueByPointer_NullValue_ReturnsOriginal()
         {
             // Act
-            var result = JsonPointerAccessor.UpdateValueByPointer<Person>(
+            var result = JsonPointerAccessor.UpdateBodyValueByPointer<Person>(
                 null,
                 new JsonPointer("/name"),
                 old => "Bob"
@@ -187,7 +187,7 @@ namespace APIMatic.Core.Test.Utilities.Json
         public void UpdateValueByPointer_NullPointer_ReturnsOriginal()
         {
             var person = new Person { Name = "Charlie", Age = 40 };
-            var result = JsonPointerAccessor.UpdateValueByPointer(
+            var result = JsonPointerAccessor.UpdateBodyValueByPointer(
                 person,
                 null,
                 old => "David"
@@ -200,7 +200,7 @@ namespace APIMatic.Core.Test.Utilities.Json
         public void UpdateValueByPointer_NullUpdater_ReturnsOriginal()
         {
             var person = new Person { Name = "Charlie", Age = 40 };
-            var result = JsonPointerAccessor.UpdateValueByPointer(
+            var result = JsonPointerAccessor.UpdateBodyValueByPointer(
                 person,
                 new JsonPointer("/name"),
                 null
@@ -215,7 +215,7 @@ namespace APIMatic.Core.Test.Utilities.Json
             var person = new Person { Name = "Eva", Age = 50 };
             var pointer = new JsonPointer("/name");
 
-            var result = JsonPointerAccessor.UpdateValueByPointer(
+            var result = JsonPointerAccessor.UpdateBodyValueByPointer(
                 person,
                 pointer,
                 old => null
@@ -230,7 +230,7 @@ namespace APIMatic.Core.Test.Utilities.Json
             var person = new Person { Name = "Frank", Age = 60 };
             var invalidPointer = new JsonPointer("/nonexistent");
 
-            var result = JsonPointerAccessor.UpdateValueByPointer(
+            var result = JsonPointerAccessor.UpdateBodyValueByPointer(
                 person,
                 invalidPointer,
                 old => "ShouldNotApply"

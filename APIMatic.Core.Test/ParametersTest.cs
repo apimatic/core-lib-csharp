@@ -27,7 +27,7 @@ namespace APIMatic.Core.Test
                 .Apply(requestBuilder);
             Assert.False(requestBuilder.queryParameters.ContainsKey("query"));
             Assert.False(requestBuilder.formParameters.Exists(kv => kv.Key == "form"));
-            Assert.False(requestBuilder.headers.ContainsKey("header"));
+            Assert.False(requestBuilder.headersParameters.ContainsKey("header"));
             Assert.True(requestBuilder.GetQueryUrl().Contains("{template}"));
 
 

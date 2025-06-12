@@ -51,7 +51,7 @@ namespace APIMatic.Core.Utilities.Json
             };
         }
 
-        public static T UpdateValueByPointer<T>(T value, JsonPointer pointer, Func<object, object> updater)
+        public static T UpdateBodyValueByPointer<T>(T value, JsonPointer pointer, Func<object, object> updater)
         {
             if (value == null || pointer == null || updater == null)
                 return value;

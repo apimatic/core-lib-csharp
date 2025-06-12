@@ -35,7 +35,7 @@ namespace APIMatic.Core.Request
         private readonly StringBuilder queryUrl;
         private Func<dynamic, object> bodySerializer = PrepareBody;
 
-        internal readonly Dictionary<string, object> headers = new Dictionary<string, object>();
+        internal readonly Dictionary<string, object> headersParameters = new Dictionary<string, object>();
         internal dynamic body;
         internal Type bodyType;
         internal readonly Dictionary<string, object> templateParameters = new Dictionary<string, object>();
@@ -49,15 +49,55 @@ namespace APIMatic.Core.Request
             queryUrl = new StringBuilder(serverUrl);
             authGroup = new AuthGroupBuilder(configuration.AuthManagers);
         }
+        
+        internal RequestBuilder(RequestBuilder source)
+        {
+            this.configuration = source.configuration;
+            this.retryOption = source.retryOption;
+            this.contentTypeAllowed = source.contentTypeAllowed;
+            this.httpMethod = source.httpMethod;
+            this.queryUrl = new StringBuilder(source.queryUrl.ToString());
+            this.AcceptHeader = source.AcceptHeader;
+            this.ArraySerialization = source.ArraySerialization;
+            this.HasBinaryResponse = source.HasBinaryResponse;
+            this.xmlRequest = source.xmlRequest;
+            this.bodySerializer = source.bodySerializer;
+            this.body = source.body;
+            this.bodyType = source.bodyType;
 
+            this.headersParameters = new Dictionary<string, object>(source.headersParameters);
+            this.templateParameters = new Dictionary<string, object>(source.templateParameters);
+            this.bodyParameters = new Dictionary<string, object>(source.bodyParameters);
+            this.formParameters = new List<KeyValuePair<string, object>>(source.formParameters);
+            this.queryParameters = new Dictionary<string, object>(source.queryParameters);
+            this.authGroup = new AuthGroupBuilder(source.configuration.AuthManagers);
+        }
+        
+        internal static RequestBuilder RequestBuilderWithParameters(RequestBuilder source)
+        {
+            var requestBuilder = new RequestBuilder(source);
+            source.parameters.Validate().Apply(requestBuilder);
+            return requestBuilder;
+        }
+        
         internal ContentType AcceptHeader { get; set; } = ContentType.SCALAR;
 
         internal ArraySerialization ArraySerialization { get; set; }
 
         internal bool HasBinaryResponse { get; set; }
 
+        internal string GetQueryUrl()
+        {
+            var queryBuilder = new StringBuilder(this.queryUrl.ToString());
+            foreach (var kvp in templateParameters)
+            {
+                queryBuilder.Replace($"{{{kvp.Key}}}", CoreHelper.GetTemplateReplacerValue(kvp.Value));
+            }
+            return queryBuilder.ToString();
+        }
+        
         private Type BodyType => bodyParameters.Any() ? typeof(object) : bodyType;
-
+        
         /// <summary>
         /// Required: Sets the API route and http method
         /// </summary>
@@ -159,70 +199,18 @@ namespace APIMatic.Core.Request
 
             switch (prefix)
             {
+                case "$request.headers":
+                    UpdateValuesByPointer(headersParameters, setter, jsonPointer);
+                    break;
                 case "$request.path":
-                    UpdateTemplateParams(setter, jsonPointer);
+                    UpdateValuesByPointer(templateParameters, setter, jsonPointer);
                     break;
                 case "$request.query":
-                    UpdateQueryParams(setter, jsonPointer);
-                    break;
-                case "$request.headers":
-                    UpdateHeaderParams(setter, jsonPointer);
+                    UpdateValuesByPointer(queryParameters, setter, jsonPointer);
                     break;
             }
 
             return this;
-        }
-
-        private void UpdateTemplateParams(Func<object, object> setter, JsonPointer pointer)
-        {
-            var updatedTemplateParameters =
-                JsonPointerAccessor.UpdateValueByPointer(templateParameters, pointer, setter);
-
-            foreach (var kvp in updatedTemplateParameters)
-            {
-                if (!templateParameters.TryGetValue(kvp.Key, out var existingValue) || existingValue != kvp.Value)
-                {
-                    templateParameters[kvp.Key] = kvp.Value;
-                }
-            }
-        }
-
-        private void UpdateHeaderParams(Func<object, object> setter, JsonPointer pointer)
-        {
-            var updatedHeaders =
-                JsonPointerAccessor.UpdateValueByPointer(headers, pointer, setter);
-
-            foreach (var kvp in updatedHeaders)
-            {
-                if (!headers.TryGetValue(kvp.Key, out var existingValue) || existingValue != kvp.Value)
-                {
-                    headers[kvp.Key] = kvp.Value;
-                }
-            }
-        }
-
-        private void UpdateQueryParams(Func<object, object> setter, JsonPointer pointer)
-        {
-            var updatedQueryParams =
-                JsonPointerAccessor.UpdateValueByPointer(queryParameters, pointer, setter);
-
-            foreach (var kvp in updatedQueryParams)
-            {
-                if (!queryParameters.TryGetValue(kvp.Key, out var existingValue) || existingValue != kvp.Value)
-                {
-                    queryParameters[kvp.Key] = kvp.Value;
-                }
-            }
-        }
-
-        internal string GetQueryUrl()
-        {
-            var queryBuilder = new StringBuilder(this.queryUrl.ToString());
-            foreach (var kvp in templateParameters)
-            {
-                queryBuilder.Replace($"{{{kvp.Key}}}", CoreHelper.GetTemplateReplacerValue(kvp.Value));
-            }
-            return queryBuilder.ToString();
         }
 
         /// <summary>
@@ -239,7 +227,7 @@ namespace APIMatic.Core.Request
             body = bodyParameters.Any() ? bodyParameters : body;
             AppendContentTypeHeader();
             AppendAcceptHeader();
-            return new CoreRequest(httpMethod, CoreHelper.CleanUrl(queryBuilder), headers.ToCoreRequestHeaders(), bodySerializer(body),
+            return new CoreRequest(httpMethod, CoreHelper.CleanUrl(queryBuilder), headersParameters.ToCoreRequestHeaders(), bodySerializer(body),
                 formParameters, queryParameters) { RetryOption = retryOption, HasBinaryResponse = HasBinaryResponse };
         }
         
@@ -255,20 +243,20 @@ namespace APIMatic.Core.Request
             }
             if (xmlRequest)
             {
-                headers.Add("content-type", ContentType.XML.GetValue());
+                headersParameters.Add("content-type", ContentType.XML.GetValue());
                 return;
             }
             if (body is Stream || body is byte[])
             {
-                headers.Add("content-type", ContentType.BINARY.GetValue());
+                headersParameters.Add("content-type", ContentType.BINARY.GetValue());
                 return;
             }
             if (CoreHelper.IsScalarType(BodyType))
             {
-                headers.Add("content-type", ContentType.SCALAR.GetValue());
+                headersParameters.Add("content-type", ContentType.SCALAR.GetValue());
                 return;
             }
-            headers.Add("content-type", ContentType.JSON_UTF8.GetValue());
+            headersParameters.Add("content-type", ContentType.JSON_UTF8.GetValue());
         }
 
         private void AppendAcceptHeader()
@@ -281,7 +269,7 @@ namespace APIMatic.Core.Request
             {
                 return;
             }
-            headers.Add("accept", AcceptHeader.GetValue());
+            headersParameters.Add("accept", AcceptHeader.GetValue());
         }
 
         private bool ContentHeaderKeyRequired(string key)
@@ -290,7 +278,7 @@ namespace APIMatic.Core.Request
             {
                 return false;
             }
-            if (headers.Any(p => p.Key.EqualsIgnoreCase(key)))
+            if (headersParameters.Any(p => p.Key.EqualsIgnoreCase(key)))
             {
                 return false;
             }
@@ -314,34 +302,18 @@ namespace APIMatic.Core.Request
             return CoreHelper.JsonSerialize(value);
         }
 
-        public RequestBuilder(RequestBuilder source)
+        private static void UpdateValuesByPointer(Dictionary<string, object> requestParameters, Func<object, object> setter,
+            JsonPointer pointer)
         {
-            this.configuration = source.configuration;
-            this.retryOption = source.retryOption;
-            this.contentTypeAllowed = source.contentTypeAllowed;
-            this.httpMethod = source.httpMethod;
-            this.queryUrl = new StringBuilder(source.queryUrl.ToString());
-            this.AcceptHeader = source.AcceptHeader;
-            this.ArraySerialization = source.ArraySerialization;
-            this.HasBinaryResponse = source.HasBinaryResponse;
-            this.xmlRequest = source.xmlRequest;
-            this.bodySerializer = source.bodySerializer;
-            this.body = source.body;
-            this.bodyType = source.bodyType;
+            var updated = JsonPointerAccessor.UpdateValueByPointer(requestParameters, pointer, setter);
 
-            this.headers = new Dictionary<string, object>(source.headers);
-            this.templateParameters = new Dictionary<string, object>(source.templateParameters);
-            this.bodyParameters = new Dictionary<string, object>(source.bodyParameters);
-            this.formParameters = new List<KeyValuePair<string, object>>(source.formParameters);
-            this.queryParameters = new Dictionary<string, object>(source.queryParameters);
-            this.authGroup = new AuthGroupBuilder(source.configuration.AuthManagers);
-        }
-        
-        public static RequestBuilder RequestBuilderWithParameters(RequestBuilder source)
-        {
-            var requestBuilder = new RequestBuilder(source);
-            source.parameters.Validate().Apply(requestBuilder);
-            return requestBuilder;
+            foreach (var kvp in updated)
+            {
+                if (!requestParameters.TryGetValue(kvp.Key, out var existingValue) || !Equals(existingValue, kvp.Value))
+                {
+                    requestParameters[kvp.Key] = kvp.Value;
+                }
+            }
         }
     }
     

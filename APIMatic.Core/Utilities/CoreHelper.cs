@@ -60,14 +60,7 @@ namespace APIMatic.Core.Utilities
                 settings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
             }
 
-            if (converter == null)
-            {
-                settings.Converters.Add(new IsoDateTimeConverter());
-            }
-            else
-            {
-                settings.Converters.Add(converter);
-            }
+            settings.Converters.Add(converter ?? new IsoDateTimeConverter());
 
             return JsonConvert.SerializeObject(obj, Formatting.None, settings);
         }

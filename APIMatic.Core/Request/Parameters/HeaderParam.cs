@@ -19,7 +19,7 @@ namespace APIMatic.Core.Request.Parameters
                 return;
             }
 
-            requestBuilder.headers[key] = value;
+            requestBuilder.headersParameters[key] = value;
         }
     }
 }
