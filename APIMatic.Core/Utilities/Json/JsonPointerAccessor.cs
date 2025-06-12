@@ -53,34 +53,23 @@ namespace APIMatic.Core.Utilities.Json
 
         public static T UpdateBodyValueByPointer<T>(T value, JsonPointer pointer, Func<object, object> updater)
         {
-            if (value == null || pointer == null || updater == null)
+            if (EqualityComparer<T>.Default.Equals(value, default) || pointer == null || updater == null)
                 return value;
 
             try
             {
-                // Step 1: Serialize the object to JSON
                 var json = CoreHelper.JsonSerialize(value);
-
-                // Step 2: Parse JSON and evaluate pointer
                 var jsonObject = JObject.Parse(json);
                 var jsonToken = pointer.Evaluate(jsonObject);
 
-                // Step 3: Apply updater
                 var oldValue = jsonToken.ToObject<object>();
                 var newValue = updater(oldValue);
                 if (newValue == null) return value;
 
-                // Step 4: Replace token
                 jsonToken.Replace(JToken.FromObject(newValue));
-
-                // Step 5: Deserialize back to T
-                var updatedJson = jsonObject.ToString();
-                return CoreHelper.JsonDeserialize<T>(updatedJson);
+                return CoreHelper.JsonDeserialize<T>(jsonObject.ToString());
             }
-            catch
-            {
-                return value;
-            }
+            catch { return value; }
         }
 
         public static Dictionary<string, object> UpdateValueByPointer(Dictionary<string, object> value,
