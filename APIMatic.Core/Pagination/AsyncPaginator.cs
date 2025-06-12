@@ -10,13 +10,13 @@ namespace APIMatic.Core.Pagination
 {
     public class AsyncPaginator<TItem, TPageMetadata> : IAsyncEnumerable<TItem>
     {
-        private readonly Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TItem, TPageMetadata>>> _apiCallExecutor;
+        private readonly Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TPageMetadata>>> _apiCallExecutor;
         private readonly RequestBuilder _requestBuilder;
         private readonly IPaginationStrategy[] _paginationStrategies;
         private readonly Func<TPageMetadata, IEnumerable<TItem>> _pagedResponseItemConverter;
 
         public AsyncPaginator(
-            Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TItem, TPageMetadata>>> apiCallExecutor,
+            Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TPageMetadata>>> apiCallExecutor,
             RequestBuilder requestBuilder,
             Func<TPageMetadata, IEnumerable<TItem>> pagedResponseItemConverter,
             IPaginationStrategy[] paginationStrategies)
@@ -56,7 +56,7 @@ namespace APIMatic.Core.Pagination
                     var result = await _apiCallExecutor(requestBuilder, paginationStrategy, cancellationToken)
                         .ConfigureAwait(false);
 
-                    var items = result?.Items;
+                    var items = _pagedResponseItemConverter(result.PageMetadata);
                     if (items == null || !items.Any())
                         yield break;
 

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Threading.Tasks;
 using APIMatic.Core.Pagination.Strategies;
 using APIMatic.Core.Test.MockTypes.Models.Pagination;
 using APIMatic.Core.Test.MockTypes.Pagination;
@@ -35,19 +34,24 @@ namespace APIMatic.Core.Test.Api.Pagination
             var transactionOffsets = PaginationHelper.ChunkTransactions(allTransactions, limit);
             handlerMock.MockOffsetPaginatedResponses(transactionOffsets, GetCompleteUrl(url));
 
-            var paginator = CreateApiCall<TransactionsOffset>()
-                .RequestBuilder(rb => rb
-                    .Setup(HttpMethod.Get, url)
-                    .Parameters(p => p
-                        .Query(q => q.Setup("offset", 0))
-                        .Query(q => q.Setup("limit", limit))))
-                .Paginate(
-                    res => res.Data.Data,
-                    OffsetPagedResponseFactory.Create,
-                    page => page.Items,
-                    PaginatorFactory.Create,
+            var paginator = PaginationFactory.CreateHandler(CreateApiCall<TransactionsOffset>()
+                    .RequestBuilder(rb => rb
+                        .Setup(HttpMethod.Get, url)
+                        .Parameters(p => p
+                            .Query(q => q.Setup("offset", 0))
+                            .Query(q => q.Setup("limit", limit)))),
+                (page, strategy) => OffsetPagedResponseFactory.Create(
+                    page,
+                    strategy,
+                    tPage => tPage.Data
+                ),
+                (func, builder) => PaginatorFactory.Create(
+                    func,
+                    builder,
+                    pagedResponse => pagedResponse.Items,
                     new OffsetPagination("$request.query#/offset")
-                );
+                )
+            ).Paginate();
 
             var enumerator = ((IEnumerable)paginator).GetEnumerator();
             var collected = new List<Transaction>();
@@ -60,7 +64,7 @@ namespace APIMatic.Core.Test.Api.Pagination
             Assert.AreEqual(allTransactions.Count, collected.Count);
             CollectionAssert.AreEquivalent(allTransactions.Select(t => t.Id), collected.Select(t => t.Id));
         }
-        
+
         [Test]
         public void Paginate_QueryLinkPaginationYieldsAllItems_AcrossPages()
         {
@@ -80,19 +84,24 @@ namespace APIMatic.Core.Test.Api.Pagination
             var linkedPages = PaginationHelper.ChunkTransactionsWithLinks(allTransactions, limit, url);
             handlerMock.MockLinkedPaginatedResponses(linkedPages, GetCompleteUrl(string.Empty));
 
-            var paginator = CreateApiCall<TransactionsLinked>()
-                .RequestBuilder(rb => rb
-                    .Setup(HttpMethod.Get, url)
-                    .Parameters(p => p
-                        .Query(q => q.Setup("page", "1"))
-                        .Query(q => q.Setup("limit", limit))))
-                .Paginate(
-                    res => res.Data.Data,
-                    LinkPagedResponseFactory.Create,
-                    page => page.Items,
-                    PaginatorFactory.Create,
+            var paginator = PaginationFactory.CreateHandler(CreateApiCall<TransactionsLinked>()
+                    .RequestBuilder(rb => rb
+                        .Setup(HttpMethod.Get, url)
+                        .Parameters(p => p
+                            .Query(q => q.Setup("page", "1"))
+                            .Query(q => q.Setup("limit", limit)))),
+                (page, strategy) => LinkPagedResponseFactory.Create(
+                    page,
+                    strategy,
+                    tPage => tPage.Data
+                ),
+                (func, builder) => PaginatorFactory.Create(
+                    func,
+                    builder,
+                    pagedResponse => pagedResponse.Items,
                     new LinkPagination("$response.body#/links/next")
-                );
+                )
+            ).Paginate();
 
             var collected = new List<Transaction>();
 

@@ -1,16 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using APIMatic.Core.Pagination.Strategies;
 using APIMatic.Core.Test.MockTypes.Http.Response;
 
 namespace APIMatic.Core.Test.MockTypes.Pagination.MetaData
 {
-    public class OffsetPagedResponse<TItem, TPage> : PagedResponse<TItem, TPage>
+    public class OffsetPagedResponse<TItem, TPage> : BasePagedResponse<TItem, TPage>
     {
-        public OffsetPagedResponse(ApiResponse<TPage> pageData, OffsetPagination manager, IEnumerable<TItem> pageItems) : base(
-            pageData, pageItems)
+        public OffsetPagedResponse(ApiResponse<TPage> pageData, OffsetPagination manager,
+            Func<TPage, IEnumerable<TItem>> pageToItems) : base(
+            pageData, pageToItems)
         {
-            Type = PaginationTypes.Offset;
             Offset = manager.OffsetValue;
         }
 
@@ -19,10 +20,8 @@ namespace APIMatic.Core.Test.MockTypes.Pagination.MetaData
 
     internal static class OffsetPagedResponseFactory
     {
-        public static OffsetPagedResponse<TItem, TPage> Create<TItem, TPage>(
-            ApiResponse<TPage> pageData,
-            IPaginationStrategy manager,
-            IEnumerable<TItem> pageItems) =>
-            new OffsetPagedResponse<TItem, TPage>(pageData, manager as OffsetPagination, pageItems);
+        public static OffsetPagedResponse<TItem, TPage> Create<TItem, TPage>(ApiResponse<TPage> pageData,
+            IPaginationStrategy manager, Func<TPage, IEnumerable<TItem>> pageToItems) =>
+            new(pageData, manager as OffsetPagination, pageToItems);
     }
 }

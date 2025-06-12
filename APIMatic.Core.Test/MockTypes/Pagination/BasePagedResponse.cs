@@ -6,44 +6,38 @@ using APIMatic.Core.Test.MockTypes.Pagination.MetaData;
 
 namespace APIMatic.Core.Test.MockTypes.Pagination
 {
-    public class PagedResponse<TItem, TPage> : ApiResponse<TPage>
+    public class BasePagedResponse<TItem, TPage> : ApiResponse<TPage>
     {
-        protected PagedResponse(ApiResponse<TPage> pageData, IEnumerable<TItem> pageItems) : base(pageData.StatusCode,
+        protected BasePagedResponse(ApiResponse<TPage> pageData, Func<TPage, IEnumerable<TItem>> pageToItems) : base(
+            pageData.StatusCode,
             pageData.Headers, pageData.Data)
         {
-            this.Items = pageItems;
+            this.Data = pageData.Data;
+            this.Items = pageToItems(pageData.Data);
         }
 
+        public TPage Data { get; }
+
         public IEnumerable<TItem> Items { get; }
-
-        public PaginationTypes Type { get; protected set; }
     }
 
-    public enum PaginationTypes
+    internal static class BasePagedResponseFactory
     {
-        Offset,
-        Cursor,
-        Page,
-        Link
-    }
-
-    internal static class PagedResponseFactory
-    {
-        public static PagedResponse<TItem, TPage> Create<TItem, TPage>(
+        public static BasePagedResponse<TItem, TPage> Create<TItem, TPage>(
             ApiResponse<TPage> pageData,
             IPaginationStrategy manager,
-            IEnumerable<TItem> pageItems)
+            Func<TPage, IEnumerable<TItem>> pageToItems)
         {
             return manager switch
             {
                 OffsetPagination offsetPagination => OffsetPagedResponseFactory.Create(pageData,
-                    offsetPagination, pageItems),
+                    offsetPagination, pageToItems),
                 CursorPagination cursorPagination => CursorPagedResponseFactory.Create(pageData,
-                    cursorPagination, pageItems),
+                    cursorPagination, pageToItems),
                 NumberPagination pagePagination => NumberPagedResponseFactory.Create(pageData,
-                    pagePagination, pageItems),
+                    pagePagination, pageToItems),
                 LinkPagination linkPagination => LinkPagedResponseFactory.Create(pageData, linkPagination,
-                    pageItems),
+                    pageToItems),
                 _ => throw new NotImplementedException("Unknown pagination type")
             };
         }

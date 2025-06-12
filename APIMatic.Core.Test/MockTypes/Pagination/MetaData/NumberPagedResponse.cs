@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using APIMatic.Core.Pagination.Strategies;
 using APIMatic.Core.Test.MockTypes.Http.Response;
 
 namespace APIMatic.Core.Test.MockTypes.Pagination.MetaData
 {
-    public class NumberPagedResponse<TItem, TPage> : PagedResponse<TItem, TPage>
+    public class NumberPagedResponse<TItem, TPage> : BasePagedResponse<TItem, TPage>
     {
-        public NumberPagedResponse(ApiResponse<TPage> pageData, NumberPagination manager, IEnumerable<TItem> pageItems) : base(
-            pageData, pageItems)
+        public NumberPagedResponse(ApiResponse<TPage> pageData, NumberPagination manager, Func<TPage, IEnumerable<TItem>> pageToItems) : base(
+            pageData, pageToItems)
         {
-            Type = PaginationTypes.Page;
             PageNumber = manager.CurrentPage;
         }
 
@@ -18,10 +18,8 @@ namespace APIMatic.Core.Test.MockTypes.Pagination.MetaData
 
     internal static class NumberPagedResponseFactory
     {
-        public static NumberPagedResponse<TItem, TPage> Create<TItem, TPage>(
-            ApiResponse<TPage> pageData,
-            IPaginationStrategy manager,
-            IEnumerable<TItem> pageItems) =>
-            new NumberPagedResponse<TItem, TPage>(pageData, manager as NumberPagination, pageItems);
+        public static NumberPagedResponse<TItem, TPage> Create<TItem, TPage>(ApiResponse<TPage> pageData,
+            IPaginationStrategy manager, Func<TPage, IEnumerable<TItem>> pageToItems) =>
+            new(pageData, manager as NumberPagination, pageToItems);
     }
 }

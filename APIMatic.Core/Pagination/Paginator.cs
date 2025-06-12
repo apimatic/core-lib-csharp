@@ -6,18 +6,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using APIMatic.Core.Pagination.Strategies;
+using System.Threading;
 
 namespace APIMatic.Core.Pagination
 {
     public class Paginator<TItem, TPage> : IEnumerable<TItem>
     {
-        private readonly Func<RequestBuilder, IPaginationStrategy, Task<PaginatedResult<TItem, TPage>>> _apiCallExecutor;
+        private readonly Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TPage>>> _apiCallExecutor;
         private readonly RequestBuilder _requestBuilder;
         private readonly IPaginationStrategy[] _paginationStrategies;
         private readonly Func<TPage, IEnumerable<TItem>> _pagedResponseItemConverter;
 
         public Paginator(
-            Func<RequestBuilder, IPaginationStrategy, Task<PaginatedResult<TItem, TPage>>> apiCallExecutor, RequestBuilder requestBuilder,
+            Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TPage>>> apiCallExecutor, RequestBuilder requestBuilder,
             Func<TPage, IEnumerable<TItem>> pagedResponseItemConverter,
             IPaginationStrategy[] paginationStrategies)
         {
@@ -51,9 +52,9 @@ namespace APIMatic.Core.Pagination
                     if (requestBuilder == null)
                         break;
 
-                    var result = CoreHelper.RunTask(_apiCallExecutor(requestBuilder, paginationStrategy));
+                    var result = CoreHelper.RunTask(_apiCallExecutor(requestBuilder, paginationStrategy, default));
 
-                    var items = result?.Items;
+                    var items = _pagedResponseItemConverter(result.PageMetadata);
                     if (items == null || !items.Any())
                         yield break;
 
