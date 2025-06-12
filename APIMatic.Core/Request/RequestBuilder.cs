@@ -34,10 +34,10 @@ namespace APIMatic.Core.Request
         private bool xmlRequest = false;
         private readonly StringBuilder queryUrl;
         private Func<dynamic, object> bodySerializer = PrepareBody;
-
-        internal readonly Dictionary<string, object> headersParameters = new Dictionary<string, object>();
+        
         internal dynamic body;
         internal Type bodyType;
+        internal readonly Dictionary<string, object> headersParameters = new Dictionary<string, object>();
         internal readonly Dictionary<string, object> templateParameters = new Dictionary<string, object>();
         internal readonly Dictionary<string, object> bodyParameters = new Dictionary<string, object>();
         internal readonly List<KeyValuePair<string, object>> formParameters = new List<KeyValuePair<string, object>>();
@@ -194,23 +194,58 @@ namespace APIMatic.Core.Request
                 return this;
 
             var prefix = pointerString.Substring(0, index);
-            var path = pointerString.Substring(index + 1);
-            var jsonPointer = new JsonPointer(path);
+            var pointer = pointerString.Substring(index + 1);
 
             switch (prefix)
             {
                 case "$request.headers":
-                    UpdateValuesByPointer(headersParameters, setter, jsonPointer);
+                    UpdateValuesByPointer(headersParameters, pointer, setter);
                     break;
                 case "$request.path":
-                    UpdateValuesByPointer(templateParameters, setter, jsonPointer);
+                    UpdateValuesByPointer(templateParameters, pointer, setter);
                     break;
                 case "$request.query":
-                    UpdateValuesByPointer(queryParameters, setter, jsonPointer);
+                    UpdateValuesByPointer(queryParameters, pointer, setter);
+                    break;
+                case "$request.body":
+                    UpdateBodyByPointer(setter, pointer);
                     break;
             }
 
             return this;
+        }
+
+        private void UpdateBodyByPointer(Func<object, object> setter, string pointer)
+        {
+            if (bodyParameters.Any())
+            {
+                UpdateValuesByPointer(bodyParameters, pointer, setter);
+                return;
+            }
+            
+            if (body != null)
+            {
+                if (body is CoreFileStreamInfo)
+                {
+                    return; // file data not supported
+                }
+
+                if (bodySerializer != null && string.IsNullOrEmpty(pointer))
+                {
+                    bodySerializer = _ => setter(body);
+                    return;
+                }
+
+                if (body is string && string.IsNullOrEmpty(pointer) || string.IsNullOrEmpty(pointer))
+                {
+                    body = setter(body);
+                    return;
+                }
+                
+                body = JsonPointerAccessor.UpdateBodyValueByPointer(body, pointer, setter);
+            }
+            
+            UpdateFormParameter(formParameters, pointer, setter);
         }
 
         /// <summary>
@@ -302,8 +337,7 @@ namespace APIMatic.Core.Request
             return CoreHelper.JsonSerialize(value);
         }
 
-        private static void UpdateValuesByPointer(Dictionary<string, object> requestParameters, Func<object, object> setter,
-            JsonPointer pointer)
+        private static void UpdateValuesByPointer(Dictionary<string, object> requestParameters, string pointer, Func<object, object> setter)
         {
             var updated = JsonPointerAccessor.UpdateValueByPointer(requestParameters, pointer, setter);
 
@@ -314,6 +348,22 @@ namespace APIMatic.Core.Request
                     requestParameters[kvp.Key] = kvp.Value;
                 }
             }
+        }
+
+        private static void UpdateFormParameter(List<KeyValuePair<string, object>> formParameters, string pointer,
+            Func<object, object> setter)
+        {
+            // Convert to dictionary for update
+            var formParameterDictionary = formParameters
+                .GroupBy(p => p.Key)
+                .ToDictionary(g => g.Key, g => g.Last().Value); // Handles duplicate keys safely
+
+            // Apply update
+            var updated = JsonPointerAccessor.UpdateValueByPointer(formParameterDictionary, pointer, setter);
+
+            // Rebuild list from updated dictionary
+            formParameters.Clear();
+            formParameters.AddRange(updated.Select(kvp => new KeyValuePair<string, object>(kvp.Key, kvp.Value)));
         }
     }
     

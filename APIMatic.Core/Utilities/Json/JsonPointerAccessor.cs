@@ -51,16 +51,17 @@ namespace APIMatic.Core.Utilities.Json
             };
         }
 
-        public static T UpdateBodyValueByPointer<T>(T value, JsonPointer pointer, Func<object, object> updater)
+        public static T UpdateBodyValueByPointer<T>(T value, string pointer, Func<object, object> updater)
         {
-            if (EqualityComparer<T>.Default.Equals(value, default) || pointer == null || updater == null)
+            if (EqualityComparer<T>.Default.Equals(value, default) || string.IsNullOrEmpty(pointer) || updater == null)
                 return value;
 
             try
             {
                 var json = CoreHelper.JsonSerialize(value);
                 var jsonObject = JObject.Parse(json);
-                var jsonToken = pointer.Evaluate(jsonObject);
+                var jsonPointer = new JsonPointer(pointer);
+                var jsonToken = jsonPointer.Evaluate(jsonObject);
 
                 var oldValue = jsonToken.ToObject<object>();
                 var newValue = updater(oldValue);
@@ -73,13 +74,15 @@ namespace APIMatic.Core.Utilities.Json
         }
 
         public static Dictionary<string, object> UpdateValueByPointer(Dictionary<string, object> value,
-            JsonPointer pointer, Func<object, object> updater)
+            string pointer, Func<object, object> updater)
         {
+            if (value is null || string.IsNullOrEmpty(pointer) || updater == null) return value;
             try
             {
                 var typeMap = value.ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.GetType() ?? typeof(object));
                 var root = JToken.Parse(JsonConvert.SerializeObject(value));
-                var tokenToUpdate = pointer.Evaluate(root);
+                var jsonPointer = new JsonPointer(pointer);
+                var tokenToUpdate = jsonPointer.Evaluate(root);
                 var updatedValue = updater(tokenToUpdate.ToObject<object>());
                 var newToken = updatedValue == null ? JValue.CreateNull() : JToken.FromObject(updatedValue);
 

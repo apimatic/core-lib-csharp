@@ -66,12 +66,30 @@ namespace APIMatic.Core.Test.Utilities.Json
             var previousHeaders = builder.headersParameters;
 
             // Act
-            builder.UpdateByReference("$request.headers#/nonexistent", old => 999);
+            builder.UpdateByReference("$request.headers#", old => 999);
 
             // Assert
             Assert.AreEqual(previousHeaders, builder.headersParameters);
         }
 
+        [Test]
+        public async Task UpdateByReference_HeaderParam_SingleValue_UpdatesWithNonExistentPointer()
+        {
+            var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
+            setupRequest(builder);
+
+            builder.Parameters(p => p.Header(h => h.Setup("id", 0)));
+            await builder.Build();
+
+            var previousHeaders = builder.headersParameters;
+
+            // Act
+            builder.UpdateByReference("$request.headers#/nonexistent", old => 999);
+
+            // Assert
+            Assert.AreEqual(previousHeaders, builder.headersParameters);
+        }
+        
         [Test]
         public async Task UpdateByReference_HeaderParam_ObjectValue_UpdatesObjectCorrectly()
         {
@@ -151,11 +169,11 @@ namespace APIMatic.Core.Test.Utilities.Json
         }
 
         [Test]
-        public void UpdateValueByPointer_ValidPointer_UpdatesValue()
+        public void UpdateBodyValueByPointer_ValidPointer_UpdatesValue()
         {
             // Arrange
             var person = new Person { Name = "Alice", Age = 30 };
-            var pointer = new JsonPointer("/age");
+            var pointer = "/age";
 
             // Act
             var updated = JsonPointerAccessor.UpdateBodyValueByPointer(
@@ -170,12 +188,12 @@ namespace APIMatic.Core.Test.Utilities.Json
         }
 
         [Test]
-        public void UpdateValueByPointer_NullValue_ReturnsOriginal()
+        public void UpdateBodyValueByPointer_NullValue_ReturnsOriginal()
         {
             // Act
             var result = JsonPointerAccessor.UpdateBodyValueByPointer<Person>(
                 null,
-                new JsonPointer("/name"),
+                "/name",
                 old => "Bob"
             );
 
@@ -184,7 +202,7 @@ namespace APIMatic.Core.Test.Utilities.Json
         }
 
         [Test]
-        public void UpdateValueByPointer_NullPointer_ReturnsOriginal()
+        public void UpdateBodyValueByPointer_NullPointer_ReturnsOriginal()
         {
             var person = new Person { Name = "Charlie", Age = 40 };
             var result = JsonPointerAccessor.UpdateBodyValueByPointer(
@@ -197,12 +215,12 @@ namespace APIMatic.Core.Test.Utilities.Json
         }
 
         [Test]
-        public void UpdateValueByPointer_NullUpdater_ReturnsOriginal()
+        public void UpdateBodyValueByPointer_NullUpdater_ReturnsOriginal()
         {
             var person = new Person { Name = "Charlie", Age = 40 };
             var result = JsonPointerAccessor.UpdateBodyValueByPointer(
                 person,
-                new JsonPointer("/name"),
+                "/name",
                 null
             );
 
@@ -210,10 +228,10 @@ namespace APIMatic.Core.Test.Utilities.Json
         }
 
         [Test]
-        public void UpdateValueByPointer_UpdaterReturnsNull_ReturnsOriginal()
+        public void UpdateBodyValueByPointer_UpdaterReturnsNull_ReturnsOriginal()
         {
             var person = new Person { Name = "Eva", Age = 50 };
-            var pointer = new JsonPointer("/name");
+            var pointer = "/name";
 
             var result = JsonPointerAccessor.UpdateBodyValueByPointer(
                 person,
@@ -225,10 +243,10 @@ namespace APIMatic.Core.Test.Utilities.Json
         }
 
         [Test]
-        public void UpdateValueByPointer_InvalidPointer_ReturnsOriginal()
+        public void UpdateBodyValueByPointer_InvalidPointer_ReturnsOriginal()
         {
             var person = new Person { Name = "Frank", Age = 60 };
-            var invalidPointer = new JsonPointer("/nonexistent");
+            var invalidPointer = "/nonexistent";
 
             var result = JsonPointerAccessor.UpdateBodyValueByPointer(
                 person,
