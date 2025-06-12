@@ -14,11 +14,7 @@ namespace APIMatic.Core.Request.Parameters
 
         internal override void Apply(RequestBuilder requestBuilder)
         {
-            if (!validated)
-            {
-                return;
-            }
-
+            if (!validated) return;
             requestBuilder.headersParameters[key] = value;
         }
     }

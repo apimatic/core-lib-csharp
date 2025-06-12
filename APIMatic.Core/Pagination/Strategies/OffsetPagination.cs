@@ -17,6 +17,18 @@ namespace APIMatic.Core.Pagination.Strategies
             _input = input;
         }
 
+        /// <summary>
+        /// Applies offset-based pagination by updating the request builder with a new offset value.
+        /// If the response is not available, it uses the existing offset value from the request.
+        /// Otherwise, it increments the offset by the size of the data returned in the previous response.
+        /// </summary>
+        /// <param name="paginationContext">
+        /// The context containing the current request builder, response data, and data size for pagination.
+        /// </param>
+        /// <returns>
+        /// A new <see cref="RequestBuilder"/> with the updated offset value if pagination was applied;
+        /// otherwise, <c>null</c> if no update occurred.
+        /// </returns>
         public RequestBuilder Apply(PaginationContext paginationContext)
         {
             var isUpdated = false;

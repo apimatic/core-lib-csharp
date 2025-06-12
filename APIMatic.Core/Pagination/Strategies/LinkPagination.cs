@@ -19,6 +19,17 @@ namespace APIMatic.Core.Pagination.Strategies
             _next = next;
         }
 
+        /// <summary>
+        /// Applies link-based pagination by extracting the next page URL from the response
+        /// and updating the request builder with query parameters from that URL.
+        /// </summary>
+        /// <param name="paginationContext">
+        /// The context containing the current request builder and response data (body and headers).
+        /// </param>
+        /// <returns>
+        /// A new <see cref="RequestBuilder"/> with updated query parameters if a next link is found;
+        /// the original request builder if no response is available; otherwise, <c>null</c> if no link is present.
+        /// </returns>
         public RequestBuilder Apply(PaginationContext paginationContext)
         {
             CurrentLinkValue = JsonPointerAccessor.ResolveJsonValueByReference(

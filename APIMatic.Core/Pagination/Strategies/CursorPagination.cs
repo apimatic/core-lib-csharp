@@ -22,38 +22,40 @@ namespace APIMatic.Core.Pagination.Strategies
             _input = input;
         }
 
+        /// <summary>
+        /// Applies pagination logic by updating the request builder with a new cursor value 
+        /// extracted from the response, if available.
+        /// </summary>
+        /// <param name="paginationContext">The context containing the current request builder, response data, and headers.</param>
+        /// <returns>
+        /// A new <see cref="RequestBuilder"/> instance with updated cursor parameter if the response was processed; 
+        /// otherwise, <c>null</c> if no update occurred.
+        /// </returns>
         public RequestBuilder Apply(PaginationContext paginationContext)
         {
             var isUpdated = false;
-            var currentRequestBuilder = RequestBuilder.RequestBuilderWithParameters(paginationContext.RequestBuilder)
-                .UpdateByReference(
-                    _input, old =>
+
+            var updatedBuilder = RequestBuilder
+                .RequestBuilderWithParameters(paginationContext.RequestBuilder)
+                .UpdateByReference(_input, old =>
+                {
+                    var oldValue = old?.ToString();
+                    if (!paginationContext.HasResponse)
                     {
-                        var oldValue = old?.ToString();
-                        if (!paginationContext.HasResponse)
-                        {
-                            CursorValue = oldValue;
-                            isUpdated = true;
-                            return oldValue;
-                        }
-
-                        var cursorValue = JsonPointerAccessor.ResolveJsonValueByReference(
-                            _output,
-                            paginationContext.ResponseBody,
-                            paginationContext.ResponseHeaders
-                        );
-                        
-                        if (cursorValue == null)
-                        {
-                            return oldValue;
-                        }
-
-                        CursorValue = cursorValue;
+                        CursorValue = oldValue;
                         isUpdated = true;
-                        return CursorValue;
-                    });
+                        return oldValue;
+                    }
 
-            return isUpdated ? currentRequestBuilder : null;
+                    CursorValue = JsonPointerAccessor.ResolveJsonValueByReference(
+                        _output, paginationContext.ResponseBody, paginationContext.ResponseHeaders
+                    ) ?? oldValue;
+
+                    isUpdated |= CursorValue != oldValue;
+                    return CursorValue;
+                });
+
+            return isUpdated ? updatedBuilder : null;
         }
     }
 }

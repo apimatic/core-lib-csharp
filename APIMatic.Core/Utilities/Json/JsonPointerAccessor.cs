@@ -83,54 +83,33 @@ namespace APIMatic.Core.Utilities.Json
             }
         }
 
-        public static Dictionary<string, object> UpdateValueByPointer(
-            Dictionary<string, object> value,
-            JsonPointer pointer,
-            Func<object, object> updater)
+        public static Dictionary<string, object> UpdateValueByPointer(Dictionary<string, object> value,
+            JsonPointer pointer, Func<object, object> updater)
         {
             try
             {
-                // 0. Capture original types of root dictionary values
                 var typeMap = value.ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.GetType() ?? typeof(object));
-
-                // 1. Serialize the input dictionary to JToken
-                var json = JsonConvert.SerializeObject(value);
-                var root = JToken.Parse(json);
-
-                // 2. Locate the token to update
+                var root = JToken.Parse(JsonConvert.SerializeObject(value));
                 var tokenToUpdate = pointer.Evaluate(root);
 
-                // 3. Apply updater
-                var currentValue = tokenToUpdate.ToObject<object>();
-                var updatedValue = updater(currentValue);
+                var updatedValue = updater(tokenToUpdate.ToObject<object>());
                 var newToken = updatedValue == null ? JValue.CreateNull() : JToken.FromObject(updatedValue);
 
                 switch (tokenToUpdate.Parent)
                 {
-                    // 4. Replace token
-                    case JProperty prop:
-                        prop.Value = newToken;
-                        break;
+                    case JProperty prop: prop.Value = newToken; break;
                     case JArray array:
-                    {
-                        int index = array.IndexOf(tokenToUpdate);
-                        array[index] = newToken;
+                        array[array.IndexOf(tokenToUpdate)] = newToken;
                         break;
-                    }
                 }
 
-                // 5. Deserialize each value using its original type
-                var result = new Dictionary<string, object>();
-                foreach (var kvp in ((JObject)root).Properties())
-                {
-                    var key = kvp.Name;
-                    var token = kvp.Value;
-                    var targetType = typeMap.TryGetValue(key, out var type) ? type : typeof(object);
-                    var obj = token.ToObject(targetType);
-                    result[key] = obj!;
-                }
-
-                return result;
+                return ((JObject)root).Properties().ToDictionary(
+                    prop => prop.Name,
+                    prop =>
+                    {
+                        var type = typeMap.TryGetValue(prop.Name, out var t) ? t : typeof(object);
+                        return prop.Value.ToObject(type)!;
+                    });
             }
             catch
             {

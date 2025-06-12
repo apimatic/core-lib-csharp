@@ -17,6 +17,17 @@ namespace APIMatic.Core.Pagination.Strategies
             _input = input;
         }
 
+        /// <summary>
+        /// Applies page-based pagination by incrementing the current page number 
+        /// and updating the request builder accordingly.
+        /// </summary>
+        /// <param name="paginationContext">
+        /// The context containing the current request builder and response metadata (body and headers).
+        /// </param>
+        /// <returns>
+        /// A new <see cref="RequestBuilder"/> with the page number incremented if pagination is applied;
+        /// otherwise, <c>null</c> if no changes are made.
+        /// </returns>
         public RequestBuilder Apply(PaginationContext paginationContext)
         {
             var isUpdated = false;
