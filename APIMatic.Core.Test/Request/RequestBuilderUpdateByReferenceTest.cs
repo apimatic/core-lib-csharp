@@ -1,20 +1,20 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using APIMatic.Core.Request;
-using APIMatic.Core.Test.MockTypes.Models;
 using APIMatic.Core.Test.MockTypes.Models.Pagination;
-using APIMatic.Core.Utilities.Json;
-using Microsoft.Json.Pointer;
+using APIMatic.Core.Types.Sdk;
 using NUnit.Framework;
 
-namespace APIMatic.Core.Test.Utilities.Json
+namespace APIMatic.Core.Test.Request
 {
     [TestFixture]
-    public class JsonPointerAccessorTest : TestBase
+    public class RequestBuilderUpdateByReferenceTest : TestBase
     {
-        private const string ServerUrl = "https://api.example.com/users";
+         private const string ServerUrl = "https://api.example.com/users";
 
         readonly Action<RequestBuilder> setupRequest = rb =>
             rb.Setup(HttpMethod.Get, ServerUrl);
@@ -167,170 +167,101 @@ namespace APIMatic.Core.Test.Utilities.Json
             Assert.IsNotNull(updated);
             CollectionAssert.AreEqual(new List<int> { 1, 999, 3 }, updated);
         }
-
+        
         [Test]
-        public void UpdateBodyValueByPointer_ValidPointer_UpdatesValue()
+        public async Task UpdateByReference_BodyParameters_UpdatesCorrectly()
         {
-            // Arrange
-            var person = new Person { Name = "Alice", Age = 30 };
-            var pointer = "/age";
+            var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
+            setupRequest(builder);
 
-            // Act
-            var updated = JsonPointerAccessor.UpdateBodyValueByPointer(
-                person,
-                pointer,
-                old => int.Parse(old.ToString() ?? "") + 5
-            );
+            builder.Parameters(p => p.Body(b => b.Setup("age", 25)));
+            await builder.Build();
 
-            // Assert
-            Assert.AreEqual(35, updated.Age);
-            Assert.AreEqual("Alice", updated.Name);
+            builder.UpdateByReference("$request.body#/age", old => 30);
+
+            Assert.IsTrue(builder.bodyParameters.ContainsKey("age"));
+            Assert.AreEqual(30, builder.bodyParameters["age"]);
         }
 
         [Test]
-        public void UpdateBodyValueByPointer_NullValue_ReturnsOriginal()
+        public async Task UpdateByReference_FormParameters_UpdatesCorrectly()
         {
-            // Act
-            var result = JsonPointerAccessor.UpdateBodyValueByPointer<Person>(
-                null,
-                "/name",
-                old => "Bob"
-            );
+            var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
+            setupRequest(builder);
 
-            // Assert
-            Assert.IsNull(result);
+            builder.Parameters(p => p.Form(f =>
+            {
+                f.Setup("username", "john");
+                f.Setup("email", "john@example.com");
+            }));
+
+            await builder.Build();
+
+            builder.UpdateByReference("$request.body#/email", old => "jane@example.com");
+
+            var updated = builder.formParameters.ToDictionary(p => p.Key, p => p.Value);
+            Assert.AreEqual("jane@example.com", updated["email"]);
         }
 
         [Test]
-        public void UpdateBodyValueByPointer_NullPointer_ReturnsOriginal()
+        public async Task UpdateByReference_DynamicBody_UpdatesCorrectly()
         {
-            var person = new Person { Name = "Charlie", Age = 40 };
-            var result = JsonPointerAccessor.UpdateBodyValueByPointer(
-                person,
-                null,
-                old => "David"
-            );
+            var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
+            setupRequest(builder);
 
-            Assert.AreEqual("Charlie", result.Name);
+            builder.Parameters(p => p.Body( b => b.Setup(new { name = "Alice", age = 30 })));
+            await builder.Build();
+
+            builder.UpdateByReference("$request.body#/age", old => 35);
+
+            Assert.AreEqual(35, builder.body.age);
         }
 
         [Test]
-        public void UpdateBodyValueByPointer_NullUpdater_ReturnsOriginal()
+        public async Task UpdateByReference_StringBody_UpdatesCorrectly()
         {
-            var person = new Person { Name = "Charlie", Age = 40 };
-            var result = JsonPointerAccessor.UpdateBodyValueByPointer(
-                person,
-                "/name",
-                null
-            );
+            var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
+            setupRequest(builder);
 
-            Assert.AreEqual("Charlie", result.Name);
+            builder.Parameters(p => p.Body( b => b.Setup("InitialValue")));
+            await builder.Build();
+
+            builder.UpdateByReference("$request.body#/", old => "UpdatedValue");
+
+            Assert.AreEqual("UpdatedValue", builder.body);
         }
 
         [Test]
-        public void UpdateBodyValueByPointer_UpdaterReturnsNull_ReturnsOriginal()
+        public async Task UpdateByReference_ObjectBody_UpdatesCorrectly()
         {
-            var person = new Person { Name = "Eva", Age = 50 };
-            var pointer = "/name";
+            var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
+            setupRequest(builder);
+            
+            builder.Parameters(p => p.Body( b => b.Setup(new User { Id = 1, Name = "Alice" })));
+            await builder.Build();
 
-            var result = JsonPointerAccessor.UpdateBodyValueByPointer(
-                person,
-                pointer,
-                old => null
-            );
+            builder.UpdateByReference("$request.body#/Id", old => 35);
 
-            Assert.AreEqual("Eva", result.Name);
+            var updatedBody = builder.body as User;
+            Assert.IsNotNull(updatedBody);
+            Assert.AreEqual(35, updatedBody.Id);
+            Assert.AreEqual("Alice", updatedBody.Name); // Ensure other values remain intact
         }
-
+        
         [Test]
-        public void UpdateBodyValueByPointer_InvalidPointer_ReturnsOriginal()
+        public async Task UpdateByReference_Body_CoreFileStreamInfo_DoesNotUpdate()
         {
-            var person = new Person { Name = "Frank", Age = 60 };
-            var invalidPointer = "/nonexistent";
+            var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
+            setupRequest(builder);
 
-            var result = JsonPointerAccessor.UpdateBodyValueByPointer(
-                person,
-                invalidPointer,
-                old => "ShouldNotApply"
-            );
+            var originalBody = new CoreFileStreamInfo(new MemoryStream(), "text/plain", "file.txt");
+            builder.Parameters(p => p.Body( b => b.Setup(originalBody)));
 
-            Assert.AreEqual("Frank", result.Name);
-        }
+            await builder.Build();
 
-        [Test]
-        public void ResolveJsonValueByReference_NullPointer_ReturnsNull()
-        {
-            var result = JsonPointerAccessor.ResolveJsonValueByReference(null, "{}", "{}");
-            Assert.IsNull(result);
-        }
+            builder.UpdateByReference("$request.body#/", _ => "should-not-apply");
 
-        [Test]
-        public void ResolveJsonValueByReference_InvalidFormat_ReturnsNull()
-        {
-            var result = JsonPointerAccessor.ResolveJsonValueByReference("$response.body", "{}", "{}");
-            Assert.IsNull(result);
-        }
-
-        [Test]
-        public void ResolveJsonValueByReference_NullJsonPointer_ReturnsNull()
-        {
-            var result = JsonPointerAccessor.ResolveJsonValueByReference("$response.body#", "{}", "{}");
-            Assert.IsNull(result);
-        }
-
-        [Test]
-        public void ResolveJsonValueByReference_ValidBodyPointer_ReturnsValue()
-        {
-            var json = @"{""name"":""alice"", ""age"":30}";
-            var pointer = "$response.body#/name";
-
-            var result = JsonPointerAccessor.ResolveJsonValueByReference(pointer, json, null);
-
-            Assert.AreEqual("alice", result);
-        }
-
-        [Test]
-        public void ResolveJsonValueByReference_ValidHeadersPointer_ReturnsValue()
-        {
-            var headers = @"{""content-type"":""application/json""}";
-            var pointer = "$response.headers#/content-type";
-
-            var result = JsonPointerAccessor.ResolveJsonValueByReference(pointer, null, headers);
-
-            Assert.AreEqual("application/json", result);
-        }
-
-        [Test]
-        public void ResolveJsonValueByReference_PointerNotFound_ReturnsNull()
-        {
-            var json = @"{""name"":""alice""}";
-            var pointer = "$response.body#/nonexistent";
-
-            var result = JsonPointerAccessor.ResolveJsonValueByReference(pointer, json, null);
-
-            Assert.IsNull(result);
-        }
-
-        [Test]
-        public void ResolveJsonValueByReference_UnsupportedPrefix_ReturnsNull()
-        {
-            var pointer = "$request.body#/name";
-            var json = @"{""name"":""alice""}";
-
-            var result = JsonPointerAccessor.ResolveJsonValueByReference(pointer, json, null);
-
-            Assert.IsNull(result);
-        }
-
-        [Test]
-        public void ResolveJsonValueByReference_BooleanToken_ReturnsTokenToString()
-        {
-            var jsonBody = @"{ ""isActive"": true }";
-            var pointerString = "$response.body#/isActive";
-
-            var result = JsonPointerAccessor.ResolveJsonValueByReference(pointerString, jsonBody, null);
-
-            Assert.AreEqual("True", result);
+            Assert.AreSame(originalBody, builder.body); // Still the same object
         }
     }
 }

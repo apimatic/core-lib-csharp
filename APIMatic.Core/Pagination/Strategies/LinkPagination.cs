@@ -32,7 +32,7 @@ namespace APIMatic.Core.Pagination.Strategies
         /// </returns>
         public RequestBuilder Apply(PaginationContext paginationContext)
         {
-            CurrentLinkValue = JsonPointerAccessor.ResolveJsonValueByReference(
+            CurrentLinkValue = JsonPointerResolver.ResolveScopedJsonValue(
                 _next,
                 paginationContext.ResponseBody,
                 paginationContext.ResponseHeaders

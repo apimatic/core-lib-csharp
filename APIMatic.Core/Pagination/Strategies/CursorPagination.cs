@@ -47,7 +47,7 @@ namespace APIMatic.Core.Pagination.Strategies
                         return oldValue;
                     }
 
-                    CursorValue = JsonPointerAccessor.ResolveJsonValueByReference(
+                    CursorValue = JsonPointerResolver.ResolveScopedJsonValue(
                         _output, paginationContext.ResponseBody, paginationContext.ResponseHeaders
                     ) ?? oldValue;
 

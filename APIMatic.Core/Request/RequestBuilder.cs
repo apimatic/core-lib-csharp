@@ -5,18 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 using APIMatic.Core.Authentication;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Request.Parameters;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
-using APIMatic.Core.Utilities.Json;
-using Microsoft.Json.Pointer;
 
 namespace APIMatic.Core.Request
 {
@@ -187,7 +183,7 @@ namespace APIMatic.Core.Request
             return this;
         }
 
-        public RequestBuilder UpdateByReference(string pointerString, Func<object, object> setter)
+        internal RequestBuilder UpdateByReference(string pointerString, Func<object, object> setter)
         {
             var index = pointerString.IndexOf('#');
             if (index < 0)
@@ -199,13 +195,13 @@ namespace APIMatic.Core.Request
             switch (prefix)
             {
                 case "$request.headers":
-                    UpdateValuesByPointer(headersParameters, pointer, setter);
+                    RequestBuilderExtensions.UpdateRequestParametersByPointer(headersParameters, pointer, setter);
                     break;
                 case "$request.path":
-                    UpdateValuesByPointer(templateParameters, pointer, setter);
+                    RequestBuilderExtensions.UpdateRequestParametersByPointer(templateParameters, pointer, setter);
                     break;
                 case "$request.query":
-                    UpdateValuesByPointer(queryParameters, pointer, setter);
+                    RequestBuilderExtensions.UpdateRequestParametersByPointer(queryParameters, pointer, setter);
                     break;
                 case "$request.body":
                     UpdateBodyByPointer(setter, pointer);
@@ -219,13 +215,13 @@ namespace APIMatic.Core.Request
         {
             if (bodyParameters.Any())
             {
-                UpdateValuesByPointer(bodyParameters, pointer, setter);
+                RequestBuilderExtensions.UpdateRequestParametersByPointer(bodyParameters, pointer, setter);
                 return;
             }
 
             if (body is null)
             {
-                UpdateFormParameter(formParameters, pointer, setter);
+                RequestBuilderExtensions.UpdateFormParameterValueByPointer(formParameters, pointer, setter);
                 return;
             }
 
@@ -237,19 +233,13 @@ namespace APIMatic.Core.Request
             if (body is CoreFileStreamInfo || setter == null)
                 return;
 
-            if (bodySerializer != null && string.IsNullOrEmpty(pointer))
-            {
-                bodySerializer = _ => setter(body);
-                return;
-            }
-
             if (body is string || string.IsNullOrEmpty(pointer))
             {
                 body = setter(body);
                 return;
             }
 
-            body = JsonPointerAccessor.UpdateBodyValueByPointer(body, pointer, setter);
+            body = RequestBuilderExtensions.UpdateValueByPointer(body, pointer, setter);
         }
         
         /// <summary>
@@ -340,54 +330,5 @@ namespace APIMatic.Core.Request
             }
             return CoreHelper.JsonSerialize(value);
         }
-
-        private static void UpdateValuesByPointer(Dictionary<string, object> requestParameters, string pointer, Func<object, object> setter)
-        {
-            var updated = JsonPointerAccessor.UpdateValueByPointer(requestParameters, pointer, setter);
-
-            foreach (var kvp in updated)
-            {
-                if (!requestParameters.TryGetValue(kvp.Key, out var existingValue) || !Equals(existingValue, kvp.Value))
-                {
-                    requestParameters[kvp.Key] = kvp.Value;
-                }
-            }
-        }
-
-        private static void UpdateFormParameter(List<KeyValuePair<string, object>> formParameters, string pointer,
-            Func<object, object> setter)
-        {
-            // Convert to dictionary for update
-            var formParameterDictionary = formParameters
-                .GroupBy(p => p.Key)
-                .ToDictionary(g => g.Key, g => g.Last().Value); // Handles duplicate keys safely
-
-            // Apply update
-            var updated = JsonPointerAccessor.UpdateValueByPointer(formParameterDictionary, pointer, setter);
-
-            // Rebuild list from updated dictionary
-            formParameters.Clear();
-            formParameters.AddRange(updated.Select(kvp => new KeyValuePair<string, object>(kvp.Key, kvp.Value)));
-        }
-    }
-    
-    internal static class RequestBuilderExtensions
-    {
-        public static Dictionary<string, string> ToCoreRequestHeaders(this Dictionary<string, object> headers)
-        {
-            var result = new Dictionary<string, string>();
-
-            foreach (var kvp in headers)
-            {
-                var serialized = CoreHelper.JsonSerialize(kvp.Value)?.TrimStart('"').TrimEnd('"');
-                if (serialized != null)
-                {
-                    result[kvp.Key] = serialized;
-                }
-            }
-
-            return result;
-        }
-
     }
 }
