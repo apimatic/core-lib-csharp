@@ -59,7 +59,7 @@ namespace APIMatic.Core.Request
 
         public static T UpdateValueByPointer<T>(T value, string pointer, Func<object, object> updater)
         {
-            if (value == null || string.IsNullOrEmpty(pointer) || updater == null)
+            if (EqualityComparer<T>.Default.Equals(value, default) || string.IsNullOrEmpty(pointer) || updater == null)
                 return value;
 
             try
