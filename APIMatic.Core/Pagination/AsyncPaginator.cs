@@ -86,9 +86,9 @@ namespace APIMatic.Core.Pagination
             var initialStrategy = _paginationStrategies.First();
             var requestBuilder = initialStrategy.Apply(paginationContext);
 
-            var result = await initialStrategy
-                .ExecuteAndYieldAsync(requestBuilder, _apiCallExecutor, _pagedResponseItemConverter, cancellationToken)
-                .ConfigureAwait(false);
+            var result = await initialStrategy.ExecuteAndYieldAsync(requestBuilder,
+                    _apiCallExecutor, _pagedResponseItemConverter, cancellationToken).ConfigureAwait(false);
+            
             if (result == null) yield break;
 
             yield return result.Value.PageMetadata;
@@ -104,9 +104,8 @@ namespace APIMatic.Core.Pagination
                 requestBuilder = strategy.Apply(paginationContext);
                 if (requestBuilder == null) yield break;
 
-                result = await strategy
-                    .ExecuteAndYieldAsync(requestBuilder, _apiCallExecutor, _pagedResponseItemConverter,
-                        cancellationToken).ConfigureAwait(false);
+                result = await strategy.ExecuteAndYieldAsync(requestBuilder, _apiCallExecutor, 
+                    _pagedResponseItemConverter, cancellationToken).ConfigureAwait(false);
                 if (result == null) yield break;
 
                 yield return result.Value.PageMetadata;
