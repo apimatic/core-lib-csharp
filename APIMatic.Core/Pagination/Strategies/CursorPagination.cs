@@ -1,5 +1,4 @@
 ﻿using APIMatic.Core.Request;
-using APIMatic.Core.Utilities;
 using APIMatic.Core.Utilities.Json;
 
 namespace APIMatic.Core.Pagination.Strategies

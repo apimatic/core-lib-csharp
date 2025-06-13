@@ -7,8 +7,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using APIMatic.Core.Http.Configuration;
-using APIMatic.Core.Pagination;
-using APIMatic.Core.Pagination.Strategies;
 using APIMatic.Core.Request;
 using APIMatic.Core.Response;
 using APIMatic.Core.Types.Sdk;

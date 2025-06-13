@@ -1,5 +1,4 @@
 ﻿using APIMatic.Core.Types.Sdk;
-using System.Collections.Generic;
 
 namespace APIMatic.Core.Pagination
 {

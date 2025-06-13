@@ -1,9 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Json;
 using APIMatic.Core.Test.MockTypes.Models.Pagination;
-using APIMatic.Core.Utilities;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
 
@@ -11,7 +11,16 @@ namespace APIMatic.Core.Test.Utilities
 {
     internal static class PaginationHelper
     {
-        public static List<TransactionsOffset> ChunkTransactions(List<Transaction> transactions, int limit)
+        internal static readonly IReadOnlyCollection<Transaction> AllTransactions = new List<Transaction>
+        {
+            new("id1", 100, DateTime.UtcNow),
+            new("id2", 200, DateTime.UtcNow),
+            new("id3", 300, DateTime.UtcNow),
+            new("id4", 400, DateTime.UtcNow),
+            new("id5", 500, DateTime.UtcNow)
+        };
+        
+        public static List<TransactionsOffset> ChunkTransactions(IReadOnlyCollection<Transaction> transactions, int limit)
         {
             var chunks = transactions
                 .Select((tx, index) => new { tx, index })
@@ -62,7 +71,7 @@ namespace APIMatic.Core.Test.Utilities
             }
         }
 
-        public static List<TransactionsCursored> ChunkTransactionsWithCursor(List<Transaction> transactions, int limit)
+        public static List<TransactionsCursored> ChunkTransactionsWithCursor(IReadOnlyCollection<Transaction> transactions, int limit)
         {
             var chunks = transactions
                 .Select((tx, index) => new { tx, index })
@@ -97,7 +106,7 @@ namespace APIMatic.Core.Test.Utilities
             }
         }
 
-        public static List<TransactionsLinked> ChunkTransactionsWithLinks(List<Transaction> transactions, int limit,
+        public static List<TransactionsLinked> ChunkTransactionsWithLinks(IReadOnlyCollection<Transaction> transactions, int limit,
             string urlPath)
         {
             var chunks = transactions
@@ -138,7 +147,7 @@ namespace APIMatic.Core.Test.Utilities
             }
         }
 
-        public static List<TransactionsLinked> ChunkTransactionsWithLinksAndPages(List<Transaction> transactions,
+        public static List<TransactionsLinked> ChunkTransactionsWithLinksAndPages(IReadOnlyCollection<Transaction> transactions,
             int limit, string urlPath)
         {
             var chunks = transactions
@@ -146,12 +155,7 @@ namespace APIMatic.Core.Test.Utilities
                 .GroupBy(x => x.index / limit)
                 .Select((g, i) =>
                 {
-                    var pageNumber = i + 1;
-                    var nextLink = (i + 1) * limit < transactions.Count
-                        ? $"{urlPath}?page={pageNumber + 1}&limit={limit}"
-                        : null;
-
-                    var links = i >= 1 ? new Links(next: null) : new Links(next: nextLink);
+                    var links = new Links(next: null);
                     return new TransactionsLinked(g.Select(x => x.tx).ToList(), links);
                 })
                 .ToList();
@@ -162,10 +166,10 @@ namespace APIMatic.Core.Test.Utilities
         }
 
         public static void MockMultiPaginatedResponses(this MockHttpMessageHandler handlerMock,
-            List<TransactionsLinked> pages, string baseUrl, int limit)
+            List<TransactionsLinked> pages, string baseUrl, string basePathUrl, int limit)
         {
-            var currentLink = "/transactions?page=1&limit=2";
-            var linkPaginationPages = pages.Take(2).ToList();
+            var currentLink = $"{basePathUrl}?page=1&limit={limit}";
+            var linkPaginationPages = pages.Take(1).ToList();
 
             for (int i = 0; i < linkPaginationPages.Count; i++)
             {
@@ -182,10 +186,10 @@ namespace APIMatic.Core.Test.Utilities
                 currentLink = page.Links?.Next;
             }
 
-            for (int i = 2; i < pages.Count; i++)
+            for (int i = 1; i < pages.Count; i++)
             {
                 var content = JsonContent.Create(pages[i]);
-                var requestUrl = $"{baseUrl}/transactions?page={i + 1}&limit={limit}";
+                var requestUrl = $"{baseUrl}{basePathUrl}?page={i + 1}&limit={limit}";
 
                 handlerMock.When(requestUrl)
                     .With(req =>

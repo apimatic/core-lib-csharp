@@ -10,16 +10,25 @@ using System.Threading;
 
 namespace APIMatic.Core.Pagination
 {
-    public class Paginator<TItem, TPage> : IEnumerable<TItem>
+    /// <summary>
+    /// Provides synchronous iteration over a paginated data source by fetching items across multiple pages.
+    /// </summary>
+    /// <typeparam name="TItem">
+    /// The type of individual items to be iterated over.
+    /// </typeparam>
+    /// <typeparam name="TPageMetadata">
+    /// The type of metadata associated with each page of results, such as pagination state or response headers.
+    /// </typeparam>
+    public class Paginator<TItem, TPageMetadata> : IEnumerable<TItem>
     {
-        private readonly Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TPage>>> _apiCallExecutor;
+        private readonly Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TPageMetadata>>> _apiCallExecutor;
         private readonly RequestBuilder _requestBuilder;
         private readonly IPaginationStrategy[] _paginationStrategies;
-        private readonly Func<TPage, IEnumerable<TItem>> _pagedResponseItemConverter;
+        private readonly Func<TPageMetadata, IEnumerable<TItem>> _pagedResponseItemConverter;
 
         public Paginator(
-            Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TPage>>> apiCallExecutor, RequestBuilder requestBuilder,
-            Func<TPage, IEnumerable<TItem>> pagedResponseItemConverter,
+            Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TPageMetadata>>> apiCallExecutor, RequestBuilder requestBuilder,
+            Func<TPageMetadata, IEnumerable<TItem>> pagedResponseItemConverter,
             IPaginationStrategy[] paginationStrategies)
         {
             _apiCallExecutor = apiCallExecutor;
@@ -28,6 +37,16 @@ namespace APIMatic.Core.Pagination
             _paginationStrategies = paginationStrategies;
         }
 
+        /// <summary>
+        /// Returns an enumerator that iterates through all items retrieved from a paginated data source.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IEnumerator{TItem}"/> that iterates through individual items across all pages.
+        /// </returns>
+        /// <remarks>
+        /// This method synchronously retrieves pages using <see cref="GetPages"/> and extracts items from each page
+        /// using the configured response-to-item converter.
+        /// </remarks>
         public IEnumerator<TItem> GetEnumerator()
         {
             foreach (var pageMetaData in GetPages())
@@ -39,30 +58,64 @@ namespace APIMatic.Core.Pagination
             }
         }
 
+        /// <summary>
+        /// Returns a non-generic enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IEnumerator"/> that iterates through the collection.
+        /// </returns>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public IEnumerable<TPage> GetPages()
+        /// <summary>
+        /// Retrieves metadata for each page of results from a paginated data source synchronously.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IEnumerable{TPageMetadata}"/> that yields metadata for each page retrieved using the configured pagination strategies.
+        /// </returns>
+        /// <remarks>
+        /// This method applies pagination strategies to generate requests and yields metadata for each page until no further pages are available.
+        /// It is the synchronous counterpart to <c>GetPagesAsync</c>.
+        /// </remarks>
+        public IEnumerable<TPageMetadata> GetPages()
         {
             var paginationContext = PaginationContext.CreateDefault(_requestBuilder);
-            foreach (var paginationStrategy in _paginationStrategies)
+            var initialStrategy = _paginationStrategies.First();
+            var requestBuilder = initialStrategy.Apply(paginationContext);
+
+            var result = ExecuteAndYield(initialStrategy, requestBuilder);
+            if (result == null) yield break;
+
+            yield return result.Value.PageMetadata;
+            paginationContext = result.Value.Context;
+
+            var strategy = _paginationStrategies
+                .Select(s => new { Strategy = s, Builder = s.Apply(paginationContext) })
+                .FirstOrDefault(x => x.Builder != null)?.Strategy;
+            if (strategy == null) yield break;
+
+            while (true)
             {
-                while (true)
-                {
-                    var requestBuilder = paginationStrategy.Apply(paginationContext);
-                    if (requestBuilder == null)
-                        break;
+                requestBuilder = strategy.Apply(paginationContext);
+                if (requestBuilder == null) yield break;
 
-                    var result = CoreHelper.RunTask(_apiCallExecutor(requestBuilder, paginationStrategy, default));
+                result = ExecuteAndYield(strategy, requestBuilder);
+                if (result == null) yield break;
 
-                    var items = _pagedResponseItemConverter(result.PageMetadata);
-                    if (items == null || !items.Any())
-                        yield break;
-
-                    paginationContext = PaginationContext.Create(items.Count(), result.Response, requestBuilder);
-
-                    yield return result.PageMetadata;
-                }
+                yield return result.Value.PageMetadata;
+                paginationContext = result.Value.Context;
             }
+        }
+        
+        private (TPageMetadata PageMetadata, PaginationContext Context)? ExecuteAndYield(
+            IPaginationStrategy strategy,
+            RequestBuilder requestBuilder)
+        {
+            var result = CoreHelper.RunTask(_apiCallExecutor(requestBuilder, strategy, CancellationToken.None));
+            var items = _pagedResponseItemConverter(result.PageMetadata);
+            if (items == null || !items.Any()) return null;
+
+            var updatedContext = PaginationContext.Create(items.Count(), result.Response, requestBuilder);
+            return (result.PageMetadata, updatedContext);
         }
     }
 }
