@@ -21,13 +21,17 @@ namespace APIMatic.Core.Pagination
     /// </typeparam>
     public class Paginator<TItem, TPageMetadata> : IEnumerable<TItem>
     {
-        private readonly Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TPageMetadata>>> _apiCallExecutor;
+        private readonly
+            Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TPageMetadata>>>
+            _apiCallExecutor;
+
         private readonly RequestBuilder _requestBuilder;
         private readonly IPaginationStrategy[] _paginationStrategies;
         private readonly Func<TPageMetadata, IEnumerable<TItem>> _pagedResponseItemConverter;
 
         public Paginator(
-            Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TPageMetadata>>> apiCallExecutor, RequestBuilder requestBuilder,
+            Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TPageMetadata>>>
+                apiCallExecutor, RequestBuilder requestBuilder,
             Func<TPageMetadata, IEnumerable<TItem>> pagedResponseItemConverter,
             IPaginationStrategy[] paginationStrategies)
         {
@@ -82,15 +86,14 @@ namespace APIMatic.Core.Pagination
             var initialStrategy = _paginationStrategies.First();
             var requestBuilder = initialStrategy.Apply(paginationContext);
 
-            var result = ExecuteAndYield(initialStrategy, requestBuilder);
+            var result = CoreHelper.RunTask(initialStrategy.ExecuteAndYieldAsync(requestBuilder, _apiCallExecutor,
+                _pagedResponseItemConverter, CancellationToken.None));
             if (result == null) yield break;
 
             yield return result.Value.PageMetadata;
             paginationContext = result.Value.Context;
 
-            var strategy = _paginationStrategies
-                .Select(s => new { Strategy = s, Builder = s.Apply(paginationContext) })
-                .FirstOrDefault(x => x.Builder != null)?.Strategy;
+            var strategy = _paginationStrategies.SelectFirstApplicableStrategy(paginationContext);
             if (strategy == null) yield break;
 
             while (true)
@@ -98,24 +101,13 @@ namespace APIMatic.Core.Pagination
                 requestBuilder = strategy.Apply(paginationContext);
                 if (requestBuilder == null) yield break;
 
-                result = ExecuteAndYield(strategy, requestBuilder);
+                result = CoreHelper.RunTask(strategy.ExecuteAndYieldAsync(requestBuilder, _apiCallExecutor,
+                    _pagedResponseItemConverter, CancellationToken.None));
                 if (result == null) yield break;
 
                 yield return result.Value.PageMetadata;
                 paginationContext = result.Value.Context;
             }
-        }
-        
-        private (TPageMetadata PageMetadata, PaginationContext Context)? ExecuteAndYield(
-            IPaginationStrategy strategy,
-            RequestBuilder requestBuilder)
-        {
-            var result = CoreHelper.RunTask(_apiCallExecutor(requestBuilder, strategy, CancellationToken.None));
-            var items = _pagedResponseItemConverter(result.PageMetadata);
-            if (items == null || !items.Any()) return null;
-
-            var updatedContext = PaginationContext.Create(items.Count(), result.Response, requestBuilder);
-            return (result.PageMetadata, updatedContext);
         }
     }
 }

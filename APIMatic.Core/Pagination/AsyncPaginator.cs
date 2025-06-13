@@ -86,16 +86,15 @@ namespace APIMatic.Core.Pagination
             var initialStrategy = _paginationStrategies.First();
             var requestBuilder = initialStrategy.Apply(paginationContext);
 
-            var result = await ExecuteAndYieldAsync(initialStrategy, requestBuilder, cancellationToken)
+            var result = await initialStrategy
+                .ExecuteAndYieldAsync(requestBuilder, _apiCallExecutor, _pagedResponseItemConverter, cancellationToken)
                 .ConfigureAwait(false);
             if (result == null) yield break;
 
             yield return result.Value.PageMetadata;
             paginationContext = result.Value.Context;
 
-            var strategy = _paginationStrategies
-                .Select(s => new { Strategy = s, Builder = s.Apply(paginationContext) })
-                .FirstOrDefault(x => x.Builder != null)?.Strategy;
+            var strategy = _paginationStrategies.SelectFirstApplicableStrategy(paginationContext);
             if (strategy == null) yield break;
 
             while (true)
@@ -105,25 +104,14 @@ namespace APIMatic.Core.Pagination
                 requestBuilder = strategy.Apply(paginationContext);
                 if (requestBuilder == null) yield break;
 
-                result = await ExecuteAndYieldAsync(strategy, requestBuilder, cancellationToken).ConfigureAwait(false);
+                result = await strategy
+                    .ExecuteAndYieldAsync(requestBuilder, _apiCallExecutor, _pagedResponseItemConverter,
+                        cancellationToken).ConfigureAwait(false);
                 if (result == null) yield break;
 
                 yield return result.Value.PageMetadata;
                 paginationContext = result.Value.Context;
             }
-        }
-
-        private async Task<(TPageMetadata PageMetadata, PaginationContext Context)?> ExecuteAndYieldAsync(
-            IPaginationStrategy strategy,
-            RequestBuilder requestBuilder,
-            CancellationToken cancellationToken)
-        {
-            var result = await _apiCallExecutor(requestBuilder, strategy, cancellationToken).ConfigureAwait(false);
-            var items = _pagedResponseItemConverter(result.PageMetadata);
-            if (items == null || !items.Any()) return null;
-
-            var updatedContext = PaginationContext.Create(items.Count(), result.Response, requestBuilder);
-            return (result.PageMetadata, updatedContext);
         }
     }
 }
