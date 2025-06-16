@@ -17,12 +17,15 @@ namespace APIMatic.Core.Utilities.Json
 
             var jsonPointer = new JsonPointer(path);
 
-            return scope switch
+            switch (scope)
             {
-                "$response.body" => ExtractValueByPointer(jsonPointer, jsonBody),
-                "$response.headers" => ExtractValueByPointer(jsonPointer, jsonHeaders),
-                _ => null
-            };
+                case "$response.body":
+                    return ExtractValueByPointer(jsonPointer, jsonBody);
+                case "$response.headers":
+                    return ExtractValueByPointer(jsonPointer, jsonHeaders);
+                default:
+                    return null;
+            }
         }
         
         private static string ExtractValueByPointer(JsonPointer jsonPointer, string json)
@@ -40,12 +43,15 @@ namespace APIMatic.Core.Utilities.Json
                 return null;
             }
 
-            return jsonToken.Type switch
+            switch (jsonToken.Type)
             {
-                JTokenType.Null => null,
-                JTokenType.String => jsonToken.Value<string>(),
-                _ => jsonToken.ToString()
-            };
+                case JTokenType.Null:
+                    return null;
+                case JTokenType.String:
+                    return jsonToken.Value<string>();
+                default:
+                    return jsonToken.ToString();
+            }
         }
     }
 }

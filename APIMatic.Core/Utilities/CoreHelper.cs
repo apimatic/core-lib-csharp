@@ -135,12 +135,15 @@ namespace APIMatic.Core.Utilities
 
         public static string GetTemplateReplacerValue(object value)
         {
-            return value switch
+            switch (value)
             {
-                null => string.Empty,
-                ICollection collection => GetTemplateReplacerValueForCollection(collection),
-                _ => CoreHelper.JsonSerialize(value).TrimStart('"').TrimEnd('"')
-            };
+                case null:
+                    return string.Empty;
+                case ICollection collection:
+                    return GetTemplateReplacerValueForCollection(collection);
+                default:
+                    return CoreHelper.JsonSerialize(value).TrimStart('"').TrimEnd('"');
+            }
         }
         
         private static void AppendParameters(StringBuilder queryBuilder, ArraySerialization arraySerialization, KeyValuePair<string, object> pair)
