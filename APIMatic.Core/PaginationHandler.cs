@@ -19,7 +19,7 @@ namespace APIMatic.Core
                 Task<PaginatedResult<TPageMetadata>>>,
             RequestBuilder, TPageableType> _createPageable;
 
-        public PaginationHandler(
+        internal PaginationHandler(
             Func<RequestBuilder, CancellationToken, Task<(TReturnType result, CoreResponse response)>> requestExecutor,
             RequestBuilder requestBuilder,
             Func<TReturnType, IPaginationStrategy, TPageMetadata> createPageResponse,

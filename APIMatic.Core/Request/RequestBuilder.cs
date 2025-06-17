@@ -183,7 +183,7 @@ namespace APIMatic.Core.Request
             return this;
         }
 
-        internal RequestBuilder UpdateByReference(string pointerString, Func<object, object> setter)
+        internal RequestBuilder UpdateParameterByJsonPointer(string pointerString, Func<object, object> setter)
         {
             var index = pointerString.IndexOf('#');
             if (index < 0)

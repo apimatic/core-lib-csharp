@@ -13,7 +13,7 @@ using NUnit.Framework;
 namespace APIMatic.Core.Test.Pagination
 {
     [TestFixture]
-    public class Paginator : ApiCallTest
+    public class PaginatorTests : ApiCallTest
     {
         [Test]
         public void Paginate_QueryOffsetPaginationYieldsAllItems_AcrossPages()

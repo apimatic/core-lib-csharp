@@ -2,12 +2,12 @@
 
 namespace APIMatic.Core.Pagination
 {
-    public class PaginatedResult<TPage>
+    public class PaginatedResult<TPageMetadata>
     {
         public CoreResponse Response { get; }
-        public TPage PageMetadata { get; }
+        public TPageMetadata PageMetadata { get; }
 
-        public PaginatedResult(CoreResponse response, TPage pageMetadata)
+        internal PaginatedResult(CoreResponse response, TPageMetadata pageMetadata)
         {
             Response = response;
             PageMetadata = pageMetadata;

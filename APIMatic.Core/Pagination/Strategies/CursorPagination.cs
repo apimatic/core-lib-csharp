@@ -36,7 +36,7 @@ namespace APIMatic.Core.Pagination.Strategies
 
             var updatedBuilder = RequestBuilder
                 .RequestBuilderWithParameters(paginationContext.RequestBuilder)
-                .UpdateByReference(_input, old =>
+                .UpdateParameterByJsonPointer(_input, old =>
                 {
                     var oldValue = old?.ToString();
                     if (!paginationContext.HasResponse)

@@ -88,7 +88,7 @@ namespace APIMatic.Core
             return this;
         }
 
-        public RequestBuilder GetRequestBuilder() => requestBuilder;
+        internal RequestBuilder GetRequestBuilder() => requestBuilder;
 
         /// <summary>
         /// Setup the response handler

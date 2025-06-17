@@ -16,7 +16,7 @@ namespace APIMatic.Core.Test.MockTypes.Pagination
             this.Items = pageToItems(pageData.Data);
         }
 
-        public TPage Data { get; }
+        public new TPage Data { get; }
 
         public IEnumerable<TItem> Items { get; }
     }

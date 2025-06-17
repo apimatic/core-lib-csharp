@@ -12,7 +12,7 @@ using NUnit.Framework;
 namespace APIMatic.Core.Test.Request
 {
     [TestFixture]
-    public class RequestBuilderUpdateByReferenceTest : TestBase
+    public class RequestBuilderUpdateParameterByJsonPointerTest : TestBase
     {
          private const string ServerUrl = "https://api.example.com/users";
 
@@ -20,7 +20,7 @@ namespace APIMatic.Core.Test.Request
             rb.Setup(HttpMethod.Get, ServerUrl);
 
         [Test]
-        public async Task UpdateByReference_HeaderParam_SingleValue_UpdatesCorrectly()
+        public async Task UpdateParameterByJsonPointer_HeaderParam_SingleValue_UpdatesCorrectly()
         {
             var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
             setupRequest(builder);
@@ -29,7 +29,7 @@ namespace APIMatic.Core.Test.Request
             await builder.Build();
 
             // Act
-            builder.UpdateByReference("$request.headers#/id", old => 999);
+            builder.UpdateParameterByJsonPointer("$request.headers#/id", old => 999);
 
             // Assert
             Assert.IsTrue(builder.headersParameters.ContainsKey("id"));
@@ -37,7 +37,7 @@ namespace APIMatic.Core.Test.Request
         }
         
         [Test]
-        public async Task UpdateByReference_HeaderParam_IncorrectJsonPointer_UpdatesPrevious()
+        public async Task UpdateParameterByJsonPointer_HeaderParam_IncorrectJsonPointer_UpdatesPrevious()
         {
             var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
             setupRequest(builder);
@@ -48,14 +48,14 @@ namespace APIMatic.Core.Test.Request
             var previousHeaders = builder.headersParameters;
             
             // Act
-            builder.UpdateByReference("$request.headers", old => 999);
+            builder.UpdateParameterByJsonPointer("$request.headers", old => 999);
             
             // Assert
             Assert.AreEqual(previousHeaders, builder.headersParameters);
         }
 
         [Test]
-        public async Task UpdateByReference_HeaderParam_SingleValue_UpdatesWithEmptyPointer()
+        public async Task UpdateParameterByJsonPointer_HeaderParam_SingleValue_UpdatesWithEmptyPointer()
         {
             var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
             setupRequest(builder);
@@ -66,14 +66,14 @@ namespace APIMatic.Core.Test.Request
             var previousHeaders = builder.headersParameters;
 
             // Act
-            builder.UpdateByReference("$request.headers#", old => 999);
+            builder.UpdateParameterByJsonPointer("$request.headers#", old => 999);
 
             // Assert
             Assert.AreEqual(previousHeaders, builder.headersParameters);
         }
 
         [Test]
-        public async Task UpdateByReference_HeaderParam_SingleValue_UpdatesWithNonExistentPointer()
+        public async Task UpdateParameterByJsonPointer_HeaderParam_SingleValue_UpdatesWithNonExistentPointer()
         {
             var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
             setupRequest(builder);
@@ -84,14 +84,14 @@ namespace APIMatic.Core.Test.Request
             var previousHeaders = builder.headersParameters;
 
             // Act
-            builder.UpdateByReference("$request.headers#/nonexistent", old => 999);
+            builder.UpdateParameterByJsonPointer("$request.headers#/nonexistent", old => 999);
 
             // Assert
             Assert.AreEqual(previousHeaders, builder.headersParameters);
         }
         
         [Test]
-        public async Task UpdateByReference_HeaderParam_ObjectValue_UpdatesObjectCorrectly()
+        public async Task UpdateParameterByJsonPointer_HeaderParam_ObjectValue_UpdatesObjectCorrectly()
         {
             var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
             setupRequest(builder);
@@ -101,7 +101,7 @@ namespace APIMatic.Core.Test.Request
             await builder.Build();
 
             // Act
-            builder.UpdateByReference("$request.headers#/user/Id", old => 456);
+            builder.UpdateParameterByJsonPointer("$request.headers#/user/Id", old => 456);
 
             // Assert
             Assert.IsTrue(builder.headersParameters.ContainsKey("user"));
@@ -112,7 +112,7 @@ namespace APIMatic.Core.Test.Request
         }
 
         [Test]
-        public async Task UpdateByReference_QueryParam_ObjectValue_UpdatesObjectCorrectly()
+        public async Task UpdateParameterByJsonPointer_QueryParam_ObjectValue_UpdatesObjectCorrectly()
         {
             var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
             setupRequest(builder);
@@ -122,7 +122,7 @@ namespace APIMatic.Core.Test.Request
             await builder.Build();
 
             // Act
-            builder.UpdateByReference("$request.query#/user/Id", old => 456);
+            builder.UpdateParameterByJsonPointer("$request.query#/user/Id", old => 456);
 
             // Assert
             Assert.IsTrue(builder.queryParameters.ContainsKey("user"));
@@ -133,7 +133,7 @@ namespace APIMatic.Core.Test.Request
         }
 
         [Test]
-        public async Task UpdateByReference_TemplateParam_SingleValue_UpdatesCorrectly()
+        public async Task UpdateParameterByJsonPointer_TemplateParam_SingleValue_UpdatesCorrectly()
         {
             var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
             setupRequest(builder);
@@ -142,7 +142,7 @@ namespace APIMatic.Core.Test.Request
             await builder.Build();
 
             // Act
-            builder.UpdateByReference("$request.path#/userId", old => 456);
+            builder.UpdateParameterByJsonPointer("$request.path#/userId", old => 456);
 
             // Assert
             Assert.IsTrue(builder.templateParameters.ContainsKey("userId"));
@@ -150,7 +150,7 @@ namespace APIMatic.Core.Test.Request
         }
 
         [Test]
-        public async Task UpdateByReference_TemplateParam_Collection_UpdatesCorrectly()
+        public async Task UpdateParameterByJsonPointer_TemplateParam_Collection_UpdatesCorrectly()
         {
             var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
             setupRequest(builder);
@@ -159,7 +159,7 @@ namespace APIMatic.Core.Test.Request
             await builder.Build();
 
             // Act
-            builder.UpdateByReference("$request.path#/ids/1", old => 999);
+            builder.UpdateParameterByJsonPointer("$request.path#/ids/1", old => 999);
 
             // Assert
             Assert.IsTrue(builder.templateParameters.ContainsKey("ids"));
@@ -169,7 +169,7 @@ namespace APIMatic.Core.Test.Request
         }
         
         [Test]
-        public async Task UpdateByReference_BodyParameters_UpdatesCorrectly()
+        public async Task UpdateParameterByJsonPointer_BodyParameters_UpdatesCorrectly()
         {
             var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
             setupRequest(builder);
@@ -177,14 +177,14 @@ namespace APIMatic.Core.Test.Request
             builder.Parameters(p => p.Body(b => b.Setup("age", 25)));
             await builder.Build();
 
-            builder.UpdateByReference("$request.body#/age", old => 30);
+            builder.UpdateParameterByJsonPointer("$request.body#/age", old => 30);
 
             Assert.IsTrue(builder.bodyParameters.ContainsKey("age"));
             Assert.AreEqual(30, builder.bodyParameters["age"]);
         }
 
         [Test]
-        public async Task UpdateByReference_FormParameters_UpdatesCorrectly()
+        public async Task UpdateParameterByJsonPointer_FormParameters_UpdatesCorrectly()
         {
             var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
             setupRequest(builder);
@@ -197,14 +197,14 @@ namespace APIMatic.Core.Test.Request
 
             await builder.Build();
 
-            builder.UpdateByReference("$request.body#/email", old => "jane@example.com");
+            builder.UpdateParameterByJsonPointer("$request.body#/email", old => "jane@example.com");
 
             var updated = builder.formParameters.ToDictionary(p => p.Key, p => p.Value);
             Assert.AreEqual("jane@example.com", updated["email"]);
         }
 
         [Test]
-        public async Task UpdateByReference_DynamicBody_UpdatesCorrectly()
+        public async Task UpdateParameterByJsonPointer_DynamicBody_UpdatesCorrectly()
         {
             var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
             setupRequest(builder);
@@ -212,13 +212,13 @@ namespace APIMatic.Core.Test.Request
             builder.Parameters(p => p.Body( b => b.Setup(new { name = "Alice", age = 30 })));
             await builder.Build();
 
-            builder.UpdateByReference("$request.body#/age", old => 35);
+            builder.UpdateParameterByJsonPointer("$request.body#/age", old => 35);
 
             Assert.AreEqual(35, builder.body.age);
         }
 
         [Test]
-        public async Task UpdateByReference_StringBody_UpdatesCorrectly()
+        public async Task UpdateParameterByJsonPointer_StringBody_UpdatesCorrectly()
         {
             var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
             setupRequest(builder);
@@ -226,13 +226,13 @@ namespace APIMatic.Core.Test.Request
             builder.Parameters(p => p.Body( b => b.Setup("InitialValue")));
             await builder.Build();
 
-            builder.UpdateByReference("$request.body#/", old => "UpdatedValue");
+            builder.UpdateParameterByJsonPointer("$request.body#/", old => "UpdatedValue");
 
             Assert.AreEqual("UpdatedValue", builder.body);
         }
 
         [Test]
-        public async Task UpdateByReference_ObjectBody_UpdatesCorrectly()
+        public async Task UpdateParameterByJsonPointer_ObjectBody_UpdatesCorrectly()
         {
             var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
             setupRequest(builder);
@@ -240,7 +240,7 @@ namespace APIMatic.Core.Test.Request
             builder.Parameters(p => p.Body( b => b.Setup(new User { Id = 1, Name = "Alice" })));
             await builder.Build();
 
-            builder.UpdateByReference("$request.body#/Id", old => 35);
+            builder.UpdateParameterByJsonPointer("$request.body#/Id", old => 35);
 
             var updatedBody = builder.body as User;
             Assert.IsNotNull(updatedBody);
@@ -249,7 +249,7 @@ namespace APIMatic.Core.Test.Request
         }
         
         [Test]
-        public async Task UpdateByReference_Body_CoreFileStreamInfo_DoesNotUpdate()
+        public async Task UpdateParameterByJsonPointer_Body_CoreFileStreamInfo_DoesNotUpdate()
         {
             var builder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
             setupRequest(builder);
@@ -259,7 +259,7 @@ namespace APIMatic.Core.Test.Request
 
             await builder.Build();
 
-            builder.UpdateByReference("$request.body#/", _ => "should-not-apply");
+            builder.UpdateParameterByJsonPointer("$request.body#/", _ => "should-not-apply");
 
             Assert.AreSame(originalBody, builder.body); // Still the same object
         }

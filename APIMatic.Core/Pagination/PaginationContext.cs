@@ -24,7 +24,7 @@ namespace APIMatic.Core.Pagination
 
         internal static PaginationContext CreateDefault(RequestBuilder requestBuilder) =>
             new PaginationContext(RequestBuilder.RequestBuilderWithParameters(requestBuilder));
-        
+
         internal static PaginationContext Create(int dataSize, CoreResponse response, RequestBuilder requestBuilder) =>
             new PaginationContext(requestBuilder, dataSize, response);
     }

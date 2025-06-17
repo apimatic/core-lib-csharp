@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using APIMatic.Core.Http.Configuration;
-using APIMatic.Core.Pagination;
-using APIMatic.Core.Pagination.Strategies;
 using APIMatic.Core.Types;
 using APIMatic.Core.Types.Sdk;
 using APIMatic.Core.Utilities;
