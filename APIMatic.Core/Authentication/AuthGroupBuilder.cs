@@ -21,6 +21,14 @@ namespace APIMatic.Core.Authentication
         {
             authManagersMap = authManagers ?? new Dictionary<string, AuthManager>();
         }
+        
+        internal AuthGroupBuilder(AuthGroupBuilder other)
+        {
+            authManagersMap = new Dictionary<string, AuthManager>(other.authManagersMap);
+            authManagers = new List<AuthManager>(other.authManagers);
+            validatedAuthManagers = new List<AuthManager>(other.validatedAuthManagers);
+            isAndGroup = other.isAndGroup;
+        }
 
         /// <summary>
         /// Add an authorization scheme to this group, using its name.

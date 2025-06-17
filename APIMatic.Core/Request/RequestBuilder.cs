@@ -66,7 +66,7 @@ namespace APIMatic.Core.Request
             this.bodyParameters = new Dictionary<string, object>(source.bodyParameters);
             this.formParameters = new List<KeyValuePair<string, object>>(source.formParameters);
             this.queryParameters = new Dictionary<string, object>(source.queryParameters);
-            this.authGroup = new AuthGroupBuilder(source.configuration.AuthManagers);
+            this.authGroup = new AuthGroupBuilder(source.authGroup);
         }
         
         internal static RequestBuilder RequestBuilderWithParameters(RequestBuilder source)
