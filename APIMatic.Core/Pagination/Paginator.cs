@@ -26,19 +26,22 @@ namespace APIMatic.Core.Pagination
             _apiCallExecutor;
 
         private readonly RequestBuilder _requestBuilder;
-        private readonly IPaginationStrategy[] _paginationStrategies;
+        private readonly IReadOnlyCollection<IPaginationStrategy> _paginationStrategies;
         private readonly Func<TPageMetadata, IEnumerable<TItem>> _pagedResponseItemConverter;
 
         public Paginator(
             Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<TPageMetadata>>>
                 apiCallExecutor, RequestBuilder requestBuilder,
             Func<TPageMetadata, IEnumerable<TItem>> pagedResponseItemConverter,
-            IPaginationStrategy[] paginationStrategies)
+            IReadOnlyCollection<IPaginationStrategy> paginationStrategies)
         {
             _apiCallExecutor = apiCallExecutor;
             _requestBuilder = requestBuilder;
             _pagedResponseItemConverter = pagedResponseItemConverter;
-            _paginationStrategies = paginationStrategies;
+            _paginationStrategies = paginationStrategies?.Count > 0
+                ? paginationStrategies
+                : throw new ArgumentException("At least one pagination strategy must be provided.",
+                    nameof(paginationStrategies));
         }
 
         /// <summary>

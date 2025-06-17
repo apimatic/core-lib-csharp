@@ -15,6 +15,6 @@ namespace APIMatic.Core.Test.MockTypes.Pagination
             RequestBuilder requestBuilder,
             Func<TPageMetadata, IEnumerable<TItem>> responseToItems,
             params IPaginationStrategy[] dataManagers)
-            => new Paginator<TItem, TPageMetadata>(apiCallExecutor, requestBuilder, responseToItems, dataManagers);
+            => new(apiCallExecutor, requestBuilder, responseToItems, dataManagers);
     }
 }

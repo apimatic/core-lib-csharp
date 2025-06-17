@@ -1,8 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
+using APIMatic.Core.Pagination;
 using APIMatic.Core.Pagination.Strategies;
+using APIMatic.Core.Request;
 using APIMatic.Core.Test.Api;
 using APIMatic.Core.Test.MockTypes.Models.Pagination;
 using APIMatic.Core.Test.MockTypes.Pagination;
@@ -15,6 +19,32 @@ namespace APIMatic.Core.Test.Pagination
     [TestFixture]
     public class AsyncPaginatorTests : ApiCallTest
     {
+        [Test]
+        public void Constructor_ShouldThrowArgumentException_WhenPaginationStrategiesIsEmpty()
+        {
+            // Arrange
+            Func<RequestBuilder, IPaginationStrategy, CancellationToken, Task<PaginatedResult<object>>>
+                apiCallExecutor =
+                    (rb, s, ct) => Task.FromResult<PaginatedResult<object>>(null);
+
+            Func<object, IEnumerable<object>> pagedResponseItemConverter = _ => Enumerable.Empty<object>();
+            var requestBuilder = new RequestBuilder(LazyGlobalConfiguration.Value, string.Empty);
+            var emptyStrategies = Array.Empty<IPaginationStrategy>();
+
+            // Act & Assert
+            var ex = Assert.Throws<ArgumentException>(() =>
+            {
+                new AsyncPaginator<object, object>(
+                    apiCallExecutor,
+                    requestBuilder,
+                    pagedResponseItemConverter,
+                    emptyStrategies);
+            });
+
+            Assert.That(ex?.ParamName, Is.EqualTo("paginationStrategies"));
+            Assert.That(ex.Message, Does.StartWith("At least one pagination strategy must be provided."));
+        }
+        
         [Test]
         public async Task PaginateAsync_QueryOffsetPaginationYieldsAllItems_AcrossPages()
         {
