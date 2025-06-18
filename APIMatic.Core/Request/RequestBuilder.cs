@@ -28,31 +28,72 @@ namespace APIMatic.Core.Request
         private readonly Parameter.Builder parameters = new Parameter.Builder();
         private bool contentTypeAllowed = true;
         private bool xmlRequest = false;
+        private readonly StringBuilder queryUrl;
         private Func<dynamic, object> bodySerializer = PrepareBody;
-
-        internal readonly Dictionary<string, string> headers = new Dictionary<string, string>();
+        
         internal dynamic body;
         internal Type bodyType;
+        internal readonly Dictionary<string, object> headersParameters = new Dictionary<string, object>();
+        internal readonly Dictionary<string, object> templateParameters = new Dictionary<string, object>();
         internal readonly Dictionary<string, object> bodyParameters = new Dictionary<string, object>();
         internal readonly List<KeyValuePair<string, object>> formParameters = new List<KeyValuePair<string, object>>();
         internal readonly Dictionary<string, object> queryParameters = new Dictionary<string, object>();
 
-        internal RequestBuilder(GlobalConfiguration configuration)
+        internal RequestBuilder(GlobalConfiguration configuration, string serverUrl)
         {
             this.configuration = configuration;
+            queryUrl = new StringBuilder(serverUrl);
             authGroup = new AuthGroupBuilder(configuration.AuthManagers);
         }
+        
+        internal RequestBuilder(RequestBuilder source)
+        {
+            this.configuration = source.configuration;
+            this.retryOption = source.retryOption;
+            this.contentTypeAllowed = source.contentTypeAllowed;
+            this.httpMethod = source.httpMethod;
+            this.queryUrl = new StringBuilder(source.queryUrl.ToString());
+            this.AcceptHeader = source.AcceptHeader;
+            this.ArraySerialization = source.ArraySerialization;
+            this.HasBinaryResponse = source.HasBinaryResponse;
+            this.xmlRequest = source.xmlRequest;
+            this.bodySerializer = source.bodySerializer;
+            this.body = source.body;
+            this.bodyType = source.bodyType;
 
-        internal StringBuilder QueryUrl { get; } = new StringBuilder();
-
+            this.headersParameters = new Dictionary<string, object>(source.headersParameters);
+            this.templateParameters = new Dictionary<string, object>(source.templateParameters);
+            this.bodyParameters = new Dictionary<string, object>(source.bodyParameters);
+            this.formParameters = new List<KeyValuePair<string, object>>(source.formParameters);
+            this.queryParameters = new Dictionary<string, object>(source.queryParameters);
+            this.authGroup = new AuthGroupBuilder(source.authGroup);
+        }
+        
+        internal static RequestBuilder RequestBuilderWithParameters(RequestBuilder source)
+        {
+            var requestBuilder = new RequestBuilder(source);
+            source.parameters.Validate().Apply(requestBuilder);
+            return requestBuilder;
+        }
+        
         internal ContentType AcceptHeader { get; set; } = ContentType.SCALAR;
 
         internal ArraySerialization ArraySerialization { get; set; }
 
         internal bool HasBinaryResponse { get; set; }
 
+        internal string GetQueryUrl()
+        {
+            var queryBuilder = new StringBuilder(this.queryUrl.ToString());
+            foreach (var kvp in templateParameters)
+            {
+                queryBuilder.Replace($"{{{kvp.Key}}}", CoreHelper.GetTemplateReplacerValue(kvp.Value));
+            }
+            return queryBuilder.ToString();
+        }
+        
         private Type BodyType => bodyParameters.Any() ? typeof(object) : bodyType;
-
+        
         /// <summary>
         /// Required: Sets the API route and http method
         /// </summary>
@@ -62,7 +103,7 @@ namespace APIMatic.Core.Request
         public RequestBuilder Setup(HttpMethod httpMethod, string path)
         {
             this.httpMethod = httpMethod;
-            QueryUrl.Append(path);
+            queryUrl.Append(path);
             return this;
         }
 
@@ -142,6 +183,65 @@ namespace APIMatic.Core.Request
             return this;
         }
 
+        internal RequestBuilder UpdateParameterByJsonPointer(string pointerString, Func<object, object> setter)
+        {
+            var index = pointerString.IndexOf('#');
+            if (index < 0)
+                return this;
+
+            var prefix = pointerString.Substring(0, index);
+            var pointer = pointerString.Substring(index + 1);
+
+            switch (prefix)
+            {
+                case "$request.headers":
+                    RequestBuilderExtensions.UpdateRequestParametersByPointer(headersParameters, pointer, setter);
+                    break;
+                case "$request.path":
+                    RequestBuilderExtensions.UpdateRequestParametersByPointer(templateParameters, pointer, setter);
+                    break;
+                case "$request.query":
+                    RequestBuilderExtensions.UpdateRequestParametersByPointer(queryParameters, pointer, setter);
+                    break;
+                case "$request.body":
+                    UpdateBodyByPointer(setter, pointer);
+                    break;
+            }
+
+            return this;
+        }
+
+        private void UpdateBodyByPointer(Func<object, object> setter, string pointer)
+        {
+            if (bodyParameters.Any())
+            {
+                RequestBuilderExtensions.UpdateRequestParametersByPointer(bodyParameters, pointer, setter);
+                return;
+            }
+
+            if (body is null)
+            {
+                RequestBuilderExtensions.UpdateFormParameterValueByPointer(formParameters, pointer, setter);
+                return;
+            }
+
+            UpdateDynamicBodyContent(setter, pointer);
+        }
+        
+        private void UpdateDynamicBodyContent(Func<object, object> setter, string pointer)
+        {
+            if (body is CoreFileStreamInfo || setter == null)
+                return;
+
+            if (body is string || string.IsNullOrEmpty(pointer))
+            {
+                body = setter(body);
+                return;
+            }
+
+            body = RequestBuilderExtensions.UpdateValueByPointer(body, pointer, setter);
+        }
+        
         /// <summary>
         /// This applies all the configuration and build an instance of CoreRequest
         /// </summary>
@@ -151,17 +251,15 @@ namespace APIMatic.Core.Request
             parameters.Validate().Apply(this);
             configuration.RuntimeParameters.Validate().Apply(this);
             await authGroup.Apply(this).ConfigureAwait(false);
-            CoreHelper.AppendUrlWithQueryParameters(QueryUrl, queryParameters, ArraySerialization);
+            var queryBuilder = new StringBuilder(GetQueryUrl());
+            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, queryParameters, ArraySerialization);
             body = bodyParameters.Any() ? bodyParameters : body;
             AppendContentTypeHeader();
             AppendAcceptHeader();
-            return new CoreRequest(httpMethod, CoreHelper.CleanUrl(QueryUrl), headers, bodySerializer(body), formParameters, queryParameters)
-            {
-                RetryOption = retryOption,
-                HasBinaryResponse = HasBinaryResponse
-            };
+            return new CoreRequest(httpMethod, CoreHelper.CleanUrl(queryBuilder), headersParameters.ToCoreRequestHeaders(), bodySerializer(body),
+                formParameters, queryParameters) { RetryOption = retryOption, HasBinaryResponse = HasBinaryResponse };
         }
-
+        
         private void AppendContentTypeHeader()
         {
             if (!ContentHeaderKeyRequired("content-type"))
@@ -174,20 +272,20 @@ namespace APIMatic.Core.Request
             }
             if (xmlRequest)
             {
-                headers.Add("content-type", ContentType.XML.GetValue());
+                headersParameters.Add("content-type", ContentType.XML.GetValue());
                 return;
             }
             if (body is Stream || body is byte[])
             {
-                headers.Add("content-type", ContentType.BINARY.GetValue());
+                headersParameters.Add("content-type", ContentType.BINARY.GetValue());
                 return;
             }
             if (CoreHelper.IsScalarType(BodyType))
             {
-                headers.Add("content-type", ContentType.SCALAR.GetValue());
+                headersParameters.Add("content-type", ContentType.SCALAR.GetValue());
                 return;
             }
-            headers.Add("content-type", ContentType.JSON_UTF8.GetValue());
+            headersParameters.Add("content-type", ContentType.JSON_UTF8.GetValue());
         }
 
         private void AppendAcceptHeader()
@@ -200,7 +298,7 @@ namespace APIMatic.Core.Request
             {
                 return;
             }
-            headers.Add("accept", AcceptHeader.GetValue());
+            headersParameters.Add("accept", AcceptHeader.GetValue());
         }
 
         private bool ContentHeaderKeyRequired(string key)
@@ -209,7 +307,7 @@ namespace APIMatic.Core.Request
             {
                 return false;
             }
-            if (headers.Any(p => p.Key.EqualsIgnoreCase(key)))
+            if (headersParameters.Any(p => p.Key.EqualsIgnoreCase(key)))
             {
                 return false;
             }

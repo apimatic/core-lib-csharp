@@ -9,14 +9,14 @@ using RichardSzalay.MockHttp;
 namespace APIMatic.Core.Test.Api.HttpPost
 {
     [TestFixture]
-    internal class ApiCallPostXMLTest : ApiCallTest
+    internal class ApiCallPostXmlTest : ApiCallTest
     {
         [Test]
         public void ApiCall_PostXmlLong_OKResponse()
         {
             //Arrange
-            long body = 100;
-            var url = "/apicall/post-xml-long/200";
+            const long body = 100;
+            const string url = "/apicall/post-xml-long/200";
 
             var expected = new ServerResponse()
             {
@@ -28,7 +28,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
             handlerMock.When(GetCompleteUrl(url))
                 .With(req =>
                 {
-                    Assert.AreEqual(expected.Message, req.Content.ReadAsStringAsync().Result);
+                    Assert.AreEqual(expected.Message, req.Content?.ReadAsStringAsync().Result);
                     return true;
                 })
             .Respond(HttpStatusCode.OK, content);
@@ -57,7 +57,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
         public void ApiCall_PostXmlString_OKResponse()
         {
             //Arrange
-            string body = "This is a xml body.";
+            var body = "This is a xml body.";
             var url = "/apicall/post-xml-string/200";
 
             var expected = new ServerResponse()
@@ -70,7 +70,7 @@ namespace APIMatic.Core.Test.Api.HttpPost
             handlerMock.When(GetCompleteUrl(url))
                 .With(req =>
                 {
-                    Assert.AreEqual(expected.Message, req.Content.ReadAsStringAsync().Result);
+                    Assert.AreEqual(expected.Message, req.Content?.ReadAsStringAsync().Result);
                     return true;
                 })
             .Respond(HttpStatusCode.OK, content);

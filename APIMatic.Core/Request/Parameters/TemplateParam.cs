@@ -15,31 +15,6 @@ namespace APIMatic.Core.Request.Parameters
     {
         internal TemplateParam() => typeName = "template";
 
-        private string GetReplacerValueForCollection(ICollection collection)
-        {
-            var replacedValues = new List<string>();
-            var enumerator = collection.GetEnumerator();
-            while (enumerator.MoveNext())
-            {
-                replacedValues.Add(GetReplacerValue(enumerator.Current));
-            }
-            return string.Join("/", replacedValues);
-        }
-
-        private string GetReplacerValue(object value)
-        {
-            if (value == null)
-            {
-                return string.Empty;
-            }
-            if (value is ICollection collection)
-            {
-                return GetReplacerValueForCollection(collection);
-            }
-
-            return CoreHelper.JsonSerialize(value).TrimStart('"').TrimEnd('"');
-        }
-
         internal override void Apply(RequestBuilder requestBuilder)
         {
             if (!validated)
@@ -47,8 +22,8 @@ namespace APIMatic.Core.Request.Parameters
                 return;
             }
             CoreHelper.TryGetInnerValueForContainer(value, out var innerValue);
-            string replacerValue = Uri.EscapeUriString(GetReplacerValue(innerValue ?? value));
-            requestBuilder.QueryUrl.Replace($"{{{key}}}", replacerValue);
+            requestBuilder.templateParameters.Add(key, innerValue ?? value);
         }
     }
 }
+    

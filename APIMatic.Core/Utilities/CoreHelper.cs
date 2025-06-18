@@ -13,9 +13,11 @@ using System.Threading.Tasks;
 using APIMatic.Core.Http.Configuration;
 using APIMatic.Core.Types;
 using APIMatic.Core.Types.Sdk;
+using Microsoft.Json.Pointer;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using System.Net;
 
 namespace APIMatic.Core.Utilities
 {
@@ -58,14 +60,7 @@ namespace APIMatic.Core.Utilities
                 settings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
             }
 
-            if (converter == null)
-            {
-                settings.Converters.Add(new IsoDateTimeConverter());
-            }
-            else
-            {
-                settings.Converters.Add(converter);
-            }
+            settings.Converters.Add(converter ?? new IsoDateTimeConverter());
 
             return JsonConvert.SerializeObject(obj, Formatting.None, settings);
         }
@@ -79,19 +74,25 @@ namespace APIMatic.Core.Utilities
         /// <returns>The deserialized object.</returns>
         public static T JsonDeserialize<T>(string json, JsonConverter converter = null)
         {
-            if (string.IsNullOrWhiteSpace(json))
+            return string.IsNullOrWhiteSpace(json)
+                ? default
+                : JsonConvert.DeserializeObject<T>(json, converter ?? new IsoDateTimeConverter());
+        }
+
+        internal static IDictionary<string, object> ExtractQueryParametersForUrl(string queryUrl)
+        { 
+            var queryParams = queryUrl.Split('?');
+
+            if (queryParams.Length <= 1)
             {
-                return default;
+                return new Dictionary<string, object>();
             }
 
-            if (converter == null)
-            {
-                return JsonConvert.DeserializeObject<T>(json, new IsoDateTimeConverter());
-            }
-            else
-            {
-                return JsonConvert.DeserializeObject<T>(json, converter);
-            }
+            return queryParams[1].Split('&').Select(param => param.Split(new []{'='}, 2))
+                .ToDictionary(
+                    pair => WebUtility.UrlDecode(pair[0]),
+                    pair => (object)(pair.Length > 1 ? WebUtility.UrlDecode(pair[1]) : string.Empty)
+                );
         }
 
         /// <summary>
@@ -121,6 +122,30 @@ namespace APIMatic.Core.Utilities
             }
         }
 
+        private static string GetTemplateReplacerValueForCollection(ICollection collection)
+        {
+            var replacedValues = new List<string>();
+            var enumerator = collection.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                replacedValues.Add(GetTemplateReplacerValue(enumerator.Current));
+            }
+            return string.Join("/", replacedValues);
+        }
+
+        public static string GetTemplateReplacerValue(object value)
+        {
+            switch (value)
+            {
+                case null:
+                    return string.Empty;
+                case ICollection collection:
+                    return GetTemplateReplacerValueForCollection(collection);
+                default:
+                    return CoreHelper.JsonSerialize(value).TrimStart('"').TrimEnd('"');
+            }
+        }
+        
         private static void AppendParameters(StringBuilder queryBuilder, ArraySerialization arraySerialization, KeyValuePair<string, object> pair)
         {
             string paramKeyValPair;

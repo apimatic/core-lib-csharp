@@ -11,9 +11,9 @@ namespace APIMatic.Core.Test.Api
 {
     public class ApiCallTest : TestBase
     {
-        private static readonly MockServer _server = MockServer.Server1;
-        private static readonly CompatibilityFactory _compatibilityFactory = new();
-        private static readonly Dictionary<string, ErrorCase<HttpRequest, HttpResponse, HttpContext, ApiException>> _globalErrors = new()
+        private static readonly MockServer Server = MockServer.Server1;
+        private static readonly CompatibilityFactory CompatibilityFactory = new();
+        private static readonly Dictionary<string, ErrorCase<HttpRequest, HttpResponse, HttpContext, ApiException>> GlobalErrors = new()
         {
             { "400", CreateErrorCase("400 Global Child 1", (reason, context) => new Child1Exception(reason, context)) },
             { "402", CreateErrorCase("402 Global Child 2", (reason, context) => new Child2Exception(reason, context)) },
@@ -25,34 +25,34 @@ namespace APIMatic.Core.Test.Api
         protected static ErrorCase<HttpRequest, HttpResponse, HttpContext, ApiException> CreateErrorCase(string reason, Func<string, HttpContext, ApiException> error, bool isErrorTemplate = false)
             => new(reason, error, isErrorTemplate);
 
-        protected ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, ApiResponse<T>, T> CreateApiCall<T>()
+        protected static ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, ApiResponse<T>, T> CreateApiCall<T>()
             => new ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, ApiResponse<T>, T>(
                 LazyGlobalConfiguration.Value,
-                _compatibilityFactory,
-                globalErrors: _globalErrors,
+                CompatibilityFactory,
+                globalErrors: GlobalErrors,
                 returnTypeCreator: (response, result) => new ApiResponse<T>(response.StatusCode, response.Headers, result)
-            ).Server(_server);
+            ).Server(Server);
 
-        protected ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, ApiResponse<T>, T> CreateApiCallWithoutReturnTypeCreator<T>()
+        protected static ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, ApiResponse<T>, T> CreateApiCallWithoutReturnTypeCreator<T>()
             => new ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, ApiResponse<T>, T>(
                 LazyGlobalConfiguration.Value,
-                _compatibilityFactory
-            ).Server(_server);
+                CompatibilityFactory
+            ).Server(Server);
 
-        protected ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, T, T> CreateSimpleApiCall<T>()
+        protected static ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, T, T> CreateSimpleApiCall<T>()
             => new ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, T, T>(
                 LazyGlobalConfiguration.Value,
-                _compatibilityFactory,
-                globalErrors: _globalErrors
-            ).Server(_server);
+                CompatibilityFactory,
+                globalErrors: GlobalErrors
+            ).Server(Server);
 
-        protected ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, T, T> CreateSimpleApiCallWithoutErrors<T>()
+        protected static ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, T, T> CreateSimpleApiCallWithoutErrors<T>()
             => new ApiCall<HttpRequest, HttpResponse, HttpContext, ApiException, T, T>(
                 LazyGlobalConfiguration.Value,
-                _compatibilityFactory
-            ).Server(_server);
-
-        protected string GetCompleteUrl(string path)
+                CompatibilityFactory
+            ).Server(Server);
+        
+        protected static string GetCompleteUrl(string path)
         {
             return $"{LazyGlobalConfiguration.Value.ServerUrl()}{path}";
         }

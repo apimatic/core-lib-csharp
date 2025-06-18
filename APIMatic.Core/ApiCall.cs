@@ -82,6 +82,14 @@ namespace APIMatic.Core
             return this;
         }
 
+        public ApiCall<Request, Response, Context, ApiException, ReturnType, ResponseType> RequestBuilder(RequestBuilder _requestBuilder)
+        {
+            requestBuilder = _requestBuilder;
+            return this;
+        }
+
+        internal RequestBuilder GetRequestBuilder() => requestBuilder;
+
         /// <summary>
         /// Setup the response handler
         /// </summary>
@@ -100,16 +108,22 @@ namespace APIMatic.Core
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async Task<ReturnType> ExecuteAsync(CancellationToken cancellationToken = default)
+            => (await ExecuteRequestAsync(cancellationToken)).result;
+
+        public async Task<(ReturnType result, CoreResponse response)> ExecuteRequestAsync(
+            CancellationToken cancellationToken = default)
         {
             requestBuilder.AcceptHeader = responseHandler.AcceptHeader;
             CoreRequest request = await requestBuilder.Build().ConfigureAwait(false);
             globalConfiguration.ApiCallback?.OnBeforeHttpRequestEventHandler(request);
             _sdkLogger.LogRequest(request);
-            CoreResponse response = await globalConfiguration.HttpClient.ExecuteAsync(request, cancellationToken).ConfigureAwait(false);
+            CoreResponse response = await globalConfiguration.HttpClient.ExecuteAsync(request, cancellationToken)
+                .ConfigureAwait(false);
             globalConfiguration.ApiCallback?.OnAfterHttpResponseEventHandler(response);
             _sdkLogger.LogResponse(response);
             var context = new CoreContext<CoreRequest, CoreResponse>(request, response);
-            return responseHandler.Result(context, returnTypeCreator);
+            var result = responseHandler.Result(context, returnTypeCreator);
+            return (result, response);
         }
     }
 }

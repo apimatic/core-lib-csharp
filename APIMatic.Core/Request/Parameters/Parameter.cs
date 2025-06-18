@@ -5,6 +5,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using APIMatic.Core.Utilities;
+using Microsoft.Json.Pointer;
+using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Request.Parameters
 {

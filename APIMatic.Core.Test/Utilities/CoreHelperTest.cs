@@ -21,6 +21,7 @@ namespace APIMatic.Core.Test.Utilities
     public class CoreHelperTest : TestBase
     {
         internal const string SERVER_URL = "http://my/path:3000/v1";
+
         #region CleanUrl
 
         [Test]
@@ -60,19 +61,20 @@ namespace APIMatic.Core.Test.Utilities
             stringBuilder.Append("://localhost:3000//api/body");
             Assert.Throws<ArgumentException>(() => CoreHelper.CleanUrl(stringBuilder));
         }
+
         #endregion
 
         #region Serialize
+
         [Test]
         public void JsonSerialize_ServerResponse()
         {
             ServerResponse serverResponse = new ServerResponse()
             {
-                Message = "Pass",
-                Passed = true,
-                Input = "Test is pass"
+                Message = "Pass", Passed = true, Input = "Test is pass"
             };
-            string expected = "{\"passed\":true,\"Message\":\"Pass\",\"input\":\"Test is pass\",\"AdditionalProperties\":null}";
+            string expected =
+                "{\"passed\":true,\"Message\":\"Pass\",\"input\":\"Test is pass\",\"AdditionalProperties\":null}";
             string actual = CoreHelper.JsonSerialize(serverResponse);
             Assert.AreEqual(expected, actual);
         }
@@ -80,10 +82,7 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void JsonSerialize_CustomAttributeClass()
         {
-            TestModelC testModelC = new TestModelC()
-            {
-                Name = "Test",
-            };
+            TestModelC testModelC = new TestModelC() { Name = "Test", };
             string expected = "{\"$id\":\"1\",\"Name\":\"Test\"}";
             string actual = CoreHelper.JsonSerialize(testModelC);
             Assert.AreEqual(expected, actual);
@@ -101,10 +100,7 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void JsonSerialize_DateTime_RFCFormat()
         {
-            List<DateTime> list = new List<DateTime>
-            {
-                DateTime.Parse("2018-4-12")
-            };
+            List<DateTime> list = new List<DateTime> { DateTime.Parse("2018-4-12") };
             string expected = "[\"Thu, 12 Apr 2018 00:00:00 GMT\"]";
             string actual = CoreHelper.JsonSerialize(list, new CoreCustomDateTimeConverter("r"));
             Assert.AreEqual(expected, actual);
@@ -131,13 +127,15 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void JsonSerialize_EnumStringAllowUnknownEnumValues()
         {
-            Assert.Throws<JsonSerializationException>(() => CoreHelper.JsonSerialize(WorkingDaysAllowAdditionalValues._Unknown));
+            Assert.Throws<JsonSerializationException>(() =>
+                CoreHelper.JsonSerialize(WorkingDaysAllowAdditionalValues._Unknown));
         }
 
         [Test]
         public void JsonSerialize_EnumNumberAllowUnknownEnumValues()
         {
-            Assert.Throws<JsonSerializationException>(() => CoreHelper.JsonSerialize(MonthNumberAllowAdditionalValues._Unknown));
+            Assert.Throws<JsonSerializationException>(() =>
+                CoreHelper.JsonSerialize(MonthNumberAllowAdditionalValues._Unknown));
         }
 
         [Test]
@@ -157,13 +155,9 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void JsonDeserialize_ServerResponse()
         {
-            string serverResponseJson = "{\"passed\":true,\"Message\":\"Pass\",\"input\":\"Test is pass\",\"AdditionalProperties\":null}";
-            ServerResponse expected = new ServerResponse()
-            {
-                Message = "Pass",
-                Passed = true,
-                Input = "Test is pass"
-            };
+            string serverResponseJson =
+                "{\"passed\":true,\"Message\":\"Pass\",\"input\":\"Test is pass\",\"AdditionalProperties\":null}";
+            ServerResponse expected = new ServerResponse() { Message = "Pass", Passed = true, Input = "Test is pass" };
 
             ServerResponse actual = CoreHelper.JsonDeserialize<ServerResponse>(serverResponseJson);
             Assert.AreEqual(expected, actual);
@@ -174,13 +168,11 @@ namespace APIMatic.Core.Test.Utilities
         public void JsonDeserialize_DateTime()
         {
             DateTime dateTime = new DateTime(2022, 12, 12);
-            List<DateTime?> expected = new List<DateTime?>
-            {
-                dateTime
-            };
+            List<DateTime?> expected = new List<DateTime?> { dateTime };
             string dateTimeString = CoreHelper.JsonSerialize(expected, new CoreCustomDateTimeConverter("r"));
 
-            List<DateTime> actual = CoreHelper.JsonDeserialize<List<DateTime>>(dateTimeString, new CoreCustomDateTimeConverter("r"));
+            List<DateTime> actual =
+                CoreHelper.JsonDeserialize<List<DateTime>>(dateTimeString, new CoreCustomDateTimeConverter("r"));
             Assert.AreEqual(expected, actual);
         }
 
@@ -276,12 +268,10 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var parametersKeys = new List<string>()
-            {
-                "service", "api"
-            };
+            var parametersKeys = new List<string>() { "service", "api" };
 
-            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, "messagingService", "testApi"));
+            CoreHelper.AppendUrlWithQueryParameters(queryBuilder,
+                GetParameters(parametersKeys, "messagingService", "testApi"));
 
             string expected = $"{SERVER_URL}?service=messagingService&api=testApi";
             string actual = queryBuilder.ToString();
@@ -306,13 +296,11 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var parametersKeys = new List<string>()
-            {
-                "dateTime"
-            };
+            var parametersKeys = new List<string>() { "dateTime" };
 
             string expected = $"{SERVER_URL}?dateTime=2022-12-14T00:00:00";
-            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, new DateTime(2022, 12, 14)));
+            CoreHelper.AppendUrlWithQueryParameters(queryBuilder,
+                GetParameters(parametersKeys, new DateTime(2022, 12, 14)));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
         }
@@ -322,10 +310,7 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var parametersKeys = new List<string>()
-            {
-                "dateTime"
-            };
+            var parametersKeys = new List<string>() { "dateTime" };
 
             var dateTimeOffset = new DateTimeOffset(new DateTime(2022, 12, 14));
             string dateTimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFFK";
@@ -341,10 +326,7 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var parametersKeys = new List<string>()
-            {
-                "dateTime"
-            };
+            var parametersKeys = new List<string>() { "dateTime" };
 
             object obj = null;
             string expected = $"{SERVER_URL}";
@@ -358,10 +340,7 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            List<string> parametersKeys = new List<string>()
-            {
-                "list"
-            };
+            List<string> parametersKeys = new List<string>() { "list" };
 
             List<string> obj = null;
             string expected = $"{SERVER_URL}";
@@ -375,10 +354,7 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            List<string> parametersKeys = new List<string>()
-            {
-                "list"
-            };
+            List<string> parametersKeys = new List<string>() { "list" };
 
             List<string> obj = new List<string>();
             string expected = $"{SERVER_URL}";
@@ -392,10 +368,7 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            List<string> parametersKeys = new List<string>()
-            {
-                "dictionary"
-            };
+            List<string> parametersKeys = new List<string>() { "dictionary" };
 
             Dictionary<string, string> dictionary = null;
             string expected = $"{SERVER_URL}";
@@ -409,10 +382,7 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            List<string> parametersKeys = new List<string>()
-            {
-                "dictionary"
-            };
+            List<string> parametersKeys = new List<string>() { "dictionary" };
 
             Dictionary<string, string> dictionary = new Dictionary<string, string>();
             string expected = $"{SERVER_URL}";
@@ -426,15 +396,9 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var stringCollection = new List<string>()
-            {
-                "test", "collection"
-            };
+            var stringCollection = new List<string>() { "test", "collection" };
 
-            var parametersKeys = new List<string>()
-            {
-                "dateTime"
-            };
+            var parametersKeys = new List<string>() { "dateTime" };
 
             string expected = $"{SERVER_URL}?dateTime[]=test&dateTime[]=collection";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection));
@@ -448,18 +412,13 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var stringCollection = new List<string>()
-            {
-                "test", "collection"
-            };
+            var stringCollection = new List<string>() { "test", "collection" };
 
-            var parametersKeys = new List<string>()
-            {
-                "dateTime"
-            };
+            var parametersKeys = new List<string>() { "dateTime" };
 
             string expected = $"{SERVER_URL}?dateTime[0]=test&dateTime[1]=collection";
-            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection), ArraySerialization.Indexed);
+            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection),
+                ArraySerialization.Indexed);
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
         }
@@ -469,18 +428,13 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var stringCollection = new List<string>()
-            {
-                "test", "collection"
-            };
+            var stringCollection = new List<string>() { "test", "collection" };
 
-            var parametersKeys = new List<string>()
-            {
-                "dateTime"
-            };
+            var parametersKeys = new List<string>() { "dateTime" };
 
             string expected = $"{SERVER_URL}?dateTime=test&dateTime=collection";
-            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection), ArraySerialization.Plain);
+            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection),
+                ArraySerialization.Plain);
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
         }
@@ -490,18 +444,13 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var stringCollection = new List<string>()
-            {
-                "test", "collection"
-            };
+            var stringCollection = new List<string>() { "test", "collection" };
 
-            var parametersKeys = new List<string>()
-            {
-                "dateTime"
-            };
+            var parametersKeys = new List<string>() { "dateTime" };
 
             string expected = $"{SERVER_URL}?dateTime=test\tcollection";
-            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection), ArraySerialization.TSV);
+            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection),
+                ArraySerialization.TSV);
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
         }
@@ -511,18 +460,13 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var stringCollection = new List<string>()
-            {
-                "test", "collection"
-            };
+            var stringCollection = new List<string>() { "test", "collection" };
 
-            var parametersKeys = new List<string>()
-            {
-                "dateTime"
-            };
+            var parametersKeys = new List<string>() { "dateTime" };
 
             string expected = $"{SERVER_URL}?dateTime=test,collection";
-            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection), ArraySerialization.CSV);
+            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection),
+                ArraySerialization.CSV);
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
         }
@@ -534,10 +478,7 @@ namespace APIMatic.Core.Test.Utilities
             queryBuilder.Append(SERVER_URL);
             var serverResponse = new ServerResponse(true);
 
-            var parametersKeys = new List<string>()
-            {
-                "serverResponse"
-            };
+            var parametersKeys = new List<string>() { "serverResponse" };
 
             string expected = $"{SERVER_URL}?serverResponse%5Bpassed%5D=true";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, serverResponse));
@@ -551,19 +492,13 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var dictionaryData = new Dictionary<string, string>()
-            {
-                {"key1", "value1" },
-                {"key2", "value2" }
-            };
+            var dictionaryData = new Dictionary<string, string>() { { "key1", "value1" }, { "key2", "value2" } };
 
-            var parametersKeys = new List<string>()
-            {
-                "dictionary"
-            };
+            var parametersKeys = new List<string>() { "dictionary" };
 
             string expected = $"{SERVER_URL}?dictionary[0]=%5Bkey1%2C%20value1%5D&dictionary[1]=%5Bkey2%2C%20value2%5D";
-            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, dictionaryData), ArraySerialization.Indexed);
+            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, dictionaryData),
+                ArraySerialization.Indexed);
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
         }
@@ -574,14 +509,8 @@ namespace APIMatic.Core.Test.Utilities
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
             DateTime dateTime = new DateTime(2022, 12, 15);
-            TestModel testModel = new TestModel()
-            {
-                TestDateTime = dateTime
-            };
-            var parametersKeys = new List<string>()
-            {
-                "dateTime"
-            };
+            TestModel testModel = new TestModel() { TestDateTime = dateTime };
+            var parametersKeys = new List<string>() { "dateTime" };
 
             string expected = $"{SERVER_URL}?dateTime%5BTestDateTime%5D=2022-12-15T00%3A00%3A00";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, testModel));
@@ -595,14 +524,8 @@ namespace APIMatic.Core.Test.Utilities
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
             DateTime dateTime = new DateTime(2022, 12, 15);
-            TestModelB testModel = new TestModelB()
-            {
-                TestDateTime = dateTime
-            };
-            var parametersKeys = new List<string>()
-            {
-                "dateTime"
-            };
+            TestModelB testModel = new TestModelB() { TestDateTime = dateTime };
+            var parametersKeys = new List<string>() { "dateTime" };
 
             string expected = $"{SERVER_URL}?dateTime%5BTestDateTime%5D=2022-12-15";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, testModel));
@@ -618,16 +541,11 @@ namespace APIMatic.Core.Test.Utilities
             queryBuilder.Append(SERVER_URL);
             byte[] buffer = Encoding.ASCII.GetBytes("test");
             Stream memoryStream = new MemoryStream(buffer);
-            TestModel testModel = new TestModel()
-            {
-                DateStream = memoryStream
-            };
-            var parametersKeys = new List<string>()
-            {
-                "stream"
-            };
+            TestModel testModel = new TestModel() { DateStream = memoryStream };
+            var parametersKeys = new List<string>() { "stream" };
 
-            string expected = $"{SERVER_URL}?stream%5BDateStream%5D=System.IO.MemoryStream&stream%5BTestDateTime%5D=0001-01-01T00%3A00%3A00";
+            string expected =
+                $"{SERVER_URL}?stream%5BDateStream%5D=System.IO.MemoryStream&stream%5BTestDateTime%5D=0001-01-01T00%3A00%3A00";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, testModel));
             memoryStream.Dispose();
             string actual = queryBuilder.ToString();
@@ -644,10 +562,7 @@ namespace APIMatic.Core.Test.Utilities
             jObject.Album = "alpha";
             jObject.Artist = "beta";
 
-            var parametersKeys = new List<string>()
-            {
-                "jObject"
-            };
+            var parametersKeys = new List<string>() { "jObject" };
 
             string expected = $"{SERVER_URL}?jObject%5BAlbum%5D=alpha&jObject%5BArtist%5D=beta";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, jObject));
@@ -661,13 +576,11 @@ namespace APIMatic.Core.Test.Utilities
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
 
-            var parametersKeys = new List<string>()
-            {
-                "enum"
-            };
+            var parametersKeys = new List<string>() { "enum" };
 
             string expected = $"{SERVER_URL}?enum=5";
-            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, ArraySerialization.PSV));
+            CoreHelper.AppendUrlWithQueryParameters(queryBuilder,
+                GetParameters(parametersKeys, ArraySerialization.PSV));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
         }
@@ -677,18 +590,13 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var stringCollection = new List<string>()
-            {
-                "test", "collection"
-            };
+            var stringCollection = new List<string>() { "test", "collection" };
 
-            var parametersKeys = new List<string>()
-            {
-                "dateTime"
-            };
+            var parametersKeys = new List<string>() { "dateTime" };
 
             string expected = $"{SERVER_URL}?dateTime=test|collection";
-            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection), ArraySerialization.PSV);
+            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection),
+                ArraySerialization.PSV);
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
         }
@@ -698,15 +606,9 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var stringCollection = new List<ServerResponse>()
-            {
-                new ServerResponse(true)
-            };
+            var stringCollection = new List<ServerResponse>() { new ServerResponse(true) };
 
-            var parametersKeys = new List<string>()
-            {
-                "serverResponse"
-            };
+            var parametersKeys = new List<string>() { "serverResponse" };
 
             string expected = $"{SERVER_URL}?serverResponse%5B0%5D%5Bpassed%5D=true";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection));
@@ -720,10 +622,7 @@ namespace APIMatic.Core.Test.Utilities
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
             IList stringCollection = null;
-            var parametersKeys = new List<string>()
-            {
-                "serverResponse"
-            };
+            var parametersKeys = new List<string>() { "serverResponse" };
 
             string expected = $"{SERVER_URL}";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection));
@@ -737,10 +636,7 @@ namespace APIMatic.Core.Test.Utilities
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL + "?x=9");
             IList stringCollection = null;
-            var parametersKeys = new List<string>()
-            {
-                "serverResponse"
-            };
+            var parametersKeys = new List<string>() { "serverResponse" };
 
             string expected = $"{SERVER_URL}?x=9";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection));
@@ -760,16 +656,11 @@ namespace APIMatic.Core.Test.Utilities
             integers[2] = 5;
             integers[3] = 6;
             integers[4] = 7;
-            TestModel testModel = new TestModel
-            {
-                Integers = integers
-            };
-            var parametersKeys = new List<string>()
-            {
-                "req"
-            };
+            TestModel testModel = new TestModel { Integers = integers };
+            var parametersKeys = new List<string>() { "req" };
 
-            string expected = $"{SERVER_URL}?req%5BIntegers%5D[]=9&req%5BIntegers%5D[]=4&req%5BIntegers%5D[]=5&req%5BIntegers%5D[]=6&req%5BIntegers%5D[]=7&req%5BTestDateTime%5D=0001-01-01T00%3A00%3A00";
+            string expected =
+                $"{SERVER_URL}?req%5BIntegers%5D[]=9&req%5BIntegers%5D[]=4&req%5BIntegers%5D[]=5&req%5BIntegers%5D[]=6&req%5BIntegers%5D[]=7&req%5BTestDateTime%5D=0001-01-01T00%3A00%3A00";
             CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, testModel));
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
@@ -783,21 +674,21 @@ namespace APIMatic.Core.Test.Utilities
             queryBuilder.Append(SERVER_URL);
             var stringCollection = new List<List<ServerResponse>>()
             {
-               new List<ServerResponse>(){ new ServerResponse(true) }
+                new List<ServerResponse>() { new ServerResponse(true) }
             };
 
-            var parametersKeys = new List<string>()
-            {
-                "serverResponse"
-            };
+            var parametersKeys = new List<string>() { "serverResponse" };
 
-            string expected = $"{SERVER_URL}?serverResponse=System.Collections.Generic.List%601%5BAPIMatic.Core.Test.MockTypes.Models.ServerResponse%5D";
-            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection), ArraySerialization.Plain);
+            string expected =
+                $"{SERVER_URL}?serverResponse=System.Collections.Generic.List%601%5BAPIMatic.Core.Test.MockTypes.Models.ServerResponse%5D";
+            CoreHelper.AppendUrlWithQueryParameters(queryBuilder, GetParameters(parametersKeys, stringCollection),
+                ArraySerialization.Plain);
             string actual = queryBuilder.ToString();
             Assert.AreEqual(expected, actual);
         }
 
-        private IEnumerable<KeyValuePair<string, object>> GetParameters(List<string> keys = null, params object[] parameters)
+        private IEnumerable<KeyValuePair<string, object>> GetParameters(List<string> keys = null,
+            params object[] parameters)
         {
             int index = 0;
             foreach (object parameter in parameters)
@@ -809,6 +700,67 @@ namespace APIMatic.Core.Test.Utilities
 
         #endregion
 
+        #region ExtractQueryParameters
+
+        [Test]
+        public void ExtractQueryParametersForUrl_WithValidUrl_ReturnsCorrectDictionary()
+        {
+            // Arrange
+            var url = "https://api.example.com/items?limit=10&page=2&search=hello%20world";
+
+            // Act
+            var result = CoreHelper.ExtractQueryParametersForUrl(url);
+
+            // Assert
+            Assert.AreEqual(3, result.Count);
+            Assert.AreEqual("10", result["limit"]);
+            Assert.AreEqual("2", result["page"]);
+            Assert.AreEqual("hello world", result["search"]);
+        }
+
+        [Test]
+        public void ExtractQueryParametersForUrl_WithNoQuery_ReturnsEmptyDictionary()
+        {
+            // Arrange
+            var url = "https://api.example.com/items";
+
+            // Act
+            var result = CoreHelper.ExtractQueryParametersForUrl(url);
+
+            // Assert
+            Assert.IsEmpty(result);
+        }
+
+        [Test]
+        public void ExtractQueryParametersForUrl_WithEmptyValue_ReturnsEmptyString()
+        {
+            // Arrange
+            var url = "https://api.example.com/items?foo=";
+
+            // Act
+            var result = CoreHelper.ExtractQueryParametersForUrl(url);
+
+            // Assert
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(string.Empty, result["foo"]);
+        }
+
+        [Test]
+        public void ExtractQueryParametersForUrl_WithMissingValuePart_IgnoresIt()
+        {
+            // Arrange
+            var url = "https://api.example.com/items?onlykey";
+
+            // Act
+            var result = CoreHelper.ExtractQueryParametersForUrl(url);
+
+            // Assert
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(string.Empty, result["onlykey"]);
+        }
+
+        #endregion
+
         #region PrepareFormFieldsFromObject
 
         [Test]
@@ -816,19 +768,15 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var dictionaryData = new Dictionary<string, string>()
-            {
-                {"key1", "value1" },
-                {"key2", "value2" }
-            };
+            var dictionaryData = new Dictionary<string, string>() { { "key1", "value1" }, { "key2", "value2" } };
 
 
             List<KeyValuePair<string, object>> expected = new List<KeyValuePair<string, object>>()
             {
-                new KeyValuePair<string, object>("dictionary[key1]", "value1"),
-                new KeyValuePair<string, object>("dictionary[key2]", "value2")
+                new("dictionary[key1]", "value1"), new("dictionary[key2]", "value2")
             };
-            List<KeyValuePair<string, object>> actual = CoreHelper.PrepareFormFieldsFromObject("dictionary", dictionaryData, ArraySerialization.Indexed);
+            List<KeyValuePair<string, object>> actual =
+                CoreHelper.PrepareFormFieldsFromObject("dictionary", dictionaryData, ArraySerialization.Indexed);
             Assert.AreEqual(expected, actual);
         }
 
@@ -837,19 +785,18 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var arraySerializations = new List<string>()
-            {
-                "alpha", "beta", "gamma"
-            };
+            var arraySerializations = new List<string>() { "alpha", "beta", "gamma" };
 
 
             List<KeyValuePair<string, object>> expected = new List<KeyValuePair<string, object>>()
             {
-                new KeyValuePair<string, object>("arraySerialization", "alpha"),
-                new KeyValuePair<string, object>("arraySerialization", "beta"),
-                new KeyValuePair<string, object>("arraySerialization", "gamma")
+                new("arraySerialization", "alpha"),
+                new("arraySerialization", "beta"),
+                new("arraySerialization", "gamma")
             };
-            List<KeyValuePair<string, object>> actual = CoreHelper.PrepareFormFieldsFromObject("arraySerialization", arraySerializations, ArraySerialization.Plain);
+            List<KeyValuePair<string, object>> actual =
+                CoreHelper.PrepareFormFieldsFromObject("arraySerialization", arraySerializations,
+                    ArraySerialization.Plain);
             Assert.AreEqual(expected, actual);
         }
 
@@ -858,19 +805,17 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var arraySerializations = new List<string>()
-            {
-                "alpha", "beta", "gamma"
-            };
+            var arraySerializations = new List<string>() { "alpha", "beta", "gamma" };
 
 
             List<KeyValuePair<string, object>> expected = new List<KeyValuePair<string, object>>()
             {
-                new KeyValuePair<string, object>("arraySerialization[]", "alpha"),
-                new KeyValuePair<string, object>("arraySerialization[]", "beta"),
-                new KeyValuePair<string, object>("arraySerialization[]", "gamma")
+                new("arraySerialization[]", "alpha"),
+                new("arraySerialization[]", "beta"),
+                new("arraySerialization[]", "gamma")
             };
-            List<KeyValuePair<string, object>> actual = CoreHelper.PrepareFormFieldsFromObject("arraySerialization", arraySerializations, ArraySerialization.UnIndexed);
+            List<KeyValuePair<string, object>> actual = CoreHelper.PrepareFormFieldsFromObject("arraySerialization",
+                arraySerializations, ArraySerialization.UnIndexed);
             Assert.AreEqual(expected, actual);
         }
 
@@ -879,19 +824,17 @@ namespace APIMatic.Core.Test.Utilities
         {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.Append(SERVER_URL);
-            var arraySerializations = new List<string>()
-            {
-                "alpha", "beta", "gamma", null
-            };
+            var arraySerializations = new List<string>() { "alpha", "beta", "gamma", null };
 
 
             List<KeyValuePair<string, object>> expected = new List<KeyValuePair<string, object>>()
             {
-                new KeyValuePair<string, object>("arraySerialization[]", "alpha"),
-                new KeyValuePair<string, object>("arraySerialization[]", "beta"),
-                new KeyValuePair<string, object>("arraySerialization[]", "gamma")
+                new("arraySerialization[]", "alpha"),
+                new("arraySerialization[]", "beta"),
+                new("arraySerialization[]", "gamma")
             };
-            List<KeyValuePair<string, object>> actual = CoreHelper.PrepareFormFieldsFromObject("arraySerialization", arraySerializations, ArraySerialization.UnIndexed);
+            List<KeyValuePair<string, object>> actual = CoreHelper.PrepareFormFieldsFromObject("arraySerialization",
+                arraySerializations, ArraySerialization.UnIndexed);
             Assert.AreEqual(expected, actual);
         }
 
@@ -902,19 +845,18 @@ namespace APIMatic.Core.Test.Utilities
             queryBuilder.Append(SERVER_URL);
             var arraySerializations = new List<List<ArraySerialization>>()
             {
-                 new List<ArraySerialization>()
-                 {
-                     ArraySerialization.Indexed, ArraySerialization.PSV
-                 }
+                new() { ArraySerialization.Indexed, ArraySerialization.PSV }
             };
 
 
             List<KeyValuePair<string, object>> expected = new List<KeyValuePair<string, object>>()
             {
-                new KeyValuePair<string, object>("arraySerialization[0][0]", "0"),
-                new KeyValuePair<string, object>("arraySerialization[0][1]", "5")
+                new("arraySerialization[0][0]", "0"),
+                new("arraySerialization[0][1]", "5")
             };
-            List<KeyValuePair<string, object>> actual = CoreHelper.PrepareFormFieldsFromObject("arraySerialization", arraySerializations, ArraySerialization.Plain);
+            List<KeyValuePair<string, object>> actual =
+                CoreHelper.PrepareFormFieldsFromObject("arraySerialization", arraySerializations,
+                    ArraySerialization.Plain);
             Assert.AreEqual(expected, actual);
         }
 
@@ -928,9 +870,10 @@ namespace APIMatic.Core.Test.Utilities
 
             List<KeyValuePair<string, object>> expected = new List<KeyValuePair<string, object>>()
             {
-                new KeyValuePair<string, object>("jsonObject[message]", "TestCase")
+                new("jsonObject[message]", "TestCase")
             };
-            List<KeyValuePair<string, object>> actual = CoreHelper.PrepareFormFieldsFromObject("jsonObject", jsonObject, ArraySerialization.Indexed);
+            List<KeyValuePair<string, object>> actual =
+                CoreHelper.PrepareFormFieldsFromObject("jsonObject", jsonObject, ArraySerialization.Indexed);
             Assert.AreEqual(expected, actual);
         }
 
@@ -941,9 +884,9 @@ namespace APIMatic.Core.Test.Utilities
             queryBuilder.Append(SERVER_URL);
             JsonObject jsonObject = JsonObject.FromJsonString("{\"message\" : {\"prop\" : null}}");
 
-
             List<KeyValuePair<string, object>> expected = new List<KeyValuePair<string, object>>();
-            List<KeyValuePair<string, object>> actual = CoreHelper.PrepareFormFieldsFromObject("jsonObject", jsonObject, ArraySerialization.Indexed);
+            List<KeyValuePair<string, object>> actual =
+                CoreHelper.PrepareFormFieldsFromObject("jsonObject", jsonObject, ArraySerialization.Indexed);
             Assert.AreEqual(expected, actual);
         }
 
@@ -954,12 +897,12 @@ namespace APIMatic.Core.Test.Utilities
             queryBuilder.Append(SERVER_URL);
             JsonValue jsonValue = JsonValue.FromString("TestCase");
 
-
             List<KeyValuePair<string, object>> expected = new List<KeyValuePair<string, object>>()
             {
-                new KeyValuePair<string, object>("jsonValue", "TestCase")
+                new("jsonValue", "TestCase")
             };
-            List<KeyValuePair<string, object>> actual = CoreHelper.PrepareFormFieldsFromObject("jsonValue", jsonValue, ArraySerialization.Indexed);
+            List<KeyValuePair<string, object>> actual =
+                CoreHelper.PrepareFormFieldsFromObject("jsonValue", jsonValue, ArraySerialization.Indexed);
             Assert.AreEqual(expected, actual);
         }
 
@@ -1002,7 +945,8 @@ namespace APIMatic.Core.Test.Utilities
             List<KeyValuePair<string, object>> expected = new List<KeyValuePair<string, object>>()
             {
                 new("simpleModelWithAdditionalPropertiesBaseModel[requiredProperty]", "Required Field"),
-                new("simpleModelWithAdditionalPropertiesBaseModel[additionalPropertyKey]", "additionalPropertyValue")
+                new("simpleModelWithAdditionalPropertiesBaseModel[additionalPropertyKey]",
+                    "additionalPropertyValue")
             };
 
             List<KeyValuePair<string, object>> actual = CoreHelper.PrepareFormFieldsFromObject(
@@ -1012,12 +956,12 @@ namespace APIMatic.Core.Test.Utilities
             // Assert that all items in 'expected' are found within 'actual'
             bool containsAllExpectedEntries = expected.All(item => actual.Contains(item));
             Assert.IsTrue(containsAllExpectedEntries, "Not all expected entries are present in actual.");
-
         }
 
         #endregion
 
         #region DeepCloneObject
+
         [Test]
         public void DeepCloneObject_ServerResponse()
         {
@@ -1025,6 +969,7 @@ namespace APIMatic.Core.Test.Utilities
             ServerResponse actual = CoreHelper.DeepCloneObject(expected);
             Assert.AreEqual(expected, actual);
         }
+
         #endregion
 
         #region Converters
@@ -1076,6 +1021,7 @@ namespace APIMatic.Core.Test.Utilities
             Assert.That(CoreHelper.IsNullableType(typeof(List<object>)), Is.True);
             Assert.That(CoreHelper.IsNullableType(typeof(Dictionary<string, object>)), Is.True);
         }
+
         #endregion
     }
 }

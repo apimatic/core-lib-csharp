@@ -14,16 +14,8 @@ namespace APIMatic.Core.Request.Parameters
 
         internal override void Apply(RequestBuilder requestBuilder)
         {
-            if (!validated)
-            {
-                return;
-            }
-            var headerValue = CoreHelper.JsonSerialize(value)?.TrimStart('"').TrimEnd('"');
-            if (headerValue == null)
-            {
-                return;
-            }
-            requestBuilder.headers[key] = headerValue;
+            if (!validated) return;
+            requestBuilder.headersParameters[key] = value;
         }
     }
 }

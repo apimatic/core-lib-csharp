@@ -50,7 +50,7 @@ namespace APIMatic.Core
         /// </summary>
         /// <param name="server"></param>
         /// <returns></returns>
-        public string ServerUrl(Enum server = null) => GlobalRequestBuilder(server).QueryUrl.ToString();
+        public string ServerUrl(Enum server = null) => GlobalRequestBuilder(server).GetQueryUrl();
 
         /// <summary>
         /// Returns the global request builder after applying the global configurations
@@ -59,8 +59,7 @@ namespace APIMatic.Core
         /// <returns></returns>
         public RequestBuilder GlobalRequestBuilder(Enum server = null)
         {
-            RequestBuilder requestBuilder = new RequestBuilder(this);
-            requestBuilder.QueryUrl.Append(_serverUrls[server ?? _defaultServer]);
+            RequestBuilder requestBuilder = new RequestBuilder(this, _serverUrls[server ?? _defaultServer]);
             _parameters.Validate().Apply(requestBuilder);
             return requestBuilder;
         }

@@ -112,7 +112,7 @@ namespace APIMatic.Core.Test
         }
 
         [Test]
-        public async Task Multiple_Authentication_AND_Validation_Failure()
+        public void Multiple_Authentication_AND_Validation_Failure()
         {
             var globalConfiguration = new GlobalConfiguration.Builder()
                 .ServerUrls(new Dictionary<Enum, string>
@@ -137,15 +137,6 @@ namespace APIMatic.Core.Test
 
             Assert.AreEqual("Following authentication credentials are required:\n" +
                 "-> Missing required header field: TOKEN", exp.Message);
-
-            async void AuthCode()
-            {
-                await globalConfiguration.GlobalRequestBuilder()
-                    .Setup(HttpMethod.Get, "/auth")
-                    .WithAndAuth(auth => auth.Add("query")
-                        .Add("header"))
-                    .Build();
-            }
         }
 
         [Test]
