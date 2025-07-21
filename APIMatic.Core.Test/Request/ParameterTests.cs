@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using APIMatic.Core.Request;
+﻿using APIMatic.Core.Request;
 using APIMatic.Core.Request.Parameters;
 using NUnit.Framework;
 
