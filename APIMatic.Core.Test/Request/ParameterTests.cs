@@ -1,4 +1,6 @@
-﻿using APIMatic.Core.Request;
+﻿using System.Collections.Generic;
+using System.Linq;
+using APIMatic.Core.Request;
 using APIMatic.Core.Request.Parameters;
 using NUnit.Framework;
 
@@ -47,6 +49,34 @@ namespace APIMatic.Core.Test.Request
             // Assert
             Assert.That(requestBuilder.queryParameters.TryGetValue("status", out var value), Is.True);
             Assert.That(value, Is.EqualTo("approved"));
+        }
+        
+        [Test]
+        public void AdditionalForms_WhenKeyIsNull_ShouldAssignInnerFieldsCorrectly()
+        {
+            // Arrange
+            var parameters = new Parameter.Builder();
+            var fieldParameters = new Dictionary<string, object>
+            {
+                ["inner_field"] =  "inner_field",
+            };
+            
+            parameters
+                .AdditionalForms(additionalForms => additionalForms.Setup(fieldParameters));
+
+            var requestBuilder = new RequestBuilder(LazyGlobalConfiguration.Value, ServerUrl);
+
+            // Act
+            parameters.Validate().Apply(requestBuilder);
+
+            // Assert
+            var formParam = requestBuilder.formParameters.FirstOrDefault(p => p.Key == "inner_field");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(formParam, Is.Not.Null, "Expected form parameter with key 'inner_field'");
+                Assert.That(formParam.Value, Is.EqualTo("inner_field"), "Expected value mismatch for 'inner_field'");
+            });
         }
     }
 }
