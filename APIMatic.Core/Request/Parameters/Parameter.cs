@@ -81,6 +81,8 @@ namespace APIMatic.Core.Request.Parameters
         {
             private readonly ConcurrentDictionary<string, Parameter> _parameters =
                 new ConcurrentDictionary<string, Parameter>();
+            private readonly ConcurrentQueue<string> _insertionOrder = new ConcurrentQueue<string>();
+            private readonly object _sync = new object();
 
             internal Builder() { }
 
@@ -93,7 +95,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 var template = new TemplateParam();
                 _template(template);
-                _parameters[template.IdentifierKey] = template;
+                AddOrUpdate(template);
                 return this;
             }
 
@@ -106,7 +108,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 var header = new HeaderParam();
                 _header(header);
-                _parameters[header.IdentifierKey] =  header;
+                AddOrUpdate(header);
                 return this;
             }
 
@@ -120,7 +122,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 var headers = new AdditionalHeaderParams();
                 _headers(headers);
-                _parameters[headers.IdentifierKey] =  headers;
+                AddOrUpdate(headers);
                 return this;
             }
 
@@ -133,7 +135,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 var query = new QueryParam();
                 _query(query);
-                _parameters[query.IdentifierKey] = query;
+                AddOrUpdate(query);
                 return this;
             }
 
@@ -146,7 +148,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 var queries = new AdditionalQueryParams();
                 _queries(queries);
-                _parameters[queries.IdentifierKey] = queries;
+                AddOrUpdate(queries);
                 return this;
             }
 
@@ -159,7 +161,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 var form = new FormParam();
                 _form(form);
-                _parameters[form.IdentifierKey] = form;
+                AddOrUpdate(form);
                 return this;
             }
 
@@ -172,7 +174,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 var forms = new AdditionalFormParams();
                 _forms(forms);
-                _parameters[forms.IdentifierKey] = forms;
+                AddOrUpdate(forms);
                 return this;
             }
 
@@ -185,7 +187,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 var body = new BodyParam();
                 _body(body);
-                _parameters[body.IdentifierKey] = body;
+                AddOrUpdate(body);
                 return this;
             }
 
@@ -220,9 +222,25 @@ namespace APIMatic.Core.Request.Parameters
             /// <returns></returns>
             internal void Apply(RequestBuilder requestBuilder)
             {
-                foreach (var p in _parameters)
+                foreach (var p in _insertionOrder)
                 {
-                    p.Value.Apply(requestBuilder);
+                    _parameters[p].Apply(requestBuilder);
+                }
+            }
+            
+            private void AddOrUpdate(Parameter param)
+            {
+                var key = param.IdentifierKey;
+
+                lock (_sync)
+                {
+                    // Only record order on first insertion
+                    if (!_parameters.ContainsKey(key))
+                    {
+                        _insertionOrder.Enqueue(key);
+                    }
+
+                    _parameters[key] = param;
                 }
             }
         }
