@@ -5,9 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using APIMatic.Core.Utilities;
-using Microsoft.Json.Pointer;
-using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Request.Parameters
 {
@@ -22,8 +19,10 @@ namespace APIMatic.Core.Request.Parameters
         private Func<object, object> valueSerializer = value => value;
         protected bool validated = false;
         protected string typeName;
-
+        
         private string GetName() => key == "" ? typeName : key;
+
+        private string IdentifierKey => string.IsNullOrEmpty(key) ? $"_{nameof(Parameter)}_{Guid.NewGuid()}" : key;
 
         public Parameter Setup(string key, object value)
         {
@@ -80,7 +79,10 @@ namespace APIMatic.Core.Request.Parameters
         /// </summary>
         public class Builder
         {
-            private readonly ConcurrentBag<Parameter> parameters = new ConcurrentBag<Parameter>();
+            private readonly ConcurrentDictionary<string, Parameter> _parameters =
+                new ConcurrentDictionary<string, Parameter>();
+            private readonly ConcurrentQueue<string> _insertionOrder = new ConcurrentQueue<string>();
+            private readonly object _sync = new object();
 
             internal Builder() { }
 
@@ -93,7 +95,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 var template = new TemplateParam();
                 _template(template);
-                parameters.Add(template);
+                AddOrUpdate(template);
                 return this;
             }
 
@@ -106,7 +108,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 var header = new HeaderParam();
                 _header(header);
-                parameters.Add(header);
+                AddOrUpdate(header);
                 return this;
             }
 
@@ -120,7 +122,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 var headers = new AdditionalHeaderParams();
                 _headers(headers);
-                parameters.Add(headers);
+                AddOrUpdate(headers);
                 return this;
             }
 
@@ -133,7 +135,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 var query = new QueryParam();
                 _query(query);
-                parameters.Add(query);
+                AddOrUpdate(query);
                 return this;
             }
 
@@ -146,7 +148,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 var queries = new AdditionalQueryParams();
                 _queries(queries);
-                parameters.Add(queries);
+                AddOrUpdate(queries);
                 return this;
             }
 
@@ -159,7 +161,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 var form = new FormParam();
                 _form(form);
-                parameters.Add(form);
+                AddOrUpdate(form);
                 return this;
             }
 
@@ -172,7 +174,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 var forms = new AdditionalFormParams();
                 _forms(forms);
-                parameters.Add(forms);
+                AddOrUpdate(forms);
                 return this;
             }
 
@@ -185,7 +187,7 @@ namespace APIMatic.Core.Request.Parameters
             {
                 var body = new BodyParam();
                 _body(body);
-                parameters.Add(body);
+                AddOrUpdate(body);
                 return this;
             }
 
@@ -196,11 +198,11 @@ namespace APIMatic.Core.Request.Parameters
             internal Builder Validate()
             {
                 var missingArgErrors = new List<string>();
-                foreach (var p in parameters)
+                foreach (var p in _parameters)
                 {
                     try
                     {
-                        p.Validate();
+                        p.Value.Validate();
                     }
                     catch (ArgumentNullException exp)
                     {
@@ -220,9 +222,25 @@ namespace APIMatic.Core.Request.Parameters
             /// <returns></returns>
             internal void Apply(RequestBuilder requestBuilder)
             {
-                foreach (var p in parameters)
+                foreach (var p in _insertionOrder)
                 {
-                    p.Apply(requestBuilder);
+                    _parameters[p].Apply(requestBuilder);
+                }
+            }
+            
+            private void AddOrUpdate(Parameter param)
+            {
+                var key = param.IdentifierKey;
+
+                lock (_sync)
+                {
+                    // Only record order on first insertion
+                    if (!_parameters.ContainsKey(key))
+                    {
+                        _insertionOrder.Enqueue(key);
+                    }
+
+                    _parameters[key] = param;
                 }
             }
         }
