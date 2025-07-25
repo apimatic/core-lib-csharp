@@ -3,6 +3,7 @@
 [![Version][nuget-version]][nuget-url]
 [![Build & Tests][test-badge]][test-url]
 [![Test Coverage][coverage-badge]][coverage-url]
+[![Vulnerabilities][vulnerabilities-badge]][vulnerabilities-url]
 [![Maintainability][maintainability-badge]][maintainability-url]
 [![Licence][license-badge]][license-url]
 
@@ -44,13 +45,17 @@ This project contains core logic and the utilities for the APIMatic's C# SDK
 
 [test-url]: https://github.com/apimatic/core-lib-csharp/actions/workflows/test.yml
 
-[coverage-badge]: https://api.codeclimate.com/v1/badges/d613a5f73f605369e745/test_coverage
+[coverage-badge]: https://sonarcloud.io/api/project_badges/measure?project=apimatic_core-lib-csharp&metric=coverage
 
-[coverage-url]: https://codeclimate.com/github/apimatic/core-lib-csharp/test_coverage
+[coverage-url]: https://sonarcloud.io/summary/new_code?id=apimatic_core-lib-csharp
 
-[maintainability-badge]: https://api.codeclimate.com/v1/badges/d613a5f73f605369e745/maintainability
+[vulnerabilities-badge]: https://sonarcloud.io/api/project_badges/measure?project=apimatic_core-lib-csharp&metric=vulnerabilities
 
-[maintainability-url]: https://codeclimate.com/github/apimatic/core-lib-csharp/maintainability
+[vulnerabilities-url]: https://sonarcloud.io/summary/new_code?id=apimatic_core-lib-csharp
+
+[maintainability-badge]: https://sonarcloud.io/api/project_badges/measure?project=apimatic_core-lib-csharp&metric=sqale_rating
+
+[maintainability-url]: https://sonarcloud.io/summary/new_code?id=apimatic_core-lib-csharp
 
 [license-badge]: https://img.shields.io/badge/licence-MIT-blue
 
