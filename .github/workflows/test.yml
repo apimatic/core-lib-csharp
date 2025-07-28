@@ -36,13 +36,11 @@ jobs:
 
     - name: Test & Coverage Collection
       if: ${{ matrix.os == 'ubuntu-22.04' && matrix.dotnet == '7.0.x' }}
-      run: dotnet test APIMatic.Core.Test/APIMatic.Core.Test.csproj -p:CollectCoverage=true -p:CoverletOutputFormat=lcov
-    
-    # - name: Upload coverage report
-    #   if: ${{ matrix.os == 'ubuntu-22.04' && matrix.dotnet == '7.0.x' && github.actor != 'dependabot[bot]' }}
-    #   uses: paambaati/codeclimate-action@v3.0.0
-    #   env:
-    #     CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_KEY }}
-    #   with:
-    #     coverageLocations: |
-    #       ${{github.workspace}}/APIMatic.Core.Test/coverage.info:lcov
+      run: dotnet test APIMatic.Core.Test/APIMatic.Core.Test.csproj -p:CollectCoverage=true -p:CoverletOutputFormat=opencover
+
+    - name: SonarQube Scan
+      if: ${{ github.actor != 'dependabot[bot]' && matrix.os == 'ubuntu-22.04' && matrix.dotnet == '7.0.x' }}
+      uses: SonarSource/sonarqube-scan-action@v5.2.0
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
