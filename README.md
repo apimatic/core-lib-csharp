@@ -34,6 +34,7 @@ This project contains core logic and the utilities for the APIMatic's C# SDK
 | [`HttpLoggingConfiguration`](APIMatic.Core/Utilities/Logger/Configuration/HttpLoggingConfiguration.cs)         | Abstract class representing configuration settings for HTTP request/response logging                               |
 | [`RequestLoggingConfiguration`](APIMatic.Core/Utilities/Logger/Configuration/RequestLoggingConfiguration.cs)   | Represents the configuration settings for logging HTTP responses                                                   |
 | [`ResponseLoggingConfiguration`](APIMatic.Core/Utilities/Logger/Configuration/ResponseLoggingConfiguration.cs) | Carries the common configuration that will be applicable to all the ApiCalls                                       |
+| [`IHttpRequestData`](APIMatic.Core/Http/Abstractions/IHttpRequestData.cs) | Represents the contract for HTTP request data                                       |
 | [`ISignatureVerifier`](APIMatic.Core/Security/Abstractions/ISignatureVerifier.cs) | Defines a contract for verifying the signature of an HTTP request.                                       |
 | [`HmacSignatureVerifier`](APIMatic.Core/Security/SignatureVerifier/HmacSignatureVerifier.cs) | HMAC-based signature verifier for HTTP requests.                                       |
 
