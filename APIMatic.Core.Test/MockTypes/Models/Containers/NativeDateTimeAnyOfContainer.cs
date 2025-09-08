@@ -29,7 +29,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         public abstract T Match<T>(Func<DateTime?, T> rfc1123DateTime, Func<DateTime?, T> rfc3339DateTime);
 
         [JsonConverter(typeof(UnionTypeCaseConverter<DateTimeCase, DateTime?>), JTokenType.Date)]
-        private class DateTimeCase : NativeDateTimeAnyOfContainer, ICaseValue<DateTimeCase, DateTime?>, ICustomConverter
+        private sealed class DateTimeCase : NativeDateTimeAnyOfContainer, ICaseValue<DateTimeCase, DateTime?>, ICustomConverter
         {
             public DateTime? value;
 
@@ -61,7 +61,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         }
 
         [JsonConverter(typeof(UnionTypeCaseConverter<DateTimeCase2, DateTime?>), JTokenType.Date)]
-        private class DateTimeCase2 : NativeDateTimeAnyOfContainer, ICaseValue<DateTimeCase2, DateTime?>, ICustomConverter
+        private sealed class DateTimeCase2 : NativeDateTimeAnyOfContainer, ICaseValue<DateTimeCase2, DateTime?>, ICustomConverter
         {
             public DateTime? value;
 

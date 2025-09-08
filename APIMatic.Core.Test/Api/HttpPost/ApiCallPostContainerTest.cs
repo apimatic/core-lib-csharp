@@ -10,7 +10,7 @@ using RichardSzalay.MockHttp;
 namespace APIMatic.Core.Test.Api.HttpPost
 {
     [TestFixture]
-    internal class ApiCallPostContainerTest : ApiCallTest
+    internal sealed class ApiCallPostContainerTest : ApiCallTest
     {
         [Test]
         public void ApiCall_PostModelAsContainerData_OKResponse()

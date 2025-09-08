@@ -10,7 +10,7 @@ using NUnit.Framework;
 namespace APIMatic.Core.Test.Utilities.Date
 {
     [TestFixture]
-    internal class CoreUnixDateTimeConvertorTest
+    internal sealed class CoreUnixDateTimeConvertorTest
     {
         [Test]
         public void UnixDateTimeConverter_ReadJson()

@@ -159,14 +159,14 @@ namespace APIMatic.Core.Test.Utilities
             container.Match<VoidType>(
                 precision: value =>
                 {
-                    double[] expectedPrecision = { 0.987, 0.6987 };
+                    double[] expectedPrecision = [ 0.987, 0.6987 ];
                     CollectionAssert.AreEqual(expectedPrecision, value);
                     Console.WriteLine(string.Join(", ", value));
                     return null;
                 },
                 mString: value =>
                 {
-                    string[] expectedStringArray = { "some string array", "test" };
+                    string[] expectedStringArray = [ "some string array", "test" ];
                     CollectionAssert.AreEqual(expectedStringArray, value);
                     Console.WriteLine(string.Join(", ", value));
                     return null;
@@ -185,14 +185,14 @@ namespace APIMatic.Core.Test.Utilities
             container.Match<VoidType>(
                 precision: value =>
                 {
-                    double[] expectedPrecision = { 0.987, 0.6987 };
+                    double[] expectedPrecision = [ 0.987, 0.6987 ];
                     CollectionAssert.AreEqual(expectedPrecision, value);
                     Console.WriteLine(string.Join(", ", value));
                     return null;
                 },
                 mString: value =>
                 {
-                    string[] expectedStringArray = { "some string array", "test" };
+                    string[] expectedStringArray = [ "some string array", "test" ];
                     CollectionAssert.AreEqual(expectedStringArray, value);
                     Console.WriteLine(string.Join(", ", value));
                     return null;
@@ -211,14 +211,14 @@ namespace APIMatic.Core.Test.Utilities
             container.Match<VoidType>(
                 precision: value =>
                 {
-                    double[] expectedPrecision = { 0.987, 0.6987 };
+                    double[] expectedPrecision = [0.987, 0.6987];
                     CollectionAssert.AreEqual(expectedPrecision, value);
                     Console.WriteLine(string.Join(", ", value));
                     return null;
                 },
                 mString: value =>
                 {
-                    string[] expectedStringArray = { "some string array", "test" };
+                    string[] expectedStringArray = ["some string array", "test"];
                     CollectionAssert.AreEqual(expectedStringArray, value);
                     Console.WriteLine(string.Join(", ", value));
                     return null;
@@ -237,14 +237,14 @@ namespace APIMatic.Core.Test.Utilities
             container.Match<VoidType>(
                 precision: value =>
                 {
-                    double[] expectedPrecision = { 0.987, 0.6987 };
+                    double[] expectedPrecision = [0.987, 0.6987];
                     CollectionAssert.AreEqual(expectedPrecision, value);
                     Console.WriteLine(string.Join(", ", value));
                     return null;
                 },
                 mString: value =>
                 {
-                    string[] expectedStringArray = { "some string array", "test" };
+                    string[] expectedStringArray = ["some string array", "test"];
                     CollectionAssert.AreEqual(expectedStringArray, value);
                     Console.WriteLine(string.Join(", ", value));
                     return null;
@@ -264,14 +264,14 @@ namespace APIMatic.Core.Test.Utilities
             container.Match<VoidType>(
                 precision: value =>
                 {
-                    double[] expectedPrecision = { 0.987, 0.6987 };
+                    double[] expectedPrecision = [0.987, 0.6987];
                     CollectionAssert.AreEqual(expectedPrecision, value);
                     Console.WriteLine(string.Join(", ", value));
                     return null;
                 },
                 mString: value =>
                 {
-                    string[] expectedStringArray = { "some string array", "test" };
+                    string[] expectedStringArray = ["some string array", "test"];
                     CollectionAssert.AreEqual(expectedStringArray, value);
                     Console.WriteLine(string.Join(", ", value));
                     return null;
@@ -290,14 +290,14 @@ namespace APIMatic.Core.Test.Utilities
             container.Match<VoidType>(
                 precision: value =>
                 {
-                    double[] expectedPrecision = { 0.987, 0.6987 };
+                    double[] expectedPrecision = [0.987, 0.6987];
                     CollectionAssert.AreEqual(expectedPrecision, value);
                     Console.WriteLine(string.Join(", ", value));
                     return null;
                 },
                 mString: value =>
                 {
-                    string[] expectedStringArray = { "some string array", "test" };
+                    string[] expectedStringArray = ["some string array", "test"];
                     CollectionAssert.AreEqual(expectedStringArray, value);
                     Console.WriteLine(string.Join(", ", value));
                     return null;
@@ -572,7 +572,7 @@ namespace APIMatic.Core.Test.Utilities
                 atom: value =>
                 {
                     Atom expectedAtom = new Atom(12, 13);
-                    Atom[] expected = { expectedAtom };
+                    Atom[] expected = [expectedAtom];
                     Assert.AreEqual(expected, value);
                     Console.WriteLine(value);
                     return null;
@@ -580,7 +580,7 @@ namespace APIMatic.Core.Test.Utilities
                 orbit: value =>
                 {
                     Orbit expectedOrbit = new Orbit(12, "3");
-                    Orbit[] expected = { expectedOrbit };
+                    Orbit[] expected = [expectedOrbit];
                     Assert.AreEqual(expected, value);
                     Console.WriteLine(value);
                     return null;
@@ -590,7 +590,7 @@ namespace APIMatic.Core.Test.Utilities
                 atom: value =>
                 {
                     Atom expectedAtom = new Atom(12, 13);
-                    Atom[] expected = { expectedAtom };
+                    Atom[] expected = [expectedAtom];
                     Assert.AreEqual(expected, value);
                     Console.WriteLine(value);
                     return null;
@@ -598,7 +598,7 @@ namespace APIMatic.Core.Test.Utilities
                 orbit: value =>
                 {
                     Orbit expectedOrbit = new Orbit(12, "3");
-                    Orbit[] expected = { expectedOrbit };
+                    Orbit[] expected = [expectedOrbit];
                     Assert.AreEqual(expected, value);
                     Console.WriteLine(value);
                     return null;
@@ -608,7 +608,7 @@ namespace APIMatic.Core.Test.Utilities
                 atom: value =>
                 {
                     Atom expectedAtom = new Atom(12, 13);
-                    Atom[] expected = { expectedAtom };
+                    Atom[] expected = [expectedAtom];
                     Assert.AreEqual(expected, value);
                     Console.WriteLine(value);
                     return null;
@@ -616,7 +616,7 @@ namespace APIMatic.Core.Test.Utilities
                 orbit: value =>
                 {
                     Orbit expectedOrbit = new Orbit(12, "3");
-                    Orbit[] expected = { expectedOrbit };
+                    Orbit[] expected = [expectedOrbit];
                     Assert.AreEqual(expected, value);
                     Console.WriteLine(value);
                     return null;
@@ -626,7 +626,7 @@ namespace APIMatic.Core.Test.Utilities
                 atom: value =>
                 {
                     Atom expectedAtom = new Atom(12, 13);
-                    Atom[] expected = { expectedAtom };
+                    Atom[] expected = [expectedAtom];
                     Assert.AreEqual(expected, value);
                     Console.WriteLine(value);
                     return null;
@@ -634,7 +634,7 @@ namespace APIMatic.Core.Test.Utilities
                 orbit: value =>
                 {
                     Orbit expectedOrbit = new Orbit(12, "3");
-                    Orbit[] expected = { expectedOrbit };
+                    Orbit[] expected = [expectedOrbit];
                     Assert.AreEqual(expected, value);
                     Console.WriteLine(value);
                     return null;

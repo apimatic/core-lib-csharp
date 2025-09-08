@@ -14,7 +14,7 @@ using RichardSzalay.MockHttp;
 namespace APIMatic.Core.Test.Api.HttpPost
 {
     [TestFixture]
-    internal class ApiCallPostFileTest : ApiCallTest
+    internal sealed class ApiCallPostFileTest : ApiCallTest
     {
         [Test]
         public void ApiCall_PostFileData_OKResponse()

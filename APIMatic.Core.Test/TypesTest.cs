@@ -27,7 +27,7 @@ namespace APIMatic.Core.Test
             var file = new CoreFileStreamInfo(memStream, "test - stream.file");
             Dictionary<string, IReadOnlyCollection<string>> multipartHeaders = new(StringComparer.OrdinalIgnoreCase)
             {
-                { "myHeader", new[] { "personalHeaderValue" } }
+                { "myHeader", ["personalHeaderValue"] }
             };
             var fileContent = new MultipartFileContent(file, multipartHeaders);
             var content = fileContent.ToHttpContent("file");

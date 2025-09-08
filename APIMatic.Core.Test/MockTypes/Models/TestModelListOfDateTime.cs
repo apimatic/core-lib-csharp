@@ -6,7 +6,7 @@ using Newtonsoft.Json.Converters;
 
 namespace APIMatic.Core.Test.MockTypes.Models
 {
-    internal class TestModelListOfDateTime
+    internal sealed class TestModelListOfDateTime
     {
         [JsonConverter(typeof(CoreListConverter), typeof(IsoDateTimeConverter))]
         public List<DateTime> DateTimes { get; set; }

@@ -120,14 +120,14 @@ namespace APIMatic.Core.Test.Utilities
             container.Match<VoidType>(
                 precisionArray: value =>
                 {
-                    double[] expectedPrecision = { 0.987 };
+                    double[] expectedPrecision = [0.987];
                     CollectionAssert.AreEqual(expectedPrecision, value);
                     Console.WriteLine(string.Join(", ", value));
                     return null;
                 },
                 mStringArray: value =>
                 {
-                    string[] expectedStringArray = { "some string array" };
+                    string[] expectedStringArray = ["some string array"];
                     CollectionAssert.AreEqual(expectedStringArray, value);
                     Console.WriteLine(string.Join(", ", value));
                     return null;
@@ -136,14 +136,14 @@ namespace APIMatic.Core.Test.Utilities
             container.Match<VoidType>(
                  precisionArray: value =>
                  {
-                     double[] expectedPrecision = { 0.987 };
+                     double[] expectedPrecision = [ 0.987 ];
                      CollectionAssert.AreEqual(expectedPrecision, value);
                      Console.WriteLine(string.Join(", ", value));
                      return null;
                  },
                  mStringArray: value =>
                  {
-                     string[] expectedStringArray = { "some string array" };
+                     string[] expectedStringArray = ["some string array"];
                      CollectionAssert.AreEqual(expectedStringArray, value);
                      Console.WriteLine(string.Join(", ", value));
                      return null;
@@ -152,14 +152,14 @@ namespace APIMatic.Core.Test.Utilities
             container.Match<VoidType>(
                  precisionArray: value =>
                  {
-                     double[] expectedPrecision = { 0.987 };
+                     double[] expectedPrecision = [ 0.987 ];
                      CollectionAssert.AreEqual(expectedPrecision, value);
                      Console.WriteLine(string.Join(", ", value));
                      return null;
                  },
                  mStringArray: value =>
                  {
-                     string[] expectedStringArray = { "some string array" };
+                     string[] expectedStringArray = [ "some string array" ];
                      CollectionAssert.AreEqual(expectedStringArray, value);
                      Console.WriteLine(string.Join(", ", value));
                      return null;
@@ -168,14 +168,14 @@ namespace APIMatic.Core.Test.Utilities
             container.Match<VoidType>(
                 precisionArray: value =>
                 {
-                    double[] expectedPrecision = { 0.987 };
+                    double[] expectedPrecision = [ 0.987 ];
                     CollectionAssert.AreEqual(expectedPrecision, value);
                     Console.WriteLine(string.Join(", ", value));
                     return null;
                 },
                 mStringArray: value =>
                 {
-                    string[] expectedStringArray = { "some string array" };
+                    string[] expectedStringArray = [ "some string array" ];
                     CollectionAssert.AreEqual(expectedStringArray, value);
                     Console.WriteLine(string.Join(", ", value));
                     return null;

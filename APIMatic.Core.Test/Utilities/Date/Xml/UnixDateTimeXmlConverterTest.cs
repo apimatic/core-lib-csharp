@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace APIMatic.Core.Test.Utilities.Date.Xml
 {
     [TestFixture]
-    internal class UnixDateTimeXmlConverterTest
+    internal sealed class UnixDateTimeXmlConverterTest
     {
         [Test]
         public void UnixDateToString_WithDate()

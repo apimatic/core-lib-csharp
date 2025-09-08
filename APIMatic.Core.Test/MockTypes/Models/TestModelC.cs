@@ -3,7 +3,7 @@
 namespace APIMatic.Core.Test.MockTypes.Models
 {
     [JsogAttribute()]
-    internal class TestModelC
+    internal sealed class TestModelC
     {
         public string Name { get; set; }
     }

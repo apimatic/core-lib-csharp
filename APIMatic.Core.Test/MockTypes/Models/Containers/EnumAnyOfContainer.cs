@@ -33,7 +33,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         public abstract T Match<T>(Func<WorkingDays, T> workingDays, Func<Days, T> days, Func<MonthNumber, T> monthNumber);
 
         [JsonConverter(typeof(UnionTypeCaseConverter<WorkingDaysCase, WorkingDays>))]
-        private class WorkingDaysCase : EnumAnyOfContainer, ICaseValue<WorkingDaysCase, WorkingDays>
+        private sealed class WorkingDaysCase : EnumAnyOfContainer, ICaseValue<WorkingDaysCase, WorkingDays>
         {
             public WorkingDays value;
 
@@ -60,7 +60,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         }
 
         [JsonConverter(typeof(UnionTypeCaseConverter<DaysCase, Days>))]
-        private class DaysCase : EnumAnyOfContainer, ICaseValue<DaysCase, Days>
+        private sealed class DaysCase : EnumAnyOfContainer, ICaseValue<DaysCase, Days>
         {
             public Days value;
 
@@ -87,7 +87,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         }
 
         [JsonConverter(typeof(UnionTypeCaseConverter<MonthNumberCase, MonthNumber>))]
-        private class MonthNumberCase : EnumAnyOfContainer, ICaseValue<MonthNumberCase, MonthNumber>
+        private sealed class MonthNumberCase : EnumAnyOfContainer, ICaseValue<MonthNumberCase, MonthNumber>
         {
             public MonthNumber value;
 
