@@ -40,7 +40,7 @@ jobs:
 
     - name: SonarQube Scan
       if: ${{ github.actor != 'dependabot[bot]' && matrix.os == 'ubuntu-22.04' && matrix.dotnet == '7.0.x' }}
-      uses: SonarSource/sonarqube-scan-action@v5.2.0
+      uses: SonarSource/sonarqube-scan-action@v5.3.1
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
