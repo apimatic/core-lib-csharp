@@ -28,7 +28,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         public abstract T Match<T>(Func<double?, T> precision, Func<string, T> mString);
 
         [JsonConverter(typeof(UnionTypeCaseConverter<PrecisionCase, double?>), JTokenType.Float, JTokenType.Null)]
-        private class PrecisionCase : NativeNullableOneOfContainer, ICaseValue<PrecisionCase, double?>
+        private sealed class PrecisionCase : NativeNullableOneOfContainer, ICaseValue<PrecisionCase, double?>
         {
             public double? value;
 
@@ -54,7 +54,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         }
 
         [JsonConverter(typeof(UnionTypeCaseConverter<MStringCase, string>), JTokenType.String)]
-        private class MStringCase : NativeNullableOneOfContainer, ICaseValue<MStringCase, string>
+        private sealed class MStringCase : NativeNullableOneOfContainer, ICaseValue<MStringCase, string>
         {
             public string value;
 

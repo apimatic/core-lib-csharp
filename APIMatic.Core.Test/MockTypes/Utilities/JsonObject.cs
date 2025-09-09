@@ -35,7 +35,7 @@ namespace APIMatic.Core.Test.MockTypes.Utilities
         }
     }
 
-    internal class JsonObjectSerializer : JsonConverter<JsonObject>
+    internal sealed class JsonObjectSerializer : JsonConverter<JsonObject>
     {
         public override JsonObject ReadJson(JsonReader reader, Type objectType, JsonObject existingValue, bool hasExistingValue, JsonSerializer serializer)
         {

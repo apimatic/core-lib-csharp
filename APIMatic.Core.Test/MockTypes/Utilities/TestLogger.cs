@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace APIMatic.Core.Test.MockTypes.Utilities
 {
-    internal class TestLogger : ILogger
+    internal sealed class TestLogger : ILogger
     {
         public IList<LogEntry> LoggedMessages { get; } = new List<LogEntry>();
 
@@ -25,7 +25,7 @@ namespace APIMatic.Core.Test.MockTypes.Utilities
             LoggedMessages.Add(new LogEntry(logLevel, message));
         }
 
-        internal class LogEntry
+        internal sealed class LogEntry
         {
             public LogLevel LogLevel { get; }
             public string Message { get; }

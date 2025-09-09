@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace APIMatic.Core.Test.MockTypes.Models
 {
-    internal class TestModelB
+    internal sealed class TestModelB
     {
         [JsonConverter(typeof(CustomDateTimeConverter), "yyyy'-'MM'-'dd")]
         public DateTime TestDateTime { get; set; }

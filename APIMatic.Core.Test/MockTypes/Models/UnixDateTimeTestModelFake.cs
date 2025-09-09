@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace APIMatic.Core.Test.MockTypes.Models
 {
-    internal class UnixDateTimeTestModelFake
+    internal sealed class UnixDateTimeTestModelFake
     {
         [JsonConverter(typeof(UnixDateTimeConverter))]
         [JsonProperty("dateTime")]

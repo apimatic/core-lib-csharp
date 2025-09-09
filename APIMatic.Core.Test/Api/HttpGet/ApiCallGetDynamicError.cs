@@ -14,7 +14,7 @@ using System.Net.Http.Headers;
 namespace APIMatic.Core.Test.Api.HttpGet
 {
     [TestFixture]
-    internal class ApiCallGetDynamicError : ApiCallTest
+    internal sealed class ApiCallGetDynamicError : ApiCallTest
     {
         [Test]
         public void ApiCall_GetDynamicError_Local_501StausCode()

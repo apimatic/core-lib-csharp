@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace APIMatic.Core.Test.MockTypes.Models
 {
-    internal class ServerResponse : BaseModel
+    internal sealed class ServerResponse : BaseModel
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerResponse"/> class.
