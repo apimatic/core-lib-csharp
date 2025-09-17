@@ -134,7 +134,7 @@ public class HmacSignatureVerifierTests
         var verifier = CreateVerifier(EncodingType.Hex, signatureValueTemplate: template);
         var result = await verifier.VerifyAsync(request);
         Assert.IsFalse(result.IsSuccess);
-    }
+    } 
     
     [Test]
     public async Task TemplateDoesNotContainDigest_OnVerifyAsync_ReturnsFailure()
@@ -143,6 +143,36 @@ public class HmacSignatureVerifierTests
         const string signatureValue = $"wrongprefix-deadbeef-wrongsuffix";
         var request = CreateRequest(signatureValue);
         var verifier = CreateVerifier(EncodingType.Hex, signatureValueTemplate: template);
+        var result = await verifier.VerifyAsync(request);
+        Assert.IsFalse(result.IsSuccess);
+    }
+    
+    [Test]
+    public async Task CorrectDigestButIncorrectExpectedTemplate_OnVerifyAsync_ReturnsFailure()
+    {
+        var hmac = new System.Security.Cryptography.HMACSHA256(System.Text.Encoding.UTF8.GetBytes(SecretKey));
+        var hash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(Payload));
+        var digest = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+        // The expected template doesn't match the signature value template, though digest is correct
+        const string expectedTemplate = "sha26={digest}";
+        var signatureValue = $"sha256={digest}";
+        var request = CreateRequest(signatureValue);
+        var verifier = CreateVerifier(EncodingType.Hex, signatureValueTemplate: expectedTemplate);
+        var result = await verifier.VerifyAsync(request);
+        Assert.IsFalse(result.IsSuccess);
+    }
+    
+    [Test]
+    public async Task CorrectDigestButIncorrectSignatureValue_OnVerifyAsync_ReturnsFailure()
+    {
+        var hmac = new System.Security.Cryptography.HMACSHA256(System.Text.Encoding.UTF8.GetBytes(SecretKey));
+        var hash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(Payload));
+        var digest = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+        const string expectedTemplate = "sha256={digest}";
+        // The signature value does not match the template, though digest is correct
+        var signatureValue = $"sha25={digest}";
+        var request = CreateRequest(signatureValue);
+        var verifier = CreateVerifier(EncodingType.Hex, signatureValueTemplate: expectedTemplate);
         var result = await verifier.VerifyAsync(request);
         Assert.IsFalse(result.IsSuccess);
     }

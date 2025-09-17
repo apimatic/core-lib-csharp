@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,11 +23,6 @@ namespace APIMatic.Core.Security.SignatureVerifier
         private readonly string _signatureHeader;
 
         /// <summary>
-        /// HMAC algorithm used for signature generation (default: HMACSHA256).
-        /// </summary>
-        private readonly HMAC _signatureAlgorithm;
-
-        /// <summary>
         /// Optional template for the expected signature value, where `{digest}` is replaced
         /// by the encoded digest. If omitted, the expected signature is the encoded digest itself.
         /// </summary>
@@ -38,6 +32,16 @@ namespace APIMatic.Core.Security.SignatureVerifier
         /// Resolves the request data into a byte array for signature computation.
         /// </summary>
         private readonly Func<IHttpRequestData, CancellationToken, Task<byte[]>> _requestSignatureTemplateResolverAsync;
+
+        /// <summary>
+        /// The HMAC algorithm used for signature computation.
+        /// </summary>
+        private readonly HmacAlgorithm _signatureAlgorithm;
+
+        /// <summary>
+        /// The secret key, encoded as a byte array, used for HMAC operations.
+        /// </summary>
+        private readonly byte[] _encodedSecretKey;
 
         /// <summary>
         /// Codec used for encoding and decoding digests based on the specified encoding type.
@@ -50,7 +54,7 @@ namespace APIMatic.Core.Security.SignatureVerifier
         /// <param name="secretKey">The secret key for HMAC computation.</param>
         /// <param name="signatureHeader">The name of the header containing the signature.</param>
         /// <param name="requestSignatureTemplateResolverAsync">Optional custom resolver for extracting data to sign.</param>
-        /// <param name="hashAlgFactory">Optional HMAC algorithm factory.</param>
+        /// <param name="hashAlgorithm">Optional HMAC algorithm.</param>
         /// <param name="digestEncoding">The encoding type for the signature.</param>
         /// <param name="signatureValueTemplate">Template for signature format.</param>
         public HmacSignatureVerifier(
@@ -58,7 +62,7 @@ namespace APIMatic.Core.Security.SignatureVerifier
             string signatureHeader,
             EncodingType digestEncoding,
             Func<IHttpRequestData, CancellationToken, Task<byte[]>> requestSignatureTemplateResolverAsync = null,
-            HMAC hashAlgFactory = null,
+            HmacAlgorithm hashAlgorithm = HmacAlgorithm.Sha256,
             string signatureValueTemplate = "{digest}")
         {
             if (string.IsNullOrWhiteSpace(secretKey))
@@ -67,17 +71,15 @@ namespace APIMatic.Core.Security.SignatureVerifier
             if (string.IsNullOrWhiteSpace(signatureHeader))
                 throw new ArgumentNullException(nameof(signatureHeader), "Signature header cannot be null or Empty.");
 
-            var secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
-
+            _encodedSecretKey = Encoding.UTF8.GetBytes(secretKey);
             _signatureHeader = signatureHeader;
-            _signatureAlgorithm = hashAlgFactory ?? new HMACSHA256(secretKeyBytes);
-
-            // Create encoder and decoder using factory
+            _signatureAlgorithm = hashAlgorithm;
             _digestCodec = DigestCodecFactory.Create(digestEncoding);
-
             _signatureValueTemplate = signatureValueTemplate;
-            _requestSignatureTemplateResolverAsync = requestSignatureTemplateResolverAsync ?? (async (request, cancellationToken) =>
-                await request.ReadBodyStreamToByteArrayAsync(cancellationToken).ConfigureAwait(false));
+            _requestSignatureTemplateResolverAsync = requestSignatureTemplateResolverAsync ??
+                                                     (async (request, cancellationToken) =>
+                                                         await request.ReadBodyStreamToByteArrayAsync(cancellationToken)
+                                                             .ConfigureAwait(false));
         }
 
         /// <summary>
@@ -105,13 +107,17 @@ namespace APIMatic.Core.Security.SignatureVerifier
                 return VerificationResult.Failure(new[] { $"Malformed signature header '{_signatureHeader}' value." });
             }
 
-            var resolvedTemplateBytes = await _requestSignatureTemplateResolverAsync.Invoke(request, cancellationToken).ConfigureAwait(false);
-            
-            var computedHash = _signatureAlgorithm.ComputeHash(resolvedTemplateBytes);
+            var resolvedTemplateBytes = await _requestSignatureTemplateResolverAsync.Invoke(request, cancellationToken)
+                .ConfigureAwait(false);
 
-            return providedSignature.ConstantTimeEquals(computedHash)
-                ? VerificationResult.Success()
-                : VerificationResult.Failure(new[] { "Signature verification failed." });
+            using (var hmac = HmacFactory.Create(_signatureAlgorithm, _encodedSecretKey))
+            {
+                var computedHash = hmac.ComputeHash(resolvedTemplateBytes);
+
+                return providedSignature.ConstantTimeEquals(computedHash)
+                    ? VerificationResult.Success()
+                    : VerificationResult.Failure(new[] { "Signature verification failed." });
+            }
         }
 
         /// <summary>
