@@ -82,19 +82,3 @@ jobs:
         run: |
           SUFFIX="${{ github.event.inputs.PrereleaseSuffix }}"
           dotnet nuget push ./APIMatic.Core/bin/release/APIMatic.Core.${{ github.event.inputs.Version }}-prelease-$SUFFIX.nupkg -k ${{ secrets.NUGET_API_KEY }} -s nuget.org
-
-      - name: Create Tag
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v6.0
-        with:
-          github_token: ${{ secrets.TAGS_TOKEN }}
-          custom_tag: ${{ github.event.inputs.Version }}-prelease${{ github.event.inputs.PrereleaseSuffix && format('-{0}', github.event.inputs.PrereleaseSuffix) || '' }}
-          tag_prefix: ""
-
-      - name: Create Release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: ${{ steps.tag_version.outputs.new_tag }}
-          name: Prerelease Version ${{ github.event.inputs.Version }}-prelease${{ github.event.inputs.PrereleaseSuffix && format('-{0}', github.event.inputs.PrereleaseSuffix) || '' }}
-          body: ${{ steps.tag_version.outputs.changelog }}
-
