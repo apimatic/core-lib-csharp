@@ -33,7 +33,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         public abstract T Match<T>(Func<Atom, T> atom, Func<Helium, T> helium);
 
         [JsonConverter(typeof(UnionTypeCaseConverter<AtomCase, Atom>))]
-        private class AtomCase : CustomOneOfWithDiscContainer, ICaseValue<AtomCase, Atom>
+        private sealed class AtomCase : CustomOneOfWithDiscContainer, ICaseValue<AtomCase, Atom>
         {
             public Atom value;
 
@@ -60,7 +60,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         }
 
         [JsonConverter(typeof(UnionTypeCaseConverter<HeliumCase, Helium>))]
-        private class HeliumCase : CustomOneOfWithDiscContainer, ICaseValue<HeliumCase, Helium>
+        private sealed class HeliumCase : CustomOneOfWithDiscContainer, ICaseValue<HeliumCase, Helium>
         {
             public Helium value;
 

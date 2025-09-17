@@ -27,7 +27,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         public abstract T Match<T>(Func<Atom, T> atom, Func<NativeOneOfContainer, T> nestedOneOf);
 
         [JsonConverter(typeof(UnionTypeCaseConverter<AtomCase, Atom>))]
-        private class AtomCase : CustomNestedOneOfContainer, ICaseValue<AtomCase, Atom>
+        private sealed class AtomCase : CustomNestedOneOfContainer, ICaseValue<AtomCase, Atom>
         {
             public Atom value;
 
@@ -54,7 +54,7 @@ namespace APIMatic.Core.Test.MockTypes.Models.Containers
         }
 
         [JsonConverter(typeof(UnionTypeCaseConverter<OrbitCase, NativeOneOfContainer>))]
-        private class OrbitCase : CustomNestedOneOfContainer, ICaseValue<OrbitCase, NativeOneOfContainer>
+        private sealed class OrbitCase : CustomNestedOneOfContainer, ICaseValue<OrbitCase, NativeOneOfContainer>
         {
             public NativeOneOfContainer value;
 

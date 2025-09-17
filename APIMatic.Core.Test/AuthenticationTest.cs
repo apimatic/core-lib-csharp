@@ -139,17 +139,19 @@ namespace APIMatic.Core.Test
                 "-> Missing required header field: TOKEN", exp.Message);
         }
 
-        [Test]
-        public void Multiple_Authentication_AND_All_Missing_Validation_Failure()
-        {
-            var expectedLines = new[]
-            {
-                "Following authentication credentials are required:",
+        private static readonly string[] sourceArray =
+        [
+            "Following authentication credentials are required:",
                 "-> Missing required query field: API-KEY",
                 "-> Missing required query field: TOKEN",
                 "-> Missing required header field: API-KEY",
                 "-> Missing required header field: TOKEN"
-            }.OrderBy(line => line);
+        ];
+
+        [Test]
+        public void Multiple_Authentication_AND_All_Missing_Validation_Failure()
+        {
+            var expectedLines = sourceArray.OrderBy(line => line);
             
             var globalConfiguration = new GlobalConfiguration.Builder()
                 .ServerUrls(new Dictionary<Enum, string>

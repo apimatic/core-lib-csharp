@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace APIMatic.Core.Test.Utilities
 {
     [TestFixture]
-    internal class XmlUtilityTest
+    internal sealed class XmlUtilityTest
     {
         [Test]
         public void ToXml_NullObject()
@@ -21,13 +21,10 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void ModelsArrayToXml_WithoutArrayName()
         {
-            List<TestModel> testModels = new List<TestModel>()
-            {
-                new TestModel()
-                {
-                    Integers = new int[] { 1, 2, 3 }
-                }
-            };
+            List<TestModel> testModels =
+            [
+                new TestModel() { Integers = [1, 2, 3] }
+            ];
 
             string expected = "<ArrayOfTestModel xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n  <TestModel>\n    <TestDateTime>0001-01-01T00:00:00</TestDateTime>\n    <Integers>\n      <int>1</int>\n      <int>2</int>\n      <int>3</int>\n    </Integers>\n  </TestModel>\n</ArrayOfTestModel>";
             string actual = StringReplacer.ReplaceBackSlashR(XmlUtility.ModelsArrayToXml(testModels));
@@ -37,13 +34,10 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void ModelsArrayToXml_WithArrayItemName()
         {
-            List<TestModel> testModels = new List<TestModel>()
-            {
-                new TestModel()
-                {
-                    Integers = new int[] { 1, 2, 3 }
-                }
-            };
+            List<TestModel> testModels =
+            [
+                new TestModel() { Integers = [1, 2, 3] }
+            ];
 
             string expected = "<TestModel xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n  <TestDateTime>0001-01-01T00:00:00</TestDateTime>\n  <Integers>\n    <int>1</int>\n    <int>2</int>\n    <int>3</int>\n  </Integers>\n</TestModel>";
             string actual = StringReplacer.ReplaceBackSlashR(XmlUtility.ModelsArrayToXml(testModels, arrayItemName: "TestModel"));
@@ -62,13 +56,10 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void ModelsArrayToXml_WithArrayName()
         {
-            List<TestModel> testModels = new List<TestModel>()
-            {
-                new TestModel()
-                {
-                    Integers = new int[] { 1, 2, 3 }
-                }
-            };
+            List<TestModel> testModels =
+            [
+                new TestModel() { Integers = [1, 2, 3] }
+            ];
 
             string expected = "<abd>\n  <xyz xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n    <TestDateTime>0001-01-01T00:00:00</TestDateTime>\n    <Integers>\n      <int>1</int>\n      <int>2</int>\n      <int>3</int>\n    </Integers>\n  </xyz>\n</abd>";
             string actual = StringReplacer.ReplaceBackSlashR(XmlUtility.ModelsArrayToXml(testModels, arrayName: "abd", arrayItemName: "xyz"));
@@ -78,10 +69,7 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void NativeTypesArrayFromXml_WithArrayName()
         {
-            List<string> expected = new List<string>()
-            {
-                "alpha", "beta", "gamma"
-            };
+            List<string> expected = ["alpha", "beta", "gamma"];
 
             string nativeObjectString = "<root>\r\n  <String>alpha</String>\r\n  <String>beta</String>\r\n  <String>gamma</String>\r\n</root>";
             List<string> actual = XmlUtility.NativeTypesArrayFromXml<string>(nativeObjectString);
@@ -99,10 +87,7 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void NativeTypesArrayToXml_WithArrayName()
         {
-            List<string> testModels = new List<string>()
-            {
-                "alpha", "beta", "gamma"
-            };
+            List<string> testModels = ["alpha", "beta", "gamma"];
 
             string expected = "<root>\n  <String>alpha</String>\n  <String>beta</String>\n  <String>gamma</String>\n</root>";
             string actual = XmlUtility.NativeTypesArrayToXml(testModels, arrayName: "root");
@@ -112,10 +97,7 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void NativeTypesArrayToXml_WithoutArrayName()
         {
-            List<string> testModels = new List<string>()
-            {
-                "alpha", "beta", "gamma"
-            };
+            List<string> testModels = ["alpha", "beta", "gamma"];
 
             string expected = "<String>\n  <String>alpha</String>\n  <String>beta</String>\n  <String>gamma</String>\n</String>";
             string actual = StringReplacer.ReplaceBackSlashR(XmlUtility.NativeTypesArrayToXml(testModels));
@@ -142,10 +124,7 @@ namespace APIMatic.Core.Test.Utilities
         [Test]
         public void FromXml_ValidInput()
         {
-            List<string> expected = new List<string>()
-            {
-                "alpha", "beta", "gamma"
-            };
+            List<string> expected = ["alpha", "beta", "gamma"];
 
             string local = XmlUtility.ToXml(expected, rootName: "root");
             var actual = XmlUtility.FromXml<List<string>>(local, rootName: "root");

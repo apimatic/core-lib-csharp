@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace APIMatic.Core.Test.Utilities.Date
 {
     [TestFixture]
-    internal class CoreListDateTimeConverterTest
+    internal sealed class CoreListDateTimeConverterTest
     {
         [Test]
         public void SerializeListOfDateTime()

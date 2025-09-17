@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace APIMatic.Core.Test.Utilities.Date.Xml
 {
     [TestFixture]
-    internal class Rfc3339DateTimeXmlUtilityTest
+    internal sealed class Rfc3339DateTimeXmlUtilityTest
     {
         [Test]
         public void StringToRfc3339Date_WithEmptyString()

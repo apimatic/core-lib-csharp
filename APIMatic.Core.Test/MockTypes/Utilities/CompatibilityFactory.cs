@@ -10,7 +10,7 @@ using APIMatic.Core.Utilities;
 
 namespace APIMatic.Core.Test.MockTypes.Utilities
 {
-    internal class CompatibilityFactory : ICompatibilityFactory<HttpRequest, HttpResponse, HttpContext, ApiException>
+    internal sealed class CompatibilityFactory : ICompatibilityFactory<HttpRequest, HttpResponse, HttpContext, ApiException>
     {
         public ApiException CreateApiException(string reason, CoreContext<CoreRequest, CoreResponse> context) =>
             new(reason, CreateHttpContext(context.Request, context.Response));

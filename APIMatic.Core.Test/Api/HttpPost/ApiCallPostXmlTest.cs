@@ -9,7 +9,7 @@ using RichardSzalay.MockHttp;
 namespace APIMatic.Core.Test.Api.HttpPost
 {
     [TestFixture]
-    internal class ApiCallPostXmlTest : ApiCallTest
+    internal sealed class ApiCallPostXmlTest : ApiCallTest
     {
         [Test]
         public void ApiCall_PostXmlLong_OKResponse()

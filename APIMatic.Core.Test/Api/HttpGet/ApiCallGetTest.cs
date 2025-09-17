@@ -679,7 +679,7 @@ namespace APIMatic.Core.Test.Api.HttpGet
 
             // Act and Assert
             var exp = Assert.Throws<FormatException>(() => CoreHelper.RunTask(apiCall));
-            Assert.AreEqual("Input string was not in a correct format.", exp.Message);
+            Assert.AreEqual("The input string '' was not in a correct format.", exp.Message);
         }
 
         [Test]
