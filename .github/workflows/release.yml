@@ -1,13 +1,16 @@
 name: Release To NuGet
 run-name: Publishing Package Version ${{ github.event.inputs.Version }}
-on:
   workflow_dispatch:
     inputs:
       Version:
         description: "This input field requires version in format: x.y.z, where x => major version, y => minor version and z => patch version"
         required: true
+      PrereleaseSuffix:
+        description: "Optional prerelease suffix (e.g. dev1, dev2, dev3). Leave blank for none."
+        required: false
 jobs:
   create-release:
+    if: github.ref == 'refs/heads/main'
     name: Creating release version ${{ github.event.inputs.Version }}
     runs-on: ubuntu-22.04
     environment: Production
@@ -48,3 +51,49 @@ jobs:
             slack-message: "core-lib-csharp release has been triggered!"
         env:
             SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+  prerelease:
+    if: github.ref != 'refs/heads/main'
+    name: Creating prerelease version ${{ github.event.inputs.Version }}-prelease${{ github.event.inputs.PrereleaseSuffix && format('-{0}', github.event.inputs.PrereleaseSuffix) || '' }}
+    runs-on: ubuntu-22.04
+    environment: Production
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.0.x
+
+      - name: Check Prerelease Suffix
+        run: |
+          if [ -z "${{ github.event.inputs.PrereleaseSuffix }}" ]; then
+            echo "Error: PrereleaseSuffix is required for prerelease job."
+            exit 1
+          fi
+
+      - name: Pack as NuPkg
+        run: |
+          SUFFIX="${{ github.event.inputs.PrereleaseSuffix }}"
+          dotnet pack ./APIMatic.Core/APIMatic.Core.csproj -c release -p:PackageVersion=${{ github.event.inputs.Version }}-prelease-$SUFFIX
+
+      - name: Push To NuGet
+        run: |
+          SUFFIX="${{ github.event.inputs.PrereleaseSuffix }}"
+          dotnet nuget push ./APIMatic.Core/bin/release/APIMatic.Core.${{ github.event.inputs.Version }}-prelease-$SUFFIX.nupkg -k ${{ secrets.NUGET_API_KEY }} -s nuget.org
+
+      - name: Create Tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.0
+        with:
+          github_token: ${{ secrets.TAGS_TOKEN }}
+          custom_tag: ${{ github.event.inputs.Version }}-prelease${{ github.event.inputs.PrereleaseSuffix && format('-{0}', github.event.inputs.PrereleaseSuffix) || '' }}
+          tag_prefix: ""
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Prerelease Version ${{ github.event.inputs.Version }}-prelease${{ github.event.inputs.PrereleaseSuffix && format('-{0}', github.event.inputs.PrereleaseSuffix) || '' }}
+          body: ${{ steps.tag_version.outputs.changelog }}
+
