@@ -1,5 +1,6 @@
 name: Release To NuGet
 run-name: Publishing Package Version ${{ github.event.inputs.Version }}
+on:
   workflow_dispatch:
     inputs:
       Version:
