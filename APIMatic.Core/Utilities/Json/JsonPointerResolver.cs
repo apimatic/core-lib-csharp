@@ -4,9 +4,9 @@ using Newtonsoft.Json.Linq;
 
 namespace APIMatic.Core.Utilities.Json
 {
-    internal static class JsonPointerResolver
+    public static class JsonPointerResolver
     {
-        public static string ResolveScopedJsonValue(string pointerString, string jsonBody, string jsonHeaders)
+        internal static string ResolveScopedJsonValue(string pointerString, string jsonBody, string jsonHeaders)
         {
             if (string.IsNullOrEmpty(pointerString) || !pointerString.Contains('#'))
                 return null;
@@ -26,6 +26,15 @@ namespace APIMatic.Core.Utilities.Json
                 default:
                     return null;
             }
+        }
+
+        public static string ResolveJsonValue(string pointerString, string json)
+        {
+            if (string.IsNullOrEmpty(pointerString) || !pointerString.Contains('#'))
+                return null;
+            var path = pointerString.Split('#')[1];
+            var jsonPointer = new JsonPointer(path);
+            return ExtractValueByPointer(jsonPointer, json);
         }
         
         private static string ExtractValueByPointer(JsonPointer jsonPointer, string json)

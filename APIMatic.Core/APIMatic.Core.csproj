@@ -49,5 +49,8 @@
     <ItemGroup>
         <InternalsVisibleTo Include="APIMatic.Core.Test" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Http\Abstractions\" />
+    </ItemGroup>
 
 </Project>
