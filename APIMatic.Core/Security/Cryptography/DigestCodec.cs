@@ -4,17 +4,24 @@ using APIMatic.Core.Types;
 namespace APIMatic.Core.Security.Cryptography
 {
     /// <summary>
-    /// Factory class for creating digest codecs based on encoding type.
+    /// Abstract class for encoding and decoding digest values.
     /// </summary>
-    public static class DigestCodecFactory
+    internal abstract class DigestCodec
     {
+        /// <summary>
+        /// Decodes a string representation back into a byte array.
+        /// </summary>
+        /// <param name="encoded">The encoded string to decode.</param>
+        /// <returns>The decoded byte array.</returns>
+        public abstract byte[] Decode(string encoded);
+        
         /// <summary>
         /// Creates a digest codec for the specified encoding type.
         /// </summary>
         /// <param name="encodingType">The encoding type to use.</param>
         /// <returns>A digest codec instance.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when an unsupported encoding type is specified.</exception>
-        public static IDigestCodec Create(EncodingType encodingType)
+        public static DigestCodec Create(EncodingType encodingType)
         {
             return encodingType switch
             {

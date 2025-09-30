@@ -46,7 +46,7 @@ namespace APIMatic.Core.Security.SignatureVerifier
         /// <summary>
         /// Codec used for encoding and decoding digests based on the specified encoding type.
         /// </summary>
-        private readonly IDigestCodec _digestCodec;
+        private readonly DigestCodec _digestCodec;
         
         private const string DigestPlaceHolder = "{digest}";
 
@@ -76,7 +76,7 @@ namespace APIMatic.Core.Security.SignatureVerifier
             _encodedSecretKey = Encoding.UTF8.GetBytes(secretKey);
             _signatureHeader = signatureHeader;
             _signatureAlgorithm = hashAlgorithm;
-            _digestCodec = DigestCodecFactory.Create(digestEncoding);
+            _digestCodec = DigestCodec.Create(digestEncoding);
             _signatureValueTemplate = signatureValueTemplate;
             _requestSignatureTemplateResolverAsync = requestSignatureTemplateResolverAsync ??
                                                      (async (request, cancellationToken) =>

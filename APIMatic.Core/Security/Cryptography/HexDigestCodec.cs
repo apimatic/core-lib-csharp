@@ -6,7 +6,7 @@ namespace APIMatic.Core.Security.Cryptography
     /// <summary>
     /// HexDigestCodec digest codec implementation.
     /// </summary>
-    public class HexDigestCodec : IDigestCodec
+    internal class HexDigestCodec : DigestCodec
     {
         /// <summary> 
         /// Decodes a hexadecimal string back into a byte array.
@@ -15,7 +15,7 @@ namespace APIMatic.Core.Security.Cryptography
         /// <returns>The decoded byte array.</returns>
         /// <exception cref="ArgumentException">Thrown when the input is null, empty, or has invalid length.</exception>
         /// <exception cref="FormatException">Thrown when the input is not a valid hexadecimal string.</exception>
-        public byte[] Decode(string encoded)
+        public override byte[] Decode(string encoded)
         {
             if (string.IsNullOrEmpty(encoded))
                 throw new ArgumentException("Input cannot be null or empty", nameof(encoded));
