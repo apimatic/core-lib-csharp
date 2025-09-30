@@ -20,7 +20,6 @@ namespace APIMatic.Core.Test.Security.Cryptography
         
         [TestCase(EncodingType.Hex, "")]
         [TestCase(EncodingType.Hex, null)]
-        [TestCase(EncodingType.Hex, "ABC")]
         [TestCase(EncodingType.Base64, "")]
         [TestCase(EncodingType.Base64, null)]
         [TestCase(EncodingType.Base64Url, "")]
@@ -31,11 +30,18 @@ namespace APIMatic.Core.Test.Security.Cryptography
             Assert.Throws<ArgumentException>(() => codec.Decode(input));
         }
         
+        [TestCase(EncodingType.Hex, "ABC")]
+        public void DigestCodecIncorrectFormat_Decode_DigestCodec_Create_Exception(EncodingType encodingType, string input)
+        {
+            var codec = DigestCodecFactory.Create(encodingType);
+            Assert.Throws<FormatException>(() => codec.Decode(input));
+        }
+        
         [TestCase(-1)]
         public void DigestCodec_Create_Exception(int invalidValue)
         {
             var encodingType = (EncodingType)invalidValue;
-            Assert.Throws<ArgumentOutOfRangeException>(() => DigestCodecFactory.Create(encodingType));
+            Assert.Throws<NotSupportedException>(() => DigestCodecFactory.Create(encodingType));
         }
     }
 }

@@ -15,7 +15,7 @@ namespace APIMatic.Core.Test.Security.SignatureVerifier
         [TestCase(new byte[] { 1, 2, 3, 4 }, new byte[] { 1, 2, 3, 5 }, false)]
         public void ConstantTimeEquals_VariousInputs_ReturnsExpected(byte[] a, byte[] b, bool expected)
         {
-            Assert.AreEqual(expected, a.ConstantTimeEquals(b));
+            Assert.AreEqual(expected, SignatureVerifierExtensions.FixedTimeEquals(a, b));
         }
     }
 }

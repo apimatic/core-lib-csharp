@@ -47,6 +47,8 @@ namespace APIMatic.Core.Security.SignatureVerifier
         /// Codec used for encoding and decoding digests based on the specified encoding type.
         /// </summary>
         private readonly IDigestCodec _digestCodec;
+        
+        private const string DigestPlaceHolder = "{digest}";
 
         /// <summary>
         /// Initializes a new instance of the HmacSignatureVerifier class.
@@ -81,7 +83,7 @@ namespace APIMatic.Core.Security.SignatureVerifier
                                                          await request.ReadBodyStreamToByteArrayAsync(cancellationToken)
                                                              .ConfigureAwait(false));
         }
-
+        
         /// <summary>
         /// Verifies the HMAC signature of the specified HTTP request.
         /// </summary>
@@ -114,7 +116,7 @@ namespace APIMatic.Core.Security.SignatureVerifier
             {
                 var computedHash = hmac.ComputeHash(resolvedTemplateBytes);
 
-                return providedSignature.ConstantTimeEquals(computedHash)
+                return SignatureVerifierExtensions.FixedTimeEquals(computedHash, providedSignature)
                     ? VerificationResult.Success()
                     : VerificationResult.Failure(new[] { "Signature verification failed." });
             }
@@ -132,16 +134,16 @@ namespace APIMatic.Core.Security.SignatureVerifier
                 return string.Empty;
 
             // If template is just "{digest}", return the signature as-is
-            if (signatureValueTemplate == "{digest}")
+            if (signatureValueTemplate == DigestPlaceHolder)
                 return signatureValue;
 
             // Extract digest from template
-            var digestIndex = signatureValueTemplate.IndexOf("{digest}", StringComparison.Ordinal);
+            var digestIndex = signatureValueTemplate.IndexOf(DigestPlaceHolder, StringComparison.Ordinal);
             if (digestIndex == -1)
                 return string.Empty;
 
             var prefix = signatureValueTemplate[..digestIndex];
-            var suffix = signatureValueTemplate[(digestIndex + 8)..];
+            var suffix = signatureValueTemplate[(digestIndex + DigestPlaceHolder.Length)..];
 
             if (!signatureValue.StartsWith(prefix) || !signatureValue.EndsWith(suffix))
                 return string.Empty;

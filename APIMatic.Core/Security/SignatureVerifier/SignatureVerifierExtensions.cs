@@ -1,3 +1,6 @@
+using System;
+using System.Runtime.CompilerServices;
+
 namespace APIMatic.Core.Security.SignatureVerifier
 {
     internal static class SignatureVerifierExtensions
@@ -5,27 +8,34 @@ namespace APIMatic.Core.Security.SignatureVerifier
         /// <summary>
         /// Performs a secure comparison of two byte arrays to prevent timing attacks.
         /// </summary>
-        /// <param name="a">First byte array.</param>
-        /// <param name="b">Second byte array.</param>
+        /// <param name="left">First byte array.</param>
+        /// <param name="right">Second byte array.</param>
         /// <returns>True if arrays are equal, false otherwise.</returns>
-        public static bool ConstantTimeEquals(this byte[] a, byte[] b)
+        /// <remarks>
+        /// This implementation is copied from CryptographicOperations in System.Security.Cryptography
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        public static bool FixedTimeEquals(ReadOnlySpan<byte> left, ReadOnlySpan<byte> right)
         {
-            if (a == null && b == null)
-                return true;
-
-            if (a == null || b == null)
-                return false;
-
-            if (a.Length != b.Length)
-                return false;
-
-            var result = 0;
-            for (int i = 0; i < a.Length; i++)
+            // NoOptimization because we want this method to be exactly as non-short-circuiting
+            // as written.
+            //
+            // NoInlining because the NoOptimization would get lost if the method got inlined.
+ 
+            if (left.Length != right.Length)
             {
-                result |= a[i] ^ b[i];
+                return false;
             }
-
-            return result == 0;
+ 
+            int length = left.Length;
+            int accum = 0;
+ 
+            for (int i = 0; i < length; i++)
+            {
+                accum |= left[i] - right[i];
+            }
+ 
+            return accum == 0;
         }
     }
 }

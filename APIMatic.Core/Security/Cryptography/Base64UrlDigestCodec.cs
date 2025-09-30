@@ -12,6 +12,7 @@ namespace APIMatic.Core.Security.Cryptography
         /// </summary>
         /// <param name="encoded">The Base64Url string to decode.</param>
         /// <returns>The decoded byte array.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the input is null.</exception>
         /// <exception cref="FormatException">Thrown when the input is not a valid Base64Url string.</exception>
         public byte[] Decode(string encoded)
         {

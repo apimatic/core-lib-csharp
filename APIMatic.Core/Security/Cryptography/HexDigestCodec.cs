@@ -4,7 +4,7 @@ using System.Text;
 namespace APIMatic.Core.Security.Cryptography
 {
     /// <summary>
-    /// encodedadecimal digest codec implementation.
+    /// HexDigestCodec digest codec implementation.
     /// </summary>
     public class HexDigestCodec : IDigestCodec
     {
@@ -25,7 +25,7 @@ namespace APIMatic.Core.Security.Cryptography
 
             // Hex string must have even length
             if (encoded.Length % 2 != 0)
-                throw new ArgumentException("Hexadecimal string must have even length", nameof(encoded));
+                throw new FormatException("Hexadecimal string must have even length");
 
             byte[] bytes = new byte[encoded.Length / 2];
             
