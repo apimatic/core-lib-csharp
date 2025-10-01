@@ -81,5 +81,18 @@ namespace APIMatic.Core.Test.Utilities.Json
 
             Assert.AreEqual("True", result);
         }
+        
+        [TestCase("#/name", "{\"name\":\"John\",\"age\":30}", "John")]
+        [TestCase("#/invalid", "{\"name\":\"John\"}", null)]
+        [TestCase(null, "{\"name\":\"John\"}", null)]
+        [TestCase("", "{\"name\":\"John\"}", null)]
+        [TestCase("/name", "{\"name\":\"John\"}", null)]
+        [TestCase("#/age", "{\"age\":30}", "30")]
+        [TestCase("#/name", null, null)]
+        public void ResolveJsonValue_VariousCases_ReturnsExpected(string jsonPointer, string json, string expected)
+        {
+            var result = JsonPointerResolver.ResolveJsonValue(jsonPointer, json);
+            Assert.AreEqual(expected, result);
+        }
     }
 }
