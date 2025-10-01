@@ -262,7 +262,7 @@ namespace APIMatic.Core.Utilities
             var valueType = value?.GetType();
             if (valueType?.Namespace?.EndsWith(".Containers") == true)
             {
-                innerValue = valueType.GetFields()[0].GetValue(value);
+                innerValue = valueType?.GetFields()[0].GetValue(value);
                 return true;
             }
             innerValue = null;
