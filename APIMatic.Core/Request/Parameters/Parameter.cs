@@ -22,7 +22,7 @@ namespace APIMatic.Core.Request.Parameters
         
         private string GetName() => key == "" ? typeName : key;
 
-        private string IdentifierKey => string.IsNullOrEmpty(key) ? $"_{nameof(Parameter)}_{Guid.NewGuid()}" : key;
+        private string IdentifierKey => string.IsNullOrEmpty(key) ? $"_{typeName}_{Guid.NewGuid()}" : $"_{typeName}_{key}";
 
         public Parameter Setup(string key, object value)
         {

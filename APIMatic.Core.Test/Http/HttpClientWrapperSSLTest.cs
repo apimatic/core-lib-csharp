@@ -65,7 +65,7 @@ namespace APIMatic.Core.Test.Http
             // Act
             var actual = await client.ExecuteAsync(request);
 
-            Assert.AreEqual(actual.StatusCode, (int)HttpStatusCode.OK);
+            Assert.AreEqual((int)HttpStatusCode.OK, actual.StatusCode);
         }
     }
 }
